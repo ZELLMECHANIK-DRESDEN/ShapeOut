@@ -239,7 +239,7 @@ class ExplorerPanel(ScrolledPanel):
         # define column lengths
         col_width = 10
         
-        for i in range(self.htreectrl.GetColumnCount()):
+        for _i in range(self.htreectrl.GetColumnCount()):
             self.htreectrl.RemoveColumn(0)
             
         self.htreectrl.AddColumn(cols[0])
@@ -253,9 +253,9 @@ class ExplorerPanel(ScrolledPanel):
                                              ct_type=1,
                                              data=project[0][1])
             for k in range(1,len(project)):
-                child = self.htreectrl.AppendItem(root, project[k][0],
-                                                  ct_type=1,
-                                                  data=project[k][1])
+                self.htreectrl.AppendItem(root, project[k][0],
+                                          ct_type=1,
+                                          data=project[k][1])
                 # displayed column width
                 col_width = max(len(project[k][0]), col_width)
         #for i in range(1,len(collengths)):
@@ -273,7 +273,7 @@ class ExplorerPanel(ScrolledPanel):
 
         # Set size in htree control
         self.htreectrl.SetColumnWidth(0, self.col_width)
-                                      #col_width*self.s_mult+self.s_off)
+        #                              col_width*self.s_mult+self.s_off)
         self.htreectrl.ExpandAll()
         self.BoldifyData(bold)
         self.CheckData(checked)

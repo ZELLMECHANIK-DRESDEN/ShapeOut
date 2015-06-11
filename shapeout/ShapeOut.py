@@ -48,7 +48,7 @@ def main():
     splash.start()
 
     # first initialize the app to prevent errors in Windows,
-	# which is checking some wx runtime variables beforehand.
+    # which is checking some wx runtime variables beforehand.
 
     app = wx.App(False)
 
@@ -59,7 +59,6 @@ def main():
     # python mki18n.py -m
     import gettext
     import platform
-    import sys
     import warnings
     
     import frontend
@@ -106,7 +105,6 @@ def main():
     
     # get session file
     sessionfile = None
-    sysarg = sys.argv
     for arg in sys.argv:
         if arg.endswith(".zmso"):
             print("\nLoading Session "+arg)
@@ -129,7 +127,7 @@ def splash_show():
     img.ConvertAlphaToMask()
     bitmap = wx.BitmapFromImage(img)
     frame = wx.Frame(None, -1, "AdvancedSplash Test")
-    splash = AS.AdvancedSplash(frame, bitmap=bitmap, 
+    AS.AdvancedSplash(frame, bitmap=bitmap, 
                 agwStyle=AS.AS_NOTIMEOUT|AS.AS_CENTER_ON_SCREEN)
     app.MainLoop()
 

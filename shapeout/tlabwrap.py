@@ -4,16 +4,12 @@
 
 """
 
-import codecs
-import os
-import sys
-
 # Chaco imports
 import chaco.api as ca
 import chaco.tools.api as cta
 
 # tdmslab from librtdc must be in the python path
-from dclab import *
+from dclab import *  # @UnusedWildImport
 from ShapeOut import findfile
 
 from chaco.color_mapper import ColorMapper
@@ -235,7 +231,7 @@ class Analysis(object):
                 
                 newuncom = dict()
                 uncom.symmetric_difference_update(uncom2)
-                for i in range(len(uncom)):
+                for _i in range(len(uncom)):
                     item = uncom.pop()
                     newuncom[item[0]] = None
                 uncom = set(newuncom.items())
@@ -384,7 +380,7 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
     if mm.Configuration["Plotting"]["Isoelastics"]:
         if isoel is None:
             chansize = mm.Configuration["General"]["Channel Width"]
-            plotdata = list()
+            #plotdata = list()
             # look for isoelastics:
             for key in list(isoelastics.keys()):
                 if float(key.split("um")[0]) == chansize > 0:
@@ -415,15 +411,6 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
 
     for mm, ii in zip(measurements, range(len(measurements))):
         
-        if mm.Configuration["Filtering"]["Enable Filters"]:
-            x = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
-            y = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
-        else:
-            # filtering disabled
-            x = getattr(mm, dfn.cfgmaprev[xax])
-            y = getattr(mm, dfn.cfgmaprev[yax])
-
-        import time
         a=time.time()
         (X,Y,density) = mm.GetKDE_Contour(yax=yax, xax=xax)
         print("Contour computation time", time.time() -a)
@@ -655,7 +642,7 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     if mm.Configuration["Plotting"]["Isoelastics"]:
         if isoel is None:
             chansize = mm.Configuration["General"]["Channel Width"]
-            plotdata = list()
+            #plotdata = list()
             # look for isoelastics:
             for key in list(isoelastics.keys()):
                 if float(key.split("um")[0]) == chansize > 0:

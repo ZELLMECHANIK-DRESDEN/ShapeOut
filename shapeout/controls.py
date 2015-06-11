@@ -5,27 +5,13 @@
 """
 from __future__ import division, print_function
 
-import chaco
-import chaco.api as ca
-import chaco.tools.api as cta
-from chaco.pdf_graphics_context import PdfPlotGraphicsContext
-import enable.api as ea
-
-import codecs
-import copy
 import numpy as np
-import os
-import platform
-import sys
-import traceback
-import warnings
 import wx
 
 import wx.lib.agw.flatnotebook as fnb
 import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
-from ShapeOut import findfile
 from configuration import ConfigurationFile
 from polygonselect import LineDrawerWindow
 import tlabwrap
@@ -445,7 +431,7 @@ class SubPanelFilter(SubPanel):
         horsizer2.Add(export_all)
         plotsizer.Add(horsizer2)
         
-        name = self._polygon_filter_combo_box = cbg
+        self._polygon_filter_combo_box = cbg
         self._polygon_filter_selection_htree = htreectrl
         return polysizer
 
@@ -483,7 +469,7 @@ class SubPanelFilter(SubPanel):
         return c, None
 
     def OnPolygonDuplicate(self, e=None):
-        c, ch = self.GetPolygonHtreeSelected()
+        _c, ch = self.GetPolygonHtreeSelected()
         if ch is None:
             return
         unique_id = ch.GetData()
@@ -493,7 +479,7 @@ class SubPanelFilter(SubPanel):
 
     def OnPolygonExport(self, e=None, export_all=False):
         if not export_all:
-            c, ch = self.GetPolygonHtreeSelected()
+            _c, ch = self.GetPolygonHtreeSelected()
             if ch is None:
                 return
         dlg = wx.FileDialog(self, "Open polygon file",

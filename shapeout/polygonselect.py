@@ -5,9 +5,9 @@
 """
 from __future__ import division, print_function
 
-import numpy as np
+#import numpy as np
 
-import chaco.api as ca
+#import chaco.api as ca
 import chaco.tools.api as cta
 import enable.api as ea
 import platform
@@ -72,8 +72,8 @@ class LineDrawerWindow(wx.Frame):
         rect = self.statusbar.GetFieldRect(0)
         posx = rect.x
         posy = rect.y
-        width = rect.width
-        height = rect.height
+        #width = rect.width
+        #height = rect.height
         if platform.system()=="Linux":
             posy += self.statusbar.GetBorderY()
         text.SetPosition((posx+5, posy))

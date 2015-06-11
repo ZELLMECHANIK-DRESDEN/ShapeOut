@@ -7,20 +7,19 @@ from __future__ import division, print_function
 
 import chaco
 import chaco.api as ca
-import chaco.tools.api as cta
+#import chaco.tools.api as cta
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
 import cv2  # @UnresolvedImport
 import enable.api as ea
 
-import codecs
-import copy
+#import codecs
+#import copy
 import numpy as np
 import os
 import platform
 from PIL import Image
 import sys
 import tempfile
-import time
 import traceback
 import warnings
 import wx
@@ -31,8 +30,8 @@ import zipfile
 from configuration import ConfigurationFile
 from controls import ControlPanel
 from explorer import ExplorerPanel
-from ShapeOut import findfile
-from polygonselect import LineDrawerWindow
+#from ShapeOut import findfile
+#from polygonselect import LineDrawerWindow
 import gaugeframe
 import tlabwrap
 
@@ -381,7 +380,7 @@ class Frame(gaugeframe.GaugeFrame):
         else:
             fname = sessionfile 
         
-        (dirname, filename) = os.path.split(fname)
+        dirname = os.path.dirname(fname)
         self.config.SetWorkingDirectory(dirname)
         Arc = zipfile.ZipFile(fname, mode='r')
         tempdir = tempfile.mkdtemp()
@@ -485,7 +484,7 @@ class Frame(gaugeframe.GaugeFrame):
             path = dlg.GetPath()
             if not path.endswith(".zmso"):
                 path += ".zmso"
-            (dirname, filename) = os.path.split(path)
+            dirname = os.path.dirname(path)
             self.config.SetWorkingDirectory(dirname, name="Session")
             # Begin saving
             returnWD = os.getcwd()
@@ -494,7 +493,7 @@ class Frame(gaugeframe.GaugeFrame):
             Arc = zipfile.ZipFile(path, mode='w')
             ## Dump data into directory
             self.analysis.DumpData(tempdir)
-            for root, dirs, files in os.walk(tempdir):
+            for root, _dirs, files in os.walk(tempdir):
                 for f in files:
                     fw = os.path.join(root,f)
                     Arc.write(os.path.relpath(fw,tempdir))
@@ -567,14 +566,14 @@ class ImagePanel(ScrolledPanel):
     def ShowImage(self, image=None):
         def pil_to_wx_bmp(image):
             width, height = image.size
-            buffer = image.convert('RGB').tostring()
-            bitmap = wx.BitmapFromBuffer(width, height, buffer)
+            mybuffer = image.convert('RGB').tostring()
+            bitmap = wx.BitmapFromBuffer(width, height, mybuffer)
             return bitmap
         
         def pil_to_wx_img(image):
             width, height = image.size
-            buffer = image.convert('RGB').tostring()
-            bitmap = wx.ImageFromBuffer(width, height, buffer)
+            mybuffer = image.convert('RGB').tostring()
+            bitmap = wx.ImageFromBuffer(width, height, mybuffer)
             return bitmap
 
         if image is None:
@@ -653,7 +652,7 @@ class PlotArea(wx.Panel):
         range_joined = list()
         for j in range(rows):
             for i in range(cols):
-                k = i + j*rows
+                #k = i + j*rows
                 if (i == cols-1 and j == 0 and lcc == 1):
                     # Contour plot in upper right corner
                     aplot = tlabwrap.CreateContourPlot(anal.measurements,
@@ -727,8 +726,8 @@ class PlotArea(wx.Panel):
         Updates the data in panel top
         """
         ctrls = self.frame.PanelTop.page_plot.GetChildren()
-        samdict = self.analysis.measurements[0].\
-                                       Configuration["Plotting"].copy()
+        #samdict = self.analysis.measurements[0].\
+        #                               Configuration["Plotting"].copy()
         newfilt = dict()
  
         xax, yax = self.analysis.GetPlotAxes()
@@ -770,9 +769,6 @@ class PlotArea(wx.Panel):
             self._lastplothover = False
         if not hasattr(self, "_lastplotselect"):
             self._lastplotselect = False
-        
-        
-        thetime = time.time()
         
         thisplothover = None
         thisplotselect = None
@@ -890,7 +886,7 @@ def MyExceptionHook(etype, value, trace):
     :param string `trace`: the traceback header, if any (otherwise, it prints the
      standard Python header: ``Traceback (most recent call last)``.
     """
-    frame = wx.GetApp().GetTopWindow()
+    wx.GetApp().GetTopWindow()
     tmp = traceback.format_exception(etype, value, trace)
     exception = "".join(tmp)
  
