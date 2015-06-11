@@ -18,7 +18,7 @@ from ShapeOut import findfile
 
 from chaco.color_mapper import ColorMapper
 
-def darkjet(range, **traits):
+def darkjet(myrange, **traits):
     """ Generator function for the 'darkjet' colormap. """
     _data = {'red': ((0., 0, 0), (0.35, 0.0, 0.0), (0.66, .3, .3), (0.89, .4, .4),
     (1, 0.5, 0.5)),
@@ -26,7 +26,7 @@ def darkjet(range, **traits):
     (0.91,0.2,0.2), (1, 0, 0)),
     'blue': ((0., 0.7, 0.7), (0.11, .5, .5), (0.34, .4, .4), (0.65, 0, 0),
     (1, 0, 0))}
-    return ColorMapper.from_segment_map(_data, range=range, **traits)
+    return ColorMapper.from_segment_map(_data, range=myrange, **traits)
 
 
 class Analysis(object):

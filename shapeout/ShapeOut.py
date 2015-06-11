@@ -19,7 +19,7 @@ def findfile(fname):
     """
     dirs = list()
     # directory names that make sense
-    dirs += [".", "../", "../lang/", "lang/", "../art/", "art/"]
+    dirs += [".", "../", "../lang/", "lang/", "../art/", "art/", "../config/", "config/"]
 
     thedirs = []
     if hasattr(sys, 'frozen'):
