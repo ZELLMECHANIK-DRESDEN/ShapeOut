@@ -51,13 +51,9 @@ def prepare_app():
 
     # get version
     try:
-        vfile = findfile("version.txt")
-        clfile = open(vfile, 'r')
-        version = clfile.readline().strip()
-        clfile.close()
+        from ._version import version
     except:
-        warnings.warn(_("Could not find version file '%(vfile)s'.") % {
-                        "vfile": vfile })
+        warnings.warn(_("Could not determine ShapeOut version."))
         version = None
     
     # get session file

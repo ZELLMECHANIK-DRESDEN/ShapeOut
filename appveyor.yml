@@ -1,0 +1,112 @@
+# Changes in online interface:
+# - Set build schedule to "0 3 * * *" for nightly builds.
+#skip_commits:
+#  # Do not build on commits. Only nightly builds (web interface)
+#  author: /.*/
+
+# Only build master branch
+## seems to prevent building tags
+#branches:
+#  only:
+#  - master
+
+environment:
+
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\freeze_appveyor\\run_with_compiler.cmd"
+
+  matrix:
+    - PYTHON: "C:\\Python27-conda32"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "32"
+      PYWIN_DL: "https://downloads.sourceforge.net/project/pywin32/pywin32/Build%20219/pywin32-219.win32-py2.7.exe"
+
+    - PYTHON: "C:\\Python27-conda64"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "64"
+      PYWIN_DL: "https://downloads.sourceforge.net/project/pywin32/pywin32/Build%20219/pywin32-219.win-amd64-py2.7.exe"
+
+init:
+  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
+
+install:
+  # Install InnoSetup and add to path
+  # Copied from
+  # https://github.com/Phonations/Joker/blob/master/appveyor.yml
+  - choco install -y InnoSetup
+  # Install Python (from the official .msi of http://python.org) and pip when
+  # not already installed.
+  - "powershell freeze_appveyor\\install.ps1"
+
+  # Determine platform
+  - '%PYTHON%/python -c "import platform; print platform.uname()"'
+  - '%PYTHON%/python -c "import sys; print sys.maxint"'
+  - '%PYTHON%/python -c "import sys; print sys.version"'
+
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside the powershell script as it would require to restart
+  # the parent CMD process).
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  
+  # Install the build dependencies of the project. 
+  - "pip install wheel"
+  
+  # Install package-specific libraries  
+  - "pip install nptdms"
+  - "pip install reportlab"
+  - "pip install dclab"
+  
+  # Install pyinstaller
+  - 'ECHO Downloading %PYWIN_DL%'
+  - ps: (new-object net.webclient).DownloadFile("$env:PYWIN_DL", 'C:/pywin_inst.exe')
+  - "%PYTHON%/Scripts/easy_install.exe C:/pywin_inst.exe"
+  - "%WITH_COMPILER% pip install git+git://github.com/pyinstaller/pyinstaller.git@779d07b236a943a4bf9d2b1a0ae3e0ebcc914798"
+
+  # Run develop (installs yet missing packages and runs cython)
+  - "%WITH_COMPILER% %PYTHON%/python setup.py develop"
+
+  # Show the installed packages
+  - "pip freeze"
+  
+shallow_clone: true
+
+build: off
+
+test_script:
+  - "%WITH_COMPILER% %PYTHON%/python setup.py test"
+
+after_test:
+  # If tests are successful, create a whl package for the project.
+  - "%WITH_COMPILER% %PYTHON%/python setup.py bdist_wheel"
+  - ps: "ls dist"
+  # Run pyinstaller
+  # This will create the "win7_innosetup.iss" file
+  - "%WITH_COMPILER% pyinstaller -y freeze_pyinstaller\\win7_pyinstaller.spec"
+  # Create InnoSetup installers
+  # Set InnoSetup path here, because Cython complained about it.
+  - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
+  - iscc win7_innosetup.iss
+
+artifacts:
+  # Archive the generated wheel package in the ci.appveyor.com build report.
+  - path: dist\*
+  # InnoSetup files
+  - path: Output\*
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: /b5SfmYssAfLaWi0qkPhxR5CruSVBZUurSQLEL3RAaRlHn6HTPrkIqvrLDk/8JxB
+  artifact: /.*\.exe/, /.*\.whl/
+  draft: true
+  prerelease: true
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
