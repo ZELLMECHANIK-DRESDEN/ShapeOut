@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - more functionalities for tdmslab
+""" ShapeOut - more functionalities for dclab
 
 """
 
@@ -8,7 +8,6 @@
 import chaco.api as ca
 import chaco.tools.api as cta
 
-# tdmslab from librtdc must be in the python path
 from dclab import *  # @UnusedWildImport
 from ShapeOut import findfile
 

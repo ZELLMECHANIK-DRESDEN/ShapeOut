@@ -12,7 +12,6 @@ import os
 import sys
 import wx
 import wx.lib.agw.advancedsplash as AS
-#import IPython
 
 def findfile(fname):
     """ finds the absolute path of a file
