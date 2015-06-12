@@ -1,0 +1,7 @@
+chaco>=4.1.0
+dclab>=0.1.0
+enable>=4.1.0
+npTDMS>=0.6.2
+numpy>=1.5.1
+scipy>=0.13.3
+wxPython>=2.8.12.1
