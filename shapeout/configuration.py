@@ -11,7 +11,7 @@ import os
 import sys
 import warnings
 
-from ShapeOut import findfile
+from util import findfile
 
 class ConfigurationFile(object):
     """ A fixed configuration file that will be created upon startup.

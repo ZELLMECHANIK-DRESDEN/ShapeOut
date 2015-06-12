@@ -1,42 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut
-
-This file initiates the program.
-
+""" 
+ShapeOut launcher with splash screen
 """
 from __future__ import print_function
 
 import multiprocessing as mp
-import os
 import sys
 import wx
 import wx.lib.agw.advancedsplash as AS
 
-def findfile(fname):
-    """ finds the absolute path of a file
-    """
-    dirs = list()
-    # directory names that make sense
-    dirs += [".", "lang", "art", "config"]
-
-    dirs += ["../"+dd for dd in dirs]
-
-    thedirs = []
-    if hasattr(sys, 'frozen'):
-        for d in dirs:
-            d = os.path.join("shapeout-data",d)
-            thedirs += [os.path.realpath(os.path.join(sys._MEIPASS,d))]  # @UndefinedVariable
-    else:
-        for d in dirs:
-            thedirs += [os.path.realpath(os.path.join(os.path.dirname(__file__),d))]
-    # if this does not work:
-    for loc in thedirs:
-        thechl = os.path.join(loc,fname)
-        if os.path.exists(thechl):
-            return thechl
-    return ""
-   
+from util import findfile
 
 def main():
     # Note: The order in which the splash screen is initiated and the
@@ -48,78 +22,17 @@ def main():
     splash = mp.Process(target=splash_show)
     splash.start()
 
-    # first initialize the app to prevent errors in Windows,
-    # which is checking some wx runtime variables beforehand.
-
-    app = wx.App(False)
-
-    # Import missing modules
-    import codecs
-    ## Language support:
-    # Go to ../lang and execute
-    # python mki18n.py -m
-    import gettext
-    import platform
-    import warnings
-    
-    import frontend
-
-   
-    ## initialise language settings:
-    try:
-        langIni = codecs.open(findfile("language.ini"), 'r', 'utf-8')
-    except IOError:
-        language = u'en' #defaults to english
-    else:
-        language = langIni.read().strip()
-
-    locales = {
-        u'en' : (wx.LANGUAGE_ENGLISH, u'en_US.UTF-8'),
-        u'de' : (wx.LANGUAGE_GERMAN, u'de_DE.UTF-8'),
-        }
-    mylocale = wx.Locale(locales[language][0], wx.LOCALE_LOAD_DEFAULT)
-    langdir = findfile("locale")
-    
-    
-    Lang = gettext.translation(u'lang', langdir,
-                 languages=[mylocale.GetCanonicalName()], fallback=True)
-                 
-    Lang.install(unicode=1)
-    if platform.system() == 'Linux':
-        try:
-            # to get some language settings to display properly:
-            os.environ['LANG'] = locales[language][1]
-
-        except (ValueError, KeyError):
-            pass
-
-    # get version
-    try:
-        vfile = findfile("version.txt")
-        clfile = open(vfile, 'r')
-        version = clfile.readline().strip()
-        clfile.close()
-    except:
-        warnings.warn(_("Could not find version file '%(vfile)s'.") % {
-                        "vfile": vfile })
-        version = None
-    
-    # get session file
-    sessionfile = None
-    for arg in sys.argv:
-        if arg.endswith(".zmso"):
-            print("\nLoading Session "+arg)
-            sessionfile=arg
-        else:
-            print("Ignoring command line parameter: "+arg)
-
-    app.frame = frontend.Frame(version, sessionfile = sessionfile)
+    # initiate app
+    from os.path import abspath, dirname
+    sys.path.insert(0, dirname(dirname(abspath(__file__))))
+    from shapeout.__main__ import prepare_app
+    app = prepare_app()
 
     # close the splash screen
     splash.terminate()
     # launch application
     app.MainLoop()
-
+    
     
 def splash_show():
     app = wx.App(False)
@@ -141,5 +54,3 @@ if __name__ == '__main__':
         print("A unicode build of wxPython is required for ShapeOut.")
     else:
         main()
-
-

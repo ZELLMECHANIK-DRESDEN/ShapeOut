@@ -5,9 +5,6 @@
 """
 from __future__ import division, print_function
 
-#import numpy as np
-
-#import chaco.api as ca
 import chaco.tools.api as cta
 import enable.api as ea
 import platform
