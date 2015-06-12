@@ -4,13 +4,18 @@
 import codecs
 import os
 from os.path import abspath, join, dirname 
+import sys
 
-dir=dirname(dirname(abspath(__file__)))
-os.chdir(dir)
+dir = abspath(".")
+
+if not dir.endswith("ShapeOut"):
+	raise OSError("Please run pyinstaller from git root folder.")
 
 MEIrtdc="shapeout-data"
 name = "ShapeOut"
 appdir = os.path.realpath(dir+"/shapeout/")
+confdir = os.path.realpath(dir+"/config/")
+datadir = os.path.realpath(dir+"/data/")
 distdir = os.path.realpath(dir+"/dist/")
 langdir = os.path.realpath(dir+"/lang/")
 artdir = os.path.realpath(dir+"/art/")
@@ -18,10 +23,8 @@ pyinstdir = os.path.realpath(dir+"/freeze_appveyor/")
 script = os.path.join(appdir, name+".py")
 
 ## Create inno setup .iss file
-os.chdir(appdir)
+sys.path.insert(0, appdir)
 from _version import version
-os.chdir(dir)
-clfile.close()
 issfile = codecs.open(os.path.join(pyinstdir,"win7_innosetup.iss.dummy"), 'r', "utf-8")
 iss = issfile.readlines()
 issfile.close()
@@ -47,12 +50,9 @@ langdir = os.path.relpath(langdir,dir)
 
 ## Data files
 datas = [
-         (os.path.join(MEIrtdc,"tdmslab.cfg"),
-          os.path.join(appdir, "tdmslab.cfg"),
+         (os.path.join(MEIrtdc,"dclab.cfg"),
+          os.path.join(confdir, "dclab.cfg"),
           'DATA'),
-         (os.path.join(MEIrtdc,"version.txt"),
-          os.path.join(appdir, 'version.txt'),
-          'DATA')
          ]
 
 
