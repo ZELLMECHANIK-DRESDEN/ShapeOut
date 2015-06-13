@@ -80,11 +80,11 @@ shallow_clone: true
 build: off
 
 test_script:
-  - "%WITH_COMPILER% %PYTHON%/python setup.py test"
+  - "%WITH_COMPILER% %PYTHON%/python -c 'import shapeout; print shapeout.__version__'"
 
 after_test:
   # If tests are successful, create a whl package for the project.
-  - "%WITH_COMPILER% %PYTHON%/python setup.py bdist_wheel"
+  #- "%WITH_COMPILER% %PYTHON%/python setup.py bdist_wheel"
   - ps: "ls dist"
   # Run pyinstaller
   # This will create the "win7_innosetup.iss" file

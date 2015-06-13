@@ -205,6 +205,16 @@ function InstallMinicondaWxpython ($python_home) {
 }
 
 
+function InstallMinicondaChaco ($python_home) {
+    $conda_path = $python_home + "\Scripts\conda.exe"
+    Write-Host "Installing chaco..."
+    $args = "install --yes chaco"
+    Write-Host $conda_path $args
+    Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
+}
+
+
+
 function main () {
     #InstallPython $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
     #InstallPip $env:PYTHON
@@ -213,6 +223,7 @@ function main () {
     InstallMinicondaNumpy $env:PYTHON
     InstallMinicondaScipy $env:PYTHON
     InstallMinicondaWxpython $env:PYTHON
+    InstallMinicondaChaco $env:PYTHON
 }
 
 main
