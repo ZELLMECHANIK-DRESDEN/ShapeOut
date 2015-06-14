@@ -4,6 +4,7 @@
 import codecs
 import os
 from os.path import abspath, exists, join, dirname 
+import platform
 import sys
 import warnings
 
