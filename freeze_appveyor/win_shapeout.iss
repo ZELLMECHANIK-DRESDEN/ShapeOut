@@ -44,8 +44,8 @@ Name: "german"; MessagesFile: "compiler:Languages\German.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\Paul\Desktop\Microfluidics\PlottingGUI\dist\ShapeOut\ShapeOut.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Paul\Desktop\Microfluidics\PlottingGUI\dist\ShapeOut\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\projects\shapeout\dist\ShapeOut\ShapeOut.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\projects\shapeout\dist\ShapeOut\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

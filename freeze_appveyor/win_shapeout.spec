@@ -28,13 +28,13 @@ script = os.path.join(appdir, name+".py")
 ## Create inno setup .iss file
 sys.path.insert(0, appdir)
 from _version import version
-issfile = codecs.open(os.path.join(pyinstdir,"win7_innosetup.iss.dummy"), 'r', "utf-8")
+issfile = codecs.open(os.path.join(pyinstdir,"win_shapeout.iss"), 'r', "utf-8")
 iss = issfile.readlines()
 issfile.close()
 for i in range(len(iss)):
     if iss[i].strip().startswith("#define MyAppVersion"):
         iss[i] = '#define MyAppVersion "{:s}"\n'.format(version)
-nissfile = codecs.open("win7_innosetup.iss", 'wb', "utf-8")
+nissfile = codecs.open("win_shapeout.iss", 'wb', "utf-8")
 nissfile.write(u"\ufeff")
 nissfile.writelines(iss)
 nissfile.close()
