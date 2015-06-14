@@ -6,6 +6,7 @@
 #define MyAppVersion "0.1.0"
 #define MyAppPublisher "ZellMechanik Dresden"
 #define MyAppURL "http://zellmechanik-dresden.com"
+#define MyAppPlatform "win32"
 #define MyAppExeName "ShapeOut.exe"
 
 [Setup]
@@ -24,9 +25,10 @@ DefaultDirName={pf}\{#MyAppName}
 DisableDirPage=yes
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-OutputBaseFilename={#MyAppName}_{#MyAppVersion}_setup
+OutputBaseFilename={#MyAppName}_{#MyAppVersion}_{#MyAppPlatform}_setup
 Compression=lzma
 SolidCompression=yes
+ChangesAssociations=yes
 
 
 [Registry]
