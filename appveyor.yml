@@ -85,7 +85,7 @@ test_script:
 after_test:
   # If tests are successful, create a whl package for the project.
   #- "%WITH_COMPILER% %PYTHON%/python setup.py bdist_wheel"
-  - ps: "ls dist"
+  #- ps: "ls dist"
   # Run pyinstaller
   # This will create the "win7_innosetup.iss" file
   - "%WITH_COMPILER% pyinstaller -y freeze_appveyor\\win7_pyinstaller.spec"
