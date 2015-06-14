@@ -3,13 +3,16 @@
 # find correct directory
 import codecs
 import os
-from os.path import abspath, join, dirname 
+from os.path import abspath, exists, join, dirname 
 import sys
+import warnings
 
 dir = abspath(".")
 
-if not dir.endswith("ShapeOut"):
-	raise OSError("Please run pyinstaller from git root folder.")
+if not exists(join(dir, "shapeout")):
+	warnings.warn("Cannot find 'shapeout'! Please run pyinstaller "+
+                  "from git root folder.")
+
 
 MEIrtdc="shapeout-data"
 name = "ShapeOut"
