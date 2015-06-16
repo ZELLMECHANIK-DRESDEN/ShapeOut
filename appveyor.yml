@@ -68,6 +68,8 @@ install:
   - "pip install reportlab"
   - "pip install dclab"
   
+  # Patch libraries
+  - '%WITH_COMPILER% %PYTHON%/python freeze_appveyor/patch_libraries.py'
   
   # Install pyinstaller
   - 'ECHO Downloading %PYWIN_DL%'
