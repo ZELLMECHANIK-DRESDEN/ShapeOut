@@ -59,11 +59,11 @@ install:
   - "pip install wheel"
   
   # Install package-specific libraries  
-  - "conda install cffi"
-  - "conda install kiwisolver"
-  - "conda install numba"
-  - "conda install pyqt"
-  - "conda install -c https://conda.binstar.org/menpo opencv"
+  - "conda install --yes cffi"
+  - "conda install --yes kiwisolver"
+  - "conda install --yes numba"
+  - "conda install --yes pyqt"
+  - "conda install --yes -c https://conda.binstar.org/menpo opencv"
   - "pip install nptdms"
   - "pip install reportlab"
   - "pip install dclab"
