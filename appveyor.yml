@@ -61,6 +61,8 @@ install:
   # Install package-specific libraries  
   - "conda install cffi"
   - "conda install kiwisolver"
+  - "conda install numba"
+  - "conda install pyqt"
   - "conda install -c https://conda.binstar.org/menpo opencv"
   - "pip install nptdms"
   - "pip install reportlab"
