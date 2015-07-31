@@ -41,8 +41,6 @@ install:
   # not already installed.
   - "powershell freeze_appveyor\\install.ps1"
 
-  - "pip freeze"
-
   # Determine platform
   - '%PYTHON%/python -c "import platform; print platform.uname()"'
   - '%PYTHON%/python -c "import sys; print sys.maxint"'
@@ -56,6 +54,8 @@ install:
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
+
+  - "pip freeze"
   
   # Install the build dependencies of the project. 
   - "pip install wheel"
