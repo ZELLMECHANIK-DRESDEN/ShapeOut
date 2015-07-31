@@ -67,6 +67,7 @@ install:
   - "pip install nptdms"
   - "pip install reportlab"
   - "pip install dclab"
+  - "pip install simplejson"
   
   # Patch libraries
   - '%WITH_COMPILER% %PYTHON%/python freeze_appveyor/patch_libraries.py'
