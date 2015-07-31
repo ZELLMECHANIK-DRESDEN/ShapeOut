@@ -266,15 +266,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     def OnHelpSoftware(self, e=None):
         # Show About Information
-        import dclab
-        import scipy
+        try:
+            from dclab import __version__ as dcversion
+        except:
+            dcversion = "unknown"
+        try:
+            from scipy import __version__ as spversion
+        except:
+            spversion = "unknown"
+
         text = "Python "+sys.version+\
                "\n\nModules:"+\
                "\n - chaco "+chaco.__version__+\
-               "\n - dclab "+dclab.__version__+\
+               "\n - dclab "+dcversion+\
                "\n - NumPy "+np.__version__+\
                "\n - OpenCV "+cv2.__version__+\
-               "\n - SciPy "+scipy.__version__+\
+               "\n - SciPy "+spversion+\
                "\n - wxPython "+wx.__version__
 
         if hasattr(sys, 'frozen'):

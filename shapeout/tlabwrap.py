@@ -626,7 +626,7 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
                                     downsample_points=downsample_points
                                     )
         positions = np.vstack([x.ravel(), y.ravel()])
-        print("Downsampeld from {} to {}".format(lx, x.shape[0]))
+        print("Downsampled from {} to {}".format(lx, x.shape[0]))
     else:
         positions = None
 

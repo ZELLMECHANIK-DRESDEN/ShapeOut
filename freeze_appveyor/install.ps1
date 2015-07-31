@@ -191,7 +191,10 @@ function InstallMinicondaScipy ($python_home) {
     # Current WxPython.lib.plot will not work with numpy>1.9.0 due to this bug:
     # http://trac.wxwidgets.org/ticket/16590
     #$args = "install --yes scipy numpy=1.8"
-    $args = "install --yes scipy"
+    # install scipy version 0.14.0, because later versions might produce
+    # this error:
+    # Import Error: No module named cython_blas
+    $args = "install --yes 'scipy=0.15.1'"
     Write-Host $conda_path $args
     Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
 }
