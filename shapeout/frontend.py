@@ -47,7 +47,7 @@ class Frame(gaugeframe.GaugeFrame):
     def __init__(self, version, sessionfile=None):
         """Constructor"""
         self.config = ConfigurationFile()
-        
+        self.version = version
         #size = (1300,900)
         size = (1200,700)
         gaugeframe.GaugeFrame.__init__(self, None, -1,
@@ -125,7 +125,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         ## File menu
         fileMenu = wx.Menu()
-        self.menubar.Append(fileMenu, '&File')
+        self.menubar.Append(fileMenu, _('&File'))
         # data
         fpath = fileMenu.Append(wx.ID_REPLACE, _('Find Measurements'), 
                                 _('Select .tdms file location'))
@@ -154,13 +154,22 @@ class Frame(gaugeframe.GaugeFrame):
         
         ## Export menu
         exportMenu = wx.Menu()
-        self.menubar.Append(exportMenu, '&Export')
+        self.menubar.Append(exportMenu, _('&Export'))
         e2pdf = exportMenu.Append(wx.ID_ANY, _('Create PDF file'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
         
         self.SetMenuBar(self.menubar)
 
+        ## Help menu
+        helpmenu = wx.Menu()
+        self.menubar.Append(helpmenu, _('&Help'))
+        menuSoftw = helpmenu.Append(wx.ID_ANY, _("&Software"),
+                                    _("Information about the software used"))
+        self.Bind(wx.EVT_MENU, self.OnHelpSoftware, menuSoftw)
+        menuAbout = helpmenu.Append(wx.ID_ABOUT, _("&About"),
+                                    _("Information about this program"))
+        self.Bind(wx.EVT_MENU, self.OnHelpAbout, menuAbout)
         
         ## Toolbar
         self.toolbar = self.CreateToolBar()
@@ -216,6 +225,60 @@ class Frame(gaugeframe.GaugeFrame):
         self.PanelTop.NewAnalysis(anal)
         self.PlotArea.Plot(anal)
         wx.EndBusyCursor()
+
+    def OnHelpAbout(self, e=None):
+        description =  ("ShapeOut is a data evaluation tool"+
+            "\nfor real-time deformability cytometry (RT-DC)."+
+            "\nShapeOut is written in Python.")
+        licence = """ShapeOut is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published 
+by the Free Software Foundation, either version 2 of the License, 
+or (at your option) any later version.
+
+ShapeOut is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+See the GNU General Public License for more details. 
+
+You should have received a copy of the GNU General Public License 
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+        info = wx.AboutDialogInfo()
+        #info.SetIcon(wx.Icon('hunter.png', wx.BITMAP_TYPE_PNG))
+        info.SetName('ShapeOut')
+        info.SetVersion(self.version)
+        info.SetDescription(description)
+        info.SetCopyright(u'(C) 2015 Paul Müller')
+        info.SetWebSite(u"http://www.zellmechanik.com/")
+        info.SetLicence(licence)
+        #info.SetIcon(misc.getMainIcon(pxlength=64))
+        info.AddDeveloper(u'Paul Müller')
+        info.AddDocWriter(u'Paul Müller')
+        wx.AboutBox(info)
+
+    
+    def OnHelpSoftware(self, e=None):
+        # Show About Information
+        import dclab
+        import scipy
+        text = "Python "+sys.version+\
+               "\n\nModules:"+\
+               "\n - chaco "+chaco.__version__+\
+               "\n - dclab "+dclab.__version__+\
+               "\n - NumPy "+np.__version__+\
+               "\n - OpenCV "+cv2.__version__+\
+               "\n - SciPy "+scipy.__version__+\
+               "\n - wxPython "+wx.__version__
+
+        if hasattr(sys, 'frozen'):
+            pyinst = "\n\n"
+            pyinst += _("This executable has been created using PyInstaller.")
+            text += pyinst
+            if 'Anaconda' in sys.version or "Continuum Analytics" in sys.version:
+                conda = "\n\nPowered by Anaconda"
+                text += conda
+        wx.MessageBox(text, 'Software', wx.OK | wx.ICON_INFORMATION)
+
 
     def OnMenuClearMeasurements(self, e=None):
         tree = self.PanelLeft.htreectrl
@@ -505,7 +568,6 @@ class Frame(gaugeframe.GaugeFrame):
     def OnMenuSaveFull(self, e=None):
         """ Save configuration including measurement data """
         pass
-
 
 
 class ImagePanel(ScrolledPanel):
@@ -859,7 +921,6 @@ class PlotArea(wx.Panel):
         self._lasthover = thishov
         self._lastselect = thissel
 
-        
     def CheckTightLayout(self):
         """ Determine whether a call to tight_layout is necessary and
             (do not) do it.
