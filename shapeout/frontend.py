@@ -5,16 +5,21 @@
 """
 from __future__ import division, print_function
 
+
+
 import chaco
 import chaco.api as ca
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
 import cv2  # @UnresolvedImport
+from distutils.version import LooseVersion
 import enable.api as ea
 
 import numpy as np
 import os
 import platform
 from PIL import Image
+import requests
+import simplejson
 import sys
 import tempfile
 import traceback
@@ -29,7 +34,7 @@ from controls import ControlPanel
 from explorer import ExplorerPanel
 import gaugeframe
 import tlabwrap
-
+import update
 
 
 ########################################################################
@@ -116,6 +121,8 @@ class Frame(gaugeframe.GaugeFrame):
         
         if sessionfile is not None:
             self.OnMenuLoad(sessionfile=sessionfile)
+            
+        update.Update(self)
 
     def InitUI(self):
         """Menus, Toolbar, Statusbar"""

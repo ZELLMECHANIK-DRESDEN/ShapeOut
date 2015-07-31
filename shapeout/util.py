@@ -3,7 +3,6 @@
 import os
 import sys
 
-
 def findfile(fname):
     """ finds the absolute path of a file
     """
