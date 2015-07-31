@@ -41,6 +41,8 @@ install:
   # not already installed.
   - "powershell freeze_appveyor\\install.ps1"
 
+  - "pip freeze"
+
   # Determine platform
   - '%PYTHON%/python -c "import platform; print platform.uname()"'
   - '%PYTHON%/python -c "import sys; print sys.maxint"'
@@ -59,6 +61,8 @@ install:
   - "pip install wheel"
   
   # Install package-specific libraries  
+  - "conda update -f conda"
+  - "conda install --yes pip"
   - "conda install --yes cffi"
   - "conda install --yes kiwisolver"
   - "conda install --yes numba"
@@ -66,8 +70,8 @@ install:
   - "conda install --yes -c https://conda.binstar.org/menpo opencv"
   - "pip install reportlab"
   # requirements fro dclab:
+  - "conda install --yes statsmodels"
   - "pip install nptdms"
-  - "pip install statsmodels"
   # prevent pip from installing later scipy versions
   - "pip install dclab --no-deps"
   - "pip install simplejson"
