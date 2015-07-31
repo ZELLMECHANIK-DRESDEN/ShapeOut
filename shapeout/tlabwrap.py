@@ -941,7 +941,7 @@ cfg_file = findfile("dclab.cfg")
 cfg = dfn.LoadConfiguration(cfg_file, dfn.cfg)
 
 thispath = os.path.dirname(os.path.realpath(__file__))
-isoeldir = "../data/isoelastics"
+isoeldir = findfile("isoelastics")
 isoelastics = LoadIsoelastics(os.path.join(thispath, isoeldir))
 
 # Axes that should not be displayed  by Shape Out

@@ -3,7 +3,7 @@
 # find correct directory
 import codecs
 import os
-from os.path import abspath, exists, join, dirname 
+from os.path import abspath, exists, join, dirname, relpath
 import platform
 import sys
 import warnings
@@ -18,11 +18,11 @@ if not exists(join(dir, "shapeout")):
 MEIrtdc="shapeout-data"
 name = "ShapeOut"
 appdir = os.path.realpath(dir+"/shapeout/")
+artdir = os.path.realpath(dir+"/art/")
 confdir = os.path.realpath(dir+"/config/")
 datadir = os.path.realpath(dir+"/data/")
 distdir = os.path.realpath(dir+"/dist/")
 langdir = os.path.realpath(dir+"/lang/")
-artdir = os.path.realpath(dir+"/art/")
 pyinstdir = os.path.realpath(dir+"/freeze_appveyor/")
 script = os.path.join(appdir, name+".py")
 
@@ -52,16 +52,29 @@ hiddenimports += ["scipy.stats", "scipy.special", "scipy.special._ufuncs_cxx"]
 hiddenimports += ["dclab", "six"]
 
 
-appdir = os.path.relpath(appdir,dir)
-langdir = os.path.relpath(langdir,dir)
+appdir = relpath(appdir,dir)
+langdir = relpath(langdir,dir)
 
 
-## Data files
+## Config files
 datas = [
-         (os.path.join(MEIrtdc,"dclab.cfg"),
-          os.path.join(confdir, "dclab.cfg"),
+         (join(MEIrtdc,"dclab.cfg"),
+          join(confdir, "dclab.cfg"),
           'DATA'),
          ]
+
+## Data files
+# recursively add isoelastics
+isoeldir = join(datadir, "isoelastics")
+MEIrtdcisoel = join(MEIrtdc, "isoelastics")
+for root, _, files in os.walk(isoeldir):
+    for f in files:
+        reldir = os.path.relpath(root, isoeldir)
+        datas += [
+                  (join(join(MEIrtdcisoel, reldir), f),
+                  join(join(isoeldir, reldir), f),
+                  'DATA'),
+                 ]
 
 
 ## Language files

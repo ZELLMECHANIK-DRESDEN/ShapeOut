@@ -9,7 +9,7 @@ def findfile(fname):
     """
     dirs = list()
     # directory names that make sense
-    dirs += [".", "lang", "art", "config"]
+    dirs += [".", "lang", "art", "config", "data"]
 
     dirs += ["../"+dd for dd in dirs]
 
