@@ -61,7 +61,7 @@ install:
   - "pip install wheel"
   
   # Install package-specific libraries  
-  - "conda update -f conda"
+  #- "conda update -f conda"
   - "conda install --yes pip"
   - "conda install --yes cffi"
   - "conda install --yes kiwisolver"
