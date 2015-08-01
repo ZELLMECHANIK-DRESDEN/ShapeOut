@@ -68,8 +68,8 @@ install:
   - "conda install --yes numba"
   - "conda install --yes pyqt"
   # install scipy in case `install.ps1` does not install
+  - "conda install --yes anaconda-client"
   - "conda search scipy"
-  - "conda install --yes binstar"
   - "conda install --yes -f scipy=0.15.1"
   - "conda install --yes -c https://conda.binstar.org/menpo opencv"
   - "pip install reportlab"
