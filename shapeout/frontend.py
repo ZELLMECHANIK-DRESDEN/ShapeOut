@@ -11,15 +11,12 @@ import chaco
 import chaco.api as ca
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
 import cv2  # @UnresolvedImport
-from distutils.version import LooseVersion
 import enable.api as ea
 
 import numpy as np
 import os
 import platform
 from PIL import Image
-import requests
-import simplejson
 import sys
 import tempfile
 import traceback
@@ -266,14 +263,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     def OnHelpSoftware(self, e=None):
         # Show About Information
-        try:
-            from dclab import __version__ as dcversion
-        except:
-            dcversion = "unknown"
-        try:
-            from scipy import __version__ as spversion
-        except:
-            spversion = "unknown"
+        from dclab import __version__ as dcversion
+        from scipy import __version__ as spversion
 
         text = "Python "+sys.version+\
                "\n\nModules:"+\
