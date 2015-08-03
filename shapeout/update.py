@@ -10,6 +10,8 @@ import webbrowser
 import wx
 import wx.lib.delayedresult as delayedresult
 
+import _version as so_version
+
 def check_release(
             ghrepo="user/repo",
             version=None, timeout=5):
@@ -56,8 +58,13 @@ def Update(parent):
     """ This is a thread for _Update """
     ghrepo="ZellMechanik-Dresden/ShapeOut"
     parent.StatusBar.SetStatusText("Connecting to server...")
+    if hasattr(so_version, "__repo_tag__"):
+        version = so_version.repo_tag  # @UndefinedVariable
+    else:
+        version = so_version.version
+        
     delayedresult.startWorker(_UpdateConsumer, _UpdateWorker,
-                              wargs=(ghrepo, parent.version),
+                              wargs=(ghrepo, version),
                               cargs=(parent,))
 
 def _UpdateConsumer(delayedresult, parent):

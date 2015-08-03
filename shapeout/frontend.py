@@ -265,8 +265,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         # Show About Information
         from dclab import __version__ as dcversion
         from scipy import __version__ as spversion
+        import _version as so_version
+        if hasattr(so_version, "__repo_tag__"):
+            version = so_version.repo_tag  # @UndefinedVariable
+        else:
+            version = so_version.version
 
-        text = "Python "+sys.version+\
+        text = "ShapeOut "+version+\
+               "\n\nPython "+sys.version+\
                "\n\nModules:"+\
                "\n - chaco "+chaco.__version__+\
                "\n - dclab "+dcversion+\

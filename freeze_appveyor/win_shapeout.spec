@@ -26,6 +26,18 @@ langdir = os.path.realpath(dir+"/lang/")
 pyinstdir = os.path.realpath(dir+"/freeze_appveyor/")
 script = os.path.join(appdir, name+".py")
 
+# Add tag
+# write repo tag name if possible (used by update)
+tag_version = None
+for var in ["APPVEYOR_REPO_TAG_NAME"]:
+	val = os.getenv(var)
+	if val is not None:
+		tag_version = val
+	break
+if tag_version is not None:
+	with open(join(appdir, "_version.py"), "a") as vfile:
+		vfile.write('\nrepo_tag = "{}"\n'.format(tag_version))
+
 ## Create inno setup .iss file
 sys.path.insert(0, appdir)
 from _version import version
