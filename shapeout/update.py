@@ -58,7 +58,7 @@ def Update(parent):
     """ This is a thread for _Update """
     ghrepo="ZellMechanik-Dresden/ShapeOut"
     parent.StatusBar.SetStatusText("Connecting to server...")
-    if hasattr(so_version, "__repo_tag__"):
+    if hasattr(so_version, "repo_tag"):
         version = so_version.repo_tag  # @UndefinedVariable
     else:
         version = so_version.version
@@ -74,7 +74,7 @@ def _UpdateConsumer(delayedresult, parent):
     if results[0]:
         
         updatemenu = wx.Menu()
-        parent.menubar.Append(updatemenu, _('&Update available'))
+        parent.menubar.Append(updatemenu, _('&Update available!'))
         menudl = updatemenu.Append(
                                 wx.ID_ANY,
                                 _("Download version {}").format(results[0]),
