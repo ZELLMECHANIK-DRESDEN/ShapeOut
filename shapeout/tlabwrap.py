@@ -63,7 +63,7 @@ class Analysis(object):
         if os.path.exists(polygonfile):
             PolygonFilter.import_all(polygonfile)
         # import configurations
-        datadict = dfn.LoadConfiguration(indexname)
+        datadict = dfn.LoadConfiguration(indexname, capitalize=False)
         keys = list(datadict.keys())
         for key in keys:
             data = datadict[key]
