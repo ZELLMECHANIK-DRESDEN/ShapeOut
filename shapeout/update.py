@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from distutils.version import LooseVersion
 
-import requests
+import urllib2
 import simplejson
 import sys
 
@@ -14,7 +14,7 @@ import _version as so_version
 
 def check_release(
             ghrepo="user/repo",
-            version=None, timeout=5):
+            version=None, timeout=20):
     """ Check GitHub repository for latest release
     """
     update = False
@@ -22,36 +22,33 @@ def check_release(
     u = "https://api.github.com/repos/{}/releases/latest".format(ghrepo)
     web = "https://github.com/{}/releases".format(ghrepo)
     try:
-        data = requests.get(u, timeout=timeout)
+        data = urllib2.urlopen(u, timeout=timeout).read()
     except:
-        msg = "timeout"
+        msg = "timeout or wrong url"
     else:
-        if not data.ok:
-            msg = "url error"
-        else:
-            j = simplejson.loads(data.content)
-            
-            newversion = j["tag_name"]
-            
-            if version is not None:
-                new = LooseVersion(newversion)
-                old = LooseVersion(version)
-                if new <= old:
-                    msg = "no update available"
+        j = simplejson.loads(data)
+        
+        newversion = j["tag_name"]
+        
+        if version is not None:
+            new = LooseVersion(newversion)
+            old = LooseVersion(version)
+            if new <= old:
+                msg = "no update available"
+            else:
+                update = newversion
+                # determine which URL we need
+                if sys.platform.lower == "windows":
+                    dlid = "win_32bit_setup.exe"
                 else:
-                    update = newversion
-                    # determine which URL we need
-                    if sys.platform.lower == "windows":
-                        dlid = "win_32bit_setup.exe"
-                    else:
-                        dlid = False
-                    # search for download file
-                    if dlid:
-                        for a in j["assets"]:
-                            if a["browser_download_url"].count(dlid):
-                                msg = a["browser_download_url"]
-                    else:
-                        msg = web
+                    dlid = False
+                # search for download file
+                if dlid:
+                    for a in j["assets"]:
+                        if a["browser_download_url"].count(dlid):
+                            msg = a["browser_download_url"]
+                else:
+                    msg = web
     return update, msg
                 
 def Update(parent):
