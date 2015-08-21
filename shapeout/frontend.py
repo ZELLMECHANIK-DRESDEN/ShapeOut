@@ -52,11 +52,12 @@ class Frame(gaugeframe.GaugeFrame):
         self.version = version
         #size = (1300,900)
         size = (1200,700)
+        minsize = (900, 700)
         gaugeframe.GaugeFrame.__init__(self, None, -1,
                 title = _("%(progname)s - version %(version)s") % {
                         "progname": u"ᶻᵐShapeOut", "version": version},
                 size = size)
-        self.SetMinSize(size)
+        self.SetMinSize(minsize)
         
         sys.excepthook = MyExceptionHook
 
@@ -73,26 +74,27 @@ class Frame(gaugeframe.GaugeFrame):
         else:
             sy = 230
             
-        st = sy
-        
         self.spright.SetMinimumPaneSize(sy)
         
         # Splitter Window for control panel and cell view
-        self.sptop = wx.SplitterWindow(self.spright, style=wx.SP_3DSASH)
-        self.sptop.SetMinimumPaneSize(300)
-        
+        scrolltop = ScrolledPanel(self.spright, -1)
+
         # Controls
-        self.PanelTop = ControlPanel(self.sptop, self)
+        self.PanelTop = ControlPanel(scrolltop, self)
         
         # Cell Images
-        self.PanelImage = ImagePanel(self.sptop)
+        self.PanelImage = ImagePanel(scrolltop)
+
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer.Add(self.PanelTop, 2, wx.ALL|wx.EXPAND, 5)
+        sizer.Add(self.PanelImage, 1, wx.ALL|wx.EXPAND, 5)
+        scrolltop.SetSizer(sizer)
+        scrolltop.Layout()
         
         # Main Plots
         self.PlotArea = PlotArea(self.spright, self)
-        
-        self.sptop.SplitVertically(self.PanelTop, self.PanelImage, st)
-        self.sptop.SetMinimumPaneSize(1000)
-        self.spright.SplitHorizontally(self.sptop, self.PlotArea, sy)
+
+        self.spright.SplitHorizontally(scrolltop, self.PlotArea, sy)
         
         ## left panel (file selection)
         ## We need a splitter window here
@@ -109,6 +111,7 @@ class Frame(gaugeframe.GaugeFrame):
         self.NewAnalysis([tlabwrap.Fake_RTDC_DataSet(tlabwrap.cfg)])
        
         ## Go
+        
         self.Centre()
         self.Show()
         self.Maximize()
@@ -470,7 +473,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             if os.path.exists(mm.fdir):
                 directories.append(mm.fdir)
         
-        # TODO: mark loaded directories as bold
         bolddirs = self.analysis.GetTDMSFilenames()
 
         self.OnMenuSearchPathAdd(add=False, path=directories,
@@ -628,6 +630,10 @@ class ImagePanel(ScrolledPanel):
         #self.SetSizer(self.mainSizer)
         #self.mainSizer.Fit(self)
 
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.imageCtrl, 1, wx.ALL | wx.EXPAND, 5)
+        self.SetSizer(sizer)
+
         self.ShowImage()
 
 
@@ -661,11 +667,6 @@ class ImagePanel(ScrolledPanel):
         wximg = wximg.Scale(newx, newy)
 
         self.imageCtrl.SetBitmap(wx.BitmapFromImage(wximg))
-        
-        self.SetClientSize((newx, newy))
-        self.SetMaxSize((newx, newy))
-        self.SetVirtualSize((newx, newy))
-        self.parent.SetSashPosition(self.parent.GetSashPosition())
        
 
 ########################################################################

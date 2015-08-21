@@ -6,6 +6,7 @@
 from __future__ import division, print_function
 
 import numpy as np
+import platform
 import wx
 
 import wx.lib.agw.flatnotebook as fnb
@@ -17,17 +18,33 @@ from polygonselect import LineDrawerWindow
 import tlabwrap
 
 
-class ControlPanel(wx.Panel):
+class FlatNotebook(fnb.FlatNotebook):
+    """
+    Flatnotebook class
+    """
+    def __init__(self, parent):
+        """Constructor"""
+        style = fnb.FNB_RIBBON_TABS|\
+                fnb.FNB_TABS_BORDER_SIMPLE|fnb.FNB_NO_X_BUTTON|\
+                fnb.FNB_NO_NAV_BUTTONS|fnb.FNB_NODRAG
+        # Bugfix for Mac
+        if platform.system().lower() in ["windows", "linux"]:
+            style = style|fnb.FNB_HIDE_ON_SINGLE_TAB
+        self.fnb = fnb.FlatNotebook.__init__(self, parent, wx.ID_ANY,
+                                             agwStyle=style)
+
+
+class ControlPanel(ScrolledPanel):
     """"""
     def __init__(self, parent, frame):
         """Constructor"""
-        wx.Panel.__init__(self, parent)
-        #self.SetupScrolling(scroll_y=True)
+        ScrolledPanel.__init__(self, parent)
+        self.SetupScrolling(scroll_y=True)
+        self.SetupScrolling(scroll_x=True)
+        
         self.frame = frame
         self.config = frame.config
-        notebook = fnb.FlatNotebook(self, -1, agwStyle=fnb.FNB_RIBBON_TABS|\
-                               fnb.FNB_TABS_BORDER_SIMPLE|fnb.FNB_NO_X_BUTTON|\
-                               fnb.FNB_NO_NAV_BUTTONS|fnb.FNB_NODRAG)
+        notebook = FlatNotebook(self) 
 
         self.subpanels = []
 
@@ -188,6 +205,7 @@ class SubPanel(ScrolledPanel):
         """
         ScrolledPanel.__init__(self, parent, *args, **kwargs)
         self.SetupScrolling(scroll_y=True)
+        self.SetupScrolling(scroll_x=True)
         self.analysis = None
         self.key = None
         self.funcparent = funcparent
