@@ -263,7 +263,8 @@ class SubPanel(ScrolledPanel):
             c.SetValue(unicode(item[1]))
             stemp.Add(a)
             stemp.Add(c)
-        elif tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool:
+        elif (tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool or 
+              str(item[1]).capitalize() in ["True", "False"]):
             a = wx.CheckBox(self, label=_(item[0]), name=item[0])
             a.SetValue(item[1])
             stemp.Add(a)
@@ -307,7 +308,57 @@ class SubPanelFilter(SubPanel):
         self.config = ConfigurationFile()
         self.key = "Filtering"
 
-    def _box_from_cfg_filter(self, analysis, key):
+    def _box_rest_filter(self, analysis, key):
+        """
+        Display rest like datapoint limit
+        """
+        gen = wx.StaticBox(self, label=_("Box Filters"))
+
+        hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
+        
+        items = analysis.GetParameters(key).items()
+
+        sortfunc = lambda x: (x[0].replace("Max", "2")
+                                  .replace("Min", "1"))
+        items.sort(key=sortfunc)
+        
+        
+        sgen = wx.FlexGridSizer(len(items), 1)
+        
+        excludeend = ["Min", "Max"]
+        excludeis = ["Enable Filters"]
+        excludestart = ["Polygon"]
+        
+        #sgen = wx.BoxSizer(wx.VERTICAL)
+        for item in items:
+            ins = True
+            for it in excludeend:
+                if item[0].endswith(it):
+                    ins = False
+            for it in excludeis:
+                if item[0] == it:
+                    ins = False
+            for it in excludestart:
+                if item[0].startswith(it):
+                    ins = False
+            if not ins:
+                continue
+            
+            print(item[0])
+            
+            stemp = self._create_type_wx_controls(analysis,
+                                                  key, item)
+            sgen.Add(stemp)
+
+        sgen.Layout()
+        hbox.Add(sgen)
+        return hbox
+    
+
+    def _box_minmax_filter(self, analysis, key):
+        """
+        Display everything with Min/Max
+        """
         gen = wx.StaticBox(self, label=_("Box Filters"))
 
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
@@ -329,15 +380,10 @@ class SubPanelFilter(SubPanel):
             if "Defo" in analysis.GetPlotAxes():
                 display_circ = False
 
-        # Remove filtering from these items
-        excluded = ["Enable Filters", "Polygon Filters"]
-        
         for item in items:
             if item[0].startswith("Circ") and display_circ is False:
                 pass
             elif item[0].startswith("Defo") and display_circ is True:
-                pass
-            elif item[0] in excluded:
                 pass
             elif item[0].endswith("Min"):
                 if item[0][:-4] in analysis.GetUnusableAxes():
@@ -356,14 +402,11 @@ class SubPanelFilter(SubPanel):
                 sgen.Add(stemp)
 
             elif item[0].endswith("Max"):
+                # did that before
                 pass
             else:
-                stemp = self._create_type_wx_controls(analysis,
-                                                      key, item)
-                sgen.Add(stemp)
-                sgen.Add(wx.Size())
+                pass
 
-        
         sgen.Layout()
         hbox.Add(sgen)
         
@@ -579,11 +622,17 @@ class SubPanelFilter(SubPanel):
             self.RemoveChild(item)
             item.Destroy()
         
-        # Box filters
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        fbox = self._box_from_cfg_filter(analysis, "Filtering")
-        sizer.Add(fbox)
-
+        
+        sizerv = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(sizerv)
+        # Box filters
+        fbox = self._box_minmax_filter(analysis, "Filtering")
+        sizerv.Add(fbox)
+        # Rest filters:
+        rbox = self._box_rest_filter(analysis, "Filtering")
+        sizerv.Add(rbox)
+        
         # Polygon filters
         polysizer = self._box_polygon_filter(analysis)
         sizer.Add(polysizer)

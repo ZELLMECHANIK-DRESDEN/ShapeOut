@@ -77,7 +77,8 @@ install:
   - "conda install --yes statsmodels"
   - "pip install nptdms"
   # prevent pip from installing later scipy versions
-  - "pip install dclab --no-deps"
+  - "pip install git+git://github.com/ZellMechanik-Dresden/dclab.git --no-deps"
+  #- "pip install dclab --no-deps"
   - "pip install simplejson"
   
   # Patch libraries
