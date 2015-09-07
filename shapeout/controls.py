@@ -631,6 +631,7 @@ class SubPanelFilter(SubPanel):
             analysis = self.analysis
         self.analysis = analysis
         self.Freeze()
+        
         for item in self.GetChildren():
             self.RemoveChild(item)
             item.Destroy()
@@ -875,6 +876,7 @@ class SubPanelPlotting(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
+        
         self.Thaw()
 
 
