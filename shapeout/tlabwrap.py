@@ -145,12 +145,12 @@ class Analysis(object):
     def ForceSameDataSize(self):
         """
         Force all measurements to have the same filtered size by setting
-        the minimum possible value for ["Filtering"]["Limit Points"] and
+        the minimum possible value for ["Filtering"]["Limit Events"] and
         return that size.
         """
-        # Reset limit filtering to get the correct number of points
+        # Reset limit filtering to get the correct number of events
         # This value will be overridden in the end.
-        cfgreset = {"Filtering":{"Limit Points":0}}
+        cfgreset = {"Filtering":{"Limit Events":0}}
         # This also calls ApplyFilter and comutes clean filters
         self.SetParameters(cfgreset)
         
@@ -158,7 +158,7 @@ class Analysis(object):
         minsize = np.inf
         for m in self.measurements:
             minsize = min(minsize, np.sum(m._filter))
-        cfgnew = {"Filtering":{"Limit Points":minsize}}
+        cfgnew = {"Filtering":{"Limit Events":minsize}}
         self.SetParameters(cfgnew)
         return minsize
         
@@ -417,7 +417,7 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
                 x_key = 'isoel_x'+str(ii)
                 y_key = 'isoel_y'+str(ii)
                 #
-                # # Crop data points outside of the plotting area
+                # # Crop data events outside of the plotting area
                 # #data = crop_linear_data(data, areamin, areamax, circmin, circmax)
                 #
                 pd.set_data(x_key, data[:,0])
@@ -563,7 +563,7 @@ def CreateLegendPlot(measurements, title_font="modern 12",
 def CreateScatterPlot(measurement, xax="Area", yax="Defo",
                       axScatter=None, isoel=None, 
                       square=True, 
-                      downsampling=None, downsample_points=None,
+                      downsampling=None, downsample_events=None,
                       panzoom=True, select=True):
     """ Plot scatter plot for two axes of an RTDC measurement
     
@@ -589,13 +589,13 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
         If set to None then
         Configuration["Plotting"]["Downsampling"] is used.
         Chaco does not yet have this implemented.
-    downsample_points : int or None
-        Number of points to draw in the down-sampled plot. This number
+    downsample_events : int or None
+        Number of events to draw in the down-sampled plot. This number
         is either 
-        - >=1: limit total number of points drawn
+        - >=1: limit total number of events drawn
         - <1: only perform 1st downsampling step with grid
         If set to None, then
-        Configuration["Plotting"]["Downsample Points"] will be used.
+        Configuration["Plotting"]["Downsample Events"] will be used.
     panzoom : bool
         Add panning and zooming tools.
     select : bool
@@ -610,8 +610,8 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     if downsampling is None:
         downsampling = plotfilters["Downsampling"]
         
-    if downsample_points is None:
-        downsample_points = plotfilters["Downsample Points"]
+    if downsample_events is None:
+        downsample_events = plotfilters["Downsample Events"]
     
     # We will pretend as if we are plotting circularity vs. area
     areamin = plotfilters[xax+" Min"]
@@ -644,7 +644,7 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     if downsampling:
         lx = x.shape[0]
         x, y = mm.GetDownSampledScatter(
-                                    downsample_points=downsample_points
+                                    downsample_events=downsample_events
                                     )
         positions = np.vstack([x.ravel(), y.ravel()])
         print("Downsampled from {} to {}".format(lx, x.shape[0]))
@@ -730,6 +730,14 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
         mmlabelcolor = "black"
     scatter_plot.title_color = mmlabelcolor
 
+    # Display numer of events
+    if mm.Configuration["Plotting"]["Show Events"]:
+        elabel = ca.PlotLabel(text="{} events".format(np.sum(mm._filter)),
+                              component=scatter_plot,
+                              vjustify="bottom",
+                              hjustify="right")
+        scatter_plot.overlays.append(elabel)
+        
     # zoom tool
     if panzoom:
         zoom = cta.ZoomTool(scatter_plot,

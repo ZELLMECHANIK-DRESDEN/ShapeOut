@@ -116,12 +116,12 @@ class ControlPanel(ScrolledPanel):
         cfg = { "Filtering" : newfilt }
         
         # Apply base data limits
-        if cfg["Filtering"]["Limit Points Auto"]:
+        if cfg["Filtering"]["Limit Events Auto"]:
             minsize = self.analysis.ForceSameDataSize()
-            cfg["Filtering"]["Limit Points"] = minsize
+            cfg["Filtering"]["Limit Events"] = minsize
             for c in ctrls:
                 name = c.GetName()
-                if name == "Limit Points":
+                if name == "Limit Events":
                     c.SetValue(str(minsize))
         
         self.analysis.SetParameters(cfg)
@@ -323,7 +323,7 @@ class SubPanelFilter(SubPanel):
 
     def _box_rest_filter(self, analysis, key):
         """
-        Display rest like datapoint limit
+        Display rest like data event limit
         """
         gen = wx.StaticBox(self, label=_("Other filters"))
 
