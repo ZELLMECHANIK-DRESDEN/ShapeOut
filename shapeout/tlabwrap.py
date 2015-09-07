@@ -141,7 +141,28 @@ class Analysis(object):
             PolygonFilter.save_all(os.path.join(directory,
                                             "PolygonFilters.poly"))
         return indexname
+
+    def ForceSameDataSize(self):
+        """
+        Force all measurements to have the same filtered size by setting
+        the minimum possible value for ["Filtering"]["Limit Points"] and
+        return that size.
+        """
+        # Reset limit filtering to get the correct number of points
+        # This value will be overridden in the end.
+        cfgreset = {"Filtering":{"Limit Points":0}}
+        # This also calls ApplyFilter and comutes clean filters
+        self.SetParameters(cfgreset)
         
+        # Get minimum size
+        minsize = np.inf
+        for m in self.measurements:
+            minsize = min(minsize, np.sum(m._filter))
+        cfgnew = {"Filtering":{"Limit Points":minsize}}
+        self.SetParameters(cfgnew)
+        return minsize
+        
+
     def GetPlotAxes(self, mid=0):
         #return 
         p = self.GetParameters("Plotting", mid)

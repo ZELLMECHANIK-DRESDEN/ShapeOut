@@ -102,7 +102,10 @@ class ControlPanel(ScrolledPanel):
             name = c.GetName()
             if samdict.has_key(name):
                 # box filters
-                newfilt[name] = float(c.GetValue())
+                if isinstance(c, wx._controls.CheckBox):
+                    newfilt[name] = bool(c.GetValue())
+                else:
+                    newfilt[name] = float(c.GetValue())
 
         chlist = self.page_filter.GetPolygonHtreeChecked()
         checked = []
@@ -111,6 +114,16 @@ class ControlPanel(ScrolledPanel):
         
         newfilt["Polygon Filters"] = checked
         cfg = { "Filtering" : newfilt }
+        
+        # Apply base data limits
+        if cfg["Filtering"]["Limit Points Auto"]:
+            minsize = self.analysis.ForceSameDataSize()
+            cfg["Filtering"]["Limit Points"] = minsize
+            for c in ctrls:
+                name = c.GetName()
+                if name == "Limit Points":
+                    c.SetValue(str(minsize))
+        
         self.analysis.SetParameters(cfg)
         
         # Update Plots
@@ -312,7 +325,7 @@ class SubPanelFilter(SubPanel):
         """
         Display rest like datapoint limit
         """
-        gen = wx.StaticBox(self, label=_("Box Filters"))
+        gen = wx.StaticBox(self, label=_("Other filters"))
 
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
         
