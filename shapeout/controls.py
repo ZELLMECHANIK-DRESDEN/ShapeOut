@@ -143,7 +143,7 @@ class ControlPanel(ScrolledPanel):
         for c in ctrls:
             name = c.GetName()
             if samdict.has_key(name):
-                var,val = tlabwrap.dfn.MapParameterStr2Type(name,c.GetValue())
+                var,val = tlabwrap.dfn.MapParameterStr2Type(name,c.GetValue())  # @UndefinedVariable
                 newfilt[var] = val
             elif "Title " in name:
                 # Change title of measurement
@@ -260,7 +260,7 @@ class SubPanel(ScrolledPanel):
         stemp = wx.BoxSizer(wx.HORIZONTAL)
         # these axes should not be displayed in the UI
         ignore_axes = tlabwrap.IGNORE_AXES+analysis.GetUnusableAxes()
-        choices = tlabwrap.dfn.GetParameterChoices(key, item[0], 
+        choices = tlabwrap.dfn.GetParameterChoices(key, item[0],  # @UndefinedVariable
                                                 ignore_axes=ignore_axes)
         if len(choices) != 0:
             a = wx.StaticText(self, label=_(item[0]))
@@ -276,7 +276,7 @@ class SubPanel(ScrolledPanel):
             c.SetValue(unicode(item[1]))
             stemp.Add(a)
             stemp.Add(c)
-        elif (tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool or 
+        elif (tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool or  # @UndefinedVariable
               str(item[1]).capitalize() in ["True", "False"]):
             a = wx.CheckBox(self, label=_(item[0]), name=item[0])
             a.SetValue(item[1])
