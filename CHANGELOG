@@ -1,0 +1,4 @@
+0.4.6
+- Limit number of events for data analysis (#11)
+- Automatically set number of events for multiple data sets (#11)
+- Display number of used events on plots (#10)

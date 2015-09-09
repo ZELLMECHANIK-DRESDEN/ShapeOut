@@ -3,11 +3,13 @@
 # source activate_env.sh
 DIRECTORY="env_shapeout"
 
+echo "---------------------------------------------------------"
 echo "Make sure you dclab checked out in the parent directory:"
 echo "   https://github.com/ZellMechanik-Dresden/dclab.git"
-
+echo "---------------------------------------------------------"
 echo "Make sure you have the following packages installed:"
 echo "   python-numpy python-opencv python-wxgtk2.8"
+echo "---------------------------------------------------------"
 
 ## who am i? ##
 _script="$(readlink -f ${BASH_SOURCE[0]})"
@@ -25,8 +27,8 @@ if [ ! -d $DIRECTORY ]; then
     pip install kiwisolver
     #deactivate
     
-    # register tdmslab
-    ln -s "../dclab/dclab" "$DIRECTORY/lib/python2.7/site-packages"
+    # register dclab
+    ln -s "../../../../../../dclab/dclab" "$DIRECTORY/lib/python2.7/site-packages"
 
 fi
 
