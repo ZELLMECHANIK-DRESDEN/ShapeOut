@@ -10,7 +10,7 @@ from __future__ import division, print_function
 import chaco
 import chaco.api as ca
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
-import cv2  # @UnresolvedImport
+import cv2
 import enable.api as ea
 
 import numpy as np
