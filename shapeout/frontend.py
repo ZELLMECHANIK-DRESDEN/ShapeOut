@@ -622,9 +622,9 @@ class ImagePanel(ScrolledPanel):
         # Draw image with wxPython instead
         self.startSizeX = 250
         self.startSizeY = 80
-        img = wx.EmptyImage(self.startSizeX, self.startSizeY)
+        self.img = wx.EmptyImage(self.startSizeX, self.startSizeY)
         self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY, 
-                                         wx.BitmapFromImage(img))
+                                         wx.BitmapFromImage(self.img))
         #self.mainSizer = wx.BoxSizer(wx.VERTICAL|wx.ALIGN_TOP|wx.ALIGN_LEFT)
         #self.mainSizer.Add(self.imageCtrl, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT)
         #self.SetSizer(self.mainSizer)
@@ -665,8 +665,9 @@ class ImagePanel(ScrolledPanel):
         
         # Image scaling
         wximg = wximg.Scale(newx, newy)
-
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(wximg))
+        self.img.Destroy()
+        self.img = wx.BitmapFromImage(wximg)
+        self.imageCtrl.SetBitmap(self.img)
        
 
 ########################################################################
