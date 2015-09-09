@@ -356,9 +356,6 @@ class SubPanelFilter(SubPanel):
                     ins = False
             if not ins:
                 continue
-            
-            print(item[0])
-            
             stemp = self._create_type_wx_controls(analysis,
                                                   key, item)
             sgen.Add(stemp)
