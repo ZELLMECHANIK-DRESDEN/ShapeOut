@@ -28,7 +28,7 @@ def check_release(
     except:
         msg = "Timeout or wrong URL."
         try:
-            with open("error.log", "w") as fe:
+            with open("check_update_error.log", "w") as fe:
                 fe.writelines(str(traceback.format_exc()))
         except:
             pass
@@ -85,7 +85,8 @@ def _UpdateConsumer(delayedresult, parent):
             webbrowser.open(url)
             
         parent.Bind(wx.EVT_MENU, get_update, menudl)
-    time.sleep(4)
+    # Do not block GUI too long!
+    time.sleep(1)
     parent.StatusBar.SetStatusText("")
 
 def _UpdateWorker(*args):
