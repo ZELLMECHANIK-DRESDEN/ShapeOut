@@ -138,7 +138,7 @@ class GaugeFrame(wx.Frame):
         ## Status Bar
         self.statusbar = self.CreateStatusBar()
         self.statusbar.SetFieldsCount(4)
-        self.statusbar.SetStatusWidths([50, 150, -1, -2])
+        self.statusbar.SetStatusWidths([250, 150, -1, -2])
         self.statusbar.SetStatusStyles([0,1,0,0])
         # progress bar
         self.gauge = wx.Gauge(self.statusbar, -1, 50, style=wx.GA_HORIZONTAL)

@@ -5,6 +5,8 @@ from distutils.version import LooseVersion
 import urllib2
 import simplejson
 import sys
+import time
+import traceback
 
 import webbrowser
 import wx
@@ -24,7 +26,12 @@ def check_release(
     try:
         data = urllib2.urlopen(u, timeout=timeout).read()
     except:
-        msg = "timeout or wrong url"
+        msg = "Timeout or wrong URL."
+        try:
+            with open("check_update_error.log", "w") as fe:
+                fe.writelines(str(traceback.format_exc()))
+        except:
+            pass
     else:
         j = simplejson.loads(data)
         
@@ -34,7 +41,7 @@ def check_release(
             new = LooseVersion(newversion)
             old = LooseVersion(version)
             if new <= old:
-                msg = "no update available"
+                msg = "No update available."
             else:
                 update = newversion
                 # determine which URL we need
@@ -54,7 +61,7 @@ def check_release(
 def Update(parent):
     """ This is a thread for _Update """
     ghrepo="ZellMechanik-Dresden/ShapeOut"
-    parent.StatusBar.SetStatusText("Connecting to server...")
+    parent.StatusBar.SetStatusText("Checking for updates...")
     if hasattr(so_version, "repo_tag"):
         version = so_version.repo_tag  # @UndefinedVariable
     else:
@@ -66,21 +73,21 @@ def Update(parent):
 
 def _UpdateConsumer(delayedresult, parent):
     results = delayedresult.get()
-    #dlg = UpdateDlg(parent, results)
-    #dlg.Show()
+    parent.StatusBar.SetStatusText("Update: "+results[1])
     if results[0]:
-        
         updatemenu = wx.Menu()
         parent.menubar.Append(updatemenu, _('&Update available!'))
         menudl = updatemenu.Append(
                                 wx.ID_ANY,
                                 _("Download version {}").format(results[0]),
                                 results[1])
-        
         def get_update(e=None, url=results[1]):
             webbrowser.open(url)
             
         parent.Bind(wx.EVT_MENU, get_update, menudl)
+    # Do not block GUI too long!
+    time.sleep(1)
+    parent.StatusBar.SetStatusText("")
 
 def _UpdateWorker(*args):
     results = check_release(*args)

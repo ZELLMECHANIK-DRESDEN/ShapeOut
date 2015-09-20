@@ -10,7 +10,7 @@ from __future__ import division, print_function
 import chaco
 import chaco.api as ca
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
-import cv2  # @UnresolvedImport
+import cv2
 import enable.api as ea
 
 import numpy as np
@@ -162,9 +162,12 @@ class Frame(gaugeframe.GaugeFrame):
         ## Export menu
         exportMenu = wx.Menu()
         self.menubar.Append(exportMenu, _('&Export'))
-        e2pdf = exportMenu.Append(wx.ID_ANY, _('Create PDF file'), 
+        e2pdf = exportMenu.Append(wx.ID_ANY, _('&Plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
+        e2stat = exportMenu.Append(wx.ID_ANY, _('&Statistics (*.tsv)'), 
+                       _('Export the information in the statistics tab'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
         
         self.SetMenuBar(self.menubar)
 
@@ -325,13 +328,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         and then changes everything back
         """
         dlg = wx.FileDialog(self, "Export plot as PDF", 
-                            self.config.GetWorkingDirectory(), "",
+                            self.config.GetWorkingDirectory("PDF"), "",
                             "PDF file (*.pdf)|*.pdf",
                             wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             if not path.endswith(".pdf"):
                 path += ".pdf"
+            self.config.SetWorkingDirectory(os.path.dirname(path), "PDF")
             container = self.PlotArea.container
             
             #old_height = container.height
@@ -430,6 +434,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         warnings.warn("Not resetting plot fonts for"+\
                                       "plot component class {}.".format(
                                       item.__class__))
+
+    def OnMenuExportStatistics(self, e=None):
+        """ Saves statistics results from tab to text file
+        
+        """
+        # Get data
+        head, data = self.analysis.GetStatisticsBasic()
+        exp = list()
+        # Format data
+        exp.append("#"+"\t".join(head))
+        for subd in data:
+            subdnew = list()
+            for d in subd:
+                if isinstance(d, (str, unicode)):
+                    subdnew.append(d.replace("\t", " "))
+                else:
+                    subdnew.append("{:.5e}".format(d))
+            exp.append("\t".join(subdnew))
+        for i in range(len(exp)):
+            exp[i] += "\n\r"
+        # File dialog
+        
+        dlg = wx.FileDialog(self, "Choose file to save",
+                self.config.GetWorkingDirectory("TSV"),
+                "", "Tab separated file (*.tsv)|*.tsv;*.TSV",
+                wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        # user cannot do anything until he clicks "OK"
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            if path.lower().endswith(".tsv") is not True:
+                path = path+".tsv"
+            self.config.SetWorkingDirectory(os.path.dirname(path), "TSV")
+            with open(path, 'w') as fd:
+                fd.writelines(exp)
 
 
     def OnMenuLoad(self, e=None, sessionfile=None):
@@ -622,9 +660,9 @@ class ImagePanel(ScrolledPanel):
         # Draw image with wxPython instead
         self.startSizeX = 250
         self.startSizeY = 80
-        img = wx.EmptyImage(self.startSizeX, self.startSizeY)
+        self.img = wx.EmptyImage(self.startSizeX, self.startSizeY)
         self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY, 
-                                         wx.BitmapFromImage(img))
+                                         wx.BitmapFromImage(self.img))
         #self.mainSizer = wx.BoxSizer(wx.VERTICAL|wx.ALIGN_TOP|wx.ALIGN_LEFT)
         #self.mainSizer.Add(self.imageCtrl, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT)
         #self.SetSizer(self.mainSizer)
@@ -665,8 +703,9 @@ class ImagePanel(ScrolledPanel):
         
         # Image scaling
         wximg = wximg.Scale(newx, newy)
-
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(wximg))
+        self.img.Destroy()
+        self.img = wx.BitmapFromImage(wximg)
+        self.imageCtrl.SetBitmap(self.img)
        
 
 ########################################################################

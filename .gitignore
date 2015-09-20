@@ -55,3 +55,15 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# other stuff
+*.spec~
+*.iss
+*.txt~
+
+
+# local shapeout config
+shapeout/shapeout.cfg
+
+# local python environment
+develop/env_shapeout
