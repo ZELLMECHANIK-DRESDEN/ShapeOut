@@ -1,3 +1,7 @@
+0.4.8
+- New statistics tab (#6)
+- Minor improvements of GUI
+- Update from dclab: errors when using MV KDE (#20)
 0.4.7
 - Fix loading of sessions (#17)
 0.4.6
