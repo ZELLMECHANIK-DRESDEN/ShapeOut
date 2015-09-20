@@ -11,6 +11,9 @@ import chaco.tools.api as cta
 from dclab import *  # @UnusedWildImport
 from ShapeOut import findfile
 
+from scipy import stats
+
+
 from chaco.color_mapper import ColorMapper
 
 def darkjet(myrange, **traits):
@@ -189,6 +192,42 @@ class Analysis(object):
         for mm in self.measurements:
             colors.append(mm.Configuration["Plotting"]["Contour Color"])
         return colors
+
+    def GetStatisticsBasic(self):
+        """
+        Computes Mean, Avg, etc for all data sets and returns two lists:
+        The headings and the values.
+        """
+        columns = [
+                   ["Mean", np.average],
+                   ["SD", np.std],
+                   ["Mode", lambda x: stats.mode(x)[0][0]],
+                   ["Median", np.median],
+                   ]
+        # heading
+        head = ["Data set"]
+        for c in columns:
+            for ax in self.measurements[0].GetPlotAxes():
+                head += [" ".join([_(c[0]), _(ax)])+"  "]
+
+        datalist = list()
+        # loop through measurements
+        for mm in self.measurements:
+            mmlist = list()
+            mmlist.append(mm.title)
+            # loop through plotted axes
+            for ax in mm.GetPlotAxes():
+                if mm.Configuration["Filtering"]["Enable Filters"]:
+                    x = getattr(mm, dfn.cfgmaprev[ax])[mm._filter]
+                else:
+                    # filtering disabled
+                    x = getattr(mm, dfn.cfgmaprev[ax])
+                # compute variable and add to datalist
+                for c in columns:
+                    mmlist.append(c[1](x))
+            datalist.append(mmlist)
+        
+        return head, datalist
 
     def SetContourAccuracies(self, points=70):
         """ Set initial accuracies for all plots

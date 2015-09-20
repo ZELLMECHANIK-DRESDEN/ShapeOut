@@ -16,7 +16,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 from configuration import ConfigurationFile
 from polygonselect import LineDrawerWindow
 import tlabwrap
-
+import util
 
 class FlatNotebook(fnb.FlatNotebook):
     """
@@ -57,6 +57,10 @@ class ControlPanel(ScrolledPanel):
         notebook.AddPage(self.page_filter, _("Filtering"))
         self.subpanels.append(self.page_filter)
         
+        self.page_stat = SubPanelStatistics(notebook)
+        notebook.AddPage(self.page_stat, _("Statistics"))
+        self.subpanels.append(self.page_stat)
+        
         self.page_plot = SubPanelPlotting(notebook, funcparent=self)
         notebook.AddPage(self.page_plot, _("Plottting"))
         self.subpanels.append(self.page_plot)
@@ -69,7 +73,7 @@ class ControlPanel(ScrolledPanel):
         notebook.AddPage(self.page_cont, _("Contour Plot"))
         self.subpanels.append(self.page_cont)
         
-        notebook.SetSelection(2)
+        notebook.SetSelection(3)
         
         self.notebook = notebook
         
@@ -1046,6 +1050,74 @@ class SubPanelPlotScatter(SubPanel):
 
         sizer.Add(vertsizer)
 
+        self.SetSizer(sizer)
+        sizer.Fit(self)
+        self.Layout()
+        self.Thaw()
+
+
+class SubPanelStatistics(SubPanel):
+    def __init__(self, *args, **kwargs):
+        SubPanel.__init__(self, *args, **kwargs)
+
+    def _box_statistics(self, analysis):
+        """
+        Returns a wxBoxSizer with statistics information about
+        each element in analysis.
+        """
+        gen = wx.StaticBox(self, label=_("Filtered data sets"))
+        hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
+
+        if analysis is not None:
+
+            
+            colors = list()
+            for mm in analysis.measurements:
+                colors.append(mm.Configuration["Plotting"]["Contour Color"])
+            
+            head, datalist = analysis.GetStatisticsBasic()
+            
+            sgen = wx.FlexGridSizer(len(datalist)+1, len(datalist[0]))
+            
+            for label in head:
+                ctrl = wx.StaticText(self, label="")
+                ctrl.SetLabelMarkup("<b>{}</b>".format(label))
+                sgen.Add(ctrl)
+                 
+            
+            for row, color in zip(datalist, colors):
+                if isinstance(color, (list, tuple)):
+                    color = util.rgb_to_hex(color[:3], norm=1)
+                
+                for item in row:
+                    if isinstance(item, (str, unicode)):
+                        label = u" {} ".format(item)
+                    else:
+                        label = u" {} ".format(util.float2string_nsf(item, n=3))
+                    ctrl = wx.StaticText(self, label="")
+                    ctrl.SetLabelMarkup("<span fgcolor='{}'>{}</span>".format(color, label))
+                    sgen.Add(ctrl)
+        
+            sgen.Layout()
+            hbox.Add(sgen)
+        
+        return hbox
+
+
+    def Update(self, analysis):
+        """  """
+        self.Freeze()
+        for item in self.GetChildren():
+            self.RemoveChild(item)
+            item.Destroy()
+        # Create three boxes containing information
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        statbox = self._box_statistics(analysis)
+        # same size 
+        h = statbox.GetMinSize()[1]
+        h = max(h, 50)
+        statbox.SetMinSize((-1, h))
+        sizer.Add(statbox)
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
