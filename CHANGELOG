@@ -1,3 +1,7 @@
+0.4.9
+- Bugfixes:
+  - Statistics panel head was in wrong order
+- Improved order of displayed parameters
 0.4.8
 - New statistics tab (#6)
 - Minor improvements of GUI
