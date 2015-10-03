@@ -1,3 +1,7 @@
+0.4.9
+- Bugfix: statistics panel head was in wrong order
+- Allow to fix contour plot scaling (#9)
+- Ordered parameters in control panels 
 0.4.8
 - New statistics tab (#6)
 - Minor improvements of GUI

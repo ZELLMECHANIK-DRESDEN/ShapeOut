@@ -206,8 +206,8 @@ class Analysis(object):
                    ]
         # heading
         head = ["Data set"]
-        for c in columns:
-            for ax in self.measurements[0].GetPlotAxes():
+        for ax in self.measurements[0].GetPlotAxes():
+            for c in columns:
                 head += [" ".join([_(c[0]), _(ax)])+"  "]
 
         datalist = list()
@@ -230,10 +230,26 @@ class Analysis(object):
         return head, datalist
 
     def SetContourAccuracies(self, points=70):
-        """ Set initial accuracies for all plots
+        """ Set initial (heuristic) accuracies for all plots.
         
-        "Contour Accuracy Area" = 10, etc..
+        It is not always easy to determine the correct accuracy for
+        the contour plots. This method sets these accuracies for the
+        active axes for the user. Each axis is divided into `points`
+        segments and the length of each segment is then used for the
+        accuracy.
+        
+        All keys of the active axes are changed, e.g.:
+          - "Contour Accuracy Area"
+          - "Contour Accuracy Defo"
+        
+        Note that the accuracies are not updated when the key
+        ["Plotting"]["Contour Fix Scale"] is set to `True` for the
+        first measurement of the analysis.
         """
+        # check if updating is disabled:
+        if self.measurements[0].Configuration["Plotting"]["Contour Fix Scale"]:
+            return
+        
         if len(self.measurements) > 1:
             # first create dictionary with min/max keys
             minmaxdict = dict()
@@ -537,7 +553,6 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
 
     contour_plot.tools.append(pan)
 
-
     return contour_plot
 
 
@@ -817,7 +832,6 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
                 selection_color = "purple")
             )
 
-
     return scatter_plot
 
         
@@ -927,7 +941,6 @@ def GetRegion(fname):
         return ""
 
 
-
 def LoadIsoelastics(isoeldir, isoels={}):
     """ Load isoelastics from directories.
     
@@ -1003,10 +1016,78 @@ def LoadIsoelastics(isoeldir, isoels={}):
     return isoels
 
 
+def GetConfigurationKeys(cfgfilename, capitalize=True):
+    """
+    Load the configuration file and return the list of variables
+    in the order they appear.
+    """
+    with open(cfgfilename, 'r') as f:
+        code = f.readlines()
+    
+    cfglist = list()
+    
+    for line in code:
+        # We deal with comments and empty lines
+        # We need to check line length first and then we look for
+        # a hash.
+        line = line.split("#")[0].strip()
+        if len(line) != 0 and not (line.startswith("[") and line.endswith("]")):
+            var = line.split("=", 1)[0].strip()
+            cfglist.append(var)
+    
+    return cfglist
+
+
+def SortConfigurationKeys(cfgkeys):
+    """
+    Sorts a list of configuration keys according to the appearance in the
+    ShapeOut dclab.cfg configuration file.
+    
+    If items are not present in this file, then the will be sorted according to
+    the string value.
+    
+    This function is used to determine the displayed order of parameters in
+    ShapeOut using the configuration file `dclab.cfg`.
+    
+    `cfgkeys` may be a list of tuples where the first element is the key
+    or a list of keys.
+    
+    This method uses the global variable `cfg_ordered_list` to loookup
+    in which order the data should be sorted.
+    """
+    orderlist = cfg_ordered_list
+    
+    def compare(x, y):
+        """
+        Compare keys for sorting.
+        """
+        if isinstance(x, (list, tuple)):
+            x = x[0]
+        if isinstance(y, (list, tuple)):
+            y = y[0]
+        
+        if x in orderlist:
+            rx = orderlist.index(x)
+        else:
+            rx = len(orderlist) + 1
+        if y in orderlist:
+            ry = orderlist.index(y)
+        else:
+            ry = len(orderlist) + 1
+        if rx == ry:
+            if x<y:
+                ry += 1
+            else:
+                rx += 1
+        return rx-ry
+
+    return sorted(cfgkeys, cmp=compare)
+
 
 ## Overwrite the tlab configuration with our own.
 cfg_file = findfile("dclab.cfg")
 cfg = dfn.LoadConfiguration(cfg_file, dfn.cfg)
+cfg_ordered_list = GetConfigurationKeys(cfg_file)
 
 thispath = os.path.dirname(os.path.realpath(__file__))
 isoeldir = findfile("isoelastics")

@@ -43,19 +43,19 @@ def check_release(
             if new <= old:
                 msg = "No update available."
             else:
+                msg = web
                 update = newversion
                 # determine which URL we need
                 if sys.platform.lower == "windows":
                     dlid = "win_32bit_setup.exe"
                 else:
                     dlid = False
-                # search for download file
+                # search for download file and replace msg
                 if dlid:
                     for a in j["assets"]:
                         if a["browser_download_url"].count(dlid):
                             msg = a["browser_download_url"]
-                else:
-                    msg = web
+                    
     return update, msg
                 
 def Update(parent):

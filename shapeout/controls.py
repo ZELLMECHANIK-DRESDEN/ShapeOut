@@ -919,6 +919,7 @@ class SubPanelPlotContour(SubPanel):
                 items.remove(it)
 
         ## Contour plot data
+        items = tlabwrap.SortConfigurationKeys(items)
         for item in items:
             for strid in Plotting_Elements_Contour:
                 if item[0].startswith(strid):
@@ -1012,6 +1013,7 @@ class SubPanelPlotScatter(SubPanel):
         items = analysis.GetParameters(key).items()
 
         ## Scatter plot data
+        items = tlabwrap.SortConfigurationKeys(items)
         for item in items:
             for strid in Plotting_Elements_Scatter:
                 if item[0].startswith(strid):
