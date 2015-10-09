@@ -610,7 +610,6 @@ class SubPanelFilter(SubPanel):
         # else
         return c, None
 
-
     def OnPolygonCombobox(self, e=None):
         """
         Called when the user selects a different item in the plot selection
@@ -640,7 +639,6 @@ class SubPanelFilter(SubPanel):
                 else:
                     #print("wont check")
                     htreectrl.CheckItem(item, False)
-
 
     def OnPolygonDuplicate(self, e=None):
         _c, ch = self.GetPolygonHtreeSelected()
