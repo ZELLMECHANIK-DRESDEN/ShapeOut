@@ -61,6 +61,10 @@ class ControlPanel(ScrolledPanel):
         notebook.AddPage(self.page_stat, _("Statistics"))
         self.subpanels.append(self.page_stat)
         
+        self.page_cont = SubPanelAnalysis(notebook, funcparent=self)
+        notebook.AddPage(self.page_cont, _("Analysis"))
+        self.subpanels.append(self.page_cont)
+
         self.page_plot = SubPanelPlotting(notebook, funcparent=self)
         notebook.AddPage(self.page_plot, _("Plottting"))
         self.subpanels.append(self.page_plot)
@@ -116,7 +120,12 @@ class ControlPanel(ScrolledPanel):
         for ch in chlist:
             checked.append(ch.GetData())
         
-        newfilt["Polygon Filters"] = checked
+        # Polygon filters are handled separately for each measurement.
+        # This is done by the autobinding methods of the SubPanelFilter
+        # - OnPolygonCombobox        (display filter for each mm)
+        # - OnPolygonHtreeChecked    (change filter for each mm)
+        #newfilt["Polygon Filters"] = checked
+        
         cfg = { "Filtering" : newfilt }
         
         # Apply base data limits
@@ -190,7 +199,7 @@ class ControlPanel(ScrolledPanel):
                     unique_id = cs[-1].GetData()
                     newcfg = {"Filtering": 
                               {"Polygon Filters": [unique_id]} }
-                    self.analysis.SetParameters(newcfg)
+                    #self.analysis.SetParameters(newcfg)
             # and apply
             self.OnChangeFilter()
 
@@ -317,6 +326,56 @@ class SubPanel(ScrolledPanel):
     def Update(self, *args, **kwargs):
         """ Overwritten by subclass """
         pass
+
+
+class SubPanelAnalysis(SubPanel):
+    def __init__(self, parent, *args, **kwargs):
+        SubPanel.__init__(self, parent, *args, **kwargs)
+        self.config = ConfigurationFile()
+        self.key = "Analysis"
+
+    def Update(self, analysis=None):
+        if analysis is None:
+            analysis = self.analysis
+        self.analysis = analysis
+        self.Freeze()
+        
+        for item in self.GetChildren():
+            self.RemoveChild(item)
+            item.Destroy()
+        
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        
+        sizerv = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(sizerv)
+        
+        vertsizer  = wx.BoxSizer(wx.VERTICAL)
+
+        filten = analysis.GetParameters("Filtering")["Enable Filters"]
+        cb = self._create_type_wx_controls(analysis,
+                                           "Filtering",
+                                           ["Enable Filters", filten],)
+        vertsizer.Add(cb)
+
+        btn_apply = wx.Button(self, label=_("Apply"))
+        ## TODO:
+        # write function in this class that gives ControlPanel a new
+        # analysis, such that OnChangeFilter becomes shorter.
+        self.Bind(wx.EVT_BUTTON, self.funcparent.OnChangeFilter, btn_apply)
+        vertsizer.Add(btn_apply)
+
+        btn_reset = wx.Button(self, label=_("Reset"))
+        self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
+        vertsizer.Add(btn_reset)
+
+        sizer.Add(vertsizer)
+
+        self.SetSizer(sizer)
+        sizer.Fit(self)
+        self.Layout()
+        
+        self.Thaw()
+
 
 
 class SubPanelFilter(SubPanel):
@@ -458,6 +517,8 @@ class SubPanelFilter(SubPanel):
         optsizer.Add(duplicate)
         # edit
         edit = wx.Button(self, label=_("Edit"))
+        #edit.Bind(wx.EVT_BUTTON, self.OnPolygonEdit)
+        edit.Disable()
         optsizer.Add(edit)
         # remove
         remove = wx.Button(self, label=_("Remove"))
@@ -472,10 +533,11 @@ class SubPanelFilter(SubPanel):
         # dropdown (plot selection)
         choice_be = analysis.GetTitles()
         cbg = wx.ComboBox(self, -1, choices=choice_be,
-                                value=_("No Background"), name="None",
+                                value=_("None"), name="None",
                                 style=wx.CB_DROPDOWN|wx.CB_READONLY)
         cbg.SetSelection(min(0, len(choice_be)-1))
         cbg.SetValue(choice_be[-1])
+        cbg.Bind(wx.EVT_COMBOBOX, self.OnPolygonCombobox)
         plotsizer.Add(cbg)
         # htree control for polygon filter selection
         pol_filters = tlabwrap.PolygonFilter.instances
@@ -487,12 +549,15 @@ class SubPanelFilter(SubPanel):
         htreectrl.SetColumnWidth(0, 500)
         rroot = htreectrl.AddRoot("", ct_type=0)
         for p in pol_filters:
-            filtit = htreectrl.AppendItem(rroot, p.name, ct_type=1,
+            # filtit = 
+            htreectrl.AppendItem(rroot, p.name, ct_type=1,
                                           data=p.unique_id)
-            FIL = analysis.GetParameters("Filtering")
-            if (FIL.has_key("Polygon Filters") and
-                p.unique_id in FIL["Polygon Filters"]):
-                filtit.Check(True)
+        htreectrl.Bind(HT.EVT_TREE_ITEM_CHECKED, self.OnPolygonHtreeChecked)
+        # This is covered by self.OnPolygonCombobox()
+        #    FIL = analysis.GetParameters("Filtering")
+        #    if (FIL.has_key("Polygon Filters") and
+        #        p.unique_id in FIL["Polygon Filters"]):
+        #        filtit.Check(True)
         htreectrl.SetMinSize((200,120))
         plotsizer.Add(htreectrl, 1, wx.EXPAND, 3)
         # export
@@ -508,6 +573,8 @@ class SubPanelFilter(SubPanel):
         
         self._polygon_filter_combo_box = cbg
         self._polygon_filter_selection_htree = htreectrl
+
+        self.OnPolygonCombobox()
         return polysizer
 
     def GetPolygonHtreeChecked(self):
@@ -542,6 +609,38 @@ class SubPanelFilter(SubPanel):
                         return c, ch
         # else
         return c, None
+
+
+    def OnPolygonCombobox(self, e=None):
+        """
+        Called when the user selects a different item in the plot selection
+        combobox. We will mark the activated filters for that plot. in the
+        selection box below.
+        ComboBox:: self._polygon_filter_combo_box
+        HTreeCtrl: self._polygon_filter_selection_htree
+        """
+        htreectrl = self._polygon_filter_selection_htree
+        cmb = self._polygon_filter_combo_box
+        
+        # get selection
+        sel = cmb.GetSelection()
+        # get measurement
+        mm = self.analysis.measurements[sel]
+        # get filters
+        if "Polygon Filters" in mm.Configuration["Filtering"]:
+            filterlist = mm.Configuration["Filtering"]["Polygon Filters"]
+            #print(filterlist)
+            # set visible filters
+            r = htreectrl.GetRootItem()
+            for item in r.GetChildren():
+                #print("looking at", item.GetData())
+                if item.GetData() in filterlist:
+                    #print("will check")
+                    htreectrl.CheckItem(item, True)
+                else:
+                    #print("wont check")
+                    htreectrl.CheckItem(item, False)
+
 
     def OnPolygonDuplicate(self, e=None):
         _c, ch = self.GetPolygonHtreeSelected()
@@ -579,11 +678,42 @@ class SubPanelFilter(SubPanel):
         else:
             # export all
             tlabwrap.PolygonFilter.save_all(fname)
-            
+
     def OnPolygonExportAll(self, e=None):
         if len(tlabwrap.PolygonFilter.instances) != 0:
             self.OnPolygonExport(export_all=True)
 
+    def OnPolygonHtreeChecked(self, e=None):
+        """
+        This function is called when an item in the htreectrl is checked
+        or unchecked. We apply the corresponding filters to the underlying
+        RTDC data set live.
+        ComboBox:: self._polygon_filter_combo_box
+        HTreeCtrl: self._polygon_filter_selection_htree
+        """
+        htreectrl = self._polygon_filter_selection_htree
+        cmb = self._polygon_filter_combo_box
+        
+        # get selection
+        sel = cmb.GetSelection()
+        # get measurement
+        mm = self.analysis.measurements[sel]
+        # get filters
+        newfilterlist = list()
+        
+        # set visible filters
+        r = htreectrl.GetRootItem()
+        for item in r.GetChildren():
+            if item.IsChecked():
+                #print(item.GetData(), "checked")
+                newfilterlist.append(item.GetData())
+            else:
+                #print(item.GetData(), "unhecked")
+                pass
+        # apply filters to data set
+        mm.Configuration["Filtering"]["Polygon Filters"] = newfilterlist
+        
+    
     def OnPolygonImport(self, e=None):
         dlg = wx.FileDialog(self, "Open polygon file",
                     self.config.GetWorkingDirectory(name="Polygon"), "",
@@ -1082,8 +1212,11 @@ class SubPanelStatistics(SubPanel):
             sgen = wx.FlexGridSizer(len(datalist)+1, len(datalist[0]))
             
             for label in head:
-                ctrl = wx.StaticText(self, label="")
-                ctrl.SetLabelMarkup("<b>{}</b>".format(label))
+                ctrl = wx.StaticText(self, label=label)
+                try:
+                    ctrl.SetLabelMarkup("<b>{}</b>".format(label))
+                except:
+                    pass
                 sgen.Add(ctrl)
                  
             
@@ -1096,8 +1229,11 @@ class SubPanelStatistics(SubPanel):
                         label = u" {} ".format(item)
                     else:
                         label = u" {} ".format(util.float2string_nsf(item, n=3))
-                    ctrl = wx.StaticText(self, label="")
-                    ctrl.SetLabelMarkup("<span fgcolor='{}'>{}</span>".format(color, label))
+                    ctrl = wx.StaticText(self, label=label)
+                    try:
+                        ctrl.SetLabelMarkup("<span fgcolor='{}'>{}</span>".format(color, label))
+                    except:
+                        pass
                     sgen.Add(ctrl)
         
             sgen.Layout()
