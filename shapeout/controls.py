@@ -141,6 +141,8 @@ class ControlPanel(ScrolledPanel):
         
         # Update Plots
         self.frame.PlotArea.Plot(self.analysis)
+        
+        self.UpdatePages()
         wx.EndBusyCursor()
     
 
@@ -375,7 +377,6 @@ class SubPanelAnalysis(SubPanel):
         self.Layout()
         
         self.Thaw()
-
 
 
 class SubPanelFilter(SubPanel):
