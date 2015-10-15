@@ -229,6 +229,17 @@ class Analysis(object):
         
         return head, datalist
 
+    def PolygonFilterRemove(self, filt):
+        """
+        Removes a polygon filter from all elements of the analysis.
+        """
+        for mm in self.measurements:
+            try:
+                mm.PolygonFilterRemove(filt)
+            except ValueError:
+                pass
+
+
     def SetContourAccuracies(self, points=70):
         """ Set initial (heuristic) accuracies for all plots.
         

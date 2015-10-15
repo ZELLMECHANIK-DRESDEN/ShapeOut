@@ -188,7 +188,7 @@ class ControlPanel(ScrolledPanel):
                                axes=result["axes"])
         # update list of polygon filters
         self.UpdatePages()
-        # Select last Polygon if configuration has no polygon
+        # The first polygon will be applied to all plots
         if len(self.page_filter.GetPolygonHtreeChecked()) == 0:
             ctrls = self.page_filter.GetChildren()
             # identify controls via their name correspondence in the cfg
@@ -197,11 +197,10 @@ class ControlPanel(ScrolledPanel):
                     # get the selected items
                     r = c.GetRootItem()
                     cs = r.GetChildren()
-                    cs[-1].Check(True)
                     unique_id = cs[-1].GetData()
                     newcfg = {"Filtering": 
                               {"Polygon Filters": [unique_id]} }
-                    #self.analysis.SetParameters(newcfg)
+                    self.analysis.SetParameters(newcfg)
             # and apply
             self.OnChangeFilter()
 
@@ -627,11 +626,11 @@ class SubPanelFilter(SubPanel):
         # get measurement
         mm = self.analysis.measurements[sel]
         # get filters
+        r = htreectrl.GetRootItem()
         if "Polygon Filters" in mm.Configuration["Filtering"]:
             filterlist = mm.Configuration["Filtering"]["Polygon Filters"]
             #print(filterlist)
             # set visible filters
-            r = htreectrl.GetRootItem()
             for item in r.GetChildren():
                 #print("looking at", item.GetData())
                 if item.GetData() in filterlist:
@@ -640,6 +639,11 @@ class SubPanelFilter(SubPanel):
                 else:
                     #print("wont check")
                     htreectrl.CheckItem(item, False)
+        else:
+            # Uncheck everything, because mm does not know Filtering
+            for item in r.GetChildren():
+                htreectrl.CheckItem(item, False)
+            
 
     def OnPolygonDuplicate(self, e=None):
         _c, ch = self.GetPolygonHtreeSelected()
@@ -738,7 +742,9 @@ class SubPanelFilter(SubPanel):
             return
         unique_id = ch.GetData()
         tlabwrap.PolygonFilter.remove(unique_id)
+        self.analysis.PolygonFilterRemove(unique_id)
         c.Delete(ch)
+        self.funcparent.frame.PlotArea.Plot(self.analysis)
 
     def OnPolygonWindow(self, e=None):
         ldw = LineDrawerWindow(self.funcparent,
