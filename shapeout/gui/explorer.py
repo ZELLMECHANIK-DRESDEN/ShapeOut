@@ -13,7 +13,7 @@ import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
 
-import tlabwrap
+from .. import tlabwrap
 
 class ExplorerPanel(ScrolledPanel):
     """"""

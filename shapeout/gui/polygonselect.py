@@ -10,7 +10,7 @@ import enable.api as ea
 import platform
 import wx
 
-import tlabwrap
+from .. import tlabwrap
 
 class LineDrawer(cta.LineSegmentTool):
     """

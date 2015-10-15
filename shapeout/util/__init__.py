@@ -13,6 +13,8 @@ def findfile(fname):
     dirs += [".", "lang", "art", "config", "data"]
 
     dirs += ["../"+dd for dd in dirs]
+    
+    dirs += ["../"+dd for dd in dirs if dd.startswith("../")]
 
     thedirs = []
     if hasattr(sys, 'frozen'):

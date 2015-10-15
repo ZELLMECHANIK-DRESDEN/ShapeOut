@@ -13,10 +13,10 @@ import wx.lib.agw.flatnotebook as fnb
 import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
-from configuration import ConfigurationFile
-from polygonselect import LineDrawerWindow
-import tlabwrap
-import util
+from ..configuration import ConfigurationFile
+from .polygonselect import LineDrawerWindow
+from .. import tlabwrap
+from .. import util
 
 class FlatNotebook(fnb.FlatNotebook):
     """

@@ -9,7 +9,7 @@ import chaco.api as ca
 import chaco.tools.api as cta
 
 from dclab import *  # @UnusedWildImport
-from ShapeOut import findfile
+from util import findfile
 
 from scipy import stats
 

@@ -9,6 +9,11 @@
 #branches:
 #  only:
 #  - master
+notifications:
+  - provider: Email
+    on_build_success: false
+    on_build_failure: false
+    on_build_status_changed: false
 
 environment:
 
@@ -37,6 +42,10 @@ install:
   # Copied from
   # https://github.com/Phonations/Joker/blob/master/appveyor.yml
   - choco install -y InnoSetup
+  # install R with lme4
+  - choco install -y r.project
+  - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
+  - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
   # Install Python (from the official .msi of http://python.org) and pip when
   # not already installed.
   - "powershell freeze_appveyor\\install.ps1"
@@ -80,7 +89,9 @@ install:
   - "pip install git+git://github.com/ZellMechanik-Dresden/dclab.git --no-deps"
   #- "pip install dclab --no-deps"
   - "pip install simplejson"
-  
+  # install pyper (R)
+  - "pip install pyper"
+ 
   # Patch libraries
   - '%WITH_COMPILER% %PYTHON%/python freeze_appveyor/patch_libraries.py'
   

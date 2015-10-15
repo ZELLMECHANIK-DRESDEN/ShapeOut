@@ -26,11 +26,11 @@ from wx.lib.scrolledpanel import ScrolledPanel
 
 import zipfile
 
-from configuration import ConfigurationFile
+from ..configuration import ConfigurationFile
 from controls import ControlPanel
 from explorer import ExplorerPanel
 import gaugeframe
-import tlabwrap
+from .. import tlabwrap
 import update
 
 

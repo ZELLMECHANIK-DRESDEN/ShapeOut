@@ -13,8 +13,8 @@ import sys
 import warnings
 import wx
 
-import frontend
-from util import findfile
+from .gui import frontend
+from .util import findfile
 
 def prepare_app():
     # first initialize the app to prevent errors in Windows,
