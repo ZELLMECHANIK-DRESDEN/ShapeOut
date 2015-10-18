@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 A Python script that uses numpy and pyper with R and the "lme4" library
-to compute relations with linear mixed models.
+to compute relations with linear mixed effects models.
 
 Install the "lme4" library with:
 
@@ -16,35 +16,38 @@ import pyper
 
 from .util import cran
 
+
 def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     '''
     Linear Mixed Effects Models computation for one fixed effect and one 
     random effect.
     This function uses the R packages "lme4" and "stats".
-       
+    
     The response variable is modeled using two linear mixed effect models 
-    (Model and Nullmodel) of the form: 
-    - xs~treatment+(1+treatment|timeunit)  
+    (Model and Nullmodel) of the form:
+    - xs~treatment+(1+treatment|timeunit)
       (Random intercept + random slope model)
-    - xs~(1+treatment|timeunit) 
+    - xs~(1+treatment|timeunit)
       (Nullmodel without the fixed effect "treatment")
     
     Both models are compared in R using "anova" (from the R-package "stats")
-    which performs a likelihood ratio test to obtain the p-Value for the 
+    which performs a likelihood ratio test to obtain the p-Value for the
     significance of the fixed effect (treatment).
     
     Parameters
     ----------
-    xs: list of nx1 arrays
-        a list of response variables (eg. Deformations)
-    treatment: list of 1x1 arrays
-               a list which contains 1x1 arrays (of an integer values 
-               or strings) that describe the fixed effect.
-               
-    timeunit: list of 1x1 arrays
-              a list which contains 1x1 arrays (of an integer values 
-              or strings) that describe the random effect.
-              
+    xs: list of multiple 1D ndarrays
+        Each index of `xs` contains an array of response variables.
+        (eg. list containing "Area" data of several measurements)
+    treatment: list
+        Each item is a description/identifier for a treatment. The
+        enumeration matches the index of `xs`.
+        (e.g. list containing "Control" and "Data")
+    timeunit: list
+        Each item is a description/identifier for a time. The
+        enumeration matches the index of `xs`.
+        (e.g. list containing "day 1" and "day 2" according to content in `xs`)          
+
     Returns
     -------
     Linear Mixed Effects Model Result: dictionary
@@ -55,8 +58,8 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     -Std Error for the Fixed Effect
     -p-Value
     
-    Citations
-    ---------
+    References
+    ----------
     R package "lme4"
     Bates D, Maechler M, Bolker B and Walker S (2015). lme4: Linear mixed-
     effects models using Eigen and S4. R package version 1.1-9, 
@@ -82,10 +85,10 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     
     #xs[0] and xs[2] was a measurement on a control sample 
     #xs[1] and xs[3] was a measurement on a drug-treated sample
-    treatment = [['Control'],['Drug'],['Control'],['Drug']]
+    treatment = ['Control', 'Drug', 'Control', 'Drug']
     #xs[0] and xs[1] where measured on day 1
     #xs[2] and xs[3] where measured on day 2
-    timeunit = [[1],[1],[2],[2]]
+    timeunit = [1, 1, 2, 2]
     
     linmixmod(xs=xs,treatment=treatment,timeunit=timeunit)
     #Results: Estimate=136.64 (i.e. the average Control cell has an area 
@@ -94,8 +97,6 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     #         in area of 1.41)         
     #         p-Value(Likelihood Ratio Test)=0.84 (i.e. the Drug has not a 
     #         significant effect)
-    -------
-    
     '''
     
     modelfunc="xs~treatment+(1+treatment|timeunit)"
@@ -114,11 +115,11 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
         #Expand every unit in treatment and timeunit to the same length as the 
         #xs[i] they are supposed to describe
         #Using the "repeat" function also characters can be handled
-        treatment[i] = np.array(treatment[i]).repeat(len(xs[i]), axis=0)  
-        timeunit[i] = np.array(timeunit[i]).repeat(len(xs[i]), axis=0)
-        
+        treatment[i] = np.array([treatment[i]]).repeat(len(xs[i]), axis=0)  
+        timeunit[i] = np.array([timeunit[i]]).repeat(len(xs[i]), axis=0)
+    
     #Concat all elements in the lists    
-    xs = np.concatenate(xs)     
+    xs = np.concatenate(xs)
     treatment = np.concatenate(treatment)
     timeunit = np.concatenate(timeunit)
 
@@ -131,7 +132,11 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     #Create a dataframe which contains all the data
     r1("RTDC=data.frame(xs,treatment,timeunit)")
     #Load the necessary library for Linear Mixed Models    
-    r1("library(lme4)") 
+    lme4resp = r1("library(lme4)") 
+    if lme4resp.count("Error"):
+        # Tell the user that something went wrong
+        raise ImportError("Pyper: {}".format(lme4resp))
+    
 
     #Random intercept and random slope model
     r1("Model = lmer("+modelfunc+",RTDC)")
@@ -178,17 +183,3 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     "Estimate":Estimate,"Std. Error (Estimate)":StdErrorEstimate,
     "Fixed Effect":FixedEffect,"Std. Error (Fixed Effect)":StdErrorFixEffect}
     return results
-
-
-if __name__ == "__main__":
-    treatment = [['Control'],['Drug'],['Control'],['Drug']]
-    timeunit = [[1],[1],[2],[2]]
-    xs = [
-          [100,99,80,120,140,150,100,100,110,111,140,145],
-          [115,110,90,110,145,155,110,120,115,120,120,150,100,90,100],
-          [150,150,130,170,190,250,150,150,160,161,180,195,130,120,125,130,125],
-          [155,155,135,175,195,255,155,155,165,165,185, 200,135,125,130,135,140,150,135,140]
-         ]
-    res = linmixmod(xs=xs,treatment=treatment,timeunit=timeunit)
-    
-    assert np.allclose([res["Estimate"]], [136.63650509])
