@@ -25,6 +25,7 @@ if [ ! -d $DIRECTORY ]; then
     pip install nptdms
     pip install statsmodels==0.6.1
     pip install kiwisolver
+    pip install pyper
     #deactivate
     
     # register dclab

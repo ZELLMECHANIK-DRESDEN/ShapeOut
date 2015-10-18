@@ -5,6 +5,7 @@ import os
 import numpy as np
 import sys
 
+
 def findfile(fname):
     """ finds the absolute path of a file
     """
