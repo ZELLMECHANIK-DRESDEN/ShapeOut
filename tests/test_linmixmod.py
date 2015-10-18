@@ -16,8 +16,8 @@ import numpy as np
 
 # Add parent directory to beginning of path variable
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
-
 from shapeout.lin_mix_mod import linmixmod
+
 
 def test_linmixmod():
     treatment = ['Control', 'Drug', 'Control', 'Drug']

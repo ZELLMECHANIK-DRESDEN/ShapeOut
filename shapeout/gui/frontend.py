@@ -273,7 +273,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         from dclab import __version__ as dcversion
         from scipy import __version__ as spversion
         from pyper import __version__ as pyperversion
-        import _version as so_version
+        from .. import _version as so_version
         from ..util import cran
         r_version = cran.get_R_version()
         

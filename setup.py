@@ -7,7 +7,7 @@ import sys
 
 
 author = u"Paul Müller"
-authors = [author, "Philipp Rosendahl", "Maik Herbig"]
+authors = [author, u"Philipp Rosendahl", u"Maik Herbig"]
 name = 'shapeout'
 description = 'Data analysis for real-time deformability cytometry (RTDC)'
 year = "2015"
@@ -51,8 +51,12 @@ if __name__ == "__main__":
         license="GPL v2",
         description=description,
         long_description=long_description,
-        install_requires=["nptdms", "NumPy>=1.7.0", "SciPy>=0.10.0",
-                          "statsmodels", "pyper", "wxpython", "chaco"],
+        # ShapeOut depends on wxPython and chaco, both of which are not very
+        # easy (or impossible) to install from pypi. This list here is just
+        # meant as a mental note:
+        install_requires=["dclab", "nptdms", "NumPy>=1.7.0", "SciPy>=0.10.0",
+                          "statsmodels", "pyper", "wxpython", "chaco",
+                          "opencv", "kiwisolver"],
         keywords=["RTDC", "cytometry"],
         classifiers= [
             'Operating System :: OS Independent',

@@ -113,6 +113,7 @@ build: off
 
 test_script:
   - '%WITH_COMPILER% %PYTHON%/python -c "import shapeout; print shapeout.__version__"'
+  - '%WITH_COMPILER% %PYTHON%/python setup.py test'
 
 after_test:
   # If tests are successful, create a whl package for the project.

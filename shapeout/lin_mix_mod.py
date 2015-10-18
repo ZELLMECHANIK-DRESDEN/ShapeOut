@@ -135,8 +135,11 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     lme4resp = r1("library(lme4)") 
     if lme4resp.count("Error"):
         # Tell the user that something went wrong
-        raise ImportError("Pyper: {}".format(lme4resp))
-    
+        raise OSError("R installation at {}: {}\n".format(RCMD, lme4resp)+
+              """Please install 'lme4' via:
+              {} -e "install.packages('lme4', repos='http://cran.r-project.org')
+              """.format(RCMD)
+                      )
 
     #Random intercept and random slope model
     r1("Model = lmer("+modelfunc+",RTDC)")
