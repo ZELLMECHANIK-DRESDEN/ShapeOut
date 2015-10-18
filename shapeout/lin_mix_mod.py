@@ -16,7 +16,6 @@ import pyper
 
 from .util import cran
 
-
 def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     '''
     Linear Mixed Effects Models computation for one fixed effect and one 

@@ -5,8 +5,6 @@
 """
 from __future__ import division, print_function
 
-
-
 import chaco
 import chaco.api as ca
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext

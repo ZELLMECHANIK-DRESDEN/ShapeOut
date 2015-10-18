@@ -52,6 +52,7 @@ def float2string_nsf(fval, n=7):
     string="{:.{}f}".format(fval, npoint)
     return string
 
+
 def nice_string(string):
     """
     Convert a string of a float created by `float2string_nsf`
@@ -70,13 +71,13 @@ def nice_string(string):
             string=newstring+"0"
         return string
 
+
 def nice_float2string(fval, n=3):
     """
     wraps around float2string_nsf and nice_string
     """
     strfloat = float2string_nsf(fval, n=n)
     return nice_string(strfloat)
-    
     
 
 def hex_to_rgb(value):
