@@ -18,7 +18,7 @@ from .util import cran
 
 def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     '''
-    Linear Mixed Effects Models computation for one fixed effect and one 
+    Linear Mixed-Effects Model computation for one fixed effect and one 
     random effect.
     This function uses the R packages "lme4" and "stats".
     
@@ -59,14 +59,14 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     
     References
     ----------
-    R package "lme4"
-    Bates D, Maechler M, Bolker B and Walker S (2015). lme4: Linear mixed-
-    effects models using Eigen and S4. R package version 1.1-9, 
-    https://CRAN.R-project.org/package=lme4.    
+    .. [1] R package "lme4":
+           Bates D, Maechler M, Bolker B and Walker S (2015). lme4: Linear mixed-
+           effects models using Eigen and S4. R package version 1.1-9, 
+           https://CRAN.R-project.org/package=lme4.    
     
-    R function "anova" from package "stats"
-    Chambers, J. M. and Hastie, T. J. (1992) Statistical Models in S, 
-    Wadsworth & Brooks/Cole
+    .. [2] R function "anova" from package "stats":
+           Chambers, J. M. and Hastie, T. J. (1992) Statistical Models in S, 
+           Wadsworth & Brooks/Cole
     
     Example
     -------

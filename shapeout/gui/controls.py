@@ -7,8 +7,10 @@ from __future__ import division, print_function
 
 import numpy as np
 import platform
-import wx
+import tempfile
+import webbrowser
 
+import wx
 import wx.lib.agw.flatnotebook as fnb
 import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
@@ -17,6 +19,8 @@ from ..configuration import ConfigurationFile
 from .polygonselect import LineDrawerWindow
 from .. import tlabwrap
 from .. import util
+from .. import lin_mix_mod
+
 
 class FlatNotebook(fnb.FlatNotebook):
     """
@@ -77,7 +81,7 @@ class ControlPanel(ScrolledPanel):
         notebook.AddPage(self.page_cont, _("Contour Plot"))
         self.subpanels.append(self.page_cont)
         
-        notebook.SetSelection(3)
+        notebook.SetSelection(4)
         
         self.notebook = notebook
         
@@ -335,6 +339,105 @@ class SubPanelAnalysis(SubPanel):
         self.config = ConfigurationFile()
         self.key = "Analysis"
 
+    
+    def make_analysis_choices(self, analysis):
+        gen = wx.StaticBox(self, label=_("Linear mixed-effects model"))
+        hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
+
+        if analysis is not None:
+            # get common parameters
+            sizer_bag = wx.GridBagSizer(hgap=20, vgap=5)
+            
+            sizer_bag.Add(wx.StaticText(self, label=_("Axis to analyze:")), (0,0), span=wx.GBSpan(1,1))
+            
+            # axes dropdown
+            self.axes = analysis.GetUsableAxes()
+            axeslist = [tlabwrap.dfn.axlabels[a] for a in self.axes]
+            self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
+                                    value=_("None"), name="None",
+                                    style=wx.CB_DROPDOWN|wx.CB_READONLY)
+            # Set y-axis as default
+            ax = analysis.GetPlotAxes()[1]
+            if ax in self.axes:
+                axid = self.axes.index(ax)
+            else:
+                axid = 0
+            self.WXCB_axes.SetSelection(axid)
+            sizer_bag.Add(self.WXCB_axes, (0,1), span=wx.GBSpan(1,4))
+            
+            # Header for table
+            sizer_bag.Add(wx.StaticText(self, label=_("Data set")), (1,0), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label=_("Treatment")), (1,1), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label=_("Repetition")), (1,2), span=wx.GBSpan(1,1))
+            
+            treatments = [_("None"), _("Control")] + [_("Treatment {}").format(i) for i in range(1,5)]
+            repetitions = [str(i) for i in range(1,10)]
+            
+            self.WXCB_treatment = []
+            self.WXCB_repetition = []
+            
+            for ii, mm in enumerate(analysis.measurements):
+                # title
+                sizer_bag.Add(wx.StaticText(self, label=mm.title), (2+ii,0), span=wx.GBSpan(1,1))
+                # treatment
+                cbgtemp = wx.ComboBox(self, -1, choices=treatments,
+                                      name=mm.identifier,
+                                      style=wx.CB_DROPDOWN|wx.CB_READONLY)
+                if mm.title.lower().count("control") or ii==0:
+                    cbgtemp.SetSelection(1)
+                else:
+                    cbgtemp.SetSelection(0)
+                sizer_bag.Add(cbgtemp, (2+ii,1), span=wx.GBSpan(1,1))
+                # repetition
+                cbgtemp2 = wx.ComboBox(self, -1, choices=repetitions,
+                                      name=mm.identifier,
+                                      style=wx.CB_DROPDOWN|wx.CB_READONLY)
+                cbgtemp2.SetSelection(0)
+                sizer_bag.Add(cbgtemp2, (2+ii,2), span=wx.GBSpan(1,1))
+                
+                self.WXCB_treatment.append(cbgtemp)
+                self.WXCB_repetition.append(cbgtemp2)
+
+            hbox.Add(sizer_bag)
+            
+        return hbox
+    
+    def OnApply(self, e=None):
+        """
+        Perfrom LME4 computation
+        """
+        # Get axis name
+        axname = self.axes[self.WXCB_axes.GetSelection()]
+        # Get axis property
+        axprop = tlabwrap.dfn.cfgmaprev[axname]
+        
+        # loop through analysis
+        treatment = []
+        timeunit = []
+        xs = []
+        
+        for ii, mm in enumerate(self.analysis.measurements):
+            # get treatment (ignore 0)
+            if self.WXCB_treatment[ii].GetSelection() == 0:
+                # The user selected _("None")
+                continue
+            xs.append(getattr(mm, axprop)[mm._filter])
+            treatment.append(self.WXCB_treatment[ii].GetValue())
+            # get repetition
+            timeunit.append(int(self.WXCB_repetition[ii].GetValue()))
+            
+        # run lme4
+        result = lin_mix_mod.linmixmod(xs=xs,
+                                       treatment=treatment,
+                                       timeunit=timeunit)
+        # display results
+        # write to temporary file and display with webbrowser
+        with tempfile.NamedTemporaryFile(mode="w", prefix="linmixmod_", suffix=".txt", delete=False) as fd:
+            fd.writelines(result["Full Summary"])
+            
+        webbrowser.open(fd.name)
+    
+
     def Update(self, analysis=None):
         if analysis is None:
             analysis = self.analysis
@@ -347,22 +450,18 @@ class SubPanelAnalysis(SubPanel):
         
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         
+        statbox = self.make_analysis_choices(analysis)
+        sizer.Add(statbox)
+        
         sizerv = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(sizerv)
-        
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
-
-        filten = analysis.GetParameters("Filtering")["Enable Filters"]
-        cb = self._create_type_wx_controls(analysis,
-                                           "Filtering",
-                                           ["Enable Filters", filten],)
-        vertsizer.Add(cb)
 
         btn_apply = wx.Button(self, label=_("Apply"))
         ## TODO:
         # write function in this class that gives ControlPanel a new
         # analysis, such that OnChangeFilter becomes shorter.
-        self.Bind(wx.EVT_BUTTON, self.funcparent.OnChangeFilter, btn_apply)
+        self.Bind(wx.EVT_BUTTON, self.OnApply, btn_apply)
         vertsizer.Add(btn_apply)
 
         btn_reset = wx.Button(self, label=_("Reset"))

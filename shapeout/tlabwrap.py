@@ -177,6 +177,10 @@ class Analysis(object):
                 int(p["Contour Plot"]), int(p["Legend Plot"]))
                 
     def GetCommonParameters(self, key):
+        """
+        For as key (e.g. "Filtering") find all parameters that are given
+        for every measurement in the analysis.
+        """
         retdict = dict()
         if self.measurements[0].Configuration.has_key(key):
             s = set(self.measurements[0].Configuration[key].items())
@@ -335,9 +339,14 @@ class Analysis(object):
         return retdict        
 
     def GetUnusableAxes(self):
-        """ Unusable axes are axes that are not shared by all
-        measurement. A measurement does not have an axis, if all
+        """ 
+        Unusable axes are axes that are not shared by all
+        measurements. A measurement does not have an axis, if all
         values along that axis are zero.
+
+        See Also
+        --------
+        GetUsableAxes
         """
         unusable = []
         for ax in dfn.uid:
@@ -348,6 +357,25 @@ class Analysis(object):
                     unusable.append(ax)
                     break
         return unusable
+
+
+    def GetUsableAxes(self):
+        """ 
+        Usable axes are axes that are shared by all measurements
+        A measurement does not have an axis, if all values along
+        that axis are zero.
+
+        See Also
+        --------
+        GetUnusableAxes
+        """
+        unusable = self.GetUnusableAxes()
+        usable = []
+        for ax in dfn.uid:
+            if not ax in unusable:
+                usable.append(ax)
+        return usable
+
 
     def GetNames(self):
         """ Returns the names of all measurements """
