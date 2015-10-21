@@ -5,8 +5,6 @@
 """
 from __future__ import division, print_function
 
-
-
 import chaco
 import chaco.api as ca
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
@@ -26,11 +24,11 @@ from wx.lib.scrolledpanel import ScrolledPanel
 
 import zipfile
 
-from configuration import ConfigurationFile
+from ..configuration import ConfigurationFile
 from controls import ControlPanel
 from explorer import ExplorerPanel
 import gaugeframe
-import tlabwrap
+from .. import tlabwrap
 import update
 
 
@@ -272,7 +270,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         # Show About Information
         from dclab import __version__ as dcversion
         from scipy import __version__ as spversion
-        import _version as so_version
+        from pyper import __version__ as pyperversion
+        from .. import _version as so_version
+        from ..util import cran
+        r_version = cran.get_R_version()
+        
         if hasattr(so_version, "repo_tag"):
             version = so_version.repo_tag  # @UndefinedVariable
         else:
@@ -285,6 +287,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                "\n - dclab "+dcversion+\
                "\n - NumPy "+np.__version__+\
                "\n - OpenCV "+cv2.__version__+\
+               "\n - pyper "+pyperversion+\
                "\n - SciPy "+spversion+\
                "\n - wxPython "+wx.__version__
 
@@ -295,6 +298,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             if 'Anaconda' in sys.version or "Continuum Analytics" in sys.version:
                 conda = "\n\nPowered by Anaconda"
                 text += conda
+        
+        mtext = "\n\n"
+        mtext += "Other software:\n"
+        mtext += "\n".join([ "  "+r for r in r_version.split("\n")])
+        text += mtext
+        
         wx.MessageBox(text, 'Software', wx.OK | wx.ICON_INFORMATION)
 
 

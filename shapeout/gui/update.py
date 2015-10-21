@@ -12,7 +12,7 @@ import webbrowser
 import wx
 import wx.lib.delayedresult as delayedresult
 
-import _version as so_version
+from .. import _version as so_version
 
 def check_release(
             ghrepo="user/repo",
@@ -85,7 +85,7 @@ def _UpdateConsumer(delayedresult, parent):
             webbrowser.open(url)
             
         parent.Bind(wx.EVT_MENU, get_update, menudl)
-    # Do not block GUI too long!
+        # Do not block GUI too long!
     time.sleep(1)
     parent.StatusBar.SetStatusText("")
 

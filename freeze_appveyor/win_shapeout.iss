@@ -48,6 +48,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "C:\projects\shapeout\dist\ShapeOut\ShapeOut.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\projects\shapeout\dist\ShapeOut\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Include the entire R installation
+Source: "C:\Program Files\R\*"; DestDir: "{app}\R"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

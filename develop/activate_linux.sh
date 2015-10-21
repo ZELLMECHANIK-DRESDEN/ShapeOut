@@ -3,13 +3,13 @@
 # source activate_env.sh
 DIRECTORY="env_shapeout"
 
-echo "---------------------------------------------------------"
+echo "------------------------------------------------------------------"
 echo "Make sure you dclab checked out in the parent directory:"
 echo "   https://github.com/ZellMechanik-Dresden/dclab.git"
-echo "---------------------------------------------------------"
+echo "------------------------------------------------------------------"
 echo "Make sure you have the following packages installed:"
-echo "   python-numpy python-opencv python-wxgtk2.8"
-echo "---------------------------------------------------------"
+echo "   python-numpy python-opencv python-wxgtk2.8 r-base r-recommended"
+echo "------------------------------------------------------------------"
 
 ## who am i? ##
 _script="$(readlink -f ${BASH_SOURCE[0]})"
@@ -25,11 +25,14 @@ if [ ! -d $DIRECTORY ]; then
     pip install nptdms
     pip install statsmodels==0.6.1
     pip install kiwisolver
+    pip install pyper
     #deactivate
     
     # register dclab
     ln -s "../../../../../../dclab/dclab" "$DIRECTORY/lib/python2.7/site-packages"
 
+	# install lme4 package
+	R -e "install.packages('lme4', repos='http://cran.r-project.org')"
 fi
 
 source "${_base}/${DIRECTORY}/bin/activate"
