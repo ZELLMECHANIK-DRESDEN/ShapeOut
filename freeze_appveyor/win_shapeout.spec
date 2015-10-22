@@ -134,8 +134,7 @@ exe = EXE(pyz,
           console=False)
 
 # things that are safe to remove and save space
-remove_startswith = ["IPython", "_ssl", "libssl",
-                     "libcrypto", "libnvidia-glcore",
+remove_startswith = ["IPython", "libnvidia-glcore",
                      "libQtGui", "libQtWebKit",
                      "libQtXmlPatterns", "libQtCore", "qt4" ]
 for mod in remove_startswith:
