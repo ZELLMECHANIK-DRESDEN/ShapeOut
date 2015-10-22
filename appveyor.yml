@@ -48,7 +48,7 @@ install:
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
   # Install dependencies
   # force certain conda package versions
-  - cp freeze_appveyor\\pinned c:\\python27-conda32\\conda-meta\\
+  - "cp freeze_appveyor\\pinned c:\\python27-conda32\\conda-meta\\"
   - "powershell freeze_appveyor\\install.ps1"
 
   # Determine platform
@@ -61,7 +61,6 @@ install:
   # the parent CMD process).
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
-
   # Check that we have the expected version and architecture for Python
   - "python --version"
 
@@ -72,7 +71,7 @@ install:
   
   # Install package-specific libraries
   # CONDA installs
-  # Pinned versions are in appveyor\pinned
+  # Pinned versions are defined in freeze_appveyor\pinned
   #- "conda update -f conda"
   - "conda install --yes anaconda-client"
   - "conda install --yes cffi"
