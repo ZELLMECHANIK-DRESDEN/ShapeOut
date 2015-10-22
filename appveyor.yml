@@ -65,7 +65,7 @@ install:
   # Install package-specific libraries
   # CONDA installs
   # Pinned versions are defined in freeze_appveyor\pinned
-  - cp freeze_appveyor\\pinned c:\\python27-conda32\\conda-meta\\
+  - xcopy freeze_appveyor\\pinned c:\\python27-conda32\\conda-meta\\ /Y
   #- "conda update -f conda"
   - "conda install --yes anaconda-client"
   - "conda install --yes chaco"
