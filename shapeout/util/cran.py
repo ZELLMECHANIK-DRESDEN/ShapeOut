@@ -43,17 +43,17 @@ def get_R_binary(verbose=False):
 
     # win
     Rroot_win = "C:\\Program Files\\R"
-    append_folders = ["", "\\bin\\i386"]
+    append_folders = ["", "bin\\i386"]
     if os.path.exists(Rroot_win):
         for append in append_folders:
             # This will work independent of the installed R version
-            Rpaths += [ os.path.join(Rroot_win, d+append) for d in os.listdir(Rroot_win) ]
+            Rpaths += [ os.path.join(Rroot_win, os.path.join(d,append)) for d in os.listdir(Rroot_win) ]
     # win frozen
     if hasattr(sys, "frozen"):
         Rroot_win_frozen = os.path.join(os.path.abspath(sys._MEIPASS), "R")  # @UndefinedVariable
         if os.path.exists(Rroot_win_frozen):
             for append in append_folders:
-                Rpaths += [  os.path.join(Rroot_win_frozen, d+append) for d in os.listdir(Rroot_win_frozen) ]
+                Rpaths += [  os.path.join(Rroot_win_frozen, os.path.join(d,append)) for d in os.listdir(Rroot_win_frozen) ]
 
     # linux
     Rpaths += ["/usr/bin"]
