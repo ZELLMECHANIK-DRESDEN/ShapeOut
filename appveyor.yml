@@ -46,9 +46,7 @@ install:
   - choco install -y r.project
   - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
-  # Install dependencies
-  # force certain conda package versions
-  - "cp freeze_appveyor\\pinned c:\\python27-conda32\\conda-meta\\"
+  # Install Anaconda
   - "powershell freeze_appveyor\\install.ps1"
 
   # Determine platform
@@ -72,8 +70,10 @@ install:
   # Install package-specific libraries
   # CONDA installs
   # Pinned versions are defined in freeze_appveyor\pinned
+  - "cp freeze_appveyor\\pinned c:\\python27-conda32\\conda-meta\\"
   #- "conda update -f conda"
   - "conda install --yes anaconda-client"
+  - "conda install --yes chaco"
   - "conda install --yes cffi"
   - "conda install --yes enable"
   - "conda install --yes kiwisolver"
@@ -84,6 +84,7 @@ install:
   - "conda install --yes requests"
   - "conda install --yes scipy"
   - "conda install --yes statsmodels"
+  - "conda install --yes wxpython"
   - "conda install --yes -c https://conda.binstar.org/menpo opencv"
   # PIP installs
   - "pip install nptdms"

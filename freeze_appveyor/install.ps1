@@ -159,74 +159,10 @@ function InstallMiniconda ($python_version, $architecture, $python_home) {
 }
 
 
-function InstallMinicondaPip ($python_home) {
-    $pip_path = $python_home + "\Scripts\pip.exe"
-    $conda_path = $python_home + "\Scripts\conda.exe"
-    if (-not(Test-Path $pip_path)) {
-        Write-Host "Installing pip..."
-        $args = "install --yes pip"
-        Write-Host $conda_path $args
-        Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
-    } else {
-        Write-Host "pip already installed."
-    }
-}
-
-
-function InstallMinicondaNumpy ($python_home) {
-    $conda_path = $python_home + "\Scripts\conda.exe"
-    Write-Host "Installing numpy..."
-    # Current WxPython.lib.plot will not work with numpy>1.9.0 due to this bug:
-    # http://trac.wxwidgets.org/ticket/16590
-    #$args = "install --yes 'numpy<1.9.0'"
-    $args = "install --yes numpy"
-    
-    Write-Host $conda_path $args
-    Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
-}
-
-function InstallMinicondaScipy ($python_home) {
-    $conda_path = $python_home + "\Scripts\conda.exe"
-    Write-Host "Installing scipy..."
-    # Current WxPython.lib.plot will not work with numpy>1.9.0 due to this bug:
-    # http://trac.wxwidgets.org/ticket/16590
-    #$args = "install --yes scipy numpy=1.8"
-    # install scipy version 0.14.0, because later versions might produce
-    # this error:
-    # Import Error: No module named cython_blas
-    $args = "install --yes 'scipy=0.15.1'"
-    Write-Host $conda_path $args
-    Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
-}
-
-
-function InstallMinicondaWxpython ($python_home) {
-    $conda_path = $python_home + "\Scripts\conda.exe"
-    Write-Host "Installing wxpython..."
-    $args = "install --yes wxpython"
-    Write-Host $conda_path $args
-    Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
-}
-
-
-function InstallMinicondaChaco ($python_home) {
-    $conda_path = $python_home + "\Scripts\conda.exe"
-    Write-Host "Installing chaco..."
-    $args = "install --yes chaco"
-    Write-Host $conda_path $args
-    Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
-}
-
-
 function main () {
     #InstallPython $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
     #InstallPip $env:PYTHON
     InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
-    InstallMinicondaPip $env:PYTHON
-    InstallMinicondaNumpy $env:PYTHON
-    InstallMinicondaScipy $env:PYTHON
-    InstallMinicondaWxpython $env:PYTHON
-    InstallMinicondaChaco $env:PYTHON
 }
 
 main
