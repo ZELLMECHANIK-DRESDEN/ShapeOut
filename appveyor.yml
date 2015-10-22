@@ -82,7 +82,7 @@ install:
   - "conda install --yes -f scipy=0.15.1"
   - "conda install --yes -c https://conda.binstar.org/menpo opencv"
   - "pip install reportlab"
-  # requirements fro dclab:
+  # requirements from dclab:
   - "conda install --yes statsmodels"
   - "pip install nptdms"
   # prevent pip from installing later scipy versions
@@ -91,6 +91,11 @@ install:
   - "pip install simplejson"
   # install pyper (R)
   - "pip install pyper"
+ 
+  # force certain versions
+  - "conda install --yes -f enable=4.4.1"
+  - "conda install --yes -f requests=2.7.0"
+  - "conda install --yes -f pyface=4.4.0"
  
   # Patch libraries
   - '%WITH_COMPILER% %PYTHON%/python freeze_appveyor/patch_libraries.py'
