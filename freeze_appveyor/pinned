@@ -1,0 +1,5 @@
+enable ==4.4.1
+numpy 1.9.*
+pyface ==4.4.0
+requests ==2.7.0
+scipy ==0.15.1

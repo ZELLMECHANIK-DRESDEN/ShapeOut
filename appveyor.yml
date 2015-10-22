@@ -46,8 +46,7 @@ install:
   - choco install -y r.project
   - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
-  # Install Python (from the official .msi of http://python.org) and pip when
-  # not already installed.
+  # Install Anaconda
   - "powershell freeze_appveyor\\install.ps1"
 
   # Determine platform
@@ -60,37 +59,42 @@ install:
   # the parent CMD process).
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
-
   # Check that we have the expected version and architecture for Python
   - "python --version"
 
-  - "pip freeze"
-  
-  # Install the build dependencies of the project. 
-  - "pip install wheel"
-  
-  # Install package-specific libraries  
+  # Install package-specific libraries
+  # CONDA installs
+  # Pinned versions are defined in freeze_appveyor\pinned
+  - xcopy freeze_appveyor\pinned c:\python27-conda32\conda-meta\ /Y
   #- "conda update -f conda"
-  - "conda install --yes pip"
+  - "conda install --yes anaconda-client"
+  - "conda install --yes chaco"
   - "conda install --yes cffi"
+  - "conda install --yes enable"
   - "conda install --yes kiwisolver"
   - "conda install --yes numba"
+  - "conda install --yes pip"
   - "conda install --yes pyqt"
-  # install scipy in case `install.ps1` does not install
-  - "conda install --yes anaconda-client"
-  - "conda search scipy"
-  - "conda install --yes -f scipy=0.15.1"
-  - "conda install --yes -c https://conda.binstar.org/menpo opencv"
-  - "pip install reportlab"
-  # requirements fro dclab:
+  - "conda install --yes pyface"
+  - "conda install --yes requests"
+  - "conda install --yes scipy"
   - "conda install --yes statsmodels"
+  - "conda install --yes wxpython"
+  - "conda install --yes -c https://conda.binstar.org/menpo opencv"
+  - "pip freeze"
+  # PIP installs
   - "pip install nptdms"
-  # prevent pip from installing later scipy versions
-  - "pip install git+git://github.com/ZellMechanik-Dresden/dclab.git --no-deps"
-  #- "pip install dclab --no-deps"
-  - "pip install simplejson"
   # install pyper (R)
   - "pip install pyper"
+  - "pip install reportlab"
+  - "pip install simplejson"
+  # build dependencies
+  #- "pip install wheel"
+  # dclab
+  # prevent pip from installing later scipy versions
+  # requirements from dclab were partly installed with conda:
+  #- "pip install dclab --no-deps"
+  - "pip install git+git://github.com/ZellMechanik-Dresden/dclab.git --no-deps"
  
   # Patch libraries
   - '%WITH_COMPILER% %PYTHON%/python freeze_appveyor/patch_libraries.py'
