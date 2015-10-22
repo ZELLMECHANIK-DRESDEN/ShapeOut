@@ -48,7 +48,7 @@ install:
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
   # Install dependencies
   # force certain conda package versions
-  - "cp freeze_appveyor\pinned c:\python27-conda32\conda-meta\"
+  - cp freeze_appveyor\\pinned c:\\python27-conda32\\conda-meta\\
   - "powershell freeze_appveyor\\install.ps1"
 
   # Determine platform
