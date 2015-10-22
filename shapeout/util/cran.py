@@ -105,8 +105,8 @@ def get_R_version(binary=None):
 
     # Get version string
     try:
-        p = sp.Popen("{} --version".format(rcmd), stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
-        ver, _err = p.communicate() 
+        p = sp.Popen('"{}" --version'.format(rcmd), stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
+        ver = "\n".join(p.communicate()).strip() 
         ver = ver.split("\n")
         ver = [ v.strip() for v in ver ]
         ver = "\n".join([rcmd]+ver[:3])

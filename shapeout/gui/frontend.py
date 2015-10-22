@@ -304,7 +304,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         mtext += "\n".join([ "  "+r for r in r_version.split("\n")])
         text += mtext
         
-        wx.MessageBox(text, 'Software', wx.OK | wx.ICON_INFORMATION)
+        wx.MessageBox(text, 'Software', wx.OK|wx.ICON_INFORMATION)
 
 
     def OnMenuClearMeasurements(self, e=None):
