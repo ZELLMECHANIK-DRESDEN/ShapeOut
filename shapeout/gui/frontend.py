@@ -688,13 +688,13 @@ class ImagePanel(ScrolledPanel):
     def ShowImage(self, image=None):
         def pil_to_wx_bmp(image):
             width, height = image.size
-            mybuffer = image.convert('RGB').tostring()
+            mybuffer = image.convert('RGB').tobytes()
             bitmap = wx.BitmapFromBuffer(width, height, mybuffer)
             return bitmap
         
         def pil_to_wx_img(image):
             width, height = image.size
-            mybuffer = image.convert('RGB').tostring()
+            mybuffer = image.convert('RGB').tobytes()
             bitmap = wx.ImageFromBuffer(width, height, mybuffer)
             return bitmap
 
