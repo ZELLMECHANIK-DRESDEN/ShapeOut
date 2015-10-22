@@ -105,14 +105,13 @@ def get_R_version(binary=None):
 
     # Get version string
     try:
-        ver = sp.check_output("{} --version".format(rcmd), shell=True)
+        p = sp.Popen("{} --version".format(rcmd), stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
+        ver, _err = p.communicate() 
         ver = ver.split("\n")
         ver = [ v.strip() for v in ver ]
-        ver = "\n".join(ver[:3])
+        ver = "\n".join([rcmd]+ver[:3])
     except:
-        import IPython
-        IPython.embed()
-        ver = "R not available!"
+        ver = "\n".join([rcmd, "Could not determine R version."])
     
     return ver
 
