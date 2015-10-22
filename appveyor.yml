@@ -62,11 +62,6 @@ install:
   # Check that we have the expected version and architecture for Python
   - "python --version"
 
-  - "pip freeze"
-  
-  # Install the build dependencies of the project. 
-  - "pip install wheel"
-  
   # Install package-specific libraries
   # CONDA installs
   # Pinned versions are defined in freeze_appveyor\pinned
@@ -86,12 +81,15 @@ install:
   - "conda install --yes statsmodels"
   - "conda install --yes wxpython"
   - "conda install --yes -c https://conda.binstar.org/menpo opencv"
+  - "pip freeze"
   # PIP installs
   - "pip install nptdms"
   # install pyper (R)
   - "pip install pyper"
   - "pip install reportlab"
   - "pip install simplejson"
+  # build dependencies
+  #- "pip install wheel"
   # dclab
   # prevent pip from installing later scipy versions
   # requirements from dclab were partly installed with conda:
