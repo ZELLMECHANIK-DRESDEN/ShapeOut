@@ -437,6 +437,11 @@ class SubPanelAnalysis(SubPanel):
             
         webbrowser.open(fd.name)
     
+    def OnReset(self, e=None):
+        """
+        Reset everything.
+        """
+        self.Update(self.analysis)
 
     def Update(self, analysis=None):
         if analysis is None:
