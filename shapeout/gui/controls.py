@@ -439,7 +439,7 @@ class SubPanelAnalysis(SubPanel):
     
     def OnReset(self, e=None):
         """
-        Reset everything.
+        Reset everything in the analysis tab.
         """
         self.Update(self.analysis)
 
