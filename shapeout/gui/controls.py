@@ -307,16 +307,17 @@ class SubPanel(ScrolledPanel):
                             style=wx.CB_DROPDOWN|wx.CB_READONLY)
             c.data = choices
             if not isinstance(item[1], (str, unicode)):
-                # comparison of floats and ints does not work
+                # this is important for floats and ints
                 for ch in choices:
                     if float(ch) == float(item[1]):
                         c.SetValue(ch)
             else:
+                # this does not work for floats and ints
                 idc = choices.index(item[1])
                 c.SetSelection(idc)
-                
             stemp.Add(a)
             stemp.Add(c)
+
         elif (tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool or  # @UndefinedVariable
               str(item[1]).capitalize() in ["True", "False"]):
             a = wx.CheckBox(self, label=_(item[0]), name=item[0])
