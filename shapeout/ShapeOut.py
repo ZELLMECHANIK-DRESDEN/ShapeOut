@@ -19,6 +19,7 @@ def main():
     # - ubuntu does not like wx.App before the splash screen
     
     # Start the splash screen in a separate process
+    
     splash = mp.Process(target=splash_show)
     splash.start()
 
@@ -37,8 +38,9 @@ def main():
 def splash_show():
     app = wx.App(False)
     # Show the splash screen as early as possible
-    img = wx.Image(findfile('logo.png'))
-    img.ConvertAlphaToMask()
+    img = wx.Image(findfile('zm_logo_small.png'))
+    # alpha mask is only binary - don't use it, looks ugly.
+    #img.ConvertAlphaToMask()
     bitmap = wx.BitmapFromImage(img)
     frame = wx.Frame(None, -1, "AdvancedSplash Test")
     AS.AdvancedSplash(frame, bitmap=bitmap, 
