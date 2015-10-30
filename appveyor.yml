@@ -67,20 +67,9 @@ install:
   # Pinned versions are defined in freeze_appveyor\pinned
   - xcopy freeze_appveyor\pinned %PYTHON%\conda-meta\ /Y
   #- "conda update -f conda"
-  - "conda install --yes anaconda-client"
-  - "conda install --yes chaco"
-  - "conda install --yes cffi"
-  - "conda install --yes enable"
-  - "conda install --yes kiwisolver"
-  - "conda install --yes numba"
-  - "conda install --yes pip"
-  - "conda install --yes pyqt"
-  - "conda install --yes pyface"
-  - "conda install --yes requests"
-  - "conda install --yes scipy"
-  - "conda install --yes statsmodels"
-  - "conda install --yes wxpython"
-  - "conda install --yes -c https://conda.binstar.org/menpo opencv"
+  - "conda install --yes --quiet anaconda-client pip"
+  - "conda install --yes --quiet chaco cffi enable kiwisolver numba pyqt pyface requests scipy statsmodels wxpython"
+  - "conda install --yes --quiet -c https://conda.binstar.org/menpo opencv"
   - "pip freeze"
   # PIP installs
   - "pip install nptdms"
