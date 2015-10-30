@@ -260,6 +260,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         info.SetLicence(licence)
         #info.SetIcon(misc.getMainIcon(pxlength=64))
         info.AddDeveloper(u'Paul Müller')
+        info.AddDeveloper(u'Maik Herbig')
         info.AddDeveloper(u'Philipp Rosendahl')
         info.AddDocWriter(u'Paul Müller')
         wx.AboutBox(info)
