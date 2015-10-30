@@ -54,6 +54,12 @@ class PlotPanel(wx.Panel):
     def AddPanel(self, panel, name):
         self.notebook.AddPage(panel, _(name))
 
+    def Plot(self, anal=None):
+        """
+        convenience function that calls MainPlotArea.Plot
+        """
+        self.mainplot.Plot(anal)
+
 
 class MainPlotArea(wx.Panel):
     def __init__(self, parent, frame):

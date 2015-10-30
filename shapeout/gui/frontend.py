@@ -230,7 +230,7 @@ class Frame(gaugeframe.GaugeFrame):
             anal.SetContourColors(colors)
         self.analysis = anal
         self.PanelTop.NewAnalysis(anal)
-        self.PlotArea.mainplot.Plot(anal)
+        self.PlotArea.Plot(anal)
         wx.EndBusyCursor()
 
     def OnHelpAbout(self, e=None):
