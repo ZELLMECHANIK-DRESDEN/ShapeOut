@@ -36,6 +36,9 @@ def main():
     
     
 def splash_show():
+    # bypass "iCCP: known incorrect sRGB profile":
+    wx.Log.SetLogLevel(0)
+    # setup splash app
     app = wx.App(False)
     # Show the splash screen as early as possible
     img = wx.Image(findfile('zm_logo_small.png'))
