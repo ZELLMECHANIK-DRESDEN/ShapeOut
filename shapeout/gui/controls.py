@@ -173,7 +173,6 @@ class ControlPanel(ScrolledPanel):
                         val = c.GetValue()
                 else:
                     val = c.GetValue()
-                val = c.GetValue()
 
                 var,val = tlabwrap.dfn.MapParameterStr2Type(var, val)
                 newfilt[var] = val
