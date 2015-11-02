@@ -128,10 +128,10 @@ exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
           name=name+".exe",
-          debug=False,
+          debug=True,
           strip=None,
           upx=True,
-          console=False)
+          console=True)
 
 # things that are safe to remove and save space
 remove_startswith = ["IPython", "libnvidia-glcore",
