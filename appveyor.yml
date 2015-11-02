@@ -65,22 +65,14 @@ install:
   # Install package-specific libraries
   # CONDA installs
   # Pinned versions are defined in freeze_appveyor\pinned
-  - xcopy freeze_appveyor\pinned c:\python27-conda32\conda-meta\ /Y
+  - xcopy freeze_appveyor\pinned %PYTHON%\conda-meta\ /Y
   #- "conda update -f conda"
-  - "conda install --yes anaconda-client"
-  - "conda install --yes chaco"
-  - "conda install --yes cffi"
-  - "conda install --yes enable"
-  - "conda install --yes kiwisolver"
-  - "conda install --yes numba"
-  - "conda install --yes pip"
-  - "conda install --yes pyqt"
-  - "conda install --yes pyface"
-  - "conda install --yes requests"
-  - "conda install --yes scipy"
-  - "conda install --yes statsmodels"
-  - "conda install --yes wxpython"
-  - "conda install --yes -c https://conda.binstar.org/menpo opencv"
+  - "conda install --yes --quiet anaconda-client pip"
+  - "conda install --yes --quiet chaco cffi enable kiwisolver numba pyqt pyface requests scipy statsmodels wxpython"
+  - "conda install --yes --quiet -c https://conda.binstar.org/menpo opencv"
+  # workaround for build failures, see
+  # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
+  - "conda install --yes pillow=3.0.0=py27_0"
   - "pip freeze"
   # PIP installs
   - "pip install nptdms"
@@ -125,11 +117,11 @@ after_test:
   #- ps: "ls dist"
   # Run pyinstaller
   # This will create the "win7_innosetup.iss" file
-  - "%WITH_COMPILER% pyinstaller -y freeze_appveyor\\win_shapeout.spec"
+  - "%WITH_COMPILER% pyinstaller -y --log-level=WARN freeze_appveyor\\win_shapeout.spec"
   # Create InnoSetup installers
   # Set InnoSetup path here, because Cython complained about it.
   - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
-  - iscc win_shapeout.iss
+  - iscc /VERYSILENT win_shapeout.iss
 
 artifacts:
   # Archive the generated wheel package in the ci.appveyor.com build report.

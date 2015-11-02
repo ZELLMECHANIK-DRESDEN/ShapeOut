@@ -45,7 +45,8 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     timeunit: list
         Each item is a description/identifier for a time. The
         enumeration matches the index of `xs`.
-        (e.g. list containing "day 1" and "day 2" according to content in `xs`)          
+        (e.g. list containing integers "1" and "2" according to the day
+        at which the content in `xs` was measured)          
 
     Returns
     -------

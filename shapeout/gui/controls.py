@@ -162,7 +162,20 @@ class ControlPanel(ScrolledPanel):
         for c in ctrls:
             name = c.GetName()
             if samdict.has_key(name):
-                var,val = tlabwrap.dfn.MapParameterStr2Type(name,c.GetValue())  # @UndefinedVariable
+                var = name
+                if isinstance(c, wx.ComboBox) and hasattr(c, "data"):
+                    # handle combobox selections such that the string in the
+                    # combobox does not matter, only the selection id.
+                    cid = c.GetSelection()
+                    if cid != -1:
+                        val = c.data[cid]
+                    else:
+                        val = c.GetValue()
+                else:
+                    val = c.GetValue()
+                val = c.GetValue()
+
+                var,val = tlabwrap.dfn.MapParameterStr2Type(var, val)
                 newfilt[var] = val
             elif "Title " in name:
                 # Change title of measurement
@@ -278,22 +291,33 @@ class SubPanel(ScrolledPanel):
         stemp = wx.BoxSizer(wx.HORIZONTAL)
         # these axes should not be displayed in the UI
         ignore_axes = tlabwrap.IGNORE_AXES+analysis.GetUnusableAxes()
-        choices = tlabwrap.dfn.GetParameterChoices(key, item[0],  # @UndefinedVariable
+        choices = tlabwrap.dfn.GetParameterChoices(key, item[0],
                                                 ignore_axes=ignore_axes)
+
         if len(choices) != 0:
+            if choices[0] in tlabwrap.dfn.axlabels:
+                human_choices = [ _(tlabwrap.dfn.axlabels[c]) for c in choices]
+            else:
+                human_choices = choices
+
             a = wx.StaticText(self, label=_(item[0]))
             # sort choices with _()?
-            c = wx.ComboBox(self, -1, choices=choices,
+            c = wx.ComboBox(self, -1, choices=human_choices,
                             value=unicode(item[1]), name=item[0],
                             style=wx.CB_DROPDOWN|wx.CB_READONLY)
-            if len(c.GetValue()) == 0:
-                # comparison of floats and ints does not work
+            c.data = choices
+            if not isinstance(item[1], (str, unicode)):
+                # this is important for floats and ints
                 for ch in choices:
                     if float(ch) == float(item[1]):
                         c.SetValue(ch)
-            c.SetValue(unicode(item[1]))
+            else:
+                # this does not work for floats and ints
+                idc = choices.index(item[1])
+                c.SetSelection(idc)
             stemp.Add(a)
             stemp.Add(c)
+
         elif (tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool or  # @UndefinedVariable
               str(item[1]).capitalize() in ["True", "False"]):
             a = wx.CheckBox(self, label=_(item[0]), name=item[0])
@@ -437,6 +461,11 @@ class SubPanelAnalysis(SubPanel):
             
         webbrowser.open(fd.name)
     
+    def OnReset(self, e=None):
+        """
+        Reset everything in the analysis tab.
+        """
+        self.Update(self.analysis)
 
     def Update(self, analysis=None):
         if analysis is None:
