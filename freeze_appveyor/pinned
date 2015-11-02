@@ -4,3 +4,4 @@ pyface ==4.4.0
 pyqt ==4.10.4
 requests ==2.7.0
 scipy ==0.15.1
+pillow ==2.3.2
