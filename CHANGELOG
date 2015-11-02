@@ -1,3 +1,8 @@
+0.5.1
+- New logo (#25)
+- Bugfix: Analysis tab reset button (#30)
+- Display correct axis names in Plotting tab
+- Fix appveyor build script with pinning and downgrades
 0.5.0
 - Include full R installation with lme4 package in Windows installer
 - Added Analysis tab for application of linear mixed-effects models (#15)
