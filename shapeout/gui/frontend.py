@@ -23,12 +23,12 @@ from wx.lib.scrolledpanel import ScrolledPanel
 import zipfile
 
 from ..configuration import ConfigurationFile
-from controls import ControlPanel
-from explorer import ExplorerPanel
+from .controls import ControlPanel
+from .explorer import ExplorerPanel
 import gaugeframe
 from .. import tlabwrap
-import update
-import plot
+from . import update
+from . import plot
 
 ########################################################################
 class ExceptionDialog(wx.MessageDialog):
@@ -346,7 +346,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             if not path.endswith(".pdf"):
                 path += ".pdf"
             self.config.SetWorkingDirectory(os.path.dirname(path), "PDF")
-            container = self.PlotArea.container
+            container = self.PlotArea.mainplot.container
             
             #old_height = container.height
             #old_width = container.width
