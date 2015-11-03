@@ -1,5 +1,5 @@
 0.5.2
-- Bugfix: Session saving did not work (#33)
+- Bugfix: PDF export did not work (#33)
 - Fix dissappearance of scrollbars upon hitting apply
 0.5.1
 - New logo (#25)
