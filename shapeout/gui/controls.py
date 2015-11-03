@@ -238,7 +238,8 @@ class ControlPanel(ScrolledPanel):
         """ fills pages """
         for page in self.subpanels:
             page.Update(self.analysis)
-
+        
+        self.notebook.SetSelection(self.notebook.GetSelection())
 
 
 class SubPanel(ScrolledPanel):
@@ -955,7 +956,7 @@ class SubPanelFilter(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        
+ 
         self.Thaw()
 
 
