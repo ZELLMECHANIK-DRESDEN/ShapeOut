@@ -202,6 +202,9 @@ class Analysis(object):
         Computes Mean, Avg, etc for all data sets and returns two lists:
         The headings and the values.
         """
+        columns_once = [ #these are applied to mm
+                        ["Points", lambda x: np.sum(x._filter)],
+                       ]
         columns = [
                    ["Mean", np.average],
                    ["SD", np.std],
@@ -210,15 +213,22 @@ class Analysis(object):
                    ]
         # heading
         head = ["Data set"]
+
+        for co in columns_once:
+            head += [co[0]]
+
         for ax in self.measurements[0].GetPlotAxes():
             for c in columns:
                 head += [" ".join([_(c[0]), _(ax)])+"  "]
+        
 
         datalist = list()
         # loop through measurements
         for mm in self.measurements:
             mmlist = list()
             mmlist.append(mm.title)
+            for co in columns_once:
+                mmlist.append(co[1](mm))
             # loop through plotted axes
             for ax in mm.GetPlotAxes():
                 if mm.Configuration["Filtering"]["Enable Filters"]:

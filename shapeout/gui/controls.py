@@ -11,6 +11,7 @@ import tempfile
 import webbrowser
 
 import wx
+import wx.grid as gridlib
 import wx.lib.agw.flatnotebook as fnb
 import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
@@ -1330,49 +1331,48 @@ class SubPanelStatistics(SubPanel):
         Returns a wxBoxSizer with statistics information about
         each element in analysis.
         """
-        gen = wx.StaticBox(self, label=_("Filtered data sets"))
-        hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
+        #gen = wx.StaticBox(self, label=_("Filtered data sets"))
+        sizer = wx.BoxSizer(wx.VERTICAL)
 
         if analysis is not None:
 
-            
             colors = list()
             for mm in analysis.measurements:
                 colors.append(mm.Configuration["Plotting"]["Contour Color"])
             
             head, datalist = analysis.GetStatisticsBasic()
+             
+            myGrid = gridlib.Grid(self)
+            myGrid.CreateGrid(len(datalist), len(head)-1)
+
+            sizer.Add(myGrid, 1, wx.EXPAND)
             
-            sgen = wx.FlexGridSizer(len(datalist)+1, len(datalist[0]))
-            
-            for label in head:
-                ctrl = wx.StaticText(self, label=label)
-                try:
-                    ctrl.SetLabelMarkup("<b>{}</b>".format(label))
-                except:
-                    pass
-                sgen.Add(ctrl)
-                 
-            
-            for row, color in zip(datalist, colors):
-                if isinstance(color, (list, tuple)):
-                    color = util.rgb_to_hex(color[:3], norm=1)
-                
-                for item in row:
+            for ii, label in enumerate(head[1:]):
+                myGrid.SetColLabelValue(ii, label)
+                myGrid.SetColSize(ii, 10*len(label))
+
+            for jj, row, color in zip(range(len(datalist)), datalist, colors):
+                if analysis.GetParameters("Plotting")["Scatter Title Colored"]:
+                    if isinstance(color, (list, tuple)):
+                        color = util.rgb_to_hex(color[:3], norm=1)
+                else:
+                    color = "black"
+                for ii, item in enumerate(row):
                     if isinstance(item, (str, unicode)):
                         label = u" {} ".format(item)
                     else:
                         label = u" {} ".format(util.float2string_nsf(item, n=3))
-                    ctrl = wx.StaticText(self, label=label)
-                    try:
-                        ctrl.SetLabelMarkup("<span fgcolor='{}'>{}</span>".format(color, label))
-                    except:
-                        pass
-                    sgen.Add(ctrl)
-        
-            sgen.Layout()
-            hbox.Add(sgen)
-        
-        return hbox
+                    if ii is 0:
+                        myGrid.SetRowLabelValue(jj, label)
+                        oldsize = myGrid.GetRowLabelSize()
+                        newsize = len(label)*10
+                        myGrid.SetRowLabelSize(max(oldsize, newsize))
+                    else:
+                        myGrid.SetCellValue(jj, ii-1, label)
+                        myGrid.SetCellTextColour(jj, ii-1, color)
+                        myGrid.SetReadOnly(jj, ii-1)
+            sizer.Layout()
+        return sizer
 
 
     def Update(self, analysis):
