@@ -1,3 +1,6 @@
+0.5.4
+- Changes in dclab:
+  - support for 3-channel fluorescence data
 0.5.3
 - Fixes in dclab:
   - Use correct lateral position (from channel walls) (#37) 
