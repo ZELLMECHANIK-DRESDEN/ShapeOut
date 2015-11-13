@@ -203,7 +203,7 @@ class Analysis(object):
         The headings and the values.
         """
         columns_once = [ #these are applied to mm
-                        ["Points", lambda x: np.sum(x._filter)],
+                        ["Events", lambda mm: np.sum(mm._filter)],
                        ]
         columns = [
                    ["Mean", np.average],
@@ -552,13 +552,21 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
             styles = "solid"
 
         
+        # contour widths
+        if "Contour Width" in mm.Configuration["Plotting"]:
+            cwidth = mm.Configuration["Plotting"]["Contour Width"]
+        else:
+            cwidth = 1.2
+        
         contour_plot.contour_plot(cname,
                                   type="line",
                                   xbounds = (X[0][0], X[0][-1]),
                                   ybounds = (Y[0][0], Y[-1][0]),
                                   levels = plev,
                                   colors = mm.Configuration["Plotting"]["Contour Color"],
-                                  styles = styles)
+                                  styles = styles,
+                                  widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
+                                  )
         
         
     # Set x-y limits

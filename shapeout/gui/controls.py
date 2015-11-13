@@ -1397,4 +1397,4 @@ class SubPanelStatistics(SubPanel):
 
 # These lists name items that belong to separate pages, startsiwth(item)
 Plotting_Elements_Contour = ["Contour", "KDE"]
-Plotting_Elements_Scatter = ["Downsampl", "Scatter"]
+Plotting_Elements_Scatter = ["Downsampl", "Scatter"] # Downsampl [sic]
