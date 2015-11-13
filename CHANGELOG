@@ -1,6 +1,6 @@
 0.5.2
-- Bugfix: Session saving did not work (#33)
-- Fix dissappearance of scrollbars upon hitting apply
+- Bugfix: PDF export did not work (#33)
+- Fix disappearance of scrollbars upon hitting apply in controls
 0.5.1
 - New logo (#25)
 - Bugfix: Analysis tab reset button (#30)

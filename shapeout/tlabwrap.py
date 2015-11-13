@@ -202,6 +202,9 @@ class Analysis(object):
         Computes Mean, Avg, etc for all data sets and returns two lists:
         The headings and the values.
         """
+        columns_once = [ #these are applied to mm
+                        ["Events", lambda mm: np.sum(mm._filter)],
+                       ]
         columns = [
                    ["Mean", np.average],
                    ["SD", np.std],
@@ -210,15 +213,22 @@ class Analysis(object):
                    ]
         # heading
         head = ["Data set"]
+
+        for co in columns_once:
+            head += [co[0]]
+
         for ax in self.measurements[0].GetPlotAxes():
             for c in columns:
                 head += [" ".join([_(c[0]), _(ax)])+"  "]
+        
 
         datalist = list()
         # loop through measurements
         for mm in self.measurements:
             mmlist = list()
             mmlist.append(mm.title)
+            for co in columns_once:
+                mmlist.append(co[1](mm))
             # loop through plotted axes
             for ax in mm.GetPlotAxes():
                 if mm.Configuration["Filtering"]["Enable Filters"]:
@@ -542,13 +552,21 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
             styles = "solid"
 
         
+        # contour widths
+        if "Contour Width" in mm.Configuration["Plotting"]:
+            cwidth = mm.Configuration["Plotting"]["Contour Width"]
+        else:
+            cwidth = 1.2
+        
         contour_plot.contour_plot(cname,
                                   type="line",
                                   xbounds = (X[0][0], X[0][-1]),
                                   ybounds = (Y[0][0], Y[-1][0]),
                                   levels = plev,
                                   colors = mm.Configuration["Plotting"]["Contour Color"],
-                                  styles = styles)
+                                  styles = styles,
+                                  widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
+                                  )
         
         
     # Set x-y limits
