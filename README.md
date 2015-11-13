@@ -6,6 +6,10 @@ and visualization of RT-DC data sets. For more informaion please visit
 http://www.zellmechanik.com/.
 
 
+### Installation
+Installers for ShapeOut are available at the [release page](https://github.com/ZellMechanik-Dresden/ShapeOut/releases).
+
+
 ### Information for developers
 
 #### Running from source
