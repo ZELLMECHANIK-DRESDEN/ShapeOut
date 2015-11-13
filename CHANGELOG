@@ -1,3 +1,10 @@
+0.5.3
+- Fixes in dclab:
+  - Use correct lateral position (from channel walls) (#37) 
+  - Compute aspect ratio according to elongation along flow (#38)
+- Allow to change thickness of contour lines (#34)
+- Display number of events in statistics tab (#35)
+- Improve visual representation in statistics tab
 0.5.2
 - Bugfix: PDF export did not work (#33)
 - Fix disappearance of scrollbars upon hitting apply in controls
