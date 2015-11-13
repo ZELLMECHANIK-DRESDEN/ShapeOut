@@ -69,11 +69,11 @@ bugs were resolved, or new features were introduced.
 
 1. Create a pull request from develop into master using the web interface or simply run
 
-    git checkout master
-    git pull origin develop
-    git push
+    git checkout master  
+    git pull origin develop  
+    git push  
 	
-2. Create the release at https://github.com/ZellMechanik-Dresden/ShapeOut/releases
+2. Create the release at https://github.com/ZellMechanik-Dresden/ShapeOut/releases.  
    Make sure that the tag of the release follows the version format of ShapeOut
    (e.g. `0.5.3`) and also name the release correctly (e.g. `ShapeOut 0.5.3`).
    Also, copy and paste the change log of the new version into the comments of the release.
@@ -92,7 +92,7 @@ bugs were resolved, or new features were introduced.
    to `develop`.
    
 
-    git checkout develop
-    git pull origin master
-    git push   
+    git checkout develop  
+    git pull origin master  
+    git push     
 
