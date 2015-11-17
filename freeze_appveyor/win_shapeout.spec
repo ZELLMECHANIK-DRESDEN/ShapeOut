@@ -134,7 +134,7 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=True,
-		  icon=icofile,	
+          icon=icofile,	
           console=False)
 
 # things that are safe to remove and save space
