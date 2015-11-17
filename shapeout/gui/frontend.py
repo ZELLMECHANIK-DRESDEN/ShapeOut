@@ -29,6 +29,7 @@ import gaugeframe
 from .. import tlabwrap
 from . import update
 from . import plot
+from . import misc
 
 ########################################################################
 class ExceptionDialog(wx.MessageDialog):
@@ -120,6 +121,13 @@ class Frame(gaugeframe.GaugeFrame):
             self.OnMenuLoad(sessionfile=sessionfile)
             
         update.Update(self)
+
+        # Set window icon
+        try:
+            self.MainIcon = misc.getMainIcon()
+            wx.Frame.SetIcon(self, self.MainIcon)
+        except:
+            self.MainIcon = None
 
     def InitUI(self):
         """Menus, Toolbar, Statusbar"""
@@ -258,7 +266,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         info.SetCopyright(u'(C) 2015 Paul Müller')
         info.SetWebSite(u"http://www.zellmechanik.com/")
         info.SetLicence(licence)
-        #info.SetIcon(misc.getMainIcon(pxlength=64))
+        info.SetIcon(misc.getMainIcon(pxlength=64))
         info.AddDeveloper(u'Paul Müller')
         info.AddDeveloper(u'Maik Herbig')
         info.AddDeveloper(u'Philipp Rosendahl')

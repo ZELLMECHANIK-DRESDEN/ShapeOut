@@ -26,6 +26,9 @@ langdir = os.path.realpath(dir+"/lang/")
 pyinstdir = os.path.realpath(dir+"/freeze_appveyor/")
 script = os.path.join(appdir, name+".py")
 
+# Icon
+icofile = os.path.join(pyinstdir,"ShapeOut.ico")
+
 # Add tag
 # write repo tag name if possible (used by update)
 tag_version = None
@@ -131,6 +134,7 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=True,
+		  icon=icofile,	
           console=False)
 
 # things that are safe to remove and save space
