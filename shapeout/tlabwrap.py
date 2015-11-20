@@ -571,9 +571,7 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
 
     for mm, ii in zip(measurements, range(len(measurements))):
         
-        a=time.time()
         (X,Y,density) = mm.GetKDE_Contour(yax=yax, xax=xax)
-        print("Contour computation time", time.time() -a)
         
         cname = "con_{}_{}_{}".format(mm.name, mm.file_hashes[0][1], ii)
 
@@ -593,7 +591,7 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
             cwidth = mm.Configuration["Plotting"]["Contour Width"]
         else:
             cwidth = 1.2
-        
+
         contour_plot.contour_plot(cname,
                                   type="line",
                                   xbounds = (X[0][0], X[0][-1]),
