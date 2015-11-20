@@ -442,6 +442,42 @@ class Analysis(object):
             self.measurements[i].UpdateConfiguration(newcfg)
 
 
+class Fake_RTDC_DataSet(object):
+    """ Provides methods and attributes like RTDC_DataSet, but without
+        data.
+    
+    Needs a `Configuration` (e.g. from an RTDC_DataSet).
+    """
+    def __init__(self, Configuration):
+        for item in dfn.rdv:
+            setattr(self, item, np.zeros(10))
+        
+        self.deform +=1
+        self.area_um +=1
+        self._filter =  np.ones(10, dtype=bool)
+        self.Configuration = copy.deepcopy(Configuration)
+        self.Configuration["Plotting"]["Contour Color"] = "white"
+        self.name = ""
+        self.tdms_filename = ""
+        self.title = ""
+        self.file_hashes = [["None", "None"]]
+        self.identifier = "None"
+
+    def GetDownSampledScatter(self, *args, **kwargs):
+        return np.zeros(10), np.zeros(10)
+        
+    def GetKDE_Contour(self, yax="Defo", xax="Area"):
+        return [[np.zeros(1)]*3]*3
+    
+    def GetKDE_Scatter(self, yax="Defo", xax="Area", positions=None):
+        return np.zeros(10)
+
+    def UpdateConfiguration(self, newcfg):
+        UpdateConfiguration(self.Configuration, newcfg)
+
+    def GetPlotAxes(self):
+        return ["Defo", "Area"]
+
 
 def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
                       axContour=None, isoel=None,
