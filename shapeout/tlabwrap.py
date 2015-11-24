@@ -9,6 +9,7 @@ import chaco.api as ca
 import chaco.tools.api as cta
 
 from dclab import *  # @UnusedWildImport
+from dclab.rtdc_dataset import UpdateConfiguration, SaveConfiguration
 from util import findfile
 
 from scipy import stats
