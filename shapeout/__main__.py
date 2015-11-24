@@ -17,6 +17,8 @@ from .gui import frontend
 from .util import findfile
 
 def prepare_app():
+    # bypass "iCCP: known incorrect sRGB profile":
+    wx.Log.SetLogLevel(0)
     # first initialize the app to prevent errors in Windows,
     # which is checking some wx runtime variables beforehand.
     app = wx.App(False)
