@@ -442,6 +442,42 @@ class Analysis(object):
             self.measurements[i].UpdateConfiguration(newcfg)
 
 
+class Fake_RTDC_DataSet(object):
+    """ Provides methods and attributes like RTDC_DataSet, but without
+        data.
+    
+    Needs a `Configuration` (e.g. from an RTDC_DataSet).
+    """
+    def __init__(self, Configuration):
+        for item in dfn.rdv:
+            setattr(self, item, np.zeros(10))
+        
+        self.deform +=1
+        self.area_um +=1
+        self._filter =  np.ones(10, dtype=bool)
+        self.Configuration = copy.deepcopy(Configuration)
+        self.Configuration["Plotting"]["Contour Color"] = "white"
+        self.name = ""
+        self.tdms_filename = ""
+        self.title = ""
+        self.file_hashes = [["None", "None"]]
+        self.identifier = "None"
+
+    def GetDownSampledScatter(self, *args, **kwargs):
+        return np.zeros(10), np.zeros(10)
+        
+    def GetKDE_Contour(self, yax="Defo", xax="Area"):
+        return [[np.zeros(1)]*3]*3
+    
+    def GetKDE_Scatter(self, yax="Defo", xax="Area", positions=None):
+        return np.zeros(10)
+
+    def UpdateConfiguration(self, newcfg):
+        UpdateConfiguration(self.Configuration, newcfg)
+
+    def GetPlotAxes(self):
+        return ["Defo", "Area"]
+
 
 def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
                       axContour=None, isoel=None,
@@ -535,9 +571,7 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
 
     for mm, ii in zip(measurements, range(len(measurements))):
         
-        a=time.time()
         (X,Y,density) = mm.GetKDE_Contour(yax=yax, xax=xax)
-        print("Contour computation time", time.time() -a)
         
         cname = "con_{}_{}_{}".format(mm.name, mm.file_hashes[0][1], ii)
 
@@ -557,7 +591,7 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
             cwidth = mm.Configuration["Plotting"]["Contour Width"]
         else:
             cwidth = 1.2
-        
+
         contour_plot.contour_plot(cname,
                                   type="line",
                                   xbounds = (X[0][0], X[0][-1]),

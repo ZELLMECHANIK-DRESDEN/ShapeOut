@@ -10,7 +10,9 @@ import enable.api as ea
 import platform
 import wx
 
+from . import misc
 from .. import tlabwrap
+
 
 class LineDrawer(cta.LineSegmentTool):
     """
@@ -78,8 +80,15 @@ class LineDrawerWindow(wx.Frame):
         self.plot_window = plot_window
         self.panel = panel
         self.Centre()
-        self.Show()
-        
+        # Set window icon
+        try:
+
+            self.MainIcon = misc.getMainIcon()
+            wx.Frame.SetIcon(self, self.MainIcon)
+        except:
+            self.MainIcon = None
+        self.Show(True)
+
     def show_scatter(self, measurement, xax="Area", yax="Defo"):
         aplot = self._create_plot_component(measurement, xax=xax, yax=yax)
         aplot.padding = 50
