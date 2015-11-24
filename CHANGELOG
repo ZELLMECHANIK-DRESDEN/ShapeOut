@@ -1,8 +1,9 @@
+0.5.5
+- Bugfix: String formatter did not work (#40)
 0.5.4
 - Changes in dclab:
   - Support for 3-channel fluorescence data (add corrections 21:42)
   - Fix behaviour with empty columns (#1 dclab)
-- Bugfix: String formatter did not work (#40)
 0.5.3
 - Fixes in dclab:
   - Use correct lateral position (from channel walls) (#37) 
