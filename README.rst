@@ -116,11 +116,11 @@ _________
 4. Make sure that all the changes you might have performed on the `master` branch are brought back
    to ``develop``.
    
-::
+   ::
 
-    git checkout develop  
-    git pull origin master  
-    git push     
+       git checkout develop  
+       git pull origin master  
+       git push     
 
 
 
