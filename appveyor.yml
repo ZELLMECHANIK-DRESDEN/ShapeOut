@@ -46,9 +46,9 @@ install:
   # install R with lme4
   - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.2/R-3.2.2-win.exe
   - R-3.2.2-win.exe /silent
-  #- cd
-  #- dir
+  # Installing an older version of R di neither work so:
   #- choco install -dfvy -version 3.2.2 -source 'http://cran.at.r-project.org/bin/windows/base/old/3.2.2/;http://cran.at.r-project.org/bin/windows/base/old/;c:\projects\shapeout' r.project
+  # nor so:
   #- choco install -y -version 3.2.2 r.project
   - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
@@ -124,6 +124,9 @@ after_test:
   # Run pyinstaller
   # This will create the "win7_innosetup.iss" file
   - "%WITH_COMPILER% pyinstaller -y --log-level=WARN freeze_appveyor\\win_shapeout.spec"
+  - dir
+  - cd
+  - git describe --tags HEAD
   # Create InnoSetup installers
   # Set InnoSetup path here, because Cython complained about it.
   - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
