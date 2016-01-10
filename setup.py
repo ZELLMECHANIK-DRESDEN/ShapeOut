@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from os.path import dirname, realpath
+from os.path import dirname, realpath, exists
 from setuptools import setup
 import sys
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         package_dir={name: name},
         license="GPL v2",
         description=description,
-        long_description=long_description,
+        long_description=open('README.rst').read() if exists('README.rst') else '',
         # These packages are also required: opencv kiwisolver
         install_requires=["dclab", "NumPy>=1.7.0", "SciPy>=0.10.0",
                           "pyper", "wxpython", "chaco"],
