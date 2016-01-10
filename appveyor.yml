@@ -46,7 +46,7 @@ install:
   # install R with lme4
   - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.2/R-3.2.2-win.exe
   - cd
-  - choco install -y -version 3.2.2 -source C:\projects\shapeout r.project
+  - choco install -dfvy -version 3.2.2 -source c:\projects\shapeout r.project
   - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
   # Install Anaconda
