@@ -4,6 +4,12 @@
 #  # Do not build on commits. Only nightly builds (web interface)
 #  author: /.*/
 
+
+# Do not use shallow_clone, because we get the program version from the git tags
+#shallow_clone: true
+clone_depth: 100
+
+
 # Only build master branch
 ## seems to prevent building tags
 #branches:
@@ -38,6 +44,9 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
+  - dir
+  - cd
+  - git describe --tags HEAD
   # Install InnoSetup and add to path
   # Copied from
   # https://github.com/Phonations/Joker/blob/master/appveyor.yml
@@ -108,8 +117,6 @@ install:
 
   # Show the installed packages
   - "pip freeze"
-  
-shallow_clone: true
 
 build: off
 
@@ -124,9 +131,6 @@ after_test:
   # Run pyinstaller
   # This will create the "win7_innosetup.iss" file
   - "%WITH_COMPILER% pyinstaller -y --log-level=WARN freeze_appveyor\\win_shapeout.spec"
-  - dir
-  - cd
-  - git describe --tags HEAD
   # Create InnoSetup installers
   # Set InnoSetup path here, because Cython complained about it.
   - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
