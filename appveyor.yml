@@ -43,7 +43,7 @@ install:
   # https://github.com/Phonations/Joker/blob/master/appveyor.yml
   - choco install -y InnoSetup
   # install R with lme4
-  - choco install -y -version 3.2.2 r.project
+  - choco install -y -version 3.2.2 -source http://cran.at.r-project.org/bin/windows/base/old/3.2.2/ r.project
   - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
   # Install Anaconda
