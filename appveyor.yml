@@ -47,7 +47,7 @@ install:
   - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.1/R-3.2.1-win.exe
   - cd
   - dir
-  - choco install -dfvy -version 3.2.1 -source c:\projects\shapeout r.project
+  - choco install -dfvy -version 3.2.1 -source 'http://cran.at.r-project.org/bin/windows/base/old/3.2.1/;http://cran.at.r-project.org/bin/windows/base/old/;c:\projects\shapeout' r.project
   #- choco install -y -version 3.2.1 r.project
   - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.1\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
