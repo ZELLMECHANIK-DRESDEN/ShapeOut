@@ -36,9 +36,15 @@ if __name__ == "__main__":
         license="GPL v2",
         description=description,
         long_description=open('README.rst').read() if exists('README.rst') else '',
-        # These packages are also required: opencv kiwisolver
+        extras_require = {
+            # If you need the GUI of this project in your project, add
+            # "thisproject[GUI]" to your install_requires
+            # Graphical User Interface
+            'GUI':  ["wxPython", "chaco", "opencv"],
+            # kiwisolver?
+        },
         install_requires=["dclab", "NumPy>=1.7.0", "SciPy>=0.10.0",
-                          "pyper", "wxpython", "chaco"],
+                          "pyper"],
         setup_requires=['pytest-runner'],
         tests_require=["pytest"],
         keywords=["RTDC", "cytometry"],
