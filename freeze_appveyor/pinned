@@ -1,4 +1,4 @@
-clyent==1.1.0
+clyent ==1.1.0
 enable ==4.4.1
 enum34 ==1.0.4
 menuinst ==1.0.3
