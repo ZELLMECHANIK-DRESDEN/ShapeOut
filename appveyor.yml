@@ -84,7 +84,7 @@ install:
   #- "conda update -f conda"
   - "conda install --yes --quiet anaconda-client pip"
   - "conda install --yes --quiet chaco cffi enable kiwisolver numba pyqt pyface requests scipy statsmodels wxpython"
-  - "conda install --yes --quiet -c https://conda.binstar.org/menpo opencv=2.4.11=py27_1"
+  - "conda install --yes --quiet -c https://conda.binstar.org/menpo opencv=2.4.11=nppy27_0"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "conda install --yes pillow=3.0.0=py27_0"
