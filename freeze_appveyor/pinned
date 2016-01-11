@@ -1,4 +1,7 @@
+clyent==1.1.0
 enable ==4.4.1
+enum34 ==1.0.4
+menuinst ==1.0.3
 numpy 1.9.*
 pyface ==4.4.0
 pyqt ==4.10.4
