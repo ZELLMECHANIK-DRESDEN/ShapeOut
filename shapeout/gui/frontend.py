@@ -41,6 +41,75 @@ class ExceptionDialog(wx.MessageDialog):
 
 
 ########################################################################
+class ExportData(wx.Frame):
+    # This tool is derived from a wx.frame.
+    def __init__(self, parent, analysis):
+        # parent is the main frame of PyCorrFit
+        self.parent = parent
+        self.analysis = analysis
+        # Get the window positioning correctly
+        pos = self.parent.GetPosition()
+        pos = (pos[0]+100, pos[1]+100)
+        wx.Frame.__init__(self, parent=self.parent, title=_("Export all event data"),
+            pos=pos, style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
+        ## panel
+        self.panel = wx.Panel(self)
+        self.topSizer = wx.BoxSizer(wx.VERTICAL)
+        # init
+        textinit = wx.StaticText(self.panel,
+                    label=_("Export all event data as *.tsv files."))
+        self.topSizer.Add(textinit)
+        # Chechbox asking for Mono-Model
+        self.WXCheckFilter = wx.CheckBox(self.panel,
+         label=_("export filtered data only"))
+        self.WXCheckFilter.SetValue(True)
+        self.topSizer.Add(self.WXCheckFilter)
+        
+        ## Add checkboxes
+        checks = []
+        # find out which are actually used in the analysis
+        for c in tlabwrap.dfn.rdv:
+            for m in self.analysis.measurements:
+                if np.sum(np.abs(getattr(m, c))):
+                    checks.append(c)
+        
+        self.box = wx.StaticBox(self.panel, label=_("Columns"))
+        self.sizerin = wx.StaticBoxSizer(self.box, wx.VERTICAL)
+        for c in checks:
+            label = tlabwrap.dfn.axlabels[tlabwrap.dfn.cfgmap[c]]
+            self.sizerin.Add(wx.CheckBox(self.panel,
+                                         label=_(label),
+                                         name=c)
+                             )
+        self.topSizer.Add(self.sizerin)
+        btnbrws = wx.Button(self.panel, wx.ID_CLOSE, _("Save to directory"))
+        # Binds the button to the function - close the tool
+        self.Bind(wx.EVT_BUTTON, self.OnBrowse, btnbrws)
+        self.topSizer.Add(btnbrws)
+        self.panel.SetSizer(self.topSizer)
+        self.topSizer.Fit(self)
+        self.SetMinSize(self.topSizer.GetMinSizeTuple())
+        #Icon
+        if parent.MainIcon is not None:
+            wx.Frame.SetIcon(self, parent.MainIcon)
+        self.Show(True)
+
+    def OnBrowse(self, e=None):
+        """ Let the user select a directory and save
+        everything in that directory.
+        """
+        # warn the user, if there are measurements that
+        # have the same name?
+        
+        # make directory dialog
+        
+        # search all children for checkboxes that have
+        # the names in tlabwrap.dfn.rdv
+        
+        # call the export function of dclab.RTDC_DataSet
+        raise NotImplementedError("under construction")
+
+
 class Frame(gaugeframe.GaugeFrame):
     """"""
     def __init__(self, version, sessionfile=None):
@@ -167,11 +236,14 @@ class Frame(gaugeframe.GaugeFrame):
         ## Export menu
         exportMenu = wx.Menu()
         self.menubar.Append(exportMenu, _('&Export'))
-        e2pdf = exportMenu.Append(wx.ID_ANY, _('&Plot (*.pdf)'), 
+        e2dat = exportMenu.Append(wx.ID_ANY, _('All &event data (*.tsv)'), 
+                       _('Export the plotted event data as tab-separated values'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportData, e2dat)
+        e2pdf = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
-        e2stat = exportMenu.Append(wx.ID_ANY, _('&Statistics (*.tsv)'), 
-                       _('Export the information in the statistics tab'))
+        e2stat = exportMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
+                       _('Export the statistics data as tab-separated values'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
         
         self.SetMenuBar(self.menubar)
@@ -336,6 +408,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 dellist.append(c)
         for ch in dellist:
             tree.Delete(ch)
+
+
+    def OnMenuExportData(self, e=None):
+        """ Export the event data of the entire analysis
+        
+        This will open a choice dialog for the user
+        - which data (filtered/unfiltered)
+        - which columns (Area, Deformation, etc)
+        - to which folder should be exported 
+        """
+        # Generate dialog
+        ExportData(self, self.analysis)
+
 
     def OnMenuExportPDF(self, e=None):
         """ Saves plot container as PDF
