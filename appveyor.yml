@@ -82,8 +82,9 @@ install:
   # Pinned versions are defined in freeze_appveyor\pinned
   - xcopy freeze_appveyor\pinned %PYTHON%\conda-meta\ /Y
   #- "conda update -f conda"
-  - "conda install --yes --quiet -c https://conda.binstar.org/menpo opencv"
-  - "conda install --yes --quiet chaco cffi enable kiwisolver numpy pillow pip pyqt pyface requests scipy statsmodels wxpython"
+  # Anaconda client for searching packages?
+  #- "conda install anaconda-client"
+  - "conda install --yes --quiet -c https://conda.binstar.org/menpo chaco cffi enable kiwisolver numpy opencv pillow pip pyqt pyface requests scipy statsmodels wxpython"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
