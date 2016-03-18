@@ -111,22 +111,22 @@ class ExportData(wx.Frame):
         names = [ m.title for m in self.analysis.measurements ]
         dupl = list(set([n for n in names if names.count(n) > 1]))
         if len(dupl) != 0:
-            dlg = wx.MessageDialog(self,
+            dlg1 = wx.MessageDialog(self,
                 message=_("Cannot export plots with duplicate titles: {}"
                           ).format(", ".join(dupl))+"\n"+_(
                           "Plot titles can be edited in the 'Contour Plot' tab."),
-                style=wx.ICON_ERROR)
-            if dlg.ShowModal() == wx.ID_OK:
+                style=wx.OK|wx.ICON_ERROR)
+            if dlg1.ShowModal() == wx.ID_OK:
                 return
         
         # make directory dialog
-        dlg = wx.DirDialog(self,
+        dlg2 = wx.DirDialog(self,
                            message=_("Select directory for data export"),
                            defaultPath=self.parent.config.GetWorkingDirectory("ExportTSV"),
                            style=wx.DD_DEFAULT_STYLE)
         
-        if dlg.ShowModal() == wx.ID_OK:
-            outdir = dlg.GetPath()
+        if dlg2.ShowModal() == wx.ID_OK:
+            outdir = dlg2.GetPath()
             self.parent.config.SetWorkingDirectory(outdir, "ExportTSV")
             
             # determine if user wants filtered data
@@ -142,9 +142,22 @@ class ExportData(wx.Frame):
                     if name in tlabwrap.dfn.uid:
                         columns.append(name)
             
-            # call the export function of dclab.RTDC_DataSet
+            # Call the export function of dclab.RTDC_DataSet
+            # Check if the files already exist
             for m in self.analysis.measurements:
-                m.ExportTSV(os.path.join(outdir, m.title), columns, filtered=filtered)
+                if os.path.exists(os.path.join(outdir, m.title+".tsv")):
+                    dlg3 = wx.MessageDialog(self,
+                        message=_("Override existing .tsv files in '{}'?").format(outdir),
+                        style=wx.YES_NO|wx.YES_DEFAULT|wx.ICON_QUESTION)
+                    if dlg3.ShowModal() == wx.ID_YES:
+                        # ok, leave loop
+                        break
+                    else:
+                        # do not continue
+                        return
+            
+            for m in self.analysis.measurements:
+                m.ExportTSV(os.path.join(outdir, m.title+".tsv"), columns, filtered=filtered, override=True)
 
 
 class Frame(gaugeframe.GaugeFrame):

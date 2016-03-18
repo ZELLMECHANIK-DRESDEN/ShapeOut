@@ -1,5 +1,6 @@
 0.5.6
 - Add menu option for data export (#22)
+- Add shortcut SHIFT+ENTER for "Apply" controls (#48)
 - Bugfixes:
   - Define "Video Frame Offset" parameter to correctly index frames (#46)
 0.5.5
