@@ -1,7 +1,6 @@
 enable ==4.4.1
 cffi 1.2.1 py27_0
 conda ==3.19.0
-numba 0.22.1 np19py27_0
 numpy 1.9.3 py27_0
 opencv 2.4.11 nppy27_0
 pillow 3.0.0 py27_0
