@@ -71,16 +71,23 @@ class ExportData(wx.Frame):
         for c in tlabwrap.dfn.rdv:
             for m in self.analysis.measurements:
                 if np.sum(np.abs(getattr(m, c))):
-                    checks.append(c)
-        
+                    checks.append(tlabwrap.dfn.cfgmap[c])
+        checks.sort()
         self.box = wx.StaticBox(self.panel, label=_("Columns"))
         self.sizerin = wx.StaticBoxSizer(self.box, wx.VERTICAL)
+        # get longest text of checks
+        dc = wx.ScreenDC()
+        tl = np.max([ dc.GetTextExtent(c)[0] for c in checks ])
+        sp = dc.GetTextExtent(" ")[0]
+        
         for c in checks:
-            label = tlabwrap.dfn.axlabels[tlabwrap.dfn.cfgmap[c]]
-            self.sizerin.Add(wx.CheckBox(self.panel,
-                                         label=_(label),
-                                         name=c)
-                             )
+            # label id (b/c of sorting)
+            lid = c+":"+" "*((tl-dc.GetTextExtent(c)[0])//sp)+"\t"
+            label = tlabwrap.dfn.axlabels[c]
+            cb = wx.CheckBox(self.panel, label=lid + _(label), name=c)
+            self.sizerin.Add(cb)
+            if c in self.analysis.GetPlotAxes():
+                cb.SetValue(True)
         self.topSizer.Add(self.sizerin)
         btnbrws = wx.Button(self.panel, wx.ID_CLOSE, _("Save to directory"))
         # Binds the button to the function - close the tool
@@ -102,12 +109,31 @@ class ExportData(wx.Frame):
         # have the same name?
         
         # make directory dialog
+        dlg = wx.DirDialog(self,
+                           message=_("Select directory for data export"),
+                           defaultPath=self.parent.config.GetWorkingDirectory("ExportTSV"),
+                           style=wx.DD_DEFAULT_STYLE)
         
-        # search all children for checkboxes that have
-        # the names in tlabwrap.dfn.rdv
-        
-        # call the export function of dclab.RTDC_DataSet
-        raise NotImplementedError("under construction")
+        if dlg.ShowModal() == wx.ID_OK:
+            outdir = dlg.GetPath()
+            self.parent.config.SetWorkingDirectory(outdir, "ExportTSV")
+            
+            # determine if user wants filtered data
+            filtered = self.WXCheckFilter.IsChecked()
+
+            # search all children for checkboxes that have
+            # the names in tlabwrap.dfn.uid
+            columns = []
+            for ch in self.panel.GetChildren():
+                if (isinstance(ch, wx._controls.CheckBox) and 
+                    ch.IsChecked()):
+                    name = ch.GetName()
+                    if name in tlabwrap.dfn.uid:
+                        columns.append(name)
+            
+            # call the export function of dclab.RTDC_DataSet
+            for m in self.analysis.measurements:
+                m.ExportTSV(os.path.join(outdir, m.title), columns, filtered=filtered)
 
 
 class Frame(gaugeframe.GaugeFrame):
