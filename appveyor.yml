@@ -4,6 +4,12 @@
 #  # Do not build on commits. Only nightly builds (web interface)
 #  author: /.*/
 
+
+# Do not use shallow_clone, because we get the program version from the git tags
+#shallow_clone: true
+clone_depth: 100
+
+
 # Only build master branch
 ## seems to prevent building tags
 #branches:
@@ -38,12 +44,21 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
+  - dir
+  - cd
+  - git describe --tags HEAD
   # Install InnoSetup and add to path
   # Copied from
   # https://github.com/Phonations/Joker/blob/master/appveyor.yml
   - choco install -y InnoSetup
+  - choco install -y wget
   # install R with lme4
-  - choco install -y r.project
+  - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.2/R-3.2.2-win.exe
+  - R-3.2.2-win.exe /silent
+  # Installing an older version of R di neither work so:
+  #- choco install -dfvy -version 3.2.2 -source 'http://cran.at.r-project.org/bin/windows/base/old/3.2.2/;http://cran.at.r-project.org/bin/windows/base/old/;c:\projects\shapeout' r.project
+  # nor so:
+  #- choco install -y -version 3.2.2 r.project
   - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
   # Install Anaconda
@@ -67,12 +82,11 @@ install:
   # Pinned versions are defined in freeze_appveyor\pinned
   - xcopy freeze_appveyor\pinned %PYTHON%\conda-meta\ /Y
   #- "conda update -f conda"
-  - "conda install --yes --quiet anaconda-client pip"
-  - "conda install --yes --quiet chaco cffi enable kiwisolver numba pyqt pyface requests scipy statsmodels wxpython"
-  - "conda install --yes --quiet -c https://conda.binstar.org/menpo opencv"
+  # Anaconda client for searching packages?
+  #- "conda install anaconda-client"
+  - "conda install --yes --quiet -c https://conda.binstar.org/menpo chaco cffi enable kiwisolver numpy opencv pillow pip pyqt pyface requests scipy statsmodels wxpython"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
-  - "conda install --yes pillow=3.0.0=py27_0"
   - "pip freeze"
   # PIP installs
   - "pip install nptdms"
@@ -102,8 +116,6 @@ install:
 
   # Show the installed packages
   - "pip freeze"
-  
-shallow_clone: true
 
 build: off
 

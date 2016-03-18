@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from os.path import dirname, realpath
-from setuptools import setup, Command
-import subprocess
+from os.path import dirname, realpath, exists
+from setuptools import setup
 import sys
 
 
@@ -24,20 +23,6 @@ except:
     version = "unknown"
 
 
-class PyTest(Command):
-    """ Perform pytests
-    """
-    user_options = []
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        errno = subprocess.call([sys.executable, 'tests/runtests.py'])
-        raise SystemExit(errno)
-
 
 if __name__ == "__main__":
     setup(
@@ -50,20 +35,23 @@ if __name__ == "__main__":
         package_dir={name: name},
         license="GPL v2",
         description=description,
-        long_description=long_description,
-        # ShapeOut depends on wxPython and chaco, both of which are not very
-        # easy (or impossible) to install from pypi. This list here is just
-        # meant as a mental note:
-        install_requires=["dclab", "nptdms", "NumPy>=1.7.0", "SciPy>=0.10.0",
-                          "statsmodels", "pyper", "wxpython", "chaco",
-                          "opencv", "kiwisolver"],
+        long_description=open('README.rst').read() if exists('README.rst') else '',
+        extras_require = {
+            # If you need the GUI of this project in your project, add
+            # "thisproject[GUI]" to your install_requires
+            # Graphical User Interface
+            'GUI':  ["wxPython", "chaco", "opencv"],
+            # kiwisolver?
+        },
+        install_requires=["dclab", "NumPy>=1.7.0", "SciPy>=0.10.0",
+                          "pyper"],
+        setup_requires=['pytest-runner'],
+        tests_require=["pytest"],
         keywords=["RTDC", "cytometry"],
         classifiers= [
             'Operating System :: OS Independent',
             'Programming Language :: Python :: 2.7',
             'Intended Audience :: Science/Research'
                      ],
-        platforms=['ALL'],
-        cmdclass = {'test': PyTest,
-                    },
+        platforms=['ALL']
         )

@@ -85,7 +85,13 @@ class ControlPanel(ScrolledPanel):
         notebook.SetSelection(4)
         
         self.notebook = notebook
-        
+
+        # Shortucut SHIFT+ENTER replots everything
+        randomId = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.OnChangePlot, id=randomId)
+        accel_tbl = wx.AcceleratorTable([(wx.ACCEL_SHIFT, wx.WXK_RETURN, randomId )])
+        self.SetAcceleratorTable(accel_tbl)
+
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(notebook, 1, wx.ALL | wx.EXPAND, 5)
         self.SetSizer(sizer)
@@ -152,6 +158,8 @@ class ControlPanel(ScrolledPanel):
     
 
     def OnChangePlot(self, e=None):
+        wait = wx.BusyCursor()
+        
         ctrls = list(self.page_plot.GetChildren())
         ctrls += list(self.page_cont.GetChildren())
         ctrls += list(self.page_scat.GetChildren())
@@ -197,6 +205,8 @@ class ControlPanel(ScrolledPanel):
         # Update Plots
         self.frame.PlotArea.Plot(self.analysis)
         self.UpdatePages()
+        
+        del wait
 
 
     def OnPolygonFilter(self, result):
@@ -1240,7 +1250,7 @@ class SubPanelPlotContour(SubPanel):
         btn_apply = wx.Button(self, label=_("Apply"))
         self.Bind(wx.EVT_BUTTON, self.funcparent.OnChangePlot, btn_apply)
         vertsizer.Add(btn_apply)
-
+        
         btn_reset = wx.Button(self, label=_("Reset"))
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)

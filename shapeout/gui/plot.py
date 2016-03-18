@@ -12,6 +12,7 @@ import enable.api as ea
 import numpy as np
 import os
 import platform
+import warnings
 import wx
 import wx.lib.agw.flatnotebook as fnb
 
@@ -289,30 +290,39 @@ class MainPlotArea(wx.Panel):
             video = cv2.VideoCapture(dataset.video)
             totframes = video.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)
             
-            video.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, actual_sel-1)
-            
-            flag, cellimg = video.read()
-
-            if flag:
-                # add contour in red
-                if len(cellimg.shape) == 2:
-                    # convert grayscale to color
-                    cellimg = np.tile(cellimg, [3,1,1]).transpose(1,2,0)
+            # determine video file offset. Some RTDC setups
+            # do not record the first image of a video.
+            frames_skipped = dataset.Configuration["General"]["Video Frame Offset"]
+            actual_sel_offset = actual_sel - frames_skipped
+            if actual_sel_offset < 0:
+                # Display an empty image if there is no image for the event
+                warnings.warn("No image for event {}.".format(actual_sel))
+                self.frame.PanelImage.ShowImage(None)
+            else:
+                video.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
                 
-                
-                r = cellimg[:,:,0]
-                b = cellimg[:,:,1]
-                g = cellimg[:,:,2]
-                
-                # only do this if there was a contour file loaded
-                if len(dataset.contours) > 0:
-                    contours = dataset.contours[dataset.frame[actual_sel]]
+                flag, cellimg = video.read()
+    
+                if flag:
+                    # add contour in red
+                    if len(cellimg.shape) == 2:
+                        # convert grayscale to color
+                        cellimg = np.tile(cellimg, [3,1,1]).transpose(1,2,0)
                     
-                    r[contours[:,1], contours[:,0]] = 255
-                    b[contours[:,1], contours[:,0]] = 0
-                    g[contours[:,1], contours[:,0]] = 0
-                
-                self.frame.PanelImage.ShowImage(cellimg)
+                    
+                    r = cellimg[:,:,0]
+                    b = cellimg[:,:,1]
+                    g = cellimg[:,:,2]
+                    
+                    # only do this if there was a contour file loaded
+                    if len(dataset.contours) > 0:
+                        contours = dataset.contours[dataset.frame[actual_sel]]
+                        
+                        r[contours[:,1], contours[:,0]] = 255
+                        b[contours[:,1], contours[:,0]] = 0
+                        g[contours[:,1], contours[:,0]] = 0
+                    
+                    self.frame.PanelImage.ShowImage(cellimg)
             
             video.release()
             print("Frame {} / {}".format(actual_sel, totframes))

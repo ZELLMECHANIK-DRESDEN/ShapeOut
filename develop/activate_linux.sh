@@ -1,7 +1,7 @@
 #!/bin/bash
 # Source this script to get the python environment ready:
 # source activate_env.sh
-DIRECTORY="env_shapeout"
+DIRECTORY=".env_shapeout"
 
 echo "------------------------------------------------------------------"
 echo "Make sure you dclab checked out in the parent directory:"
