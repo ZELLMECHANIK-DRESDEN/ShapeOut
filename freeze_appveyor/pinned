@@ -1,6 +1,6 @@
 enable ==4.4.1
 numpy 1.9.3 py27_0
-opencv 2.4.11 nnpy27_0
+opencv 2.4.11 nppy27_0
 pillow 3.0.0 py27_0
 pyface ==4.4.0
 pyqt ==4.10.4
