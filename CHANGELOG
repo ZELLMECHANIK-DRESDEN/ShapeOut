@@ -1,5 +1,5 @@
 0.5.6
-- Add menu option for data export
+- Add menu option for data export (#22)
 - Bugfixes:
   - Define "Video Frame Offset" parameter to correctly index frames (#46)
 0.5.5

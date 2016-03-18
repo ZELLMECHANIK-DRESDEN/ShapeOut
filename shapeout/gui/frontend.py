@@ -72,6 +72,7 @@ class ExportData(wx.Frame):
             for m in self.analysis.measurements:
                 if np.sum(np.abs(getattr(m, c))):
                     checks.append(tlabwrap.dfn.cfgmap[c])
+        checks = list(set(checks))
         checks.sort()
         self.box = wx.StaticBox(self.panel, label=_("Columns"))
         self.sizerin = wx.StaticBoxSizer(self.box, wx.VERTICAL)
@@ -106,7 +107,17 @@ class ExportData(wx.Frame):
         everything in that directory.
         """
         # warn the user, if there are measurements that
-        # have the same name?
+        # have the same name.
+        names = [ m.title for m in self.analysis.measurements ]
+        dupl = list(set([n for n in names if names.count(n) > 1]))
+        if len(dupl) != 0:
+            dlg = wx.MessageDialog(self,
+                message=_("Cannot export plots with duplicate titles: {}"
+                          ).format(", ".join(dupl))+"\n"+_(
+                          "Plot titles can be edited in the 'Contour Plot' tab."),
+                style=wx.ICON_ERROR)
+            if dlg.ShowModal() == wx.ID_OK:
+                return
         
         # make directory dialog
         dlg = wx.DirDialog(self,
