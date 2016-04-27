@@ -29,7 +29,7 @@ OutputBaseFilename={#MyAppName}_{#MyAppVersion}_{#MyAppPlatform}_setup
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
-PrivilegesRequired=none
+PrivilegesRequired=lowest
 
 [Registry]
 Root: HKCR; Subkey: ".zmso"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName}"; Flags: uninsdeletevalue
