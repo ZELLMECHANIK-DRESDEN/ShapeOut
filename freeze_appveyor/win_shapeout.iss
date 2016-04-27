@@ -32,10 +32,10 @@ ChangesAssociations=yes
 PrivilegesRequired=lowest
 
 [Registry]
-Root: HKCR; Subkey: ".zmso"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName}"; Flags: uninsdeletevalue
-Root: HKCR; Subkey: "{#MyAppName}"; ValueType: string; ValueName: ""; ValueData: "ShapeOut Session"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "{#MyAppName}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppName}.EXE,0"
-Root: HKCR; Subkey: "{#MyAppName}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppName}.EXE"" ""%1""" 
+Root: HKCU; Subkey: ".zmso"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName}"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "{#MyAppName}"; ValueType: string; ValueName: ""; ValueData: "ShapeOut Session"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "{#MyAppName}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppName}.EXE,0"
+Root: HKCU; Subkey: "{#MyAppName}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppName}.EXE"" ""%1""" 
 
 
 [Languages]
@@ -55,7 +55,7 @@ Source: "C:\Program Files\R\*"; DestDir: "{app}\R"; Flags: ignoreversion recurse
 [Icons]
 Name: "{group}\{#MyzmAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\{#MyzmAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{userdesktop}\{#MyzmAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyzmAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
