@@ -21,7 +21,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={localappdata}\{#MyAppName}
 DisableDirPage=yes
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
@@ -29,7 +29,7 @@ OutputBaseFilename={#MyAppName}_{#MyAppVersion}_{#MyAppPlatform}_setup
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
-
+PrivilegesRequired=none
 
 [Registry]
 Root: HKCR; Subkey: ".zmso"; ValueType: string; ValueName: ""; ValueData: "{#MyAppName}"; Flags: uninsdeletevalue
