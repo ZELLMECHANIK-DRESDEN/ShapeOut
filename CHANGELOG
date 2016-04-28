@@ -1,7 +1,10 @@
 0.5.7
 - Bugfixes:
   - Filtering: Plot selection resets to last item unexpectedly
+  - User-defined titles were not saved in session
+  - Remove ghost images of cells (#18)
   - dclab (0.1.5.dev13): Correct determination of video file
+  - dclab (0.1.5.dev14): Multivariate KDE did not work
 0.5.6
 - Add menu option for data export (#22)
 - Add shortcut SHIFT+ENTER for "Apply" controls (#48)

@@ -3,6 +3,7 @@
 """ ShapeOut - more functionalities for dclab
 
 """
+from __future__ import division
 
 # Chaco imports
 import chaco.api as ca
@@ -71,10 +72,13 @@ class Analysis(object):
         keys = list(datadict.keys())
         for key in keys:
             data = datadict[key]
-            name = codecs.escape_decode(data["name"])[0]
-            fdir = codecs.escape_decode(data["fdir"])[0]
+            name = data["name"]
+            fdir = data["fdir"]
             tloc = os.path.join(fdir, name)
             mm = RTDC_DataSet(tloc)
+            if "title" in data:
+                # title saved starting version 0.5.6.dev6
+                mm.title = data["title"]
             mmhashes = [h[1] for h in mm.file_hashes]
             newhashes = [ data["tdms hash"], data["camera.ini hash"],
                           data["para.ini hash"]
@@ -83,7 +87,7 @@ class Analysis(object):
                 raise ValueError("Hashes don't match for file {}.".
                                  format(tloc))
             cfg = dfn.LoadConfiguration(os.path.join(thedir, 
-                               codecs.escape_decode(data["config"])[0]))
+                                        data["config"]))
             mm.UpdateConfiguration(cfg)
             self.measurements.append(mm)
 
@@ -118,6 +122,7 @@ class Analysis(object):
             out.append("para.ini hash = "+mm.file_hashes[2][1])
             out.append("name = "+mm.name+".tdms")
             out.append("fdir = "+mm.fdir)
+            out.append("title = "+mm.title)
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
             SaveConfiguration(cfgfile, mm.Configuration)
@@ -134,7 +139,7 @@ class Analysis(object):
             out.append("")
             
         for i in range(len(out)):
-            out[i] = codecs.escape_encode(str(out[i]))[0]+"\r\n"
+            out[i] += "\r\n"
         
         index = codecs.open(indexname, "w", "utf-8")
         index.writelines(out)
@@ -505,13 +510,10 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
     """
 
     mm = measurements[0]
-    
-    
-    
+
     # Plotting area
     plotfilters = mm.Configuration["Plotting"]
-    
-   
+
     # We will pretend as if we are plotting circularity vs. area
     areamin = plotfilters[xax+" Min"]
     areamax = plotfilters[xax+" Max"]
@@ -526,13 +528,11 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
         circmin = getattr(mm, dfn.cfgmaprev[yax]).min()
         circmax = getattr(mm, dfn.cfgmaprev[yax]).max()
 
-
     # Commence plotting
     if axContour is not None:
         raise NotImplementedError("Tell Chaco to reuse plots?")
         #plt.figure(1)
         #axScatter = plt.axes()
-
 
     pd = ca.ArrayPlotData()
     contour_plot = ca.Plot(pd)
@@ -797,9 +797,7 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     else:
         positions = None
 
-    
     density = mm.GetKDE_Scatter(yax=yax, xax=xax, positions=positions)
-
 
     pd = ca.ArrayPlotData()
     scatter_plot = ca.Plot(pd)
@@ -1113,7 +1111,7 @@ def GetConfigurationKeys(cfgfilename, capitalize=True):
     Load the configuration file and return the list of variables
     in the order they appear.
     """
-    with open(cfgfilename, 'r') as f:
+    with codecs.open(cfgfilename, 'r', "utf-8") as f:
         code = f.readlines()
     
     cfglist = list()
