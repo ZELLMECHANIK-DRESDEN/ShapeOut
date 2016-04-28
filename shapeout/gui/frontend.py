@@ -859,6 +859,8 @@ class ImagePanel(ScrolledPanel):
         self.img.Destroy()
         self.img = wx.BitmapFromImage(wximg)
         self.imageCtrl.SetBitmap(self.img)
+        # Redraw the panel to prevent artifact images on Windows
+        self.Layout()
        
 
 ########################################################################

@@ -886,6 +886,7 @@ class SubPanelFilter(SubPanel):
         self.funcparent.frame.PlotArea.Plot(self.analysis)
 
     def OnPolygonWindow(self, e=None):
+        """ Called when user wants to add a new polygon filter """
         ldw = LineDrawerWindow(self.funcparent,
                                self.funcparent.OnPolygonFilter)
         # get plot that we want to use
@@ -903,9 +904,17 @@ class SubPanelFilter(SubPanel):
         
     def Update(self, analysis=None):
         if analysis is None:
+            # previous analysis is used
             analysis = self.analysis
+        if hasattr(self, "_polygon_filter_combo_box") :
+            old_meas_selection = self._polygon_filter_combo_box.GetSelection()
+        else:
+            old_meas_selection = 0
+
         self.analysis = analysis
         self.Freeze()
+        
+        
         
         for item in self.GetChildren():
             self.RemoveChild(item)
@@ -961,6 +970,11 @@ class SubPanelFilter(SubPanel):
         btn_reset = wx.Button(self, label=_("Reset"))
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)
+
+        # Set the previously selected measurement
+        self._polygon_filter_combo_box.SetSelection(old_meas_selection)
+        # Make the htree control below the combobox aware of this selection
+        self.OnPolygonCombobox()
 
         sizer.Add(vertsizer)
 
