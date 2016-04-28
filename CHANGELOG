@@ -5,6 +5,7 @@
   - Remove ghost images of cells (#18)
   - dclab (0.1.5.dev13): Correct determination of video file
   - dclab (0.1.5.dev14): Multivariate KDE did not work
+  - dclab (0.1.5.dev15): "Contour Fix Scale" did not work for Defo
 0.5.6
 - Add menu option for data export (#22)
 - Add shortcut SHIFT+ENTER for "Apply" controls (#48)

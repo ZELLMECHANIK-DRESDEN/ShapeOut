@@ -259,7 +259,6 @@ class Analysis(object):
             except ValueError:
                 pass
 
-
     def SetContourAccuracies(self, points=70):
         """ Set initial (heuristic) accuracies for all plots.
         
@@ -306,7 +305,7 @@ class Analysis(object):
                 for mm in self.measurements:
                     mm.Configuration["Plotting"]["Contour Accuracy {}".format(name)] = acg
                     mm.Configuration["Plotting"]["KDE Multivariate {}".format(name)] = acm
-        
+
     def SetContourColors(self, colors=None):
         """ Sets the contour colors
         """
