@@ -602,7 +602,6 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
                                   widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
                                   )
         
-        
     # Set x-y limits
     xlim = contour_plot.index_mapper.range
     ylim = contour_plot.value_mapper.range
@@ -643,6 +642,7 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
     pan = cta.PanTool(contour_plot, drag_button="left")
 
     contour_plot.tools.append(pan)
+
 
     return contour_plot
 

@@ -7,6 +7,7 @@ from __future__ import division, print_function
 
 import chaco
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
+from chaco.api import PlotGraphicsContext
 import cv2
 
 import numpy as np
@@ -292,6 +293,9 @@ class Frame(gaugeframe.GaugeFrame):
         e2pdf = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
+        e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
+                       _('Export the plot as a portable network graphic'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportPNG, e2png)
         e2stat = exportMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
                        _('Export the statistics data as tab-separated values'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
@@ -587,6 +591,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         warnings.warn("Not resetting plot fonts for"+\
                                       "plot component class {}.".format(
                                       item.__class__))
+
+    def OnMenuExportPNG(self, e=None):
+        """ Saves plot container as png
+        
+        """
+        dlg = wx.FileDialog(self, "Export plot as PNG", 
+                            self.config.GetWorkingDirectory("PNG"), "",
+                            "PDF file (*.png)|*.png",
+                            wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            if not path.endswith(".png"):
+                path += ".png"
+            self.config.SetWorkingDirectory(os.path.dirname(path), "PNG")
+            container = self.PlotArea.mainplot.container
+            
+            # get inner_boundary
+            #import IPython
+            #IPython.embed()
+            p = container
+
+            dpi=72
+            
+            p.do_layout(force=True)
+            gc = PlotGraphicsContext(tuple(p.outer_bounds), dpi=dpi)
+
+            # temporarily turn off the backbuffer for offscreen rendering
+            use_backbuffer = p.use_backbuffer
+            print("a")
+            p.use_backbuffer = False
+            p.draw(gc)
+            #gc.render_component(p)
+            print("bb")
+            gc.save(path)
+            print("c")
+            p.use_backbuffer = use_backbuffer
+            print("c")
+            #gc.save(path)
+
 
     def OnMenuExportStatistics(self, e=None):
         """ Saves statistics results from tab to text file
