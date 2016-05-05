@@ -720,8 +720,6 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
         x-Axis to plot (see `librtdc.dfn.cfgmap`)
     yax : str
         y-Axis to plot (see `librtdc.dfn.cfgmap`)
-    kde_type : str
-        Type of KDE estimate. Can be "gauss" or "multivariate".
     axScatter : instance of matplotlib `Axis`
         Plotting axis for the scatter data.
     isoel : list for line plot
@@ -834,19 +832,30 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     pd.set_data("value", y)
     pd.set_data("color", density)
     
-    # Create the plot
-    scatter_plot.plot(("index", "value", "color"),
-              type="cmap_scatter",
-              name="my_plot",
-              #color_mapper=ca.jet,
-              color_mapper=ca.jet,
-              marker = "square",
-              #fill_alpha = 1.0,
-              marker_size = int(marker_size),
-              outline_color = "transparent",
-              line_width = 0,
-              bgcolor = "white")
+    plot_kwargs = {
+                   "name": "my_plot",
+                   "marker": "square",
+                   #"fill_alpha": 1.0,
+                   "marker_size": int(marker_size),
+                   "outline_color": "transparent",
+                   "line_width": 0,
+                   "bgcolor": "white"
+                    }
+    
+    if mm.Configuration["Plotting"]["KDE"].lower() == "none":
+        # Single-color plot
+        plot_kwargs["data"] = ("index", "value")
+        plot_kwargs["type"] = "scatter"
+        plot_kwargs["color"] = "black"
+                  
+    else:                
+        # Plots with density
+        plot_kwargs["data"] = ("index", "value", "color")
+        plot_kwargs["type"] = "cmap_scatter"
+        plot_kwargs["color_mapper"] = ca.jet
 
+    # Create the plot
+    scatter_plot.plot(**plot_kwargs)
 
     # Set x-y limits
     xlim = scatter_plot.index_mapper.range
