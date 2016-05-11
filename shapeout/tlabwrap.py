@@ -70,6 +70,9 @@ class Analysis(object):
         # import configurations
         datadict = dfn.LoadConfiguration(indexname, capitalize=False)
         keys = list(datadict.keys())
+        # The identifier (in brackets []) contains a number before the first
+        # underscore "_" which determines the order of the plots:
+        keys.sort(key=lambda x: int(x.split("_")[0]))
         for key in keys:
             data = datadict[key]
             name = data["name"]
@@ -91,6 +94,7 @@ class Analysis(object):
             mm.UpdateConfiguration(cfg)
             self.measurements.append(mm)
 
+
     def DumpData(self, directory, fullout=False):
         """ Dumps all the data from the analysis to a `directory`
         
@@ -106,8 +110,12 @@ class Analysis(object):
         for mm in self.measurements:
             i += 1
             ident = "{}_{}".format(i,mm.name)
+            # the directory in the session zip file where all information
+            # will be stored:
             mmdir = os.path.join(directory, ident)
             while True:
+                # If the directory already exists, append a number to that
+                # directory to distinguish different measurements.
                 g=0
                 if os.path.exists(mmdir):
                     mmdir = mmdir+str(g)
