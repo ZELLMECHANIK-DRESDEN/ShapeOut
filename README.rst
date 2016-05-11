@@ -29,7 +29,38 @@ The easiest way to run ShapeOut from source is to use
 - **Debian**: Run `this script <https://github.com/ZellMechanik-Dresden/ShapeOut/blob/master/develop/activate_linux.sh>`__
   which will create a Python virtual environment.
 
-- **MacOS**: The above links should help.
+- **MacOS**: ShapeOut should work with Anaconda (see Windows above).
+  It is also possible to install all dependencies with MacPorts:
+  
+  ::
+  	sudo port install python27 py27-ipython py27-scipy py27-matplotlib
+  	sudo port install opencv +python27
+  	sudo port install py27-wxpython-3.0 py27-statsmodels py27-kiwisolver py27-chaco py27-pip py27-simplejson py27-sip py27-macholib
+  	sudo pip-2.7 install nptdms
+  	sudo pip-2.7 install pyper
+
+
+  Then select python27 (macports) as standard python interpreter:
+
+  ::
+  	sudo port select --set python python27
+  	sudo port select --set pip pip27
+
+  
+  Write into ~/.bash_profile (Put in YOUR path to dclab)
+
+  ::
+  	#!/bin/bash
+  	export PYTHONPATH="${PYTHONPATH}:/Users/phi/git/dclab"
+
+  start ShapeOut with
+
+  ::
+  	pyhon shapeout/ShapeOut.py
+
+  This can be put into a .command file placed on the Desktop.
+
+
 
 Contributing
 ~~~~~~~~~~~~

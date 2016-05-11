@@ -293,9 +293,11 @@ class Frame(gaugeframe.GaugeFrame):
         e2pdf = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
-        e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
-                       _('Export the plot as a portable network graphic'))
-        self.Bind(wx.EVT_MENU, self.OnMenuExportPNG, e2png)
+        # export PNG disabled:
+        # https://github.com/ZellMechanik-Dresden/ShapeOut/issues/62
+        #e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
+        #               _('Export the plot as a portable network graphic'))
+        #self.Bind(wx.EVT_MENU, self.OnMenuExportPNG, e2png)
         e2stat = exportMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
                        _('Export the statistics data as tab-separated values'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
@@ -608,27 +610,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             container = self.PlotArea.mainplot.container
             
             # get inner_boundary
-            #import IPython
-            #IPython.embed()
             p = container
 
-            dpi=72
-            
+            dpi=600
             p.do_layout(force=True)
             gc = PlotGraphicsContext(tuple(p.outer_bounds), dpi=dpi)
 
             # temporarily turn off the backbuffer for offscreen rendering
             use_backbuffer = p.use_backbuffer
-            print("a")
             p.use_backbuffer = False
             p.draw(gc)
             #gc.render_component(p)
-            print("bb")
+
             gc.save(path)
-            print("c")
+
             p.use_backbuffer = use_backbuffer
-            print("c")
-            #gc.save(path)
 
 
     def OnMenuExportStatistics(self, e=None):

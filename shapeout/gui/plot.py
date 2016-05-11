@@ -8,6 +8,7 @@ from __future__ import division, print_function
 import chaco.api as ca
 import cv2
 import enable.api as ea
+from distutils.version import LooseVersion
 
 import numpy as np
 import os
@@ -15,6 +16,14 @@ import platform
 import warnings
 import wx
 import wx.lib.agw.flatnotebook as fnb
+
+
+# Constants in OpenCV moved from "cv2.cv" to "cv2"
+if LooseVersion(cv2.__version__) < "3.0.0":
+    cv_const = cv2.cv
+else:
+    cv_const = cv2
+
 
 from .. import tlabwrap
 
@@ -288,7 +297,7 @@ class MainPlotArea(wx.Panel):
             #vfile = os.path.join(dataset.fdir, dataset.video)
             os.chdir(dataset.fdir)
             video = cv2.VideoCapture(dataset.video)
-            totframes = video.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)
+            totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
             
             # determine video file offset. Some RTDC setups
             # do not record the first image of a video.
@@ -299,7 +308,7 @@ class MainPlotArea(wx.Panel):
                 warnings.warn("No image for event {}.".format(actual_sel))
                 self.frame.PanelImage.ShowImage(None)
             else:
-                video.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
+                video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
                 
                 flag, cellimg = video.read()
     
