@@ -12,7 +12,7 @@ import webbrowser
 
 import wx
 import wx.grid as gridlib
-import wx.lib.agw.flatnotebook as fnb
+import wx.lib.flatnotebook as fnb
 import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
@@ -23,7 +23,7 @@ from .. import util
 from .. import lin_mix_mod
 
 
-class FlatNotebook(fnb.FlatNotebook):
+class FlatNotebook(wx.Notebook):
     """
     Flatnotebook class
     """
@@ -33,10 +33,10 @@ class FlatNotebook(fnb.FlatNotebook):
                 fnb.FNB_TABS_BORDER_SIMPLE|fnb.FNB_NO_X_BUTTON|\
                 fnb.FNB_NO_NAV_BUTTONS|fnb.FNB_NODRAG
         # Bugfix for Mac
-        if platform.system().lower() in ["windows", "linux"]:
-            style = style|fnb.FNB_HIDE_ON_SINGLE_TAB
-        self.fnb = fnb.FlatNotebook.__init__(self, parent, wx.ID_ANY,
-                                             agwStyle=style)
+        #if platform.system().lower() in ["windows", "linux"]:
+        #    style = style|fnb.FNB_HIDE_ON_SINGLE_TAB
+        self.fnb = wx.Notebook.__init__(self, parent, wx.ID_ANY,
+                                             )#agwStyle=style)
 
 
 class ControlPanel(ScrolledPanel):
@@ -49,10 +49,27 @@ class ControlPanel(ScrolledPanel):
         
         self.frame = frame
         self.config = frame.config
-        notebook = FlatNotebook(self) 
+        self.notebook = FlatNotebook(self)
 
         self.subpanels = []
 
+        self.AddSubpanels()
+        
+        self.notebook.SetSelection(4)
+
+        # Shortucut SHIFT+ENTER replots everything
+        randomId = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.OnChangePlot, id=randomId)
+        accel_tbl = wx.AcceleratorTable([(wx.ACCEL_SHIFT, wx.WXK_RETURN, randomId )])
+        self.SetAcceleratorTable(accel_tbl)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.notebook, 1, wx.ALL | wx.EXPAND, 5)
+        self.SetSizer(sizer)
+
+
+    def AddSubpanels(self):
+        notebook=self.notebook
         page_info = SubPanelInfo(notebook)
         notebook.AddPage(page_info, _("Information"))
         self.subpanels.append(page_info)
@@ -81,20 +98,6 @@ class ControlPanel(ScrolledPanel):
         self.page_cont = SubPanelPlotContour(notebook, funcparent=self)
         notebook.AddPage(self.page_cont, _("Contour Plot"))
         self.subpanels.append(self.page_cont)
-        
-        notebook.SetSelection(4)
-        
-        self.notebook = notebook
-
-        # Shortucut SHIFT+ENTER replots everything
-        randomId = wx.NewId()
-        self.Bind(wx.EVT_MENU, self.OnChangePlot, id=randomId)
-        accel_tbl = wx.AcceleratorTable([(wx.ACCEL_SHIFT, wx.WXK_RETURN, randomId )])
-        self.SetAcceleratorTable(accel_tbl)
-
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(notebook, 1, wx.ALL | wx.EXPAND, 5)
-        self.SetSizer(sizer)
 
 
     def NewAnalysis(self, anal=None):
@@ -247,10 +250,21 @@ class ControlPanel(ScrolledPanel):
 
     def UpdatePages(self):
         """ fills pages """
-        for page in self.subpanels:
-            page.Update(self.analysis)
         
-        self.notebook.SetSelection(self.notebook.GetSelection())
+        sel = self.notebook.GetSelection()
+
+        # Recreate all pages instead of just calling `UpdatePanel`.
+        # This resolves issues on at least Linux
+        for _i in range(len(self.subpanels)):
+            self.notebook.RemovePage(0)
+        self.subpanels = []
+        self.AddSubpanels()
+
+        # Update page content        
+        for page in self.subpanels:
+            page.UpdatePanel(self.analysis)
+        
+        self.notebook.SetSelection(sel)
 
 
 class DragListStriped(wx.ListCtrl):
@@ -490,7 +504,7 @@ class SubPanel(ScrolledPanel):
             self.funcparent.Reset(self.key, subkeys)
             
 
-    def Update(self, *args, **kwargs):
+    def UpdatePanel(self, *args, **kwargs):
         """ Overwritten by subclass """
         pass
 
@@ -605,7 +619,7 @@ class SubPanelAnalysis(SubPanel):
         """
         self.Update(self.analysis)
 
-    def Update(self, analysis=None):
+    def UpdatePanel(self, analysis=None):
         if analysis is None:
             analysis = self.analysis
         self.analysis = analysis
@@ -1035,7 +1049,7 @@ class SubPanelFilter(SubPanel):
         ldw.show_scatter(mm, xax=xax, yax=yax)
         ldw.Show()
         
-    def Update(self, analysis=None):
+    def UpdatePanel(self, analysis=None):
         if analysis is None:
             # previous analysis is used
             analysis = self.analysis
@@ -1120,7 +1134,7 @@ class SubPanelInfo(SubPanel):
     def __init__(self, *args, **kwargs):
         SubPanel.__init__(self, *args, **kwargs)
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():
@@ -1318,7 +1332,7 @@ class SubPanelPlotting(SubPanel):
         self.funcparent.OnChangePlot(e)
 
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():
@@ -1350,6 +1364,9 @@ class SubPanelPlotting(SubPanel):
         self.Thaw()
         
         self.analysis = analysis
+
+        self.Hide()
+        self.Show()
 
 
 
@@ -1431,7 +1448,7 @@ class SubPanelPlotContour(SubPanel):
         return mastersizer
 
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():
@@ -1500,7 +1517,7 @@ class SubPanelPlotScatter(SubPanel):
         return mastersizer
 
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():
@@ -1581,7 +1598,7 @@ class SubPanelStatistics(SubPanel):
         return sizer
 
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():

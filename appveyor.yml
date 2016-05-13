@@ -96,7 +96,7 @@ install:
   # build dependencies
   #- "pip install wheel"
   # dclab
-  # prevent pip from installing later scipy versions
+  # prevent pip from installing later scipy versions using "--no-deps"
   # requirements from dclab were partly installed with conda:
   #- "pip install dclab --no-deps"
   - "pip install git+git://github.com/ZellMechanik-Dresden/dclab.git --no-deps"
