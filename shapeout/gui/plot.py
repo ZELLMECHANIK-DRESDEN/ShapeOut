@@ -295,10 +295,7 @@ class MainPlotArea(wx.Panel):
             actual_sel = filterid[plot_sel]
             
             #vfile = os.path.join(dataset.fdir, dataset.video)
-            old_dir = os.getcwd()
-            os.chdir(dataset.fdir)
-            video = cv2.VideoCapture(dataset.video)
-            os.chdir(old_dir)
+            video = cv2.VideoCapture(os.path.join(dataset.fdir, dataset.video))
             totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
             
             # determine video file offset. Some RTDC setups
