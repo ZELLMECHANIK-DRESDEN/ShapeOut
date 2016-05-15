@@ -294,8 +294,12 @@ class MainPlotArea(wx.Panel):
             filterid = np.where(dataset._filter)[0]
             actual_sel = filterid[plot_sel]
             
+            # Taking the abspath of the video does not always work with OpenCV?
             #vfile = os.path.join(dataset.fdir, dataset.video)
-            video = cv2.VideoCapture(os.path.join(dataset.fdir, dataset.video))
+            old_dir = os.getcwd()
+            os.chdir(dataset.fdir)
+            video = cv2.VideoCapture(dataset.video)
+            os.chdir(old_dir)
             totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
             
             # determine video file offset. Some RTDC setups
