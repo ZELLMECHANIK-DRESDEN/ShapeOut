@@ -369,6 +369,7 @@ class Frame(gaugeframe.GaugeFrame):
         self.PlotArea.Plot(anal)
         wx.EndBusyCursor()
 
+
     def OnHelpAbout(self, e=None):
         description =  ("ShapeOut is a data evaluation tool"+
             "\nfor real-time deformability cytometry (RT-DC)."+
@@ -817,8 +818,21 @@ class ImagePanel(ScrolledPanel):
     def __init__(self, parent):
         ScrolledPanel.__init__(self, parent, -1)
         self.parent = parent
-        
+
         self.SetupScrolling(scroll_y=True, scroll_x=True)
+
+        # Draw event selection tools
+        # Dropdown for plot selection
+        self.WXCB_plot = wx.ComboBox(self,
+                                     style=wx.CB_DROPDOWN|wx.CB_READONLY,
+                                     size=(300,-1))
+        self.WXSP_plot = wx.SpinCtrl(self, min=0, max=10000000)
+        
+        ctrlsizer = wx.BoxSizer(wx.HORIZONTAL)
+        ctrlsizer.Add(wx.StaticText(self, label=_("Event:")),0, wx.ALIGN_CENTER)
+        ctrlsizer.Add(self.WXCB_plot)
+        ctrlsizer.Add(self.WXSP_plot)
+        
         ## Image panel with chaco don't work. I get a segmentation fault
         ## with Ubuntu 14.04
         ##
@@ -848,7 +862,7 @@ class ImagePanel(ScrolledPanel):
         # CAUSE SEGMENTATION FAULT
         #self.plot_window.component = container
         #self.plot_window.redraw()
-        
+
         # Draw image with wxPython instead
         self.startSizeX = 250
         self.startSizeY = 80
@@ -861,10 +875,25 @@ class ImagePanel(ScrolledPanel):
         #self.mainSizer.Fit(self)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(ctrlsizer)
         sizer.Add(self.imageCtrl, 1, wx.ALL | wx.EXPAND, 5)
         self.SetSizer(sizer)
 
         self.ShowImage()
+
+
+    def OnDisplayEvent(self, e=None):
+        """ Called when self.WXCB_plot and self.WXSP_plot are selected """
+        mm_id = self.WXCB_plot.GetSelection()
+        evt_id = self.WXSP_plot.GetValue()
+
+        if mm_id == -1:
+            return
+        
+        if evt_id == -1:
+            evt_id = 0
+
+        #TODO: Move event-displaying code from plot.py to this class.
 
 
     def ShowImage(self, image=None):
@@ -900,7 +929,22 @@ class ImagePanel(ScrolledPanel):
         self.imageCtrl.SetBitmap(self.img)
         # Redraw the panel to prevent artifact images on Windows
         self.Layout()
-       
+
+
+    def UpdateSelections(self, analysis, mm_id=None, evt_id=None):
+        # Determine plot titles and set selection
+        sel = self.WXCB_plot.GetSelection()
+        choices = [ mm.title for mm in analysis.measurements ]
+        self.WXCB_plot.SetItems(choices)
+        
+        if mm_id is not None:
+            self.WXCB_plot.SetSelection(mm_id)
+        else:
+            self.WXCB_plot.SetValue("--")
+
+        if evt_id is not None:
+            self.WXSP_plot.SetValue(evt_id)
+
 
 ########################################################################
 

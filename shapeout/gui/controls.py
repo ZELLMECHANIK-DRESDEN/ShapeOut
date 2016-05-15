@@ -427,8 +427,8 @@ class SubPanel(ScrolledPanel):
                 if item[1] == multiplestr:
                     a.Disable()
                     b.Disable()
-                sgen.Add(a)
-                sgen.Add(b)
+                sgen.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
+                sgen.Add(b, 0, wx.ALIGN_CENTER_VERTICAL)
         
             sgen.Layout()
             hbox.Add(sgen)
@@ -467,7 +467,7 @@ class SubPanel(ScrolledPanel):
                 # this does not work for floats and ints
                 idc = choices.index(item[1])
                 c.SetSelection(idc)
-            stemp.Add(a)
+            stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(c)
 
         elif (tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool or  # @UndefinedVariable
@@ -478,7 +478,7 @@ class SubPanel(ScrolledPanel):
         else:
             a = wx.StaticText(self, label=_(item[0]))
             b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
-            stemp.Add(a)
+            stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(b)
         return stemp
     
@@ -749,7 +749,7 @@ class SubPanelFilter(SubPanel):
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
                 c = wx.TextCtrl(self, value=str(itemmax[1]), name=itemmax[0])
                 stemp = wx.BoxSizer(wx.HORIZONTAL)
-                sgen.Add(a)
+                sgen.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
                 stemp.Add(b)
                 stemp.Add(c)
                 sgen.Add(stemp)
@@ -1251,7 +1251,7 @@ class SubPanelPlotting(SubPanel):
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
                 c = wx.TextCtrl(self, value=str(itemmax[1]), name=itemmax[0])
                 stemp = wx.BoxSizer(wx.HORIZONTAL)
-                stemp.Add(a)
+                stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
                 stemp.Add(b)
                 stemp.Add(c)
                 axessizer.Add(stemp)

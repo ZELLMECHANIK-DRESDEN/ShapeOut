@@ -295,8 +295,10 @@ class MainPlotArea(wx.Panel):
             actual_sel = filterid[plot_sel]
             
             #vfile = os.path.join(dataset.fdir, dataset.video)
+            old_dir = os.getcwd()
             os.chdir(dataset.fdir)
             video = cv2.VideoCapture(dataset.video)
+            os.chdir(old_dir)
             totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
             
             # determine video file offset. Some RTDC setups
@@ -307,6 +309,7 @@ class MainPlotArea(wx.Panel):
                 # Display an empty image if there is no image for the event
                 warnings.warn("No image for event {}.".format(actual_sel))
                 self.frame.PanelImage.ShowImage(None)
+                self.frame.PanelImage.UpdateSelections(self.analysis)
             else:
                 video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
                 
@@ -332,6 +335,13 @@ class MainPlotArea(wx.Panel):
                         g[contours[:,1], contours[:,0]] = 0
                     
                     self.frame.PanelImage.ShowImage(cellimg)
+                    
+                    # measurement id
+                    mm_id = self.analysis.measurements.index(dataset)
+                    self.frame.PanelImage.UpdateSelections(self.analysis,
+                                                           mm_id=mm_id,
+                                                           evt_id=actual_sel)
+                    
             
             video.release()
             print("Frame {} / {}".format(actual_sel, totframes))
