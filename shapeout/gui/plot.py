@@ -6,23 +6,12 @@
 from __future__ import division, print_function
 
 import chaco.api as ca
-import cv2
 import enable.api as ea
-from distutils.version import LooseVersion
 
 import numpy as np
-import os
 import platform
-import warnings
 import wx
 import wx.lib.agw.flatnotebook as fnb
-
-
-# Constants in OpenCV moved from "cv2.cv" to "cv2"
-if LooseVersion(cv2.__version__) < "3.0.0":
-    cv_const = cv2.cv
-else:
-    cv_const = cv2
 
 
 from .. import tlabwrap
@@ -189,6 +178,9 @@ class MainPlotArea(wx.Panel):
         self.plot_window.component = container
 
         self.plot_window.redraw()
+        
+        # Update the image plot (dropdown choices, etc.)
+        self.frame.ImageArea.UpdateAnalysis(self.analysis)
 
 
     def OnPlotRangeChanged(self, obj, name, new):
@@ -293,60 +285,8 @@ class MainPlotArea(wx.Panel):
             # these are all the filtered cells
             filterid = np.where(dataset._filter)[0]
             actual_sel = filterid[plot_sel]
-            
-            # Taking the abspath of the video does not always work with OpenCV?
-            #vfile = os.path.join(dataset.fdir, dataset.video)
-            old_dir = os.getcwd()
-            os.chdir(dataset.fdir)
-            video = cv2.VideoCapture(dataset.video)
-            os.chdir(old_dir)
-            totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
-            
-            # determine video file offset. Some RTDC setups
-            # do not record the first image of a video.
-            frames_skipped = dataset.Configuration["General"]["Video Frame Offset"]
-            actual_sel_offset = actual_sel - frames_skipped
-            if actual_sel_offset < 0:
-                # Display an empty image if there is no image for the event
-                warnings.warn("No image for event {}.".format(actual_sel))
-                self.frame.PanelImage.ShowImage(None)
-                self.frame.PanelImage.UpdateSelections(self.analysis)
-            else:
-                video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
-                
-                flag, cellimg = video.read()
-    
-                if flag:
-                    # add contour in red
-                    if len(cellimg.shape) == 2:
-                        # convert grayscale to color
-                        cellimg = np.tile(cellimg, [3,1,1]).transpose(1,2,0)
-                    
-                    
-                    r = cellimg[:,:,0]
-                    b = cellimg[:,:,1]
-                    g = cellimg[:,:,2]
-                    
-                    # only do this if there was a contour file loaded
-                    if len(dataset.contours) > 0:
-                        contours = dataset.contours[dataset.frame[actual_sel]]
-                        
-                        r[contours[:,1], contours[:,0]] = 255
-                        b[contours[:,1], contours[:,0]] = 0
-                        g[contours[:,1], contours[:,0]] = 0
-                    
-                    self.frame.PanelImage.ShowImage(cellimg)
-                    
-                    # measurement id
-                    mm_id = self.analysis.measurements.index(dataset)
-                    self.frame.PanelImage.UpdateSelections(self.analysis,
-                                                           mm_id=mm_id,
-                                                           evt_id=actual_sel)
-                    
-            
-            video.release()
-            print("Frame {} / {}".format(actual_sel, totframes))
 
+            self.frame.ImageArea.ShowEvent(mm=dataset, evt_id=actual_sel)
 
         if not thisplothover is None:
             self._lastplothover = thisplothover

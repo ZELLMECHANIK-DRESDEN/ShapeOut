@@ -8,12 +8,11 @@ from __future__ import division, print_function
 import chaco
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
 from chaco.api import PlotGraphicsContext
-import cv2
 
+import cv2
 import numpy as np
 import os
 import platform
-from PIL import Image
 import sys
 import tempfile
 import traceback
@@ -31,6 +30,7 @@ from .. import tlabwrap
 from . import update
 from . import plot
 from . import misc
+from . import video
 
 ########################################################################
 class ExceptionDialog(wx.MessageDialog):
@@ -200,11 +200,11 @@ class Frame(gaugeframe.GaugeFrame):
         self.PanelTop = ControlPanel(scrolltop, self)
         
         # Cell Images
-        self.PanelImage = ImagePanel(scrolltop)
+        self.ImageArea = video.ImagePanel(scrolltop, frame=self)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.PanelTop, 2, wx.ALL|wx.EXPAND, 5)
-        sizer.Add(self.PanelImage, 1, wx.ALL|wx.EXPAND, 5)
+        sizer.Add(self.ImageArea, 1, wx.ALL|wx.EXPAND, 5)
         scrolltop.SetSizer(sizer)
         scrolltop.Layout()
         
@@ -813,137 +813,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         """ Save configuration including measurement data """
         pass
 
-
-class ImagePanel(ScrolledPanel):
-    def __init__(self, parent):
-        ScrolledPanel.__init__(self, parent, -1)
-        self.parent = parent
-
-        self.SetupScrolling(scroll_y=True, scroll_x=True)
-
-        # Draw event selection tools
-        # Dropdown for plot selection
-        self.WXCB_plot = wx.ComboBox(self,
-                                     style=wx.CB_DROPDOWN|wx.CB_READONLY,
-                                     size=(300,-1))
-        self.WXSP_plot = wx.SpinCtrl(self, min=0, max=10000000)
-        
-        ctrlsizer = wx.BoxSizer(wx.HORIZONTAL)
-        ctrlsizer.Add(wx.StaticText(self, label=_("Event:")),0, wx.ALIGN_CENTER)
-        ctrlsizer.Add(self.WXCB_plot)
-        ctrlsizer.Add(self.WXSP_plot)
-        
-        ## Image panel with chaco don't work. I get a segmentation fault
-        ## with Ubuntu 14.04
-        ##
-        ## See the bug at launchpad
-        ## https://bugs.launchpad.net/ubuntu/+source/python-chaco/+bug/1145575
-        #self.plot_window = ea.Window(self)
-        #self.vbox = wx.BoxSizer(wx.VERTICAL)
-        #self.vbox.Add(self.plot_window.control, 1, wx.EXPAND)
-        #self.SetSizer(self.vbox)
-        #self.vbox.Fit(self)
-        #self.pd = ca.ArrayPlotData()
-        #x = np.arange(100).reshape(10,10)
-        #a = ca.ImageData()
-        #a.set_data(x)
-        #self.pd.set_data("cellimg", a)
-        #implot = ca.Plot(self.pd)
-        #implot.img_plot("cellimg")
-        #container = ca.GridPlotContainer(
-        #                              shape = (1,1),
-        #                              spacing = (0,0),
-        #                              padding = (0,0,0,0),
-        #                              valign = 'top',
-        #                              bgcolor = 'white',
-        #                              fill_padding = True,
-        #                              use_backbuffer = True)
-        #container.add(implot)
-        # CAUSE SEGMENTATION FAULT
-        #self.plot_window.component = container
-        #self.plot_window.redraw()
-
-        # Draw image with wxPython instead
-        self.startSizeX = 250
-        self.startSizeY = 80
-        self.img = wx.EmptyImage(self.startSizeX, self.startSizeY)
-        self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY, 
-                                         wx.BitmapFromImage(self.img))
-        #self.mainSizer = wx.BoxSizer(wx.VERTICAL|wx.ALIGN_TOP|wx.ALIGN_LEFT)
-        #self.mainSizer.Add(self.imageCtrl, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT)
-        #self.SetSizer(self.mainSizer)
-        #self.mainSizer.Fit(self)
-
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(ctrlsizer)
-        sizer.Add(self.imageCtrl, 1, wx.ALL | wx.EXPAND, 5)
-        self.SetSizer(sizer)
-
-        self.ShowImage()
-
-
-    def OnDisplayEvent(self, e=None):
-        """ Called when self.WXCB_plot and self.WXSP_plot are selected """
-        mm_id = self.WXCB_plot.GetSelection()
-        evt_id = self.WXSP_plot.GetValue()
-
-        if mm_id == -1:
-            return
-        
-        if evt_id == -1:
-            evt_id = 0
-
-        #TODO: Move event-displaying code from plot.py to this class.
-
-
-    def ShowImage(self, image=None):
-        def pil_to_wx_bmp(image):
-            width, height = image.size
-            mybuffer = image.convert('RGB').tobytes()
-            bitmap = wx.BitmapFromBuffer(width, height, mybuffer)
-            return bitmap
-        
-        def pil_to_wx_img(image):
-            width, height = image.size
-            mybuffer = image.convert('RGB').tobytes()
-            bitmap = wx.ImageFromBuffer(width, height, mybuffer)
-            return bitmap
-
-        if image is None:
-            x = np.linspace(0, 255, self.startSizeX*self.startSizeY)
-            image = np.array(x.reshape(self.startSizeY,self.startSizeX),
-                             dtype=np.uint8)
-        
-        os = image.shape
-        newx = os[1] * 2
-        newy = os[0] * 2
-        image = Image.fromarray(image)
-        
-        #wxbmp = pil_to_wx_bmp(image)
-        wximg = pil_to_wx_img(image)
-        
-        # Image scaling
-        wximg = wximg.Scale(newx, newy)
-        self.img.Destroy()
-        self.img = wx.BitmapFromImage(wximg)
-        self.imageCtrl.SetBitmap(self.img)
-        # Redraw the panel to prevent artifact images on Windows
-        self.Layout()
-
-
-    def UpdateSelections(self, analysis, mm_id=None, evt_id=None):
-        # Determine plot titles and set selection
-        sel = self.WXCB_plot.GetSelection()
-        choices = [ mm.title for mm in analysis.measurements ]
-        self.WXCB_plot.SetItems(choices)
-        
-        if mm_id is not None:
-            self.WXCB_plot.SetSelection(mm_id)
-        else:
-            self.WXCB_plot.SetValue("--")
-
-        if evt_id is not None:
-            self.WXSP_plot.SetValue(evt_id)
 
 
 ########################################################################
