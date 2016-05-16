@@ -110,6 +110,9 @@ class ImagePanel(ScrolledPanel):
 
         self.ShowEvent(mm_id, evt_id)
 
+        max_evt = self.analysis.measurements[mm_id].time.shape[0]
+        self.WXSP_plot.SetRange(1, max_evt)
+
 
     def ShowEvent(self, mm_id, evt_id):
             """
@@ -232,8 +235,6 @@ class ImagePanel(ScrolledPanel):
 
         if evt_id is not None:
             # Sanity check:
-            max_evt = self.analysis.measurements[mm_id].time.shape[0]
-            evt_id = min(evt_id, max_evt)
             self.WXSP_plot.SetValue(evt_id+1)
 
 
