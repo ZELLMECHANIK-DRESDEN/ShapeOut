@@ -263,10 +263,9 @@ class ControlPanel(ScrolledPanel):
         
         # workaround for incorrectly drawn panels
         # make the current page redraw itself
-        self.notebook.SetSelection(0)
-        self.notebook.SetSelection(1)
-        self.notebook.SetSelection(sel)
         self.notebook.Thaw()
+        self.notebook.SetSelection(sel)
+        
 
 
 class DragListStriped(wx.ListCtrl):

@@ -736,7 +736,7 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     square : bool
         The plot has square shape.
     downsampling : int or None
-        Filter dots that are overdrawn by others (saves time).
+        Filter events that are overdrawn by others (saves time).
         If set to None then
         Configuration["Plotting"]["Downsampling"] is used.
         Chaco does not yet have this implemented.
@@ -850,7 +850,30 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
                    "bgcolor": "white"
                     }
     
-    if mm.Configuration["Plotting"]["KDE"].lower() == "none":
+    # Plot filtered data in grey
+    if (plotfilters["Scatter Plot Excluded Events"] and
+        mm._filter.sum() != mm.time.shape[0]):
+        # determine the number of points we are allowed to add
+        if downsampling:
+            # respect the maximum limit of plotted events
+            excl_num = int(downsample_events - np.sum(mm._filter))
+        else:
+            # plot all excluded events
+            excl_num = np.sum(~mm._filter)
+
+        if excl_num > 0:
+            excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
+            excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
+            pd.set_data("excl_index", excl_x)
+            pd.set_data("excl_value", excl_y)
+            plot_kwargs_excl = plot_kwargs.copy()
+            plot_kwargs_excl["data"] = ("excl_index", "excl_value")
+            plot_kwargs_excl["type"] = "scatter"
+            plot_kwargs_excl["color"] = 0x929292
+            scatter_plot.plot(**plot_kwargs_excl)
+
+    # Create the KDE plot
+    if plotfilters["KDE"].lower() == "none":
         # Single-color plot
         plot_kwargs["data"] = ("index", "value")
         plot_kwargs["type"] = "scatter"
@@ -862,7 +885,6 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
         plot_kwargs["type"] = "cmap_scatter"
         plot_kwargs["color_mapper"] = ca.jet
 
-    # Create the plot
     scatter_plot.plot(**plot_kwargs)
 
     # Set x-y limits
@@ -884,14 +906,14 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
 
     scatter_plot.title = mm.title
     scatter_plot.title_font = "modern 12"
-    if mm.Configuration["Plotting"]["Scatter Title Colored"]:
-        mmlabelcolor = mm.Configuration["Plotting"]["Contour Color"]
+    if plotfilters["Scatter Title Colored"]:
+        mmlabelcolor = plotfilters["Contour Color"]
     else:
         mmlabelcolor = "black"
     scatter_plot.title_color = mmlabelcolor
 
     # Display numer of events
-    if mm.Configuration["Plotting"]["Show Events"]:
+    if plotfilters["Show Events"]:
         elabel = ca.PlotLabel(text="{} events".format(np.sum(mm._filter)),
                               component=scatter_plot,
                               vjustify="bottom",
