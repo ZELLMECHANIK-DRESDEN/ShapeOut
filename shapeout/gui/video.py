@@ -205,7 +205,6 @@ class ImagePanel(ScrolledPanel):
             print("Frame {} / {}".format(evt_id, totframes))
 
             # Update exclude check-box
-            print("get", evt_id, mm._filter_manual[evt_id])
             self.WXChB_exclude.SetValue(not mm._filter_manual[evt_id])
 
             # Set max value for spin control

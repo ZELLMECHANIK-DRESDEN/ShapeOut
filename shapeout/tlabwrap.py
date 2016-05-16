@@ -89,8 +89,15 @@ class Analysis(object):
             if mmhashes != newhashes:
                 raise ValueError("Hashes don't match for file {}.".
                                  format(tloc))
-            cfg = dfn.LoadConfiguration(os.path.join(thedir, 
-                                        data["config"]))
+            config_file = os.path.join(thedir, data["config"])
+            cfg = dfn.LoadConfiguration(config_file)
+            
+            # Load manually excluded data
+            filter_manual_file = os.path.join(os.path.dirname(config_file),
+                                              "_filter_manual.npy")
+            if os.path.exists(filter_manual_file):
+                mm._filter_manual = np.load(os.path.join(filter_manual_file))
+            
             mm.UpdateConfiguration(cfg)
             self.measurements.append(mm)
 
@@ -137,6 +144,8 @@ class Analysis(object):
             out.append("config = {}".format(os.path.relpath(cfgfile,
                                                             directory)))
             
+            # save manual filters
+            np.save(os.path.join(mmdir, "_filter_manual.npy"), mm._filter_manual)
             
             if fullout:
                 # create directory that contains tdms and ini files
