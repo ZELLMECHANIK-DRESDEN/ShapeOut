@@ -37,12 +37,16 @@ class ImagePanel(ScrolledPanel):
         self.WXCB_plot = wx.ComboBox(self,
                                      style=wx.CB_DROPDOWN|wx.CB_READONLY,
                                      size=(300,-1))
-        self.WXSP_plot = wx.SpinCtrl(self, min=0, max=10000000)
+        self.WXSP_plot = wx.SpinCtrl(self, min=1, max=10000000)
         
         ctrlsizer = wx.BoxSizer(wx.HORIZONTAL)
         ctrlsizer.Add(wx.StaticText(self, label=_("Event:")),0, wx.ALIGN_CENTER)
         ctrlsizer.Add(self.WXCB_plot)
         ctrlsizer.Add(self.WXSP_plot)
+
+        # Bindings
+        self.Bind(wx.EVT_COMBOBOX, self.OnShowEvent, self.WXCB_plot)
+        self.Bind(wx.EVT_SPINCTRL, self.OnShowEvent, self.WXSP_plot)
         
         ## Image panel with chaco don't work. I get a segmentation fault
         ## with Ubuntu 14.04
@@ -93,10 +97,10 @@ class ImagePanel(ScrolledPanel):
         self.PlotImage()
 
 
-    def OnDisplayEvent(self, e=None):
+    def OnShowEvent(self, e=None):
         """ Called when self.WXCB_plot and self.WXSP_plot are selected """
         mm_id = self.WXCB_plot.GetSelection()
-        evt_id = self.WXSP_plot.GetValue()
+        evt_id = self.WXSP_plot.GetValue() - 1
 
         if mm_id == -1:
             return
@@ -104,8 +108,20 @@ class ImagePanel(ScrolledPanel):
         if evt_id == -1:
             evt_id = 0
 
+        self.ShowEvent(mm_id, evt_id)
+
 
     def ShowEvent(self, mm_id, evt_id):
+            """
+            Parameters
+            ----------
+            
+            mm_id : int
+                measurement identifier (index in self.analysis.measurements)
+            evt_id : int
+                frame identifier, starts at 0
+            
+            """
             mm = self.analysis.measurements[mm_id]
             # Taking the abspath of the video does not always work with OpenCV?
             #vfile = os.path.join(dataset.fdir, dataset.video)
@@ -122,8 +138,8 @@ class ImagePanel(ScrolledPanel):
             if actual_sel_offset < 0:
                 # Display an empty image if there is no image for the event
                 warnings.warn("No image for event {}.".format(evt_id))
-                self.frame.ImageArea.ShowImage(None)
-                self.frame.ImageArea.UpdateSelections(self.analysis)
+                self.PlotImage(None)
+                self.UpdateSelections()
             else:
                 video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
                 
@@ -152,9 +168,7 @@ class ImagePanel(ScrolledPanel):
                     
                     # measurement id
                     mm_id = self.analysis.measurements.index(mm)
-                    self.UpdateSelections(self.analysis,
-                                           mm_id=mm_id,
-                                           evt_id=evt_id)
+                    self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
                     
             
             video.release()
@@ -199,14 +213,14 @@ class ImagePanel(ScrolledPanel):
 
     def UpdateAnalysis(self, analysis):
         """ Update the choices of the dopdown list with a new analysis """
-        self.UpdateSelections(analysis)
         self.analysis = analysis
+        self.UpdateSelections()
 
 
-    def UpdateSelections(self, analysis, mm_id=None, evt_id=None):
+    def UpdateSelections(self, mm_id=None, evt_id=None):
         # Determine plot titles and set selection
         sel = self.WXCB_plot.GetSelection()
-        choices = [ mm.title for mm in analysis.measurements ]
+        choices = [ mm.title for mm in self.analysis.measurements ]
         self.WXCB_plot.SetItems(choices)
         
         if mm_id is not None:
@@ -217,4 +231,9 @@ class ImagePanel(ScrolledPanel):
             self.WXCB_plot.SetValue("--")
 
         if evt_id is not None:
-            self.WXSP_plot.SetValue(evt_id)
+            # Sanity check:
+            max_evt = self.analysis.measurements[mm_id].time.shape[0]
+            evt_id = min(evt_id, max_evt)
+            self.WXSP_plot.SetValue(evt_id+1)
+
+
