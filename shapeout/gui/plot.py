@@ -285,8 +285,9 @@ class MainPlotArea(wx.Panel):
             # these are all the filtered cells
             filterid = np.where(dataset._filter)[0]
             actual_sel = filterid[plot_sel]
-
-            self.frame.ImageArea.ShowEvent(mm=dataset, evt_id=actual_sel)
+            
+            mm_id = self.analysis.measurements.index(dataset)
+            self.frame.ImageArea.ShowEvent(mm_id=mm_id, evt_id=actual_sel)
 
         if not thisplothover is None:
             self._lastplothover = thisplothover

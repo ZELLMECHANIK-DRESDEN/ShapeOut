@@ -105,7 +105,8 @@ class ImagePanel(ScrolledPanel):
             evt_id = 0
 
 
-    def ShowEvent(self, mm, evt_id):
+    def ShowEvent(self, mm_id, evt_id):
+            mm = self.analysis.measurements[mm_id]
             # Taking the abspath of the video does not always work with OpenCV?
             #vfile = os.path.join(dataset.fdir, dataset.video)
             old_dir = os.getcwd()
