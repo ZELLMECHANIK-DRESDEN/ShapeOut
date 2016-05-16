@@ -32,11 +32,12 @@ class ImagePanel(ScrolledPanel):
         
         self.SetupScrolling(scroll_y=True, scroll_x=True)
 
-        # Draw event selection tools
-        # Dropdown for plot selection
+        ## draw event selection tools
+        # dropdown for plot selection
         self.WXCB_plot = wx.ComboBox(self,
                                      style=wx.CB_DROPDOWN|wx.CB_READONLY,
                                      size=(300,-1))
+        # spin control for event selection
         self.WXSP_plot = wx.SpinCtrl(self, min=1, max=10000000)
         
         ctrlsizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -79,8 +80,8 @@ class ImagePanel(ScrolledPanel):
         #self.plot_window.redraw()
 
         # Draw image with wxPython instead
-        self.startSizeX = 250
-        self.startSizeY = 80
+        self.startSizeX = 230
+        self.startSizeY = 77
         self.img = wx.EmptyImage(self.startSizeX, self.startSizeY)
         self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY, 
                                          wx.BitmapFromImage(self.img))
@@ -88,15 +89,44 @@ class ImagePanel(ScrolledPanel):
         #self.mainSizer.Add(self.imageCtrl, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT)
         #self.SetSizer(self.mainSizer)
         #self.mainSizer.Fit(self)
+        self.PlotImage()
+
+        ## draw manual filtering options
+        self.WXChB_exclude = wx.CheckBox(self, label=_("Exclude event"))
+        exclsizer = wx.BoxSizer(wx.HORIZONTAL)
+        exclsizer.Add(self.WXChB_exclude,0, wx.ALIGN_LEFT)
+        self.Bind(wx.EVT_CHECKBOX, self.OnChBoxExclude, self.WXChB_exclude)
+
+        # Update Plot button
+        updbutton = wx.Button(self, label=_("Update plot"))
+        self.Bind(wx.EVT_BUTTON, self.OnUpdatePlot, updbutton)
+
+        exclsizer.AddSpacer(self.imageCtrl.GetSize()[0]-updbutton.GetSize()[0]-self.WXChB_exclude.GetSize()[0])        
+        exclsizer.Add(updbutton)
+        
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(ctrlsizer)
-        sizer.Add(self.imageCtrl, 1, wx.ALL | wx.EXPAND, 5)
+        sizer.Add(self.imageCtrl, 0, wx.ALIGN_LEFT)
+        sizer.Add(exclsizer)
         self.SetSizer(sizer)
 
-        self.PlotImage()
+    
+    def OnChBoxExclude(self, e=None):
+        """ If the exclude-check box is triggered, change the
+        corresponding value in the measurement."""
+        mm_id = self.WXCB_plot.GetSelection()
+        evt_id = self.WXSP_plot.GetValue() - 1
+        mm = self.analysis.measurements[mm_id]
+        mm._filter_manual[evt_id] = not self.WXChB_exclude.GetValue()
 
 
+    def OnUpdatePlot(self, e=None):
+        """ Update the entire plot with filters
+        """
+        self.frame.PanelTop.OnChangeFilter()
+        
+    
     def OnShowEvent(self, e=None):
         """ Called when self.WXCB_plot and self.WXSP_plot are selected """
         mm_id = self.WXCB_plot.GetSelection()
@@ -109,9 +139,6 @@ class ImagePanel(ScrolledPanel):
             evt_id = 0
 
         self.ShowEvent(mm_id, evt_id)
-
-        max_evt = self.analysis.measurements[mm_id].time.shape[0]
-        self.WXSP_plot.SetRange(1, max_evt)
 
 
     def ShowEvent(self, mm_id, evt_id):
@@ -177,6 +204,13 @@ class ImagePanel(ScrolledPanel):
             video.release()
             print("Frame {} / {}".format(evt_id, totframes))
 
+            # Update exclude check-box
+            print("get", evt_id, mm._filter_manual[evt_id])
+            self.WXChB_exclude.SetValue(not mm._filter_manual[evt_id])
+
+            # Set max value for spin control
+            max_evt = self.analysis.measurements[mm_id].time.shape[0]
+            self.WXSP_plot.SetRange(1, max_evt)
 
 
     def PlotImage(self, image=None):
