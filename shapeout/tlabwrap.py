@@ -92,7 +92,7 @@ class Analysis(object):
             config_file = os.path.join(thedir, data["config"])
             cfg = dfn.LoadConfiguration(config_file)
             
-            # Load manually excluded data
+            # Load manually excluded events
             filter_manual_file = os.path.join(os.path.dirname(config_file),
                                               "_filter_manual.npy")
             if os.path.exists(filter_manual_file):
