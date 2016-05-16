@@ -102,7 +102,7 @@ class MainPlotArea(wx.Panel):
 
         maxplots = min(len(anal.measurements), numplots)
 
-        self.index_datasources = list()
+        self.index_datasources = []
 
         # dictionary mapping plot objects to data for scatter plots
         scatter2measure = {}
@@ -295,6 +295,7 @@ class MainPlotArea(wx.Panel):
             self._lastplotselect = thisplotselect
         self._lasthover = thishov
         self._lastselect = thissel
+
 
     def CheckTightLayout(self):
         """ Determine whether a call to tight_layout is necessary and
