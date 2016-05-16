@@ -6,13 +6,12 @@
 from __future__ import division, print_function
 
 import numpy as np
-import platform
 import tempfile
 import webbrowser
 
 import wx
 import wx.grid as gridlib
-import wx.lib.agw.flatnotebook as fnb
+import wx.lib.flatnotebook as fnb
 import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
@@ -23,7 +22,7 @@ from .. import util
 from .. import lin_mix_mod
 
 
-class FlatNotebook(fnb.FlatNotebook):
+class FlatNotebook(wx.Notebook):
     """
     Flatnotebook class
     """
@@ -33,10 +32,10 @@ class FlatNotebook(fnb.FlatNotebook):
                 fnb.FNB_TABS_BORDER_SIMPLE|fnb.FNB_NO_X_BUTTON|\
                 fnb.FNB_NO_NAV_BUTTONS|fnb.FNB_NODRAG
         # Bugfix for Mac
-        if platform.system().lower() in ["windows", "linux"]:
-            style = style|fnb.FNB_HIDE_ON_SINGLE_TAB
-        self.fnb = fnb.FlatNotebook.__init__(self, parent, wx.ID_ANY,
-                                             agwStyle=style)
+        #if platform.system().lower() in ["windows", "linux"]:
+        #    style = style|fnb.FNB_HIDE_ON_SINGLE_TAB
+        self.fnb = wx.Notebook.__init__(self, parent, wx.ID_ANY,
+                                             )#agwStyle=style)
 
 
 class ControlPanel(ScrolledPanel):
@@ -49,10 +48,27 @@ class ControlPanel(ScrolledPanel):
         
         self.frame = frame
         self.config = frame.config
-        notebook = FlatNotebook(self) 
+        self.notebook = FlatNotebook(self)
 
         self.subpanels = []
 
+        self.AddSubpanels()
+        
+        self.notebook.SetSelection(4)
+
+        # Shortucut SHIFT+ENTER replots everything
+        randomId = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.OnChangePlot, id=randomId)
+        accel_tbl = wx.AcceleratorTable([(wx.ACCEL_SHIFT, wx.WXK_RETURN, randomId )])
+        self.SetAcceleratorTable(accel_tbl)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.notebook, 1, wx.ALL | wx.EXPAND, 5)
+        self.SetSizer(sizer)
+
+
+    def AddSubpanels(self):
+        notebook=self.notebook
         page_info = SubPanelInfo(notebook)
         notebook.AddPage(page_info, _("Information"))
         self.subpanels.append(page_info)
@@ -81,20 +97,6 @@ class ControlPanel(ScrolledPanel):
         self.page_cont = SubPanelPlotContour(notebook, funcparent=self)
         notebook.AddPage(self.page_cont, _("Contour Plot"))
         self.subpanels.append(self.page_cont)
-        
-        notebook.SetSelection(4)
-        
-        self.notebook = notebook
-
-        # Shortucut SHIFT+ENTER replots everything
-        randomId = wx.NewId()
-        self.Bind(wx.EVT_MENU, self.OnChangePlot, id=randomId)
-        accel_tbl = wx.AcceleratorTable([(wx.ACCEL_SHIFT, wx.WXK_RETURN, randomId )])
-        self.SetAcceleratorTable(accel_tbl)
-
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(notebook, 1, wx.ALL | wx.EXPAND, 5)
-        self.SetSizer(sizer)
 
 
     def NewAnalysis(self, anal=None):
@@ -104,9 +106,6 @@ class ControlPanel(ScrolledPanel):
             
         self.UpdatePages()
         
-        # make the current page redraw itself
-        self.notebook.SetSelection(self.notebook.GetSelection())
-
     
     def OnChangeFilter(self, e=None):
         # get all values
@@ -247,10 +246,148 @@ class ControlPanel(ScrolledPanel):
 
     def UpdatePages(self):
         """ fills pages """
+        sel = self.notebook.GetSelection()
+
+        # Recreate all pages instead of just calling `UpdatePanel`.
+        # This resolves issues on at least Linux
+        for _i in range(len(self.subpanels)):
+            self.notebook.RemovePage(0)
+        self.subpanels = []
+        self.AddSubpanels()
+
+        # Update page content        
         for page in self.subpanels:
-            page.Update(self.analysis)
+            page.UpdatePanel(self.analysis)
         
-        self.notebook.SetSelection(self.notebook.GetSelection())
+        self.notebook.SetSelection(sel)
+        
+
+
+class DragListStriped(wx.ListCtrl):
+    def __init__(self, *arg, **kw):
+        wx.ListCtrl.__init__(self, *arg, **kw)
+
+        self.Bind(wx.EVT_LIST_BEGIN_DRAG, self._onDrag)
+        self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._onSelect)
+        self.Bind(wx.EVT_LEFT_UP,self._onMouseUp)
+        self.Bind(wx.EVT_LEFT_DOWN, self._onMouseDown)
+        self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeaveWindow)
+        self.Bind(wx.EVT_ENTER_WINDOW, self._onEnterWindow)
+        self.Bind(wx.EVT_LIST_INSERT_ITEM, self._onInsert)
+        self.Bind(wx.EVT_LIST_DELETE_ITEM, self._onDelete)
+
+        #---------------
+        # Variables
+        #---------------
+        self.IsInControl=True
+        self.startIndex=-1
+        self.dropIndex=-1
+        self.IsDrag=False
+        self.dragIndex=-1
+
+    def _onLeaveWindow(self, event):
+        self.IsInControl=False
+        self.IsDrag=False
+        event.Skip()
+
+    def _onEnterWindow(self, event):
+        self.IsInControl=True
+        event.Skip()
+
+    def _onDrag(self, event):
+        self.IsDrag=True
+        self.dragIndex=event.m_itemIndex
+        event.Skip()
+        pass
+
+    def _onSelect(self, event):
+        self.startIndex=event.m_itemIndex
+        event.Skip()
+
+    def _onMouseUp(self, event):
+        # Purpose: to generate a dropIndex.
+        # Process: check self.IsInControl, check self.IsDrag, HitTest, compare HitTest value
+        # The mouse can end up in 5 different places:
+        # Outside the Control
+        # On itself
+        # Above its starting point and on another item
+        # Below its starting point and on another item
+        # Below its starting point and not on another item
+
+        if self.IsInControl==False:       #1. Outside the control : Do Nothing
+            self.IsDrag=False
+        else:                                   # In control but not a drag event : Do Nothing
+            if self.IsDrag==False:
+                pass
+            else:                               # In control and is a drag event : Determine Location
+                self.hitIndex=self.HitTest(event.GetPosition())
+                self.dropIndex=self.hitIndex[0]
+                # -- Drop index indicates where the drop location is; what index number
+                #---------
+                # Determine dropIndex and its validity
+                #--------
+                if self.dropIndex==self.startIndex or self.dropIndex==-1:    #2. On itself or below control : Do Nothing
+                    pass
+                else:
+                    #----------
+                    # Now that dropIndex has been established do 3 things
+                    # 1. gather item data
+                    # 2. delete item in list
+                    # 3. insert item & it's data into the list at the new index
+                    #----------
+                    dropList=[]         # Drop List is the list of field values from the list control
+                    thisItem=self.GetItem(self.startIndex)
+                    for x in range(self.GetColumnCount()):
+                        dropList.append(self.GetItem(self.startIndex,x).GetText())
+                    thisItem.SetId(self.dropIndex)
+                    self.DeleteItem(self.startIndex)
+                    self.InsertItem(thisItem)
+                    for x in range(self.GetColumnCount()):
+                        self.SetStringItem(self.dropIndex,x,dropList[x])
+            #------------
+            # I don't know exactly why, but the mouse event MUST
+            # call the stripe procedure if the control is to be successfully
+            # striped. Every time it was only in the _onInsert, it failed on
+            # dragging index 3 to the index 1 spot.
+            #-------------
+            # Furthermore, in the load button on the wxFrame that this lives in,
+            # I had to call the _onStripe directly because it would occasionally fail
+            # to stripe without it. You'll notice that this is present in the example stub.
+            # Someone with more knowledge than I probably knows why...and how to fix it properly.
+            #-------------
+        self._onStripe()
+        self.IsDrag=False
+        event.Skip()
+
+    def _onMouseDown(self, event):
+        self.IsInControl=True
+        event.Skip()
+
+    def _onInsert(self, event):
+        # Sequencing on a drop event is:
+        # wx.EVT_LIST_ITEM_SELECTED
+        # wx.EVT_LIST_BEGIN_DRAG
+        # wx.EVT_LEFT_UP
+        # wx.EVT_LIST_ITEM_SELECTED (at the new index)
+        # wx.EVT_LIST_INSERT_ITEM
+        #--------------------------------
+        # this call to onStripe catches any addition to the list; drag or not
+        self._onStripe()
+        self.dragIndex=-1
+        event.Skip()
+
+    def _onDelete(self, event):
+        self._onStripe()
+        event.Skip()
+
+    def _onStripe(self):
+        if self.GetItemCount()>0:
+            for x in range(self.GetItemCount()):
+                if x % 2==0:
+                    self.SetItemBackgroundColour(x,wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DLIGHT))
+                else:
+                    self.SetItemBackgroundColour(x,wx.WHITE)
+
 
 
 class SubPanel(ScrolledPanel):
@@ -286,8 +423,8 @@ class SubPanel(ScrolledPanel):
                 if item[1] == multiplestr:
                     a.Disable()
                     b.Disable()
-                sgen.Add(a)
-                sgen.Add(b)
+                sgen.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
+                sgen.Add(b, 0, wx.ALIGN_CENTER_VERTICAL)
         
             sgen.Layout()
             hbox.Add(sgen)
@@ -326,7 +463,7 @@ class SubPanel(ScrolledPanel):
                 # this does not work for floats and ints
                 idc = choices.index(item[1])
                 c.SetSelection(idc)
-            stemp.Add(a)
+            stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(c)
 
         elif (tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool or  # @UndefinedVariable
@@ -337,7 +474,7 @@ class SubPanel(ScrolledPanel):
         else:
             a = wx.StaticText(self, label=_(item[0]))
             b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
-            stemp.Add(a)
+            stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(b)
         return stemp
     
@@ -363,7 +500,7 @@ class SubPanel(ScrolledPanel):
             self.funcparent.Reset(self.key, subkeys)
             
 
-    def Update(self, *args, **kwargs):
+    def UpdatePanel(self, *args, **kwargs):
         """ Overwritten by subclass """
         pass
 
@@ -478,7 +615,7 @@ class SubPanelAnalysis(SubPanel):
         """
         self.Update(self.analysis)
 
-    def Update(self, analysis=None):
+    def UpdatePanel(self, analysis=None):
         if analysis is None:
             analysis = self.analysis
         self.analysis = analysis
@@ -608,7 +745,7 @@ class SubPanelFilter(SubPanel):
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
                 c = wx.TextCtrl(self, value=str(itemmax[1]), name=itemmax[0])
                 stemp = wx.BoxSizer(wx.HORIZONTAL)
-                sgen.Add(a)
+                sgen.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
                 stemp.Add(b)
                 stemp.Add(c)
                 sgen.Add(stemp)
@@ -659,6 +796,7 @@ class SubPanelFilter(SubPanel):
         #edit.Bind(wx.EVT_BUTTON, self.OnPolygonEdit)
         edit.Disable()
         optsizer.Add(edit)
+
         # remove
         remove = wx.Button(self, label=_("Remove"))
         remove.Bind(wx.EVT_BUTTON, self.OnPolygonRemove)
@@ -678,8 +816,10 @@ class SubPanelFilter(SubPanel):
         cbg.SetValue(choice_be[-1])
         cbg.Bind(wx.EVT_COMBOBOX, self.OnPolygonCombobox)
         plotsizer.Add(cbg)
+
         # htree control for polygon filter selection
         pol_filters = tlabwrap.PolygonFilter.instances
+
         htreectrl = HT.HyperTreeList(self, name="Polygon Filter Selection",
                 agwStyle=wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|\
                          HT.TR_NO_HEADER|HT.TR_EDIT_LABELS)
@@ -687,10 +827,12 @@ class SubPanelFilter(SubPanel):
         htreectrl.AddColumn("")
         htreectrl.SetColumnWidth(0, 500)
         rroot = htreectrl.AddRoot("", ct_type=0)
+
         for p in pol_filters:
             # filtit = 
             htreectrl.AppendItem(rroot, p.name, ct_type=1,
                                           data=p.unique_id)
+
         htreectrl.Bind(HT.EVT_TREE_ITEM_CHECKED, self.OnPolygonHtreeChecked)
         # This is covered by self.OnPolygonCombobox()
         #    FIL = analysis.GetParameters("Filtering")
@@ -698,6 +840,7 @@ class SubPanelFilter(SubPanel):
         #        p.unique_id in FIL["Polygon Filters"]):
         #        filtit.Check(True)
         htreectrl.SetMinSize((200,120))
+
         plotsizer.Add(htreectrl, 1, wx.EXPAND, 3)
         # export
         horsizer2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -902,7 +1045,7 @@ class SubPanelFilter(SubPanel):
         ldw.show_scatter(mm, xax=xax, yax=yax)
         ldw.Show()
         
-    def Update(self, analysis=None):
+    def UpdatePanel(self, analysis=None):
         if analysis is None:
             # previous analysis is used
             analysis = self.analysis
@@ -912,14 +1055,13 @@ class SubPanelFilter(SubPanel):
             old_meas_selection = 0
 
         self.analysis = analysis
+        
         self.Freeze()
-        
-        
         
         for item in self.GetChildren():
             self.RemoveChild(item)
             item.Destroy()
-        
+
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         
         sizerv = wx.BoxSizer(wx.VERTICAL)
@@ -981,7 +1123,6 @@ class SubPanelFilter(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
- 
         self.Thaw()
 
 
@@ -989,7 +1130,7 @@ class SubPanelInfo(SubPanel):
     def __init__(self, *args, **kwargs):
         SubPanel.__init__(self, *args, **kwargs)
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():
@@ -1106,7 +1247,7 @@ class SubPanelPlotting(SubPanel):
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
                 c = wx.TextCtrl(self, value=str(itemmax[1]), name=itemmax[0])
                 stemp = wx.BoxSizer(wx.HORIZONTAL)
-                stemp.Add(a)
+                stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
                 stemp.Add(b)
                 stemp.Add(c)
                 axessizer.Add(stemp)
@@ -1139,21 +1280,71 @@ class SubPanelPlotting(SubPanel):
         
         return mastersizer
 
-    def Update(self, analysis):
+    def _box_order_plots(self, analysis):
+        """Returns a sizer containing a StaticBox that allows
+        to sort the plots.
+        """
+        meas_names = [mm.title for mm in analysis.measurements]
+
+        box = wx.StaticBox(self, label=_("Plot order"))
+
+        dls = DragListStriped(box, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_NO_HEADER)
+        dls.InsertColumn(0, "")
+        dls.InsertColumn(1, "")
+
+        for ii, meas in enumerate(meas_names):
+            dls.InsertStringItem(ii, str(ii))
+            dls.SetStringItem(ii, 1, meas)
+            
+        dls._onStripe()
+
+        size = dls.GetBestSize()        
+        dls.SetSize((size[0]-120,size[1]-50))
+        
+        dls.SetColumnWidth(0, wx.LIST_AUTOSIZE)
+        dls.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+        
+        self.plot_orderer = dls
+        
+        return box
+
+
+    def OnApply(self, e=None):
+        """ Apply the settings set by the user.
+        We are allowing the user to order the plots, which we
+        take care of here. 
+        """
+        # Order the plots according to user selection
+        # find order
+        order = []
+        for ii in range(self.plot_orderer.GetItemCount()):
+            order.append(int(self.plot_orderer.GetItem(ii).GetText()))
+        # set order
+        self.analysis.measurements = [x for (_y,x) in sorted(zip(
+                                                order,
+                                                self.analysis.measurements))]
+        
+        # Call OnChangePlot to apply the other changes
+        self.funcparent.OnChangePlot(e)
+
+
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():
             self.RemoveChild(item)
             item.Destroy()
+
         # sizer
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        fbox = self._box_from_cfg_plotting(analysis)
-        sizer.Add(fbox)
+        sizer.Add(self._box_from_cfg_plotting(analysis))
+        sizer.Add(self._box_order_plots(analysis))
+
 
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
 
         btn_apply = wx.Button(self, label=_("Apply"))
-        self.Bind(wx.EVT_BUTTON, self.funcparent.OnChangePlot, btn_apply)
+        self.Bind(wx.EVT_BUTTON, self.OnApply, btn_apply)
         vertsizer.Add(btn_apply)
 
         btn_reset = wx.Button(self, label=_("Reset"))
@@ -1167,6 +1358,11 @@ class SubPanelPlotting(SubPanel):
         self.Layout()
         
         self.Thaw()
+        
+        self.analysis = analysis
+
+        self.Hide()
+        self.Show()
 
 
 
@@ -1248,7 +1444,7 @@ class SubPanelPlotContour(SubPanel):
         return mastersizer
 
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():
@@ -1317,7 +1513,7 @@ class SubPanelPlotScatter(SubPanel):
         return mastersizer
 
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():
@@ -1359,7 +1555,6 @@ class SubPanelStatistics(SubPanel):
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         if analysis is not None:
-
             colors = list()
             for mm in analysis.measurements:
                 colors.append(mm.Configuration["Plotting"]["Contour Color"])
@@ -1399,7 +1594,7 @@ class SubPanelStatistics(SubPanel):
         return sizer
 
 
-    def Update(self, analysis):
+    def UpdatePanel(self, analysis):
         """  """
         self.Freeze()
         for item in self.GetChildren():

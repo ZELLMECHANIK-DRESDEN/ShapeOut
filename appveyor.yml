@@ -29,13 +29,14 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     WITH_COMPILER: "cmd /E:ON /V:ON /C .\\freeze_appveyor\\run_with_compiler.cmd"
 
+  # https://github.com/appveyor/ci/issues/359
   matrix:
-    - PYTHON: "C:\\Python27-conda32"
+    - PYTHON: "C:\\Miniconda"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
       PYWIN_DL: "https://downloads.sourceforge.net/project/pywin32/pywin32/Build%20219/pywin32-219.win32-py2.7.exe"
 
-#    - PYTHON: "C:\\Python27-conda64"
+#    - PYTHON: "C:\\Miniconda-x64"
 #      PYTHON_VERSION: "2.7"
 #      PYTHON_ARCH: "64"
 #      PYWIN_DL: "https://downloads.sourceforge.net/project/pywin32/pywin32/Build%20219/pywin32-219.win-amd64-py2.7.exe"
@@ -61,9 +62,7 @@ install:
   #- choco install -y -version 3.2.2 r.project
   - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
-  # Install Anaconda
-  - "powershell freeze_appveyor\\install.ps1"
-
+  # Use appveyor miniconda
   # Determine platform
   - '%PYTHON%/python -c "import platform; print platform.uname()"'
   - '%PYTHON%/python -c "import sys; print sys.maxint"'
@@ -72,7 +71,7 @@ install:
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart
   # the parent CMD process).
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
@@ -97,7 +96,7 @@ install:
   # build dependencies
   #- "pip install wheel"
   # dclab
-  # prevent pip from installing later scipy versions
+  # prevent pip from installing later scipy versions using "--no-deps"
   # requirements from dclab were partly installed with conda:
   #- "pip install dclab --no-deps"
   - "pip install git+git://github.com/ZellMechanik-Dresden/dclab.git --no-deps"

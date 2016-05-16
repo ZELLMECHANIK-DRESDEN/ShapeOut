@@ -8,6 +8,7 @@ from __future__ import division, print_function
 
 import codecs
 import os
+from os.path import abspath, dirname, join
 import sys
 import warnings
 
@@ -24,15 +25,15 @@ class ConfigurationFile(object):
         if not os.path.exists(fname):
             # Create the file
             if hasattr(sys, 'frozen'):
-                d = os.path.realpath(os.path.join(sys._MEIPASS,  # @UndefinedVariable
+                d = abspath(join(sys._MEIPASS,  # @UndefinedVariable
                                                        "shapeout-data"))
-                self.cfgfile = os.path.join(d, shcfg)
+                self.cfgfile = join(d, shcfg)
             else:
-                self.cfgfile = os.path.join(os.path.dirname(__file__),
-                                                                  shcfg)
-            fop = codecs.open(self.cfgfile, 'wb', "utf-8")
-            fop.writelines(DefaultConfig)
-            fop.close()
+                self.cfgfile = join(abspath(dirname(__file__)), shcfg)
+            
+            with codecs.open(self.cfgfile, 'wb', "utf-8") as fop:
+                fop.writelines(DefaultConfig)
+
         else:
             self.cfgfile = fname
 

@@ -70,6 +70,9 @@ class Analysis(object):
         # import configurations
         datadict = dfn.LoadConfiguration(indexname, capitalize=False)
         keys = list(datadict.keys())
+        # The identifier (in brackets []) contains a number before the first
+        # underscore "_" which determines the order of the plots:
+        keys.sort(key=lambda x: int(x.split("_")[0]))
         for key in keys:
             data = datadict[key]
             name = data["name"]
@@ -91,6 +94,7 @@ class Analysis(object):
             mm.UpdateConfiguration(cfg)
             self.measurements.append(mm)
 
+
     def DumpData(self, directory, fullout=False):
         """ Dumps all the data from the analysis to a `directory`
         
@@ -106,8 +110,12 @@ class Analysis(object):
         for mm in self.measurements:
             i += 1
             ident = "{}_{}".format(i,mm.name)
+            # the directory in the session zip file where all information
+            # will be stored:
             mmdir = os.path.join(directory, ident)
             while True:
+                # If the directory already exists, append a number to that
+                # directory to distinguish different measurements.
                 g=0
                 if os.path.exists(mmdir):
                     mmdir = mmdir+str(g)
@@ -602,7 +610,6 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
                                   widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
                                   )
         
-        
     # Set x-y limits
     xlim = contour_plot.index_mapper.range
     ylim = contour_plot.value_mapper.range
@@ -643,6 +650,7 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
     pan = cta.PanTool(contour_plot, drag_button="left")
 
     contour_plot.tools.append(pan)
+
 
     return contour_plot
 
@@ -720,8 +728,6 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
         x-Axis to plot (see `librtdc.dfn.cfgmap`)
     yax : str
         y-Axis to plot (see `librtdc.dfn.cfgmap`)
-    kde_type : str
-        Type of KDE estimate. Can be "gauss" or "multivariate".
     axScatter : instance of matplotlib `Axis`
         Plotting axis for the scatter data.
     isoel : list for line plot
@@ -730,7 +736,7 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     square : bool
         The plot has square shape.
     downsampling : int or None
-        Filter dots that are overdrawn by others (saves time).
+        Filter events that are overdrawn by others (saves time).
         If set to None then
         Configuration["Plotting"]["Downsampling"] is used.
         Chaco does not yet have this implemented.
@@ -834,19 +840,52 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     pd.set_data("value", y)
     pd.set_data("color", density)
     
-    # Create the plot
-    scatter_plot.plot(("index", "value", "color"),
-              type="cmap_scatter",
-              name="my_plot",
-              #color_mapper=ca.jet,
-              color_mapper=ca.jet,
-              marker = "square",
-              #fill_alpha = 1.0,
-              marker_size = int(marker_size),
-              outline_color = "transparent",
-              line_width = 0,
-              bgcolor = "white")
+    plot_kwargs = {
+                   "name": "my_plot",
+                   "marker": "square",
+                   #"fill_alpha": 1.0,
+                   "marker_size": int(marker_size),
+                   "outline_color": "transparent",
+                   "line_width": 0,
+                   "bgcolor": "white"
+                    }
+    
+    # Plot filtered data in grey
+    if (plotfilters["Scatter Plot Excluded Events"] and
+        mm._filter.sum() != mm.time.shape[0]):
+        # determine the number of points we are allowed to add
+        if downsampling:
+            # respect the maximum limit of plotted events
+            excl_num = int(downsample_events - np.sum(mm._filter))
+        else:
+            # plot all excluded events
+            excl_num = np.sum(~mm._filter)
 
+        if excl_num > 0:
+            excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
+            excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
+            pd.set_data("excl_index", excl_x)
+            pd.set_data("excl_value", excl_y)
+            plot_kwargs_excl = plot_kwargs.copy()
+            plot_kwargs_excl["data"] = ("excl_index", "excl_value")
+            plot_kwargs_excl["type"] = "scatter"
+            plot_kwargs_excl["color"] = 0x929292
+            scatter_plot.plot(**plot_kwargs_excl)
+
+    # Create the KDE plot
+    if plotfilters["KDE"].lower() == "none":
+        # Single-color plot
+        plot_kwargs["data"] = ("index", "value")
+        plot_kwargs["type"] = "scatter"
+        plot_kwargs["color"] = "black"
+                  
+    else:                
+        # Plots with density
+        plot_kwargs["data"] = ("index", "value", "color")
+        plot_kwargs["type"] = "cmap_scatter"
+        plot_kwargs["color_mapper"] = ca.jet
+
+    scatter_plot.plot(**plot_kwargs)
 
     # Set x-y limits
     xlim = scatter_plot.index_mapper.range
@@ -867,14 +906,14 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
 
     scatter_plot.title = mm.title
     scatter_plot.title_font = "modern 12"
-    if mm.Configuration["Plotting"]["Scatter Title Colored"]:
-        mmlabelcolor = mm.Configuration["Plotting"]["Contour Color"]
+    if plotfilters["Scatter Title Colored"]:
+        mmlabelcolor = plotfilters["Contour Color"]
     else:
         mmlabelcolor = "black"
     scatter_plot.title_color = mmlabelcolor
 
     # Display numer of events
-    if mm.Configuration["Plotting"]["Show Events"]:
+    if plotfilters["Show Events"]:
         elabel = ca.PlotLabel(text="{} events".format(np.sum(mm._filter)),
                               component=scatter_plot,
                               vjustify="bottom",

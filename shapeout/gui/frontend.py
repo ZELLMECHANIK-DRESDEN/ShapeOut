@@ -7,12 +7,12 @@ from __future__ import division, print_function
 
 import chaco
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
-import cv2
+from chaco.api import PlotGraphicsContext
 
+import cv2
 import numpy as np
 import os
 import platform
-from PIL import Image
 import sys
 import tempfile
 import traceback
@@ -30,6 +30,7 @@ from .. import tlabwrap
 from . import update
 from . import plot
 from . import misc
+from . import video
 
 ########################################################################
 class ExceptionDialog(wx.MessageDialog):
@@ -199,11 +200,11 @@ class Frame(gaugeframe.GaugeFrame):
         self.PanelTop = ControlPanel(scrolltop, self)
         
         # Cell Images
-        self.PanelImage = ImagePanel(scrolltop)
+        self.ImageArea = video.ImagePanel(scrolltop, frame=self)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.PanelTop, 2, wx.ALL|wx.EXPAND, 5)
-        sizer.Add(self.PanelImage, 1, wx.ALL|wx.EXPAND, 5)
+        sizer.Add(self.ImageArea, 1, wx.ALL|wx.EXPAND, 5)
         scrolltop.SetSizer(sizer)
         scrolltop.Layout()
         
@@ -292,6 +293,11 @@ class Frame(gaugeframe.GaugeFrame):
         e2pdf = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
+        # export PNG disabled:
+        # https://github.com/ZellMechanik-Dresden/ShapeOut/issues/62
+        #e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
+        #               _('Export the plot as a portable network graphic'))
+        #self.Bind(wx.EVT_MENU, self.OnMenuExportPNG, e2png)
         e2stat = exportMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
                        _('Export the statistics data as tab-separated values'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
@@ -362,6 +368,7 @@ class Frame(gaugeframe.GaugeFrame):
         self.PanelTop.NewAnalysis(anal)
         self.PlotArea.Plot(anal)
         wx.EndBusyCursor()
+
 
     def OnHelpAbout(self, e=None):
         description =  ("ShapeOut is a data evaluation tool"+
@@ -588,6 +595,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                       "plot component class {}.".format(
                                       item.__class__))
 
+    def OnMenuExportPNG(self, e=None):
+        """ Saves plot container as png
+        
+        """
+        dlg = wx.FileDialog(self, "Export plot as PNG", 
+                            self.config.GetWorkingDirectory("PNG"), "",
+                            "PDF file (*.png)|*.png",
+                            wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            if not path.endswith(".png"):
+                path += ".png"
+            self.config.SetWorkingDirectory(os.path.dirname(path), "PNG")
+            container = self.PlotArea.mainplot.container
+            
+            # get inner_boundary
+            p = container
+
+            dpi=600
+            p.do_layout(force=True)
+            gc = PlotGraphicsContext(tuple(p.outer_bounds), dpi=dpi)
+
+            # temporarily turn off the backbuffer for offscreen rendering
+            use_backbuffer = p.use_backbuffer
+            p.use_backbuffer = False
+            p.draw(gc)
+            #gc.render_component(p)
+
+            gc.save(path)
+
+            p.use_backbuffer = use_backbuffer
+
+
     def OnMenuExportStatistics(self, e=None):
         """ Saves statistics results from tab to text file
         
@@ -774,94 +814,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         pass
 
 
-class ImagePanel(ScrolledPanel):
-    def __init__(self, parent):
-        ScrolledPanel.__init__(self, parent, -1)
-        self.parent = parent
-        
-        self.SetupScrolling(scroll_y=True, scroll_x=True)
-        ## Image panel with chaco don't work. I get a segmentation fault
-        ## with Ubuntu 14.04
-        ##
-        ## See the bug at launchpad
-        ## https://bugs.launchpad.net/ubuntu/+source/python-chaco/+bug/1145575
-        #self.plot_window = ea.Window(self)
-        #self.vbox = wx.BoxSizer(wx.VERTICAL)
-        #self.vbox.Add(self.plot_window.control, 1, wx.EXPAND)
-        #self.SetSizer(self.vbox)
-        #self.vbox.Fit(self)
-        #self.pd = ca.ArrayPlotData()
-        #x = np.arange(100).reshape(10,10)
-        #a = ca.ImageData()
-        #a.set_data(x)
-        #self.pd.set_data("cellimg", a)
-        #implot = ca.Plot(self.pd)
-        #implot.img_plot("cellimg")
-        #container = ca.GridPlotContainer(
-        #                              shape = (1,1),
-        #                              spacing = (0,0),
-        #                              padding = (0,0,0,0),
-        #                              valign = 'top',
-        #                              bgcolor = 'white',
-        #                              fill_padding = True,
-        #                              use_backbuffer = True)
-        #container.add(implot)
-        # CAUSE SEGMENTATION FAULT
-        #self.plot_window.component = container
-        #self.plot_window.redraw()
-        
-        # Draw image with wxPython instead
-        self.startSizeX = 250
-        self.startSizeY = 80
-        self.img = wx.EmptyImage(self.startSizeX, self.startSizeY)
-        self.imageCtrl = wx.StaticBitmap(self, wx.ID_ANY, 
-                                         wx.BitmapFromImage(self.img))
-        #self.mainSizer = wx.BoxSizer(wx.VERTICAL|wx.ALIGN_TOP|wx.ALIGN_LEFT)
-        #self.mainSizer.Add(self.imageCtrl, 1, wx.ALIGN_TOP|wx.ALIGN_LEFT)
-        #self.SetSizer(self.mainSizer)
-        #self.mainSizer.Fit(self)
-
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.imageCtrl, 1, wx.ALL | wx.EXPAND, 5)
-        self.SetSizer(sizer)
-
-        self.ShowImage()
-
-
-    def ShowImage(self, image=None):
-        def pil_to_wx_bmp(image):
-            width, height = image.size
-            mybuffer = image.convert('RGB').tobytes()
-            bitmap = wx.BitmapFromBuffer(width, height, mybuffer)
-            return bitmap
-        
-        def pil_to_wx_img(image):
-            width, height = image.size
-            mybuffer = image.convert('RGB').tobytes()
-            bitmap = wx.ImageFromBuffer(width, height, mybuffer)
-            return bitmap
-
-        if image is None:
-            x = np.linspace(0, 255, self.startSizeX*self.startSizeY)
-            image = np.array(x.reshape(self.startSizeY,self.startSizeX),
-                             dtype=np.uint8)
-        
-        os = image.shape
-        newx = os[1] * 2
-        newy = os[0] * 2
-        image = Image.fromarray(image)
-        
-        #wxbmp = pil_to_wx_bmp(image)
-        wximg = pil_to_wx_img(image)
-        
-        # Image scaling
-        wximg = wximg.Scale(newx, newy)
-        self.img.Destroy()
-        self.img = wx.BitmapFromImage(wximg)
-        self.imageCtrl.SetBitmap(self.img)
-        # Redraw the panel to prevent artifact images on Windows
-        self.Layout()
-       
 
 ########################################################################
 
