@@ -6,7 +6,6 @@
 from __future__ import division, print_function
 
 import numpy as np
-import platform
 import tempfile
 import webbrowser
 
@@ -107,9 +106,6 @@ class ControlPanel(ScrolledPanel):
             
         self.UpdatePages()
         
-        # make the current page redraw itself
-        self.notebook.SetSelection(self.notebook.GetSelection())
-
     
     def OnChangeFilter(self, e=None):
         # get all values
@@ -250,7 +246,8 @@ class ControlPanel(ScrolledPanel):
 
     def UpdatePages(self):
         """ fills pages """
-        
+        self.notebook.Freeze()
+
         sel = self.notebook.GetSelection()
 
         # Recreate all pages instead of just calling `UpdatePanel`.
@@ -264,7 +261,12 @@ class ControlPanel(ScrolledPanel):
         for page in self.subpanels:
             page.UpdatePanel(self.analysis)
         
+        # workaround for incorrectly drawn panels
+        # make the current page redraw itself
+        self.notebook.SetSelection(0)
+        self.notebook.SetSelection(1)
         self.notebook.SetSelection(sel)
+        self.notebook.Thaw()
 
 
 class DragListStriped(wx.ListCtrl):
