@@ -619,9 +619,9 @@ class SubPanelAnalysis(SubPanel):
         if analysis is None:
             analysis = self.analysis
         self.analysis = analysis
-        self.Freeze()
-        
+
         for item in self.GetChildren():
+            item.Hide()
             self.RemoveChild(item)
             item.Destroy()
         
@@ -650,8 +650,6 @@ class SubPanelAnalysis(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        
-        self.Thaw()
 
 
 class SubPanelFilter(SubPanel):
@@ -1056,9 +1054,8 @@ class SubPanelFilter(SubPanel):
 
         self.analysis = analysis
         
-        self.Freeze()
-        
         for item in self.GetChildren():
+            item.Hide()
             self.RemoveChild(item)
             item.Destroy()
 
@@ -1123,7 +1120,6 @@ class SubPanelFilter(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        self.Thaw()
 
 
 class SubPanelInfo(SubPanel):
@@ -1132,8 +1128,8 @@ class SubPanelInfo(SubPanel):
 
     def UpdatePanel(self, analysis):
         """  """
-        self.Freeze()
         for item in self.GetChildren():
+            item.Hide()
             self.RemoveChild(item)
             item.Destroy()
         # Create three boxes containing information
@@ -1159,7 +1155,6 @@ class SubPanelInfo(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        self.Thaw()
         
 
 class SubPanelPlotting(SubPanel):
@@ -1330,8 +1325,8 @@ class SubPanelPlotting(SubPanel):
 
     def UpdatePanel(self, analysis):
         """  """
-        self.Freeze()
         for item in self.GetChildren():
+            item.Hide()
             self.RemoveChild(item)
             item.Destroy()
 
@@ -1357,13 +1352,7 @@ class SubPanelPlotting(SubPanel):
         sizer.Fit(self)
         self.Layout()
         
-        self.Thaw()
-        
         self.analysis = analysis
-
-        self.Hide()
-        self.Show()
-
 
 
 class SubPanelPlotContour(SubPanel):
@@ -1446,8 +1435,8 @@ class SubPanelPlotContour(SubPanel):
 
     def UpdatePanel(self, analysis):
         """  """
-        self.Freeze()
         for item in self.GetChildren():
+            item.Hide()
             self.RemoveChild(item)
             item.Destroy()
         # sizer
@@ -1470,8 +1459,6 @@ class SubPanelPlotContour(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        self.Thaw()
-
 
 
     
@@ -1515,8 +1502,8 @@ class SubPanelPlotScatter(SubPanel):
 
     def UpdatePanel(self, analysis):
         """  """
-        self.Freeze()
         for item in self.GetChildren():
+            item.Hide()
             self.RemoveChild(item)
             item.Destroy()
         # sizer
@@ -1539,7 +1526,7 @@ class SubPanelPlotScatter(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        self.Thaw()
+
 
 
 class SubPanelStatistics(SubPanel):
@@ -1596,8 +1583,8 @@ class SubPanelStatistics(SubPanel):
 
     def UpdatePanel(self, analysis):
         """  """
-        self.Freeze()
         for item in self.GetChildren():
+            item.Hide()
             self.RemoveChild(item)
             item.Destroy()
         # Create three boxes containing information
@@ -1611,7 +1598,6 @@ class SubPanelStatistics(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        self.Thaw()
 
 
 # These lists name items that belong to separate pages, startsiwth(item)
