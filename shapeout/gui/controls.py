@@ -246,8 +246,6 @@ class ControlPanel(ScrolledPanel):
 
     def UpdatePages(self):
         """ fills pages """
-        self.notebook.Freeze()
-
         sel = self.notebook.GetSelection()
 
         # Recreate all pages instead of just calling `UpdatePanel`.
@@ -261,9 +259,6 @@ class ControlPanel(ScrolledPanel):
         for page in self.subpanels:
             page.UpdatePanel(self.analysis)
         
-        # workaround for incorrectly drawn panels
-        # make the current page redraw itself
-        self.notebook.Thaw()
         self.notebook.SetSelection(sel)
         
 
