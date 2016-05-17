@@ -259,6 +259,11 @@ class ControlPanel(ScrolledPanel):
         for page in self.subpanels:
             page.UpdatePanel(self.analysis)
         
+        # workaround to force redrawing of Page:
+        self.notebook.SetSelection(0)
+        self.notebook.SetSelection(1)
+        
+        # select previously selected page
         self.notebook.SetSelection(sel)
         
 
