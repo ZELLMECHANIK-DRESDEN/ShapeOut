@@ -36,7 +36,7 @@ class ImagePanel(ScrolledPanel):
         # dropdown for plot selection
         self.WXCB_plot = wx.ComboBox(self,
                                      style=wx.CB_DROPDOWN|wx.CB_READONLY,
-                                     size=(300,-1))
+                                     size=(250,-1))
         # spin control for event selection
         self.WXSP_plot = wx.SpinCtrl(self, min=1, max=10000000)
         
@@ -107,9 +107,11 @@ class ImagePanel(ScrolledPanel):
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(ctrlsizer)
-        sizer.Add(self.imageCtrl, 0, wx.ALIGN_LEFT)
+        sizer.Add(self.imageCtrl, 0, wx.ALIGN_LEFT, 0)
         sizer.Add(exclsizer)
         self.SetSizer(sizer)
+        sizer.Fit(self)
+        self.Layout()
 
     
     def OnChBoxExclude(self, e=None):

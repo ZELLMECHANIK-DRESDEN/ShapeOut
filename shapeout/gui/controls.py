@@ -259,8 +259,6 @@ class ControlPanel(ScrolledPanel):
         for page in self.subpanels:
             page.UpdatePanel(self.analysis)
             # workaround to force redrawing of Page:
-            page.Hide()
-            page.Show()
             page.Layout()
             page.Refresh()
             page.Update()
