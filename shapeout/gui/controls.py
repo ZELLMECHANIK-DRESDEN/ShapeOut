@@ -258,11 +258,13 @@ class ControlPanel(ScrolledPanel):
         # Update page content        
         for page in self.subpanels:
             page.UpdatePanel(self.analysis)
-        
-        # workaround to force redrawing of Page:
-        self.notebook.SetSelection(0)
-        self.notebook.SetSelection(1)
-        
+            # workaround to force redrawing of Page:
+            page.Hide()
+            page.Show()
+            page.Layout()
+            page.Refresh()
+            page.Update()
+            
         # select previously selected page
         self.notebook.SetSelection(sel)
         
@@ -618,7 +620,7 @@ class SubPanelAnalysis(SubPanel):
         """
         Reset everything in the analysis tab.
         """
-        self.Update(self.analysis)
+        self.UpdatePanel(self.analysis)
 
     def UpdatePanel(self, analysis=None):
         if analysis is None:
@@ -937,7 +939,7 @@ class SubPanelFilter(SubPanel):
         unique_id = ch.GetData()
         p = tlabwrap.PolygonFilter.get_instance_from_id(unique_id)
         tlabwrap.PolygonFilter(points=p.points, axes=p.axes)
-        self.Update()
+        self.UpdatePanel()
 
     def OnPolygonExport(self, e=None, export_all=False):
         if not export_all:
@@ -1019,7 +1021,7 @@ class SubPanelFilter(SubPanel):
         if not fname.endswith(".poly"):
             fname += ".poly"
         tlabwrap.PolygonFilter.import_all(fname)
-        self.Update()
+        self.UpdatePanel()
 
     def OnPolygonRemove(self, e=None):
         c, ch = self.GetPolygonHtreeSelected()
