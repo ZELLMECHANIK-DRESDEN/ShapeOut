@@ -5,6 +5,7 @@
 - Allow to change order of plots (#51)
 - Implement indexing of events (#49)
 - Allow to show excluded events in scatter plot (#52)
+- Display cell images in the polygon selection window (#64)
 - Bugfixes:
   - Settings panel not redrawn in Ubuntu (#66)
   - Order of plots not reproduced from session (#51)
