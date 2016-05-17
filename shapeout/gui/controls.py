@@ -267,7 +267,8 @@ class ControlPanel(ScrolledPanel):
             
         # select previously selected page
         self.notebook.SetSelection(sel)
-        
+        self.notebook.Refresh()
+        self.notebook.Update()
 
 
 class DragListStriped(wx.ListCtrl):
