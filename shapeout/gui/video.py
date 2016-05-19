@@ -7,6 +7,7 @@ from __future__ import division, print_function
 
 import chaco.api as ca
 import cv2
+import dclab
 from distutils.version import LooseVersion
 from enable.api import Window
 
@@ -105,19 +106,32 @@ class ImagePanel(ScrolledPanel):
         #exclsizer.AddSpacer(self.imageCtrl.GetSize()[0]-updbutton.GetSize()[0]-self.WXChB_exclude.GetSize()[0])        
         exclsizer.Add(updbutton, 0, wx.ALIGN_RIGHT)
         
-        ## Add chaco plot
+        ## Add traces plot
         x = np.linspace(-np.pi, np.pi, 50)
         y = np.cos(x)+1
-        self.trace_data = ca.ArrayPlotData(x=x, y=y)
+        plotkwargs = {}
+        for key in dclab.dfn.tr_data:
+            plotkwargs[key[1]] = y
+        
+        self.trace_data = ca.ArrayPlotData(x=x, **plotkwargs)
 
         self.trace_plot = ca.Plot(self.trace_data,
                                   padding=0,
                                   spacing=0)
 
-        self.trace_plot.plot(("x", "y"), type="line", color="black")
+        for key in list(plotkwargs.keys()):
+            if key.count("raw"):
+                color = "gray"
+            elif key == "FL1med":
+                color = "red"
+            elif key == "FL2med":
+                color = "green"
+            elif key == "FL3med":
+                color = "blue"
+            self.trace_plot.plot(("x", key), type="line", color=color)
 
-        container = ca.HPlotContainer(spacing=50,
-                                      padding=30,
+        container = ca.HPlotContainer(spacing=70,
+                                      padding=50,
                                       bgcolor=self.GetBackgroundColour(),
                                       fill_padding=True,)#)
         container.add(self.trace_plot)
@@ -232,9 +246,17 @@ class ImagePanel(ScrolledPanel):
             self.WXSP_plot.SetRange(1, max_evt)
 
             # Plot traces
-            data = mm.traces[mm.traces.keys()[0]][evt_id]
+            for key in list(mm.traces.keys()):
+                data = mm.traces[key][evt_id]
+                self.trace_data.set_data(key, data)
             self.trace_data.set_data("x", np.arange(data.shape[0]))
-            self.trace_data.set_data("y", data)
+            
+            # Set other trace data to zero if event does not have it
+            zerodata = np.zeros(data.shape[0])
+            for okey in self.trace_data.list_data():
+                if not (okey in list(mm.traces.keys()) or
+                        okey == "x"):
+                    self.trace_data.set_data(okey, zerodata)
 
 
     def PlotImage(self, image=None):
