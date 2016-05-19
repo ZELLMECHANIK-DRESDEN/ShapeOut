@@ -5,9 +5,10 @@
 """
 from __future__ import division, print_function
 
-
+import chaco.api as ca
 import cv2
 from distutils.version import LooseVersion
+from enable.api import Window
 
 import numpy as np
 import os
@@ -29,7 +30,7 @@ class ImagePanel(ScrolledPanel):
     def __init__(self, parent, frame):
         ScrolledPanel.__init__(self, parent, -1)
         self.frame = frame
-        
+
         self.SetupScrolling(scroll_y=True, scroll_x=True)
 
         ## draw event selection tools
@@ -94,24 +95,41 @@ class ImagePanel(ScrolledPanel):
         ## draw manual filtering options
         self.WXChB_exclude = wx.CheckBox(self, label=_("Exclude event"))
         exclsizer = wx.BoxSizer(wx.HORIZONTAL)
-        exclsizer.Add(self.WXChB_exclude,0, wx.ALIGN_LEFT)
+        exclsizer.Add(self.WXChB_exclude, 0, wx.ALIGN_CENTER_VERTICAL)
         self.Bind(wx.EVT_CHECKBOX, self.OnChBoxExclude, self.WXChB_exclude)
 
         # Update Plot button
         updbutton = wx.Button(self, label=_("Update plot"))
         self.Bind(wx.EVT_BUTTON, self.OnUpdatePlot, updbutton)
 
-        exclsizer.AddSpacer(self.imageCtrl.GetSize()[0]-updbutton.GetSize()[0]-self.WXChB_exclude.GetSize()[0])        
-        exclsizer.Add(updbutton)
+        #exclsizer.AddSpacer(self.imageCtrl.GetSize()[0]-updbutton.GetSize()[0]-self.WXChB_exclude.GetSize()[0])        
+        exclsizer.Add(updbutton, 0, wx.ALIGN_RIGHT)
         
+        ## Add chaco plot
+        x = np.linspace(-np.pi, np.pi, 50)
+        y = np.cos(x)+1
+        self.trace_data = ca.ArrayPlotData(x=x, y=y)
+
+        self.trace_plot = ca.Plot(self.trace_data,
+                                  padding=0,
+                                  spacing=0)
+
+        self.trace_plot.plot(("x", "y"), type="line", color="black")
+
+        container = ca.HPlotContainer(spacing=50,
+                                      padding=30,
+                                      bgcolor=self.GetBackgroundColour(),
+                                      fill_padding=True,)#)
+        container.add(self.trace_plot)
+        
+        self.plot_window = Window(self, component=container)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(ctrlsizer)
-        sizer.Add(self.imageCtrl, 0, wx.ALIGN_LEFT, 0)
-        sizer.Add(exclsizer)
+        sizer.Add(ctrlsizer, 0)
+        sizer.Add(self.imageCtrl, 2, wx.EXPAND, 0)
+        sizer.Add(exclsizer, 0, wx.EXPAND)
+        sizer.Add(self.plot_window.control, 3, wx.EXPAND, 0)
         self.SetSizer(sizer)
-        sizer.Fit(self)
-        self.Layout()
 
     
     def OnChBoxExclude(self, e=None):
@@ -212,6 +230,11 @@ class ImagePanel(ScrolledPanel):
             # Set max value for spin control
             max_evt = self.analysis.measurements[mm_id].time.shape[0]
             self.WXSP_plot.SetRange(1, max_evt)
+
+            # Plot traces
+            data = mm.traces[mm.traces.keys()[0]][evt_id]
+            self.trace_data.set_data("x", np.arange(data.shape[0]))
+            self.trace_data.set_data("y", data)
 
 
     def PlotImage(self, image=None):

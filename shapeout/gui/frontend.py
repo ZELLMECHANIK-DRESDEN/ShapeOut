@@ -194,25 +194,27 @@ class Frame(gaugeframe.GaugeFrame):
         self.spright.SetMinimumPaneSize(sy)
         
         # Splitter Window for control panel and cell view
-        scrolltop = ScrolledPanel(self.spright, -1)
+        self.sptop = wx.SplitterWindow(self.spright, style=wx.SP_3DSASH)
+        self.sptop.SetMinimumPaneSize(sy)
 
         # Controls
-        self.PanelTop = ControlPanel(scrolltop, self)
+        self.PanelTop = ControlPanel(self.sptop, frame=self)
         
         # Cell Images
-        self.ImageArea = video.ImagePanel(scrolltop, frame=self)
+        self.ImageArea = video.ImagePanel(self.sptop, frame=self)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.PanelTop, 2, wx.ALL|wx.EXPAND, 5)
         sizer.Add(self.ImageArea, 1, wx.ALL|wx.EXPAND, 5)
-        scrolltop.SetSizer(sizer)
-        scrolltop.Layout()
+        
+        self.sptop.SplitVertically(self.PanelTop, self.ImageArea, sy)
+        self.sptop.SetSashGravity(.46)
         
         # Main Plots
         self.PlotArea = plot.PlotPanel(self.spright, self)
         #self.PlotArea = plot.MainPlotArea(self.spright, self)
 
-        self.spright.SplitHorizontally(scrolltop, self.PlotArea, sy)
+        self.spright.SplitHorizontally(self.sptop, self.PlotArea, sy)
         
         ## left panel (file selection)
         ## We need a splitter window here
@@ -235,12 +237,13 @@ class Frame(gaugeframe.GaugeFrame):
         self.Maximize()
         
         self.spright.SetMinimumPaneSize(100)
-        #self.sptop.SetMinimumPaneSize(st)
+        self.sptop.SetMinimumPaneSize(100)
         
         if sessionfile is not None:
             self.OnMenuLoad(sessionfile=sessionfile)
             
         update.Update(self)
+
 
         # Set window icon
         try:
