@@ -1,4 +1,6 @@
 0.5.8
+- dclab add channel: distance between two first peaks
+0.5.8
 - dclab add fluorescence channels: peak area, peak position, number of peaks
 - dclab add position along channel axis from img
 - dclab (0.1.6.dev2): Allow to disable KDE computation
