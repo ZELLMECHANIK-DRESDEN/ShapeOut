@@ -21,8 +21,10 @@ from wx.lib.scrolledpanel import ScrolledPanel
 # Constants in OpenCV moved from "cv2.cv" to "cv2"
 if LooseVersion(cv2.__version__) < "3.0.0":
     cv_const = cv2.cv
+    cv_version3 = false
 else:
     cv_const = cv2
+    cv_version3 = true
 
 
 class ImagePanel(ScrolledPanel):
@@ -161,7 +163,10 @@ class ImagePanel(ScrolledPanel):
             os.chdir(mm.fdir)
             video = cv2.VideoCapture(mm.video)
             os.chdir(old_dir)
-            totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
+            if cv_version3:
+                totframes = video.get(cv_const.CAP_PROP_FRAME_COUNT)
+            else:
+                totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
             
             # determine video file offset. Some RTDC setups
             # do not record the first image of a video.
@@ -173,7 +178,10 @@ class ImagePanel(ScrolledPanel):
                 self.PlotImage(None)
                 self.UpdateSelections()
             else:
-                video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
+                if cv_version3:
+                    video.set(cv_const.CAP_PROP_POS_FRAMES, actual_sel_offset)
+                else:
+                    video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
                 
                 flag, cellimg = video.read()
     
