@@ -21,10 +21,10 @@ from wx.lib.scrolledpanel import ScrolledPanel
 # Constants in OpenCV moved from "cv2.cv" to "cv2"
 if LooseVersion(cv2.__version__) < "3.0.0":
     cv_const = cv2.cv
-    cv_version3 = false
+    cv_version3 = False
 else:
     cv_const = cv2
-    cv_version3 = true
+    cv_version3 = True
 
 
 class ImagePanel(ScrolledPanel):
