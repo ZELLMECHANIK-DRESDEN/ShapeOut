@@ -119,8 +119,13 @@ install:
 build: off
 
 test_script:
-  - '%WITH_COMPILER% %PYTHON%/python -c "import shapeout; print shapeout.__version__"'
-  - '%WITH_COMPILER% %PYTHON%/python setup.py test'
+  - 'python -c "import shapeout; print shapeout.__version__"'
+  - "pip install coverage"
+  - "pip install coveralls"
+  - "coverage run --source=shapeout ./setup.py test"
+  - "coverage report -m"
+# https://github.com/lemurheavy/coveralls-public/issues/429
+#  - "coveralls --verbose"
 
 after_test:
   # If tests are successful, create a whl package for the project.

@@ -536,10 +536,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             container.set_outer_bounds(0, (300)*container.shape[1]**.9)
             container.set_outer_bounds(1, (300)*container.shape[0]**.9)
             
+            # scatter plot classes
+            class_sp = (chaco.colormapped_scatterplot.ColormappedScatterPlot,
+                       chaco.scatterplot.ScatterPlot)
+            
             for c in container.components:
                 for comp in c.components:
-                    if isinstance(comp, 
-                  chaco.colormapped_scatterplot.ColormappedScatterPlot):
+                    if isinstance(comp, class_sp):
                         comp.marker_size /= 2
             
             
@@ -564,8 +567,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             for c in container.components:
                 for comp in c.components:
-                    if isinstance(comp, 
-                  chaco.colormapped_scatterplot.ColormappedScatterPlot):
+                    if isinstance(comp, class_sp):
                         comp.marker_size *= 2
 
             #container.height = old_height
