@@ -630,11 +630,12 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
     # Commence plotting
     if axContour is not None:
         raise NotImplementedError("Tell Chaco to reuse plots?")
-        #plt.figure(1)
-        #axScatter = plt.axes()
 
     pd = ca.ArrayPlotData()
     contour_plot = ca.Plot(pd)
+
+    scalex = mm.Configuration["Plotting"]["Scale X"].lower()
+    scaley = mm.Configuration["Plotting"]["Scale Y"].lower()
 
     ## Add isoelastics
     if mm.Configuration["Plotting"]["Isoelastics"]:
@@ -662,7 +663,8 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
                 #
                 pd.set_data(x_key, data[:,0])
                 pd.set_data(y_key, data[:,1])
-                contour_plot.plot((x_key, y_key), color="gray")
+                contour_plot.plot((x_key, y_key), color="gray",
+                                  index_scale=scalex, value_scale=scaley)
 
 
     #colors = [ "".join(map(chr, np.array(c[:3]*255,dtype=int))).encode('hex') for c in colors ]
@@ -699,9 +701,9 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
                                   levels = plev,
                                   colors = mm.Configuration["Plotting"]["Contour Color"],
                                   styles = styles,
-                                  widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
+                                  widths = [cwidth*.7, cwidth], # make outer lines slightly smaller
                                   )
-        
+
     # Set x-y limits
     xlim = contour_plot.index_mapper.range
     ylim = contour_plot.value_mapper.range
@@ -710,6 +712,8 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
     ylim.low = circmin
     ylim.high = circmax
 
+    contour_plot.index_scale = scalex
+    contour_plot.value_scale = scaley
 
     # Axes
     left_axis = ca.PlotAxis(contour_plot, orientation='left',
@@ -742,7 +746,6 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
     pan = cta.PanTool(contour_plot, drag_button="left")
 
     contour_plot.tools.append(pan)
-
 
     return contour_plot
 
@@ -896,6 +899,9 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
 
     density = mm.GetKDE_Scatter(yax=yax, xax=xax, positions=positions)
 
+    scalex = mm.Configuration["Plotting"]["Scale X"].lower()
+    scaley = mm.Configuration["Plotting"]["Scale Y"].lower()
+
     pd = ca.ArrayPlotData()
     scatter_plot = ca.Plot(pd)
 
@@ -925,13 +931,13 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
                 #
                 pd.set_data(x_key, data[:,0])
                 pd.set_data(y_key, data[:,1])
-                scatter_plot.plot((x_key, y_key), color="gray")
-
+                scatter_plot.plot((x_key, y_key), color="gray",
+                                  index_scale=scalex, value_scale=scaley)
 
     pd.set_data("index", x)
     pd.set_data("value", y)
     pd.set_data("color", density)
-    
+
     plot_kwargs = {
                    "name": "my_plot",
                    "marker": "square",
@@ -939,7 +945,9 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
                    "marker_size": int(marker_size),
                    "outline_color": "transparent",
                    "line_width": 0,
-                   "bgcolor": "white"
+                   "bgcolor": "white",
+                   "index_scale": scalex,
+                   "value_scale": scaley,
                     }
     
     # Plot filtered data in grey
@@ -986,7 +994,6 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     xlim.high = areamax
     ylim.low = circmin
     ylim.high = circmax
-
 
     # Axes
     left_axis = ca.PlotAxis(scatter_plot, orientation='left',

@@ -1189,6 +1189,8 @@ class SubPanelPlotting(SubPanel):
 
         items = analysis.GetParameters(key).items()
 
+        # Determine the order in which things are displayed
+        # in the control panel
         sortfunc = lambda x: (x[0].replace("Max", "2")
                                   .replace("Min", "1")
                                   .replace("Plot", "1")
@@ -1233,10 +1235,11 @@ class SubPanelPlotting(SubPanel):
             for it in dellist:
                 items.remove(it)
         
-        useditems = list()
+        useditems = []
         ## Populate axes
         for item in items:
-            if item[0].startswith("Axis"):
+            if (item[0].startswith("Axis") or 
+                item[0].startswith("Scale ")):
                 stemp = self._create_type_wx_controls(analysis, key, item)
                 useditems.append(item)
                 axessizer.Add(stemp)
@@ -1254,7 +1257,6 @@ class SubPanelPlotting(SubPanel):
                 axessizer.Add(stemp)
                 useditems.append(item)
                 useditems.append(itemmax)
-        
         
         ## Contour plot is not here
         for item in items:

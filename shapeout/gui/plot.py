@@ -13,7 +13,6 @@ import platform
 import wx
 import wx.lib.agw.flatnotebook as fnb
 
-
 from .. import tlabwrap
 
 
@@ -219,6 +218,7 @@ class MainPlotArea(wx.Panel):
         cfg = { "Plotting" : newfilt }
         self.analysis.SetParameters(cfg)
 
+
     def OnMouseScatter(self):
         # TODO:
         # - detect when hover is stuck
@@ -273,7 +273,6 @@ class MainPlotArea(wx.Panel):
             else:
                 # We have a new plot
                 action = True
-
 
         if action:
             # Get the cell and plot it
