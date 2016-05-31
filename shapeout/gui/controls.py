@@ -7,6 +7,7 @@ from __future__ import division, print_function
 
 import numpy as np
 import tempfile
+import warnings
 import webbrowser
 
 import wx
@@ -197,6 +198,13 @@ class ControlPanel(ScrolledPanel):
                         col = np.array([col.Red(), col.Green(),
                                        col.Blue(), col.Alpha()])/255
                         mm.Configuration["Plotting"]["Contour Color"] = col.tolist()
+        
+        # Address issue with faulty contour plot on log scale
+        # https://github.com/enthought/chaco/issues/300
+        if (newfilt["Plotting"]["Scale X"] == "Log" or
+            newfilt["Plotting"]["Scale Y"] == "Log"):
+            warnings.warn("Disabling contour plot because of chaco issue #300!")
+            newfilt["Plotting"]["Contour Plot"] = False
         
         cfg = { "Plotting" : newfilt }
         self.analysis.SetParameters(cfg)
