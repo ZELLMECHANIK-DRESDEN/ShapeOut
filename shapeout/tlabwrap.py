@@ -15,8 +15,10 @@ from util import findfile
 
 from scipy import stats
 
-
 from chaco.color_mapper import ColorMapper
+
+from .gui import misc
+
 
 def darkjet(myrange, **traits):
     """ Generator function for the 'darkjet' colormap. """
@@ -717,9 +719,15 @@ def CreateContourPlot(measurements, xax="Area", yax="Defo", levels=.5,
 
     # Axes
     left_axis = ca.PlotAxis(contour_plot, orientation='left',
-                            title=dfn.axlabels[yax])
+                            title=dfn.axlabels[yax],
+                            tick_generator=misc.MyTickGenerator())
+    
     bottom_axis = ca.PlotAxis(contour_plot, orientation='bottom',
-                              title=dfn.axlabels[xax])
+                              title=dfn.axlabels[xax],
+                              tick_generator=misc.MyTickGenerator())
+    # Show log scale only with 10** values (#56)
+    contour_plot.index_axis.tick_generator=misc.MyTickGenerator()
+    contour_plot.value_axis.tick_generator=misc.MyTickGenerator()
     contour_plot.overlays.append(left_axis)
     contour_plot.overlays.append(bottom_axis)
 
@@ -903,6 +911,7 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
     scaley = mm.Configuration["Plotting"]["Scale Y"].lower()
 
     pd = ca.ArrayPlotData()
+    
     scatter_plot = ca.Plot(pd)
 
     ## Add isoelastics
@@ -997,9 +1006,15 @@ def CreateScatterPlot(measurement, xax="Area", yax="Defo",
 
     # Axes
     left_axis = ca.PlotAxis(scatter_plot, orientation='left',
-                            title=dfn.axlabels[yax])
+                            title=dfn.axlabels[yax],
+                            tick_generator=misc.MyTickGenerator())
+    
     bottom_axis = ca.PlotAxis(scatter_plot, orientation='bottom',
-                              title=dfn.axlabels[xax])
+                              title=dfn.axlabels[xax],
+                              tick_generator=misc.MyTickGenerator())
+    # Show log scale only with 10** values (#56)
+    scatter_plot.index_axis.tick_generator=misc.MyTickGenerator()
+    scatter_plot.value_axis.tick_generator=misc.MyTickGenerator()
     scatter_plot.overlays.append(left_axis)
     scatter_plot.overlays.append(bottom_axis)
 
@@ -1309,6 +1324,8 @@ def SortConfigurationKeys(cfgkeys):
         return rx-ry
 
     return sorted(cfgkeys, cmp=compare)
+
+
 
 
 ## Overwrite the tlab configuration with our own.
