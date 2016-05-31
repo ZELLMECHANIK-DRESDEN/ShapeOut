@@ -448,12 +448,19 @@ class Analysis(object):
             titles.append(mm.title)
         return titles
 
-
     def SetParameters(self, newcfg):
         """ updates the RTDC_DataSet configuration
 
         """
         newcfg = copy.deepcopy(newcfg)
+
+        # Address issue with faulty contour plot on log scale
+        # https://github.com/enthought/chaco/issues/300
+        if (newcfg["Plotting"]["Scale X"] == "Log" or
+            newcfg["Plotting"]["Scale Y"] == "Log"):
+            warnings.warn("Disabling contour plot because of chaco issue #300!")
+            newcfg["Plotting"]["Contour Plot"] = False
+
         # prevent applying indivual things to all measurements
         ignorelist = ["Contour Color"]
         for key in newcfg.keys():
