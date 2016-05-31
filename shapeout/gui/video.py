@@ -126,11 +126,11 @@ class ImagePanel(ScrolledPanel):
             if key.count("raw"):
                 color = "gray"
             elif key == "FL1med":
-                color = "red"
-            elif key == "FL2med":
                 color = "green"
+            elif key == "FL2med":
+                color = "orange"
             elif key == "FL3med":
-                color = "blue"
+                color = "red"
             self.trace_plot.plot(("x", key), type="line", color=color)
 
         container = ca.HPlotContainer(spacing=70,
