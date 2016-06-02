@@ -1,5 +1,5 @@
 0.5.9
-- dclab add channel: distance between two first peaks
+- dclab add channel: distance between two first peaks (Philipp)
 - Allow logarithmic plot axes
 - Bugfixes:
   - error in constant names for opencv 3.0.0 CV_CAP_...
