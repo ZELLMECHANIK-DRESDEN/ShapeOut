@@ -123,7 +123,7 @@ _________
    is updated and that the `version (develop) <https://github.com/ZellMechanik-Dresden/ShapeOut/blob/develop/shapeout/_version.py>`__
    is incremented.
 
-1. Create a pull request from develop into master using the web interface or simply run
+2. Create a pull request from develop into master using the web interface or simply run
 
    ::
 
@@ -131,7 +131,7 @@ _________
        git pull origin develop  
        git push  
 	
-2. Create the release at https://github.com/ZellMechanik-Dresden/ShapeOut/releases.  
+3. Create the release at https://github.com/ZellMechanik-Dresden/ShapeOut/releases.  
    Make sure that the tag of the release follows the version format of ShapeOut
    (e.g. `0.5.3`) and also name the release correctly (e.g. `ShapeOut 0.5.3`).
    Also, copy and paste the change log of the new version into the comments of the release.
@@ -144,11 +144,11 @@ _________
    The rest should contain the change log.  
    Make sure to check `This is a pre-release` box.
    
-3. Once the release is created, `Appveyor <https://ci.appveyor.com/project/paulmueller/ShapeOut>`__
+4. Once the release is created, `Appveyor <https://ci.appveyor.com/project/paulmueller/ShapeOut>`__
    will perform the build process and upload the installation files directly to the release. 
    If the binary works, edit the release and uncheck the `This is a pre-release` box.
 
-4. Make sure that all the changes you might have performed on the `master` branch are brought back
+5. Make sure that all the changes you might have performed on the `master` branch are brought back
    to ``develop``.
    
    ::
