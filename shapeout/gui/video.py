@@ -246,7 +246,6 @@ class ImagePanel(ScrolledPanel):
                 # measurement id
                 mm_id = self.analysis.measurements.index(mm)
                 self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
-                
         
         video.release()
         print("Frame {} / {}".format(evt_id, totframes))
