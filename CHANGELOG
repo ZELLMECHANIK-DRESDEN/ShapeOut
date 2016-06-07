@@ -3,7 +3,7 @@
 - Allow logarithmic plot axes (#56)
 - Display fluorescence curve of events (#65)
 - Bugfixes:
-  - Error in constant names for opencv 3.0.0 CV_CAP_...
+  - OpenCV version 2 vs 3 variable name differences (CV_CAP_...)
   - Gray dots in PDF export too large (#69)
 0.5.8
 - dclab add fluorescence channels: peak area, peak position, number of peaks
