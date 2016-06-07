@@ -1,8 +1,10 @@
 0.5.9
-- dclab add channel: distance between two first peaks (Philipp)
-- Allow logarithmic plot axes
+- dclab add channel: distance between two first peaks
+- Allow logarithmic plot axes (#56)
+- Display fluorescence curve of events (#65)
 - Bugfixes:
-  - error in constant names for opencv 3.0.0 CV_CAP_...
+  - Error in constant names for opencv 3.0.0 CV_CAP_...
+  - Gray dots in PDF export too large (#69)
 0.5.8
 - dclab add fluorescence channels: peak area, peak position, number of peaks
 - dclab add position along channel axis from img
