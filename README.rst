@@ -139,7 +139,7 @@ _________
    
    ::
    
-       `![](https://img.shields.io/github/downloads/ZellMechanik-Dresden/ShapeOut/0.5.3/total.svg)`.
+       ![](https://img.shields.io/github/downloads/ZellMechanik-Dresden/ShapeOut/0.5.3/total.svg)
    
    The rest should contain the change log.  
    Make sure to check `This is a pre-release` box.
