@@ -456,10 +456,11 @@ class Analysis(object):
 
         # Address issue with faulty contour plot on log scale
         # https://github.com/enthought/chaco/issues/300
-        if (newcfg["Plotting"]["Scale X"] == "Log" or
-            newcfg["Plotting"]["Scale Y"] == "Log"):
-            warnings.warn("Disabling contour plot because of chaco issue #300!")
-            newcfg["Plotting"]["Contour Plot"] = False
+        if "Plotting" in newcfg:
+            if (newcfg["Plotting"]["Scale X"] == "Log" or
+                newcfg["Plotting"]["Scale Y"] == "Log"):
+                warnings.warn("Disabling contour plot because of chaco issue #300!")
+                newcfg["Plotting"]["Contour Plot"] = False
 
         # prevent applying indivual things to all measurements
         ignorelist = ["Contour Color"]
