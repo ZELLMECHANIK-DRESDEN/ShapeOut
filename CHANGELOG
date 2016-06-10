@@ -1,3 +1,6 @@
+0.6.0
+- Compute mode in statistics tab using Freedman-Diaconis rule (#72)
+- Bugfix: "KeyError: 'Plotting'" when filtering (#73)
 0.5.9
 - dclab add channel: distance between two first peaks
 - Allow logarithmic plot axes (#56)
