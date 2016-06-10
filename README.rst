@@ -11,7 +11,7 @@ http://www.zellmechanik.com/.
 
 Installation
 ------------
-Installers for ShapeOut are available at the `release page <https://github.com/ZellMechanik-Dresden/ShapeOut/releases>`__.
+Installers for ShapeOut are available at the `release page <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/releases>`__.
 
 
 Information for developers
@@ -23,10 +23,10 @@ The easiest way to run ShapeOut from source is to use
 `Anaconda <http://continuum.io/downloads>`__. 
 
 - **Windows**: Sketchy installation instructions are 
-  `here <https://github.com/ZellMechanik-Dresden/ShapeOut/tree/master/freeze_appveyor>`__ and 
-  `here <https://github.com/ZellMechanik-Dresden/ShapeOut/blob/master/appveyor.yml>`__.
+  `here <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tree/master/freeze_appveyor>`__ and 
+  `here <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/master/appveyor.yml>`__.
 
-- **Debian**: Run `this script <https://github.com/ZellMechanik-Dresden/ShapeOut/blob/master/develop/activate_linux.sh>`__
+- **Debian**: Run `this script <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/master/develop/activate_linux.sh>`__
   which will create a Python virtual environment.
 
 - **MacOS**: ShapeOut should work with Anaconda (see Windows above).
@@ -48,7 +48,7 @@ The easiest way to run ShapeOut from source is to use
     sudo port select --set python python27
     sudo port select --set pip pip27
 
-  Check-out `dclab <https://github.com/ZellMechanik-Dresden/dclab>`__ and
+  Check-out `dclab <https://github.com/ZELLMECHANIK-DRESDEN/dclab>`__ and
   append the following command to ``~/.bash_profile``
   
   ::
@@ -74,7 +74,7 @@ If you want to do big changes, please (fork ShapeOut and) create a separate bran
 e.g. ``my_new_feature_dev``, and create a pull-request to ``develop`` once you are done making
 your changes.
 Please make sure to edit the 
-`Changelog <https://github.com/ZellMechanik-Dresden/ShapeOut/blob/master/CHANGELOG>`__. 
+`Changelog <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/master/CHANGELOG>`__. 
 
 **Very important:** Please always try to use 
 
@@ -119,8 +119,8 @@ bugs were resolved, or new features were introduced.
 
 Procedure
 _________
-1. Make sure that the `changelog (develop) <https://github.com/ZellMechanik-Dresden/ShapeOut/blob/develop/CHANGELOG>`__
-   is updated and that the `version (develop) <https://github.com/ZellMechanik-Dresden/ShapeOut/blob/develop/shapeout/_version.py>`__
+1. Make sure that the `changelog (develop) <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/develop/CHANGELOG>`__
+   is updated and that the `version (develop) <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/develop/shapeout/_version.py>`__
    is incremented.
 
 2. Create a pull request from develop into master using the web interface or simply run
@@ -131,7 +131,7 @@ _________
        git pull origin develop  
        git push  
 	
-3. Create the release at https://github.com/ZellMechanik-Dresden/ShapeOut/releases.  
+3. Create the release at https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/releases.  
    Make sure that the tag of the release follows the version format of ShapeOut
    (e.g. `0.5.3`) and also name the release correctly (e.g. `ShapeOut 0.5.3`).
    Also, copy and paste the change log of the new version into the comments of the release.
@@ -139,7 +139,7 @@ _________
    
    ::
    
-       ![](https://img.shields.io/github/downloads/ZellMechanik-Dresden/ShapeOut/0.5.3/total.svg)
+       ![](https://img.shields.io/github/downloads/ZELLMECHANIK-DRESDEN/ShapeOut/0.5.3/total.svg)
    
    The rest should contain the change log.  
    Make sure to check `This is a pre-release` box.

@@ -297,7 +297,7 @@ class Frame(gaugeframe.GaugeFrame):
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
         # export PNG disabled:
-        # https://github.com/ZellMechanik-Dresden/ShapeOut/issues/62
+        # https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/issues/62
         #e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
         #               _('Export the plot as a portable network graphic'))
         #self.Bind(wx.EVT_MENU, self.OnMenuExportPNG, e2png)

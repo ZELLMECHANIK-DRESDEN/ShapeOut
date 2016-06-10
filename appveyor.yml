@@ -99,7 +99,7 @@ install:
   # prevent pip from installing later scipy versions using "--no-deps"
   # requirements from dclab were partly installed with conda:
   #- "pip install dclab --no-deps"
-  - "pip install git+git://github.com/ZellMechanik-Dresden/dclab.git --no-deps"
+  - "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git --no-deps"
  
   # Patch libraries
   - '%WITH_COMPILER% %PYTHON%/python freeze_appveyor/patch_libraries.py'
