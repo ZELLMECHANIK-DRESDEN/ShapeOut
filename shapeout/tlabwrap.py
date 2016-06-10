@@ -190,17 +190,6 @@ class Analysis(object):
         self.SetParameters(cfgnew)
         return minsize
         
-
-    def GetPlotAxes(self, mid=0):
-        #return 
-        p = self.GetParameters("Plotting", mid)
-        return [p["Axis X"], p["Axis Y"]]
-
-    def GetPlotGeometry(self, mid=0):
-        p = self.GetParameters("Plotting", mid)
-        return (int(p["Rows"]), int(p["Columns"]),
-                int(p["Contour Plot"]), int(p["Legend Plot"]))
-                
     def GetCommonParameters(self, key):
         """
         For as key (e.g. "Filtering") find all parameters that are given
@@ -221,6 +210,23 @@ class Analysis(object):
         for mm in self.measurements:
             colors.append(mm.Configuration["Plotting"]["Contour Color"])
         return colors
+
+    def GetNames(self):
+        """ Returns the names of all measurements """
+        names = list()
+        for mm in self.measurements:
+            names.append(mm.name)
+        return names
+
+    def GetPlotAxes(self, mid=0):
+        #return 
+        p = self.GetParameters("Plotting", mid)
+        return [p["Axis X"], p["Axis Y"]]
+
+    def GetPlotGeometry(self, mid=0):
+        p = self.GetParameters("Plotting", mid)
+        return (int(p["Rows"]), int(p["Columns"]),
+                int(p["Contour Plot"]), int(p["Legend Plot"]))
 
     def GetStatisticsBasic(self):
         """
@@ -267,6 +273,105 @@ class Analysis(object):
             datalist.append(mmlist)
         
         return head, datalist
+
+    def GetTDMSFilenames(self):
+        names = list()
+        for mm in self.measurements:
+            names.append(mm.tdms_filename)
+        return names
+
+    def GetTitles(self):
+        """ Returns the titles of all measurements """
+        titles = list()
+        for mm in self.measurements:
+            titles.append(mm.title)
+        return titles
+
+    def GetUncommonParameters(self, key):
+        # Get common parameters first:
+        com = self.GetCommonParameters(key)
+        retdict = dict()
+        if self.measurements[0].Configuration.has_key(key):
+            s = set(self.measurements[0].Configuration[key].items())
+            uncom = set(com.items()) ^ s
+            for m in self.measurements[1:]:
+                s2 = set(m.Configuration[key].items())
+                uncom2 = set(com.items()) ^ s2
+                
+                newuncom = dict()
+                uncom.symmetric_difference_update(uncom2)
+                for _i in range(len(uncom)):
+                    item = uncom.pop()
+                    newuncom[item[0]] = None
+                uncom = set(newuncom.items())
+                    
+            for item in uncom:
+                vals = list()
+                for m in self.measurements:
+                    if m.Configuration[key].has_key(item[0]):
+                        vals.append(m.Configuration[key][item[0]])
+                    else:
+                        vals.append(None)
+                        warnings.warn(
+                          "Measurement {} might be corrupt!".format(m.name))
+                retdict[item[0]] = vals
+        return retdict        
+
+    def GetUnusableAxes(self):
+        """ 
+        Unusable axes are axes that are not shared by all
+        measurements. A measurement does not have an axis, if all
+        values along that axis are zero.
+
+        See Also
+        --------
+        GetUsableAxes
+        """
+        unusable = []
+        for ax in dfn.uid:
+            for mm in self.measurements:
+                # Get the attribute name for the axis
+                atname = dfn.cfgmaprev[ax]
+                if np.sum(np.abs(getattr(mm, atname))) == 0:
+                    unusable.append(ax)
+                    break
+        return unusable
+
+
+    def GetUsableAxes(self):
+        """ 
+        Usable axes are axes that are shared by all measurements
+        A measurement does not have an axis, if all values along
+        that axis are zero.
+
+        See Also
+        --------
+        GetUnusableAxes
+        """
+        unusable = self.GetUnusableAxes()
+        usable = []
+        for ax in dfn.uid:
+            if not ax in unusable:
+                usable.append(ax)
+        return usable
+
+    def GetParameters(self, key, mid=0, filter_for_humans=True):
+        """ Get parameters that all measurements share.
+        """
+        conf = copy.deepcopy(self.measurements[mid].Configuration[key])
+        # remove generally ignored items from config
+        for k in list(conf.keys()):
+            for ax in IGNORE_AXES:
+                if k.startswith(ax) or k.endswith(ax):
+                    conf.pop(k)
+        # remove axes that are not owned by all measurements
+        for k in list(conf.keys()):
+            if k.endswith("Min") or k.endswith("Max"):
+                ax = k[:-4]
+                if ax in self.GetUnusableAxes():
+                    conf.pop(k)
+        return conf
+
 
     def PolygonFilterRemove(self, filt):
         """
@@ -342,111 +447,6 @@ class Analysis(object):
             for i, mm in enumerate(self.measurements):
                 mm.Configuration["Plotting"]["Contour Color"] = colors[i]
 
-    def GetUncommonParameters(self, key):
-        # Get common parameters first:
-        com = self.GetCommonParameters(key)
-        retdict = dict()
-        if self.measurements[0].Configuration.has_key(key):
-            s = set(self.measurements[0].Configuration[key].items())
-            uncom = set(com.items()) ^ s
-            for m in self.measurements[1:]:
-                s2 = set(m.Configuration[key].items())
-                uncom2 = set(com.items()) ^ s2
-                
-                newuncom = dict()
-                uncom.symmetric_difference_update(uncom2)
-                for _i in range(len(uncom)):
-                    item = uncom.pop()
-                    newuncom[item[0]] = None
-                uncom = set(newuncom.items())
-                    
-            for item in uncom:
-                vals = list()
-                for m in self.measurements:
-                    if m.Configuration[key].has_key(item[0]):
-                        vals.append(m.Configuration[key][item[0]])
-                    else:
-                        vals.append(None)
-                        warnings.warn(
-                          "Measurement {} might be corrupt!".format(m.name))
-                retdict[item[0]] = vals
-        return retdict        
-
-    def GetUnusableAxes(self):
-        """ 
-        Unusable axes are axes that are not shared by all
-        measurements. A measurement does not have an axis, if all
-        values along that axis are zero.
-
-        See Also
-        --------
-        GetUsableAxes
-        """
-        unusable = []
-        for ax in dfn.uid:
-            for mm in self.measurements:
-                # Get the attribute name for the axis
-                atname = dfn.cfgmaprev[ax]
-                if np.sum(np.abs(getattr(mm, atname))) == 0:
-                    unusable.append(ax)
-                    break
-        return unusable
-
-
-    def GetUsableAxes(self):
-        """ 
-        Usable axes are axes that are shared by all measurements
-        A measurement does not have an axis, if all values along
-        that axis are zero.
-
-        See Also
-        --------
-        GetUnusableAxes
-        """
-        unusable = self.GetUnusableAxes()
-        usable = []
-        for ax in dfn.uid:
-            if not ax in unusable:
-                usable.append(ax)
-        return usable
-
-
-    def GetNames(self):
-        """ Returns the names of all measurements """
-        names = list()
-        for mm in self.measurements:
-            names.append(mm.name)
-        return names
-
-    def GetParameters(self, key, mid=0, filter_for_humans=True):
-        """ Get parameters that all measurements share.
-        """
-        conf = copy.deepcopy(self.measurements[mid].Configuration[key])
-        # remove generally ignored items from config
-        for k in list(conf.keys()):
-            for ax in IGNORE_AXES:
-                if k.startswith(ax) or k.endswith(ax):
-                    conf.pop(k)
-        # remove axes that are not owned by all measurements
-        for k in list(conf.keys()):
-            if k.endswith("Min") or k.endswith("Max"):
-                ax = k[:-4]
-                if ax in self.GetUnusableAxes():
-                    conf.pop(k)
-        return conf
-
-    def GetTDMSFilenames(self):
-        names = list()
-        for mm in self.measurements:
-            names.append(mm.tdms_filename)
-        return names
-
-    def GetTitles(self):
-        """ Returns the titles of all measurements """
-        titles = list()
-        for mm in self.measurements:
-            titles.append(mm.title)
-        return titles
 
     def SetParameters(self, newcfg):
         """ updates the RTDC_DataSet configuration
