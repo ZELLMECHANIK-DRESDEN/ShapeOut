@@ -172,7 +172,7 @@ class Frame(gaugeframe.GaugeFrame):
         minsize = (900, 700)
         gaugeframe.GaugeFrame.__init__(self, None, -1,
                 title = _("%(progname)s - version %(version)s") % {
-                        "progname": u"ᶻᵐShapeOut", "version": version},
+                        "progname": u"ShapeOut", "version": version},
                 size = size)
         self.SetMinSize(minsize)
         
