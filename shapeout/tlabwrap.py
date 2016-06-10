@@ -102,7 +102,42 @@ class Analysis(object):
             
             mm.UpdateConfiguration(cfg)
             self.measurements.append(mm)
-
+            
+    @staticmethod
+    def compute_mode(data):
+        """ Compute an intelligent value for the mode
+        
+        The most common value in experimental is not very useful if there
+        are a lot of digits after the comma. This method approaches this
+        issue by rounding to bin size that is determined by the
+        Freedman–Diaconis rule.
+        
+        Parameters
+        ----------
+        data : 1d ndarray
+            The data for which the mode should be computed.
+        
+        Returns
+        -------
+        mode : float
+            The mode computed with the Freedman-Diaconis rule.
+        """
+        # size
+        n = data.shape[0]
+        # interquartile range
+        iqr = np.percentile(data, 75)-np.percentile(data, 25)
+        # Freedman–Diaconis
+        bin_size = 2 * iqr / n**(1/3)
+        
+        if bin_size == 0:
+            return np.nan
+        
+        databin = np.round(data/bin_size)*bin_size
+        u, indices = np.unique(databin, return_inverse=True)
+        mode = u[np.argmax(np.bincount(indices))]
+        
+        return mode
+        
 
     def DumpData(self, directory, fullout=False):
         """ Dumps all the data from the analysis to a `directory`
@@ -239,7 +274,7 @@ class Analysis(object):
         columns = [
                    ["Mean", np.average],
                    ["SD", np.std],
-                   ["Mode", lambda x: stats.mode(x)[0][0]],
+                   ["Mode", Analysis.compute_mode],
                    ["Median", np.median],
                    ]
         # heading
