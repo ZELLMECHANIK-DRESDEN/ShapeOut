@@ -172,7 +172,7 @@ class Frame(gaugeframe.GaugeFrame):
         minsize = (900, 700)
         gaugeframe.GaugeFrame.__init__(self, None, -1,
                 title = _("%(progname)s - version %(version)s") % {
-                        "progname": u"ShapeOut", "version": version},
+                        "progname": "ShapeOut", "version": version},
                 size = size)
         self.SetMinSize(minsize)
         
@@ -396,7 +396,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         info.SetVersion(self.version)
         info.SetDescription(description)
         info.SetCopyright(u'(C) 2015 Paul Müller')
-        info.SetWebSite(u"http://www.zellmechanik.com/")
+        info.SetWebSite(u"http://zellmechanik.com/")
         info.SetLicence(licence)
         info.SetIcon(misc.getMainIcon(pxlength=64))
         info.AddDeveloper(u'Paul Müller')

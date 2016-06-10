@@ -6,7 +6,7 @@ ShapeOut
 
 This repository contains a graphical user interface for the analysis
 and visualization of RT-DC data sets. For more informaion please visit
-http://www.zellmechanik.com/.
+http://zellmechanik.com/.
 
 
 Installation

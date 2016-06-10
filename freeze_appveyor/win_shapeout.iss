@@ -5,7 +5,7 @@
 #define MyzmAppName "ShapeOut"
 #define MyAppVersion "0.1.0"
 #define MyAppPublisher "ZELLMECHANIK DRESDEN"
-#define MyAppURL "http://www.zellmechanik.com"
+#define MyAppURL "http://zellmechanik.com"
 #define MyAppPlatform "win32"
 #define MyAppExeName "ShapeOut.exe"
 
