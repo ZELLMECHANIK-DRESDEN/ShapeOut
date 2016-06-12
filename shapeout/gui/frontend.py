@@ -23,6 +23,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 import zipfile
 
 from ..configuration import ConfigurationFile
+from ..util import findfile
 from .controls import ControlPanel
 from .explorer import ExplorerPanel
 import gaugeframe
@@ -187,7 +188,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         self.spright = wx.SplitterWindow(self.sp, style=wx.SP_3DSASH)
         if platform.system() == "Linux":
-            sy = 280
+            sy = 270
         else:
             sy = 230
             
@@ -319,22 +320,50 @@ class Frame(gaugeframe.GaugeFrame):
         
         ## Toolbar
         self.toolbar = self.CreateToolBar()
-        self.toolbar.AddLabelTool(wx.ID_REPLACE, _('Load Measurements'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_FIND_AND_REPLACE))
-        self.toolbar.AddLabelTool(wx.ID_FIND, _('Add Measurements'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_FIND))
-        self.toolbar.AddLabelTool(wx.ID_SAVEAS, _('Save Session'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE_AS))
-        self.toolbar.AddLabelTool(wx.ID_OPEN, _('Open Session'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN))
-        self.toolbar.AddSeparator()
+        iconsize = (32,32)
+        self.toolbar.SetToolBitmapSize(iconsize)
+        
+        names = [['Load Measurements', wx.ID_REPLACE, wx.ART_FIND_AND_REPLACE],
+                 ['Add Measurements', wx.ID_FIND, wx.ART_FIND],
+                 ['Save Session', wx.ID_SAVEAS, wx.ART_FILE_SAVE_AS],
+                 ['Open Session', wx.ID_OPEN, wx.ART_FILE_OPEN],
+                ]
+        
+        def add_icon(name):
+            self.toolbar.AddLabelTool(name[1],
+                                      _(name[0]),
+                                      bitmap=wx.ArtProvider.GetBitmap(
+                                                                  name[2],
+                                                                  wx.ART_TOOLBAR,
+                                                                  iconsize))
+        
+        def add_image(name):
+            png = wx.Image(findfile(name), wx.BITMAP_TYPE_ANY)
+            image = wx.StaticBitmap(self.toolbar, -1, png.ConvertToBitmap())
+            self.toolbar.AddControl(image)
+        
+        for name in names:
+            add_icon(name)
+        
+        add_image("transparent_h50.png")
+        add_image("zm_logo_h50.png")        
+
         try:
             # This only works with wxPython3
             self.toolbar.AddStretchableSpace()
         except:
             pass
-        self.toolbar.AddLabelTool(wx.ID_EXIT, _('Quit'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_QUIT))
+
+        add_image("shapeout_logotype_h50.png")
+
+        try:
+            # This only works with wxPython3
+            self.toolbar.AddStretchableSpace()
+        except:
+            pass
+        
+        add_image("transparent_h50.png")
+        add_icon(['Quit', wx.ID_EXIT, wx.ART_QUIT])
         self.toolbar.Realize() 
 
         #self.background_color = self.statusbar.GetBackgroundColour()
