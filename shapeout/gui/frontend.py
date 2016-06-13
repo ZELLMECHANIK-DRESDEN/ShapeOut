@@ -345,8 +345,8 @@ class Frame(gaugeframe.GaugeFrame):
         for name in names:
             add_icon(name)
         
-        add_image("transparent_h50.png", width=75)
-        add_image("zm_logo_h50.png")        
+        add_image("transparent_h50.png", width=75, height=iconsize[0])
+        add_image("zm_logo_h36.png")        
 
         try:
             # This only works with wxPython3
@@ -354,7 +354,7 @@ class Frame(gaugeframe.GaugeFrame):
         except:
             pass
 
-        add_image("shapeout_logotype_h50.png")
+        add_image("shapeout_logotype_h36.png")
 
         try:
             # This only works with wxPython3
@@ -362,7 +362,7 @@ class Frame(gaugeframe.GaugeFrame):
         except:
             pass
         
-        add_image("transparent_h50.png")
+        add_image("transparent_h50.png", height=iconsize[0])
         add_icon(['Quit', wx.ID_EXIT, wx.ART_QUIT])
         self.toolbar.Realize()
         self.SetToolBar(self.toolbar)
