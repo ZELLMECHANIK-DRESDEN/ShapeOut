@@ -182,11 +182,11 @@ class Frame(gaugeframe.GaugeFrame):
         ## Menus, Toolbar
         self.InitUI()
 
-        self.sp = wx.SplitterWindow(self, style=wx.SP_3DSASH)
+        self.sp = wx.SplitterWindow(self, style=wx.SP_THIN_SASH)
         # This is necessary to prevent "Unsplit" of the SplitterWindow:
         self.sp.SetMinimumPaneSize(100)
         
-        self.spright = wx.SplitterWindow(self.sp, style=wx.SP_3DSASH)
+        self.spright = wx.SplitterWindow(self.sp, style=wx.SP_THIN_SASH)
         if platform.system() == "Linux":
             sy = 270
         else:
@@ -195,7 +195,7 @@ class Frame(gaugeframe.GaugeFrame):
         self.spright.SetMinimumPaneSize(sy)
         
         # Splitter Window for control panel and cell view
-        self.sptop = wx.SplitterWindow(self.spright, style=wx.SP_3DSASH)
+        self.sptop = wx.SplitterWindow(self.spright, style=wx.SP_THIN_SASH)
         self.sptop.SetMinimumPaneSize(sy)
 
         # Controls
@@ -319,8 +319,8 @@ class Frame(gaugeframe.GaugeFrame):
         self.Bind(wx.EVT_MENU, self.OnHelpAbout, menuAbout)
         
         ## Toolbar
-        self.toolbar = self.CreateToolBar()
-        iconsize = (32,32)
+        self.toolbar = wx.ToolBar(self, style=wx.TB_FLAT|wx.TB_HORIZONTAL|wx.TB_NODIVIDER)
+        iconsize = (36,36)
         self.toolbar.SetToolBitmapSize(iconsize)
         
         names = [['Load Measurements', wx.ID_REPLACE, wx.ART_FIND_AND_REPLACE],
@@ -337,15 +337,15 @@ class Frame(gaugeframe.GaugeFrame):
                                                                   wx.ART_TOOLBAR,
                                                                   iconsize))
         
-        def add_image(name):
+        def add_image(name, height=-1, width=-1):
             png = wx.Image(findfile(name), wx.BITMAP_TYPE_ANY)
-            image = wx.StaticBitmap(self.toolbar, -1, png.ConvertToBitmap())
+            image = wx.StaticBitmap(self.toolbar, -1, png.ConvertToBitmap(), size=(width,height))
             self.toolbar.AddControl(image)
         
         for name in names:
             add_icon(name)
         
-        add_image("transparent_h50.png")
+        add_image("transparent_h50.png", width=75)
         add_image("zm_logo_h50.png")        
 
         try:
@@ -364,8 +364,8 @@ class Frame(gaugeframe.GaugeFrame):
         
         add_image("transparent_h50.png")
         add_icon(['Quit', wx.ID_EXIT, wx.ART_QUIT])
-        self.toolbar.Realize() 
-
+        self.toolbar.Realize()
+        self.SetToolBar(self.toolbar)
         #self.background_color = self.statusbar.GetBackgroundColour()
         #self.statusbar.SetBackgroundColour(self.background_color)
         #self.statusbar.SetBackgroundColour('RED')
