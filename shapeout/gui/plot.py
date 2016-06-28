@@ -158,8 +158,7 @@ class MainPlotArea(wx.Panel):
         comp = None
         for comp in range_joined[1:]:
             comp.range2d = container.components[0].range2d
-            comp.components[-1].marker_size = container.components[0].components[-1].marker_size
-        
+
         # Connect range with displayed range
         if comp is not None:
             comp.range2d.on_trait_change(self.OnPlotRangeChanged)

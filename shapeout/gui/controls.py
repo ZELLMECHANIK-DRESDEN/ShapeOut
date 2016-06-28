@@ -88,7 +88,7 @@ class ControlPanel(ScrolledPanel):
         self.subpanels.append(self.page_cont)
 
         self.page_plot = SubPanelPlotting(notebook, funcparent=self)
-        notebook.AddPage(self.page_plot, _("Plottting"))
+        notebook.AddPage(self.page_plot, _("Plotting"))
         self.subpanels.append(self.page_plot)
         
         self.page_scat = SubPanelPlotScatter(notebook, funcparent=self)
