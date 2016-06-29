@@ -1,6 +1,7 @@
 0.6.0
 - Compute mode in statistics tab using Freedman-Diaconis rule (#72)
 - Add channels: bounding box x- and y-size
+- Display number of events in measurement browser (#70)
 - Bugfixes:
   - "KeyError: 'Plotting'" when filtering (#73)
   - "AttributeError" when plotting 2col 1row without legend (#76)
