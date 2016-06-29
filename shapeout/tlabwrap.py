@@ -11,6 +11,8 @@ import chaco.tools.api as cta
 
 from dclab import *  # @UnusedWildImport
 from dclab.rtdc_dataset import UpdateConfiguration, SaveConfiguration
+from nptdms import TdmsFile
+
 from util import findfile
 
 from scipy import stats
@@ -1160,13 +1162,11 @@ def GetTDMSTreeGUI(directories):
                 treelist[i].append((project, path))
             # Get data from filename
             mx = name.split("_")[0]
-            if GetRegion(f).lower() in ["reservoir"]:
-                #parcfg = LoadConfiguration(stem+"_para.ini")
-                dn = u"{} {}".format(mx, GetRegion(f))
-            else:
+            dn = u"{} {}".format(mx, GetRegion(f))
+            if not GetRegion(f).lower() in ["reservoir"]:
                 # outlet (flow rate is not important)
-                dn = u"{} {}  {} µls⁻¹".format(mx, GetRegion(f),
-                                               GetFlowRate(f))
+                dn += u"  {} µls⁻¹".format(GetFlowRate(f))
+            dn += "  ({} events)".format(GetEvents(f))
                                    
             treelist[i].append((dn, f))
         
@@ -1195,6 +1195,14 @@ def GetDefaultConfiguration(key=None):
         return config[key]
     else:
         return config
+
+
+def GetEvents(fname):
+    """ Get the number of events for a tdms file
+    """
+    tdms_file = TdmsFile(fname)
+    datalen = len(tdms_file.object("Cell Track", "time").data)
+    return datalen
 
 
 def GetFlowRate(fname):
