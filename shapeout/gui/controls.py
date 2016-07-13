@@ -158,6 +158,11 @@ class ControlPanel(ScrolledPanel):
     
 
     def OnChangePlot(self, e=None):
+        # Set plot order
+        if hasattr(self.analysis, "measurements"):
+            print(self.page_plot.plot_order)
+            self.analysis.measurements = [ self.analysis.measurements[ii] for ii in self.page_plot.plot_order ]
+        
         wait = wx.BusyCursor()
         
         ctrls = list(self.page_plot.GetChildren())
@@ -1315,21 +1320,17 @@ class SubPanelPlotting(SubPanel):
         return statboxsizer
 
 
-    def OnApply(self, e=None):
-        """ Apply the settings set by the user.
-        We are allowing the user to order the plots, which we
-        take care of here. 
-        """
-        # Order the plots according to user selection
-        # find order
+    @property
+    def plot_order(self):
         order = []
         for ii in range(self.plot_orderer.GetItemCount()):
             order.append(int(self.plot_orderer.GetItem(ii).GetText()))
-        # set order
-        self.analysis.measurements = [x for (_y,x) in sorted(zip(
-                                                order,
-                                                self.analysis.measurements))]
-        
+        return order
+
+
+    def OnApply(self, e=None):
+        """ Apply the settings set by the user.
+        """
         # Call OnChangePlot to apply the other changes
         self.funcparent.OnChangePlot(e)
 
