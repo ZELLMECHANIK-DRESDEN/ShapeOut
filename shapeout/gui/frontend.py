@@ -23,6 +23,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 import zipfile
 
 from ..configuration import ConfigurationFile
+from ..util import findfile
 from .controls import ControlPanel
 from .explorer import ExplorerPanel
 import gaugeframe
@@ -172,7 +173,7 @@ class Frame(gaugeframe.GaugeFrame):
         minsize = (900, 700)
         gaugeframe.GaugeFrame.__init__(self, None, -1,
                 title = _("%(progname)s - version %(version)s") % {
-                        "progname": u"ᶻᵐShapeOut", "version": version},
+                        "progname": "ShapeOut", "version": version},
                 size = size)
         self.SetMinSize(minsize)
         
@@ -181,20 +182,20 @@ class Frame(gaugeframe.GaugeFrame):
         ## Menus, Toolbar
         self.InitUI()
 
-        self.sp = wx.SplitterWindow(self, style=wx.SP_3DSASH)
+        self.sp = wx.SplitterWindow(self, style=wx.SP_THIN_SASH)
         # This is necessary to prevent "Unsplit" of the SplitterWindow:
         self.sp.SetMinimumPaneSize(100)
         
-        self.spright = wx.SplitterWindow(self.sp, style=wx.SP_3DSASH)
+        self.spright = wx.SplitterWindow(self.sp, style=wx.SP_THIN_SASH)
         if platform.system() == "Linux":
-            sy = 280
+            sy = 270
         else:
             sy = 230
             
         self.spright.SetMinimumPaneSize(sy)
         
         # Splitter Window for control panel and cell view
-        self.sptop = wx.SplitterWindow(self.spright, style=wx.SP_3DSASH)
+        self.sptop = wx.SplitterWindow(self.spright, style=wx.SP_THIN_SASH)
         self.sptop.SetMinimumPaneSize(sy)
 
         # Controls
@@ -297,7 +298,7 @@ class Frame(gaugeframe.GaugeFrame):
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
         # export PNG disabled:
-        # https://github.com/ZellMechanik-Dresden/ShapeOut/issues/62
+        # https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/issues/62
         #e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
         #               _('Export the plot as a portable network graphic'))
         #self.Bind(wx.EVT_MENU, self.OnMenuExportPNG, e2png)
@@ -318,25 +319,53 @@ class Frame(gaugeframe.GaugeFrame):
         self.Bind(wx.EVT_MENU, self.OnHelpAbout, menuAbout)
         
         ## Toolbar
-        self.toolbar = self.CreateToolBar()
-        self.toolbar.AddLabelTool(wx.ID_REPLACE, _('Load Measurements'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_FIND_AND_REPLACE))
-        self.toolbar.AddLabelTool(wx.ID_FIND, _('Add Measurements'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_FIND))
-        self.toolbar.AddLabelTool(wx.ID_SAVEAS, _('Save Session'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE_AS))
-        self.toolbar.AddLabelTool(wx.ID_OPEN, _('Open Session'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN))
-        self.toolbar.AddSeparator()
+        self.toolbar = wx.ToolBar(self, style=wx.TB_FLAT|wx.TB_HORIZONTAL|wx.TB_NODIVIDER)
+        iconsize = (36,36)
+        self.toolbar.SetToolBitmapSize(iconsize)
+        
+        names = [['Load Measurements', wx.ID_REPLACE, wx.ART_FIND_AND_REPLACE],
+                 ['Add Measurements', wx.ID_FIND, wx.ART_FIND],
+                 ['Save Session', wx.ID_SAVEAS, wx.ART_FILE_SAVE_AS],
+                 ['Open Session', wx.ID_OPEN, wx.ART_FILE_OPEN],
+                ]
+        
+        def add_icon(name):
+            self.toolbar.AddLabelTool(name[1],
+                                      _(name[0]),
+                                      bitmap=wx.ArtProvider.GetBitmap(
+                                                                  name[2],
+                                                                  wx.ART_TOOLBAR,
+                                                                  iconsize))
+        
+        def add_image(name, height=-1, width=-1):
+            png = wx.Image(findfile(name), wx.BITMAP_TYPE_ANY)
+            image = wx.StaticBitmap(self.toolbar, -1, png.ConvertToBitmap(), size=(width,height))
+            self.toolbar.AddControl(image)
+        
+        for name in names:
+            add_icon(name)
+        
+        add_image("transparent_h50.png", width=75, height=iconsize[0])
+        add_image("zm_logo_h36.png")        
+
         try:
             # This only works with wxPython3
             self.toolbar.AddStretchableSpace()
         except:
             pass
-        self.toolbar.AddLabelTool(wx.ID_EXIT, _('Quit'),
-                           bitmap=wx.ArtProvider.GetBitmap(wx.ART_QUIT))
-        self.toolbar.Realize() 
 
+        add_image("shapeout_logotype_h36.png")
+
+        try:
+            # This only works with wxPython3
+            self.toolbar.AddStretchableSpace()
+        except:
+            pass
+        
+        add_image("transparent_h50.png", height=iconsize[0])
+        add_icon(['Quit', wx.ID_EXIT, wx.ART_QUIT])
+        self.toolbar.Realize()
+        self.SetToolBar(self.toolbar)
         #self.background_color = self.statusbar.GetBackgroundColour()
         #self.statusbar.SetBackgroundColour(self.background_color)
         #self.statusbar.SetBackgroundColour('RED')
@@ -396,7 +425,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         info.SetVersion(self.version)
         info.SetDescription(description)
         info.SetCopyright(u'(C) 2015 Paul Müller')
-        info.SetWebSite(u"http://www.zellmechanik.com/")
+        info.SetWebSite(u"http://zellmechanik.com/")
         info.SetLicence(licence)
         info.SetIcon(misc.getMainIcon(pxlength=64))
         info.AddDeveloper(u'Paul Müller')

@@ -41,13 +41,14 @@ def splash_show():
     # setup splash app
     app = wx.App(False)
     # Show the splash screen as early as possible
-    img = wx.Image(findfile('zm_logo_small.png'))
+    img = wx.Image(findfile('zm_logo_small_bgwhite.png'))
     # alpha mask is only binary - don't use it, looks ugly.
     #img.ConvertAlphaToMask()
     bitmap = wx.BitmapFromImage(img)
     frame = wx.Frame(None, -1, "AdvancedSplash Test")
     AS.AdvancedSplash(frame, bitmap=bitmap, 
-                agwStyle=AS.AS_NOTIMEOUT|AS.AS_CENTER_ON_SCREEN)
+                      agwStyle=AS.AS_NOTIMEOUT|AS.AS_CENTER_ON_SCREEN
+                      )
     app.MainLoop()
 
 

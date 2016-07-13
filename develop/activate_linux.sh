@@ -5,7 +5,7 @@ DIRECTORY=".env_shapeout"
 
 echo "------------------------------------------------------------------"
 echo "Make sure you dclab checked out in the parent directory:"
-echo "   https://github.com/ZellMechanik-Dresden/dclab.git"
+echo "   https://github.com/ZELLMECHANIK-DRESDEN/dclab.git"
 echo "------------------------------------------------------------------"
 echo "Make sure you have the following packages installed:"
 echo "   python-numpy python-opencv python-wxgtk2.8 r-base r-recommended"

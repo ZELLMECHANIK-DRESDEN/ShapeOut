@@ -60,7 +60,7 @@ def check_release(
                 
 def Update(parent):
     """ This is a thread for _Update """
-    ghrepo="ZellMechanik-Dresden/ShapeOut"
+    ghrepo="ZELLMECHANIK-DRESDEN/ShapeOut"
     parent.StatusBar.SetStatusText("Checking for updates...")
     if hasattr(so_version, "repo_tag"):
         version = so_version.repo_tag  # @UndefinedVariable
