@@ -1,3 +1,6 @@
+0.6.1
+- Bugfixes:
+  - Setting order of plots not possible in Windows (#79)
 0.6.0
 - Compute mode in statistics tab using Freedman-Diaconis rule (#72)
 - Add channels: bounding box x- and y-size
