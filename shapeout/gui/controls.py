@@ -1284,15 +1284,18 @@ class SubPanelPlotting(SubPanel):
         
         return mastersizer
 
-    def _box_order_plots(self, analysis):
+    def _box_order_plots(self, analysis, sizex=300, sizey=150):
         """Returns a sizer containing a StaticBox that allows
         to sort the plots.
         """
         meas_names = [mm.title for mm in analysis.measurements]
 
         box = wx.StaticBox(self, label=_("Plot order"))
-
-        dls = DragListStriped(box, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_NO_HEADER)
+        statboxsizer = wx.StaticBoxSizer(box, wx.HORIZONTAL)
+        
+        dls = DragListStriped(box,
+                              style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_NO_HEADER|wx.EXPAND,
+                              size=(sizex, sizey))
         dls.InsertColumn(0, "")
         dls.InsertColumn(1, "")
 
@@ -1301,16 +1304,15 @@ class SubPanelPlotting(SubPanel):
             dls.SetStringItem(ii, 1, meas)
             
         dls._onStripe()
-
-        size = dls.GetBestSize()        
-        dls.SetSize((size[0]-120,size[1]-50))
         
         dls.SetColumnWidth(0, wx.LIST_AUTOSIZE)
         dls.SetColumnWidth(1, wx.LIST_AUTOSIZE)
         
         self.plot_orderer = dls
-        
-        return box
+
+        statboxsizer.Add(dls)
+
+        return statboxsizer
 
 
     def OnApply(self, e=None):
@@ -1341,9 +1343,12 @@ class SubPanelPlotting(SubPanel):
 
         # sizer
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        sizer.Add(self._box_from_cfg_plotting(analysis))
-        sizer.Add(self._box_order_plots(analysis))
+        plotsizer = self._box_from_cfg_plotting(analysis)
+        ordersizer = self._box_order_plots(analysis, sizey=plotsizer.GetMinSize()[1]-25)
+        ordersizer.SetMinSize((-1, plotsizer.GetMinSize()[1]))
 
+        sizer.Add(plotsizer)
+        sizer.Add(ordersizer)
 
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
 
