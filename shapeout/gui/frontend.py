@@ -13,6 +13,7 @@ import cv2
 import numpy as np
 import os
 import platform
+import shutil
 import sys
 import tempfile
 import traceback
@@ -699,7 +700,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     def OnMenuLoad(self, e=None, sessionfile=None):
         """ Load entire analysis """
+        # Determine which session file to open
         if sessionfile is None:
+            # User dialog
             dlg = wx.FileDialog(self, "Open session file",
                     self.config.GetWorkingDirectory(name="Session"), "",
                             "ShapeOut session (*.zmso)|*.zmso", wx.FD_OPEN)
@@ -742,6 +745,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         self.OnMenuSearchPathAdd(add=False, path=directories,
                                  marked=bolddirs)
+        
+        # Remove all temporary files
+        shutil.rmtree(tempdir, ignore_errors=True)
         
 
     def OnMenuSearchPath(self, e=None):
