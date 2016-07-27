@@ -55,7 +55,7 @@ class Analysis(object):
                     # RTDC data set
                     self.measurements.append(f)
         elif isinstance(data, (unicode, str)) and os.path.exists(data):
-            # We are opening a session
+            # We are opening a session "index.txt" file
             self._ImportDumped(data)
         else:
             raise ValueError("Argument not an index file or list of"+\
