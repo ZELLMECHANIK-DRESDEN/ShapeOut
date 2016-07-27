@@ -734,6 +734,59 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             if hasattr(item, "analysis"):
                 del item.analysis
 
+        # check session integrity
+        messages = tlabwrap.session_check_index(indexfile)
+        while len(messages["missing tdms"]):
+            # There are missing tdms files. We need to modify the extracted
+            # index file with a folder.
+            missing = messages["missing tdms"]
+            directories = [] # search directories
+            updict = {}      # new dicts for individual measurements
+            # Ask user for directory
+            miss = os.path.basename(missing[0][1])
+            
+            message = _("ShapeOut could not find the following measurements:")+\
+                      "\n\n".join([""]+[m[1] for m in missing]) +"\n\n"+\
+                      _("Please select a directory that contains these.")
+            
+            dlg = wx.MessageDialog(self,
+                                   caption=_("Missing tdms files for session"),
+                                   message=message,
+                                   style=wx.CANCEL|wx.OK,
+                                   )
+            if dlg.ShowModal() == wx.ID_CANCEL:
+                break
+            dlg.Destroy()
+            
+            dlg = wx.DirDialog(self,
+                               message="Please select folder containing {}".format(miss),
+                               )
+            
+            if dlg.ShowModal() == wx.ID_OK:
+                directories.insert(0, dlg.GetPath())
+            else:
+                break
+            dlg.Destroy()
+            
+            # Try to find all measurements with that directory (also relative)
+            wx.BeginBusyCursor()
+            remlist = []
+            for m in missing:
+                key, tdms, thash = m
+                newfile = tlabwrap.search_hashed_tdms(tdms, thash, directories)
+                if newfile is not None:
+                    newdir = os.path.dirname(newfile)
+                    updict[key] = {"fdir": newdir}
+                    directories.insert(0, os.path.dirname(newdir))
+                    directories.insert(0, os.path.dirname(os.path.dirname(newdir)))
+                    remlist.append(m)
+            for m in remlist:
+                missing.remove(m)
+            wx.EndBusyCursor()
+
+            # Update the extracted index file.
+            tlabwrap.session_update_index(indexfile, updict)
+        
         self.NewAnalysis(indexfile)
 
         directories = list()
