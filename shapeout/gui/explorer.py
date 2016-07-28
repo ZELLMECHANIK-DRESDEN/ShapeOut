@@ -117,7 +117,7 @@ class ExplorerPanel(ScrolledPanel):
                     k.SetBold(True)
 
     def external_analyze(self, *args, **kwargs):
-        """ to be overwritten """
+        """ to be overridden """
         pass
 
     def OnAnalyze(self, e=None):
@@ -193,7 +193,7 @@ class ExplorerPanel(ScrolledPanel):
                     self.htreectrl.CheckItem(k)
 
     def SetProjectTree(self, data, add=False, marked=[]):
-        """ Find projects in `directory` and update tree view
+        """ Update tree view with measurement data information
 
         Parameters
         ----------

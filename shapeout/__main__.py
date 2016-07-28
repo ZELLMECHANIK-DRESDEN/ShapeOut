@@ -59,15 +59,15 @@ def prepare_app():
         version = None
     
     # get session file
-    sessionfile = None
+    session_file = None
     for arg in sys.argv:
         if arg.endswith(".zmso"):
             print("\nLoading Session "+arg)
-            sessionfile=arg
+            session_file=arg
         else:
             print("Ignoring command line parameter: "+arg)
 
-    app.frame = frontend.Frame(version, sessionfile = sessionfile)
+    app.frame = frontend.Frame(version, session_file=session_file)
     
     return app
 
