@@ -761,7 +761,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 break
             
             dlg = wx.DirDialog(self,
-                               message="Please select folder containing {}".format(miss),
+                               message=_(
+                                        "Please select directory containing {}"
+                                        ).format(miss),
                                )
             mod = dlg.ShowModal()
             path = dlg.GetPath()
