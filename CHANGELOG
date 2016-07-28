@@ -1,6 +1,9 @@
 0.6.1
+- Load session: Allow user to select missing data files (#80)
+- Sessions: Store relative paths in index file for user convenience (#80)
 - Bugfixes:
   - Setting order of plots not possible in Windows (#79)
+  - Inability to search measurements due to broken data files (#81)
 0.6.0
 - Compute mode in statistics tab using Freedman-Diaconis rule (#72)
 - Add channels: bounding box x- and y-size
