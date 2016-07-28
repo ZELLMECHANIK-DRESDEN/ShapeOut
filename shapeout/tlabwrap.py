@@ -41,7 +41,7 @@ class Analysis(object):
      - common configuration parameters of the data sets
      - Plotting parameters
     """
-    def __init__(self, data):
+    def __init__(self, data, search_path="./"):
         """ Analysis data object.
         """
         self.measurements = list()
@@ -56,13 +56,21 @@ class Analysis(object):
                     self.measurements.append(f)
         elif isinstance(data, (unicode, str)) and os.path.exists(data):
             # We are opening a session "index.txt" file
-            self._ImportDumped(data)
+            self._ImportDumped(data, search_path=search_path)
         else:
             raise ValueError("Argument not an index file or list of"+\
                              " .tdms files: {}".format(data))
 
-    def _ImportDumped(self, indexname):
+    def _ImportDumped(self, indexname, search_path="./"):
         """ Loads data from index file as saved using `self.DumpData`.
+        
+        Parameters
+        ----------
+        indexname : str
+            Path to index.txt file
+        search_path : str
+            Relative search path where to look for tdms files if
+            the absolute path stored in index.txt cannot be found.
         """
         ## Read index file and locate tdms file.
         thedir = os.path.dirname(indexname)
@@ -79,9 +87,7 @@ class Analysis(object):
         keys.sort(key=lambda x: int(x.split("_")[0]))
         for key in keys:
             data = datadict[key]
-            name = data["name"]
-            fdir = data["fdir"]
-            tloc = os.path.join(fdir, name)
+            tloc = session_get_tdms_file(data, search_path)
             mm = RTDC_DataSet(tloc)
             if "title" in data:
                 # title saved starting version 0.5.6.dev6
@@ -143,7 +149,7 @@ class Analysis(object):
         return mode
         
 
-    def DumpData(self, directory, fullout=False):
+    def DumpData(self, directory, fullout=False, rel_path="./"):
         """ Dumps all the data from the analysis to a `directory`
         
         Returns a list of filenames that are required to restore this
@@ -178,6 +184,7 @@ class Analysis(object):
             out.append("para.ini hash = "+mm.file_hashes[2][1])
             out.append("name = "+mm.name+".tdms")
             out.append("fdir = "+mm.fdir)
+            out.append("rdir = "+os.path.relpath(mm.fdir, rel_path))
             out.append("title = "+mm.title)
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
@@ -550,7 +557,7 @@ class Fake_RTDC_DataSet(object):
         return ["Defo", "Area"]
 
 
-def session_check_index(indexname):
+def session_check_index(indexname, search_path="./"):
     """ Check a session file index for existance of all measurement files
     """
     missing_files = []
@@ -562,12 +569,50 @@ def session_check_index(indexname):
     keys.sort(key=lambda x: int(x.split("_")[0]))
     for key in keys:    
         data = datadict[key]
-        tdms = os.path.join(data["fdir"], data["name"])
+        tdms = session_get_tdms_file(data, search_path)
         if not os.path.exists(tdms):
             missing_files.append([key, tdms, data["tdms hash"]])
     
     messages = {"missing tdms": missing_files}
     return messages
+
+
+def session_get_tdms_file(index_dict,
+                          search_path="./",
+                          errors="ignore"):
+    """ Get the tdms file from entries in the index dictionary
+    
+    The index dictionary is created from each entry in the
+    the index.txt file and contains the keys "name", "fdir", and
+    since version 0.6.1 "rdir".
+    
+    If the file cannot be found on the file system, then a warning
+    is issued if `errors` is set to "ignore", otherwise an IOError
+    is raised.
+    
+    """
+    found = False
+    tdms1 = os.path.join(index_dict["fdir"], index_dict["name"])
+    
+    if os.path.exists(tdms1):
+        found = tdms1
+    else:
+        if "rdir" in index_dict:
+            # try to find relative path
+            sdir = os.path.abspath(search_path)
+            ndir = os.path.abspath(os.path.join(sdir, index_dict["rdir"]))
+            tdms2 = os.path.join(ndir, index_dict["name"])
+            if os.path.exists(tdms2):
+                found = tdms2
+    
+    if not found:
+        if errors == "ignore":
+            warnings.warn("Could not find file: {}".format(tdms1))
+            found = tdms1
+        else:
+            raise IOError("Could not find file: {}".format(tdms1))
+
+    return found
 
 
 def session_update_index(indexname, updict={}):

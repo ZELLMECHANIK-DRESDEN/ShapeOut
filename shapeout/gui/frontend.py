@@ -165,7 +165,7 @@ class ExportData(wx.Frame):
 
 class Frame(gaugeframe.GaugeFrame):
     """"""
-    def __init__(self, version, sessionfile=None):
+    def __init__(self, version, session_file=None):
         """Constructor"""
         self.config = ConfigurationFile()
         self.version = version
@@ -241,8 +241,8 @@ class Frame(gaugeframe.GaugeFrame):
         self.spright.SetMinimumPaneSize(100)
         self.sptop.SetMinimumPaneSize(100)
         
-        if sessionfile is not None:
-            self.OnMenuLoad(sessionfile=sessionfile)
+        if session_file is not None:
+            self.OnMenuLoad(session_file=session_file)
             
         update.Update(self)
 
@@ -375,10 +375,10 @@ class Frame(gaugeframe.GaugeFrame):
         
         self.Bind(wx.EVT_CLOSE, self.OnMenuQuit)
 
-    def NewAnalysis(self, data):
+    def NewAnalysis(self, data, search_path="./"):
         """ Create new analysis object and show data """
         wx.BeginBusyCursor()
-        anal = tlabwrap.Analysis(data)
+        anal = tlabwrap.Analysis(data, search_path=search_path)
         # Get Plotting and Filtering parameters from previous analysis
         if hasattr(self, "analysis"):
             fpar = self.analysis.GetParameters("Filtering")
@@ -698,10 +698,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 fd.writelines(exp)
 
 
-    def OnMenuLoad(self, e=None, sessionfile=None):
+    def OnMenuLoad(self, e=None, session_file=None):
         """ Load entire analysis """
         # Determine which session file to open
-        if sessionfile is None:
+        if session_file is None:
             # User dialog
             dlg = wx.FileDialog(self, "Open session file",
                     self.config.GetWorkingDirectory(name="Session"), "",
@@ -718,7 +718,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 dlg.Destroy()
                 return # nothing more to do here
         else:
-            fname = sessionfile 
+            fname = session_file 
         
         dirname = os.path.dirname(fname)
         self.config.SetWorkingDirectory(dirname)
@@ -735,7 +735,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 del item.analysis
 
         # check session integrity
-        messages = tlabwrap.session_check_index(indexfile)
+        messages = tlabwrap.session_check_index(indexfile, search_path=dirname)
+        
         while len(messages["missing tdms"]):
             # There are missing tdms files. We need to modify the extracted
             # index file with a folder.
@@ -787,7 +788,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             # Update the extracted index file.
             tlabwrap.session_update_index(indexfile, updict)
         
-        self.NewAnalysis(indexfile)
+        self.NewAnalysis(indexfile, search_path=dirname)
 
         directories = list()
         for mm in self.analysis.measurements:
@@ -887,7 +888,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             os.chdir(tempdir)
             Arc = zipfile.ZipFile(path, mode='w')
             ## Dump data into directory
-            self.analysis.DumpData(tempdir)
+            self.analysis.DumpData(tempdir, rel_path=os.path.dirname(path))
             for root, _dirs, files in os.walk(tempdir):
                 for f in files:
                     fw = os.path.join(root,f)
