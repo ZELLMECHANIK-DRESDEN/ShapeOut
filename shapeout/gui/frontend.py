@@ -755,19 +755,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                    message=message,
                                    style=wx.CANCEL|wx.OK,
                                    )
-            if dlg.ShowModal() == wx.ID_CANCEL:
-                break
+            mod = dlg.ShowModal()
             dlg.Destroy()
+            if mod != wx.ID_OK:
+                break
             
             dlg = wx.DirDialog(self,
                                message="Please select folder containing {}".format(miss),
                                )
-            
-            if dlg.ShowModal() == wx.ID_OK:
-                directories.insert(0, dlg.GetPath())
-            else:
-                break
+            mod = dlg.ShowModal()
+            path = dlg.GetPath()
             dlg.Destroy()
+            if mod != wx.ID_OK:
+                break
+
+            # Add search directory            
+            directories.insert(0, path)
             
             # Try to find all measurements with that directory (also relative)
             wx.BeginBusyCursor()
