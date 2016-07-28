@@ -1232,7 +1232,7 @@ def GetTDMSTreeGUI(directories):
 
         for f in files:
             if not IsFullMeasurement(f):
-                # Ignore measurements that have missing camera or para inis.
+                # Ignore broken measurements
                 continue
             path, name = os.path.split(f)
             # try to find the path in pathdict
@@ -1262,15 +1262,26 @@ def IsFullMeasurement(fname):
     """ Checks for existence of ini files and returns False if some
         files are missing.
     """
+    is_ok = True
     path, name = os.path.split(fname)
     mx = name.split("_")[0]
     stem = os.path.join(path, mx)
+    
+    # Check if all config files are present
     if ( (not os.path.exists(stem+"_para.ini")) or
          (not os.path.exists(stem+"_camera.ini")) or
          (not os.path.exists(fname))                ):
-        return False
-    else:
-        return True
+        is_ok = False
+    
+    # Check if we can perform all standard file operations
+    for test in [GetRegion, GetFlowRate, GetEvents]:
+        try:
+            test(fname)
+        except:
+            is_ok = False
+            break
+    
+    return is_ok
 
 
 def GetDefaultConfiguration(key=None):
