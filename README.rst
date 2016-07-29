@@ -1,7 +1,7 @@
 |ShapeOut|
 ==========
 
-|PyPI Version| |Build Status Win|
+|PyPI Version| |Build Status Win| |Coverage Status|
 
 
 This repository contains a graphical user interface for the analysis
@@ -163,3 +163,5 @@ _________
    :target: https://pypi.python.org/pypi/dclab
 .. |Build Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/ShapeOut/master.svg?label=build_win
    :target: https://ci.appveyor.com/project/paulmueller/ShapeOut
+.. |Coverage Status| image:: https://img.shields.io/coveralls/ZellMechanik-Dresden/ShapeOut.svg
+   :target: https://coveralls.io/github/ZellMechanik-Dresden/ShapeOut
