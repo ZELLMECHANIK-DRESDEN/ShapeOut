@@ -22,7 +22,8 @@ notifications:
     on_build_status_changed: false
 
 environment:
-
+  COVERALLS_REPO_TOKEN:
+    secure: 2bt2CXJJ5FWcDCh1rvnlg7hG+rPqIvfovk5s9OKWdwkJUaSyxpMrp//UJra1nkZ4
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
