@@ -12,7 +12,7 @@ import platform
 import wx
 
 from . import misc
-from .. import tlabwrap
+from . import plot_scatter
 
 
 class LineDrawer(cta.LineSegmentTool):
@@ -114,8 +114,7 @@ class LineDrawerWindow(wx.Frame):
 
     def _create_plot_component(self, measurement, xax, yax):
         # Create some data
-        plot = tlabwrap.CreateScatterPlot(measurement, xax=xax, yax=yax,
-                                          panzoom=False)
+        plot = plot_scatter.scatter_plot(measurement, panzoom=False)
         # Create a plot data obect and give it this data
         # Tweak some of the plot properties
         plot.title = "Click to add points, press Enter to add filter"
