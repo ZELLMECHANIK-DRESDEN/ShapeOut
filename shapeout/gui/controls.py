@@ -160,6 +160,7 @@ class ControlPanel(ScrolledPanel):
             for plot in plots:
                 if plot.id == mm.identifier:
                     plot_scatter.set_scatter_data(plot, mm)
+        self.frame.PlotArea.mainplot.OnMouseScatter()
         
         self.UpdatePages()
         wx.EndBusyCursor()

@@ -16,72 +16,10 @@ from . import misc
 from ..tlabwrap import isoelastics
 
 
-def set_scatter_data(plot, mm):
-    plotfilters = mm.Configuration["Plotting"].copy()
-    xax, yax = mm.GetPlotAxes()
-    
-    if mm.Configuration["Filtering"]["Enable Filters"]:
-        x = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
-        y = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
-    else:
-        # filtering disabled
-        x = getattr(mm, dfn.cfgmaprev[xax])
-        y = getattr(mm, dfn.cfgmaprev[yax])
-    
-    #downsampling : int or None
-    #    Filter events that are overdrawn by others (saves time).
-    #    If set to None then
-    downsampling = plotfilters["Downsampling"]
-    #downsample_events : int or None
-    #    Number of events to draw in the down-sampled plot. This number
-    #    is either 
-    #    - >=1: limit total number of events drawn
-    #    - <1: only perform 1st downsampling step with grid
-    #    If set to None, then
-    downsample_events = plotfilters["Downsample Events"]
-
-    if downsampling:
-        lx = x.shape[0]
-        x, y = mm.GetDownSampledScatter(
-                                    downsample_events=downsample_events
-                                    )
-        positions = np.vstack([x.ravel(), y.ravel()])
-        print("Downsampled from {} to {}".format(lx, x.shape[0]))
-    else:
-        positions = None
-
-    density = mm.GetKDE_Scatter(yax=yax, xax=xax, positions=positions)
-
-    pd = plot.data
-    
-    pd.set_data("index", x)
-    pd.set_data("value", y)
-    pd.set_data("color", density)
-
-
-    # Plot filtered data in grey
-    if (plotfilters["Scatter Plot Excluded Events"] and
-        mm._filter.sum() != mm.time.shape[0]):
-        # determine the number of points we are allowed to add
-        if downsampling:
-            # respect the maximum limit of plotted events
-            excl_num = int(downsample_events - np.sum(mm._filter))
-        else:
-            # plot all excluded events
-            excl_num = np.sum(~mm._filter)
-
-        if excl_num > 0:
-            excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
-            excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
-            pd.set_data("excl_index", excl_x)
-            pd.set_data("excl_value", excl_y)
-
-
-
-def CreateScatterPlot(measurement,
-                      axScatter=None, isoel=None, 
-                      square=True, 
-                      panzoom=True, select=True):
+def scatter_plot(measurement,
+                 axScatter=None, isoel=None, 
+                 square=True, 
+                 panzoom=True, select=True):
     """ Plot scatter plot for two axes of an RTDC measurement
     
     Parameters
@@ -282,3 +220,65 @@ def CreateScatterPlot(measurement,
 
 
     return scatter_plot
+
+
+
+def set_scatter_data(plot, mm):
+    plotfilters = mm.Configuration["Plotting"].copy()
+    xax, yax = mm.GetPlotAxes()
+    
+    if mm.Configuration["Filtering"]["Enable Filters"]:
+        x = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
+        y = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
+    else:
+        # filtering disabled
+        x = getattr(mm, dfn.cfgmaprev[xax])
+        y = getattr(mm, dfn.cfgmaprev[yax])
+    
+    #downsampling : int or None
+    #    Filter events that are overdrawn by others (saves time).
+    #    If set to None then
+    downsampling = plotfilters["Downsampling"]
+    #downsample_events : int or None
+    #    Number of events to draw in the down-sampled plot. This number
+    #    is either 
+    #    - >=1: limit total number of events drawn
+    #    - <1: only perform 1st downsampling step with grid
+    #    If set to None, then
+    downsample_events = plotfilters["Downsample Events"]
+
+    if downsampling:
+        lx = x.shape[0]
+        x, y = mm.GetDownSampledScatter(
+                                    downsample_events=downsample_events
+                                    )
+        positions = np.vstack([x.ravel(), y.ravel()])
+        print("Downsampled from {} to {}".format(lx, x.shape[0]))
+    else:
+        positions = None
+
+    density = mm.GetKDE_Scatter(yax=yax, xax=xax, positions=positions)
+
+    pd = plot.data
+    
+    pd.set_data("index", x)
+    pd.set_data("value", y)
+    pd.set_data("color", density)
+
+
+    # Plot filtered data in grey
+    if (plotfilters["Scatter Plot Excluded Events"] and
+        mm._filter.sum() != mm.time.shape[0]):
+        # determine the number of points we are allowed to add
+        if downsampling:
+            # respect the maximum limit of plotted events
+            excl_num = int(downsample_events - np.sum(mm._filter))
+        else:
+            # plot all excluded events
+            excl_num = np.sum(~mm._filter)
+
+        if excl_num > 0:
+            excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
+            excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
+            pd.set_data("excl_index", excl_x)
+            pd.set_data("excl_value", excl_y)

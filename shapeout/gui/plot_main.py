@@ -125,7 +125,7 @@ class MainPlotArea(wx.Panel):
                     legend_plotted = True
                 elif c_plot < maxplots:
                     # Scatter Plot
-                    aplot = plot_scatter.CreateScatterPlot(anal.measurements[c_plot])
+                    aplot = plot_scatter.scatter_plot(anal.measurements[c_plot])
                     scatter2measure[aplot] = anal.measurements[c_plot]
                     range_joined.append(aplot)
                     c_plot += 1
