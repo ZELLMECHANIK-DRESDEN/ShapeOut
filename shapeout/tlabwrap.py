@@ -3,7 +3,7 @@
 """ ShapeOut - more functionalities for dclab
 
 """
-from __future__ import division
+from __future__ import division, unicode_literals
 
 # Chaco imports
 import chaco.api as ca
@@ -184,7 +184,14 @@ class Analysis(object):
             out.append("para.ini hash = "+mm.file_hashes[2][1])
             out.append("name = "+mm.name+".tdms")
             out.append("fdir = "+mm.fdir)
-            out.append("rdir = "+os.path.relpath(mm.fdir, rel_path))
+            try:
+                # On Windows we have multiple drive letters and
+                # relpath will complain about that if mm.fdir and
+                # rel_path are not on the same drive.
+                rdir = os.path.relpath(mm.fdir, rel_path)
+            except ValueError:
+                rdir = "."
+            out.append("rdir = "+rdir)
             out.append("title = "+mm.title)
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
