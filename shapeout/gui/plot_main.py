@@ -14,6 +14,7 @@ import wx
 import wx.lib.agw.flatnotebook as fnb
 
 from .. import tlabwrap
+from . import plot_scatter
 
 
 class PlotNotebook(fnb.FlatNotebook):
@@ -70,8 +71,8 @@ class MainPlotArea(wx.Panel):
         self.vbox.Add(self.plot_window.control, 1, wx.EXPAND)
         self.SetSizer(self.vbox)
         self.vbox.Fit(self)
-
-        #self.mainplot=self
+        
+        self.container = None
 
     def Plot(self, anal=None):
         self._lastplot = -1
@@ -115,8 +116,8 @@ class MainPlotArea(wx.Panel):
                 if (i == cols-1 and j == 0 and lcc == 1):
                     # Contour plot in upper right corner
                     aplot = tlabwrap.CreateContourPlot(anal.measurements,
-                                               xax=xax, yax=yax,
-                                               levels=[0.5,0.95])
+                                                       xax=xax, yax=yax,
+                                                       levels=[0.5,0.95])
                     range_joined.append(aplot)
                 elif (i == cols-1 and j == 1 and lll == 1):
                     # Legend plot below contour plot
@@ -124,13 +125,12 @@ class MainPlotArea(wx.Panel):
                     legend_plotted = True
                 elif c_plot < maxplots:
                     # Scatter Plot
-                    aplot = tlabwrap.CreateScatterPlot(anal.measurements[c_plot],
-                                               xax=xax, yax=yax)
+                    aplot = plot_scatter.CreateScatterPlot(anal.measurements[c_plot])
                     scatter2measure[aplot] = anal.measurements[c_plot]
                     range_joined.append(aplot)
                     c_plot += 1
                     # Retrieve the plot hooked to selection tool
-                    my_plot = aplot.plots["my_plot"][0]
+                    my_plot = aplot.plots["scatter_events"][0]
                     # Set up the trait handler for the selection
                     id_ds = my_plot.index
 
@@ -254,7 +254,7 @@ class MainPlotArea(wx.Panel):
                     thisplothover = aplot
 
         for (aplot, id_ds) in self.index_datasources:
-            my_plot = aplot.plots["my_plot"][0]
+            my_plot = aplot.plots["scatter_events"][0]
             # Show or hide overlays:
             if thisplothover is aplot:
                 my_plot.overlays[0].visible = True

@@ -17,11 +17,12 @@ import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
 from ..configuration import ConfigurationFile
-from .polygonselect import LineDrawerWindow
 from .. import tlabwrap
 from .. import util
 from .. import lin_mix_mod
 
+from .polygonselect import LineDrawerWindow
+from . import plot_scatter
 
 class FlatNotebook(wx.Notebook):
     """
@@ -150,8 +151,15 @@ class ControlPanel(ScrolledPanel):
         
         self.analysis.SetParameters(cfg)
         
-        # Update Plots
-        self.frame.PlotArea.Plot(self.analysis)
+        # Only update the plotting data.
+        # (Until version 0.6.1 the plots were recreated after
+        #  each update, which caused a memory leak)
+        plot_window = self.frame.PlotArea.mainplot.plot_window
+        plots = plot_window.component.components
+        for mm in self.analysis.measurements:
+            for plot in plots:
+                if plot.id == mm.identifier:
+                    plot_scatter.set_scatter_data(plot, mm)
         
         self.UpdatePages()
         wx.EndBusyCursor()

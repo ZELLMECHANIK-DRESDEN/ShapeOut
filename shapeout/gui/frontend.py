@@ -30,7 +30,7 @@ from .explorer import ExplorerPanel
 import gaugeframe
 from .. import tlabwrap
 from . import update
-from . import plot
+from . import plot_main
 from . import misc
 from . import video
 
@@ -213,8 +213,7 @@ class Frame(gaugeframe.GaugeFrame):
         self.sptop.SetSashGravity(.46)
         
         # Main Plots
-        self.PlotArea = plot.PlotPanel(self.spright, self)
-        #self.PlotArea = plot.MainPlotArea(self.spright, self)
+        self.PlotArea = plot_main.PlotPanel(self.spright, self)
 
         self.spright.SplitHorizontally(self.sptop, self.PlotArea, sy)
         
