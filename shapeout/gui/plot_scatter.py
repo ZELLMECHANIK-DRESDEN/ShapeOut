@@ -1,19 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - more functionalities for dclab
+""" ShapeOut - scatter plot methods
 
 """
 from __future__ import division, unicode_literals
 
-# Chaco imports
 import chaco.api as ca
 import chaco.tools.api as cta
 
 from dclab import *  # @UnusedWildImport
 
 from . import misc
-
 from ..tlabwrap import isoelastics
+
+
+
+def reset_inspector(plot):
+    """ Hides the scatter inspector until the user clicks again.
+    """
+    overlays = plot.plots["scatter_events"][0].overlays
+    overlays[0].visible = False
 
 
 def scatter_plot(measurement,
@@ -220,7 +226,6 @@ def scatter_plot(measurement,
 
 
     return scatter_plot
-
 
 
 def set_scatter_data(plot, mm):

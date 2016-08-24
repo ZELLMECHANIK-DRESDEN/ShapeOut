@@ -293,13 +293,3 @@ class MainPlotArea(wx.Panel):
             self._lastplotselect = thisplotselect
         self._lasthover = thishov
         self._lastselect = thissel
-
-
-    def CheckTightLayout(self):
-        """ Determine whether a call to tight_layout is necessary and
-            (do not) do it.
-        """
-        if not self.tight_layout:
-            self.figure.tight_layout()
-            self.tight_layout = True
-        #self.figure.tight_layout(pad=0.5, h_pad=0, w_pad=0)
