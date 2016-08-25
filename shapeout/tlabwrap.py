@@ -322,7 +322,11 @@ class Analysis(object):
                     x = getattr(mm, dfn.cfgmaprev[ax])
                 # compute variable and add to datalist
                 for c in columns:
-                    mmlist.append(c[1](x))
+                    try:
+                        value = c[1](x)
+                    except IndexError:
+                        value = np.nan
+                    mmlist.append(value)
             datalist.append(mmlist)
         
         return head, datalist
@@ -562,6 +566,9 @@ class Fake_RTDC_DataSet(object):
 
     def GetPlotAxes(self):
         return ["Defo", "Area"]
+    
+    def ApplyFilter(self):
+        pass
 
 
 def session_check_index(indexname, search_path="./"):

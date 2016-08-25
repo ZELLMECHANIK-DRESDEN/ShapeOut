@@ -45,7 +45,7 @@ def float2string_nsf(fval, n=7):
     #sgn=np.sign(fval)
     if fval == 0:
         npoint=n
-    elif fval is np.nan:
+    elif np.isnan(fval):
         return "NaN"
     else:
         q=abs(fval)

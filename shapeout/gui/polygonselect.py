@@ -102,7 +102,7 @@ class LineDrawerWindow(wx.Frame):
         
         # Index all events and allow to hover above them to see the images
         self.event_indices = []
-        my_plot = aplot.plots["my_plot"][0]
+        my_plot = aplot.plots["scatter_events"][0]
         # Set up the trait handler for the selection
         id_ds = my_plot.index
 

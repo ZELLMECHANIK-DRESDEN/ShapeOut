@@ -1,7 +1,9 @@
 0.6.2
 - Bugfixes:
-  - Windows: Saving session on different drive than data causes ValueError.
-  - Memory leak: re-plotting scatter plots (`ControlPanel.OnChangeFilter`)
+  - Windows: Saving session on different drive than data causes ValueError
+  - Memory leak: Re-plotting scatter plots (`ControlPanel.OnChangeFilter`)
+  - Handle plots where all events are filtered correctly
+  - Scatter plots: False filtered events shown in gray
 0.6.1
 - Load session: Allow user to select missing data files (#80)
 - Sessions: Store relative paths in index file for user convenience (#80)

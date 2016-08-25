@@ -272,18 +272,17 @@ def set_scatter_data(plot, mm):
 
 
     # Plot filtered data in grey
-    if (plotfilters["Scatter Plot Excluded Events"] and
-        mm._filter.sum() != mm.time.shape[0]):
-        # determine the number of points we are allowed to add
-        if downsampling:
-            # respect the maximum limit of plotted events
-            excl_num = int(downsample_events - np.sum(mm._filter))
-        else:
-            # plot all excluded events
-            excl_num = np.sum(~mm._filter)
-
-        if excl_num > 0:
-            excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
-            excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
-            pd.set_data("excl_index", excl_x)
-            pd.set_data("excl_value", excl_y)
+    mm.ApplyFilter()
+    # determine the number of points we are allowed to add
+    if downsampling:
+        # respect the maximum limit of plotted events
+        excl_num = int(downsample_events - np.sum(mm._filter))
+    else:
+        # plot all excluded events
+        excl_num = np.sum(~mm._filter)
+    if excl_num > 0:
+        excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
+        excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
+        pd.set_data("excl_index", excl_x)
+        pd.set_data("excl_value", excl_y)
+        
