@@ -134,7 +134,8 @@ def scatter_plot(measurement,
         plot_kwargs["type"] = "cmap_scatter"
         plot_kwargs["color_mapper"] = ca.jet
 
-    scatter_plot.plot(**plot_kwargs)
+    if pd.get_data("index") is not None:
+        scatter_plot.plot(**plot_kwargs)
 
     # Excluded events
     if (plotfilters["Scatter Plot Excluded Events"] and
@@ -144,7 +145,8 @@ def scatter_plot(measurement,
         plot_kwargs_excl["data"] = ("excl_index", "excl_value")
         plot_kwargs_excl["type"] = "scatter"
         plot_kwargs_excl["color"] = 0x929292
-        scatter_plot.plot(**plot_kwargs_excl)
+        if pd.get_data("excl_index") is not None:
+            scatter_plot.plot(**plot_kwargs_excl)
 
     # Set x-y limits
     xlim = scatter_plot.index_mapper.range
@@ -269,7 +271,6 @@ def set_scatter_data(plot, mm):
     pd.set_data("index", x)
     pd.set_data("value", y)
     pd.set_data("color", density)
-
 
     # Plot filtered data in grey
     mm.ApplyFilter()
