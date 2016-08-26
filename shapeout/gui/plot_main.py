@@ -275,16 +275,19 @@ class MainPlotArea(wx.Panel):
 
         if action:
             # Get the cell and plot it
-            dataset = self.scatter2measure[thisplotselect]
+            mm = self.scatter2measure[thisplotselect]
+            mm.GetDownSampledScatter()
             # these are all cells that were plotted
-            plotfilterid = np.where(dataset._plot_filter)[0]
+            # (not neccessarily *all* cells that were filtered away)
+            plotfilterid = np.where(mm._plot_filter)[0]
+            # these are all the filtered cells
+            filterid = np.where(mm._filter)[0]
+            
             # this is the plot selection
             plot_sel = plotfilterid[thissel]
-            # these are all the filtered cells
-            filterid = np.where(dataset._filter)[0]
             actual_sel = filterid[plot_sel]
             
-            mm_id = self.analysis.measurements.index(dataset)
+            mm_id = self.analysis.measurements.index(mm)
             self.frame.ImageArea.ShowEvent(mm_id=mm_id, evt_id=actual_sel)
 
         if not thisplothover is None:
