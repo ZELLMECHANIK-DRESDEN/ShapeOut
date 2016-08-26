@@ -281,9 +281,9 @@ def set_scatter_data(plot, mm):
     else:
         # plot all excluded events
         excl_num = np.sum(~mm._filter)
-    if excl_num > 0:
-        excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
-        excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
-        pd.set_data("excl_index", excl_x)
-        pd.set_data("excl_value", excl_y)
+
+    excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
+    excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
+    pd.set_data("excl_index", excl_x)
+    pd.set_data("excl_value", excl_y)
         

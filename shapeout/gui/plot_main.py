@@ -15,7 +15,7 @@ import wx.lib.agw.flatnotebook as fnb
 
 from .. import tlabwrap
 from . import plot_scatter
-
+from . import plot_contour
 
 class PlotNotebook(fnb.FlatNotebook):
     """
@@ -84,8 +84,6 @@ class MainPlotArea(wx.Panel):
         
         anal = self.analysis
         
-        xax, yax = anal.GetPlotAxes()
-        
         rows, cols, lcc, lll = anal.GetPlotGeometry()
         
         numplots = rows * cols
@@ -115,9 +113,7 @@ class MainPlotArea(wx.Panel):
                 #k = i + j*rows
                 if (i == cols-1 and j == 0 and lcc == 1):
                     # Contour plot in upper right corner
-                    aplot = tlabwrap.CreateContourPlot(anal.measurements,
-                                                       xax=xax, yax=yax,
-                                                       levels=[0.5,0.95])
+                    aplot = plot_contour.contour_plot(anal.measurements)
                     range_joined.append(aplot)
                 elif (i == cols-1 and j == 1 and lll == 1):
                     # Legend plot below contour plot

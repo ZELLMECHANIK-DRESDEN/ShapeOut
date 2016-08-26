@@ -23,6 +23,9 @@ from .. import lin_mix_mod
 
 from .polygonselect import LineDrawerWindow
 from . import plot_scatter
+from . import plot_contour
+
+
 
 class FlatNotebook(wx.Notebook):
     """
@@ -156,11 +159,15 @@ class ControlPanel(ScrolledPanel):
         #  each update, which caused a memory leak)
         plot_window = self.frame.PlotArea.mainplot.plot_window
         plots = plot_window.component.components
-        for mm in self.analysis.measurements:
-            for plot in plots:
+        for plot in plots:
+            for mm in self.analysis.measurements:
                 if plot.id == mm.identifier:
                     plot_scatter.set_scatter_data(plot, mm)
                     plot_scatter.reset_inspector(plot)
+            
+            if plot.id == "ShapeOut_contour_plot":
+                plot_contour.set_contour_data(plot, self.analysis.measurements)
+
 
         self.UpdatePages()
         wx.EndBusyCursor()
