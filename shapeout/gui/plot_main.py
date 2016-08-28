@@ -13,7 +13,6 @@ import platform
 import wx
 import wx.lib.agw.flatnotebook as fnb
 
-from .. import tlabwrap
 from . import plot_scatter
 from . import plot_contour
 from . import plot_legend

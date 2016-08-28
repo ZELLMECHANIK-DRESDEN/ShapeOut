@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - Analyis class
+""" ShapeOut - Analysis class
 
 """
 from __future__ import division, unicode_literals
@@ -49,6 +49,7 @@ class Analysis(object):
         else:
             raise ValueError("Argument not an index file or list of"+\
                              " .tdms files: {}".format(data))
+
 
     def _ImportDumped(self, indexname, search_path="./"):
         """ Loads data from index file as saved using `self.DumpData`.
@@ -99,7 +100,8 @@ class Analysis(object):
             
             mm.UpdateConfiguration(cfg)
             self.measurements.append(mm)
-            
+
+
     @staticmethod
     def compute_mode(data):
         """ Compute an intelligent value for the mode
@@ -136,7 +138,7 @@ class Analysis(object):
         mode = u[np.argmax(np.bincount(indices))]
         
         return mode
-        
+
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
         """ Dumps all the data from the analysis to a `directory`
@@ -212,6 +214,7 @@ class Analysis(object):
                                             "PolygonFilters.poly"))
         return indexname
 
+
     def ForceSameDataSize(self):
         """
         Force all measurements to have the same filtered size by setting
@@ -231,7 +234,8 @@ class Analysis(object):
         cfgnew = {"Filtering":{"Limit Events":minsize}}
         self.SetParameters(cfgnew)
         return minsize
-        
+
+
     def GetCommonParameters(self, key):
         """
         For as key (e.g. "Filtering") find all parameters that are given
@@ -247,11 +251,13 @@ class Analysis(object):
                 retdict[item[0]] = item[1]
         return retdict
 
+
     def GetContourColors(self):
         colors = list()
         for mm in self.measurements:
             colors.append(mm.Configuration["Plotting"]["Contour Color"])
         return colors
+
 
     def GetNames(self):
         """ Returns the names of all measurements """
@@ -260,15 +266,18 @@ class Analysis(object):
             names.append(mm.name)
         return names
 
+
     def GetPlotAxes(self, mid=0):
         #return 
         p = self.GetParameters("Plotting", mid)
         return [p["Axis X"], p["Axis Y"]]
 
+
     def GetPlotGeometry(self, mid=0):
         p = self.GetParameters("Plotting", mid)
         return (int(p["Rows"]), int(p["Columns"]),
                 int(p["Contour Plot"]), int(p["Legend Plot"]))
+
 
     def GetStatisticsBasic(self):
         """
@@ -320,11 +329,13 @@ class Analysis(object):
         
         return head, datalist
 
+
     def GetTDMSFilenames(self):
         names = list()
         for mm in self.measurements:
             names.append(mm.tdms_filename)
         return names
+
 
     def GetTitles(self):
         """ Returns the titles of all measurements """
@@ -332,6 +343,7 @@ class Analysis(object):
         for mm in self.measurements:
             titles.append(mm.title)
         return titles
+
 
     def GetUncommonParameters(self, key):
         # Get common parameters first:
@@ -362,6 +374,7 @@ class Analysis(object):
                           "Measurement {} might be corrupt!".format(m.name))
                 retdict[item[0]] = vals
         return retdict        
+
 
     def GetUnusableAxes(self):
         """ 
@@ -401,6 +414,7 @@ class Analysis(object):
                 usable.append(ax)
         return usable
 
+
     def GetParameters(self, key, mid=0, filter_for_humans=True):
         """ Get parameters that all measurements share.
         """
@@ -428,6 +442,7 @@ class Analysis(object):
                 mm.PolygonFilterRemove(filt)
             except ValueError:
                 pass
+
 
     def SetContourAccuracies(self, points=70):
         """ Set initial (heuristic) accuracies for all plots.
@@ -525,6 +540,7 @@ class Analysis(object):
         # update configuration
         for i in range(len(self.measurements)):
             self.measurements[i].UpdateConfiguration(newcfg)
+
 
 
 def darkjet(myrange, **traits):
