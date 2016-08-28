@@ -14,7 +14,6 @@ from . import misc
 from ..tlabwrap import isoelastics
 
 
-
 def reset_inspector(plot):
     """ Hides the scatter inspector until the user clicks again.
     """

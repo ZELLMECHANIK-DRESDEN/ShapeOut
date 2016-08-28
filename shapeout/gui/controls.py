@@ -7,14 +7,14 @@ from __future__ import division, print_function
 
 import numpy as np
 import tempfile
-import warnings
 import webbrowser
 
 import wx
 import wx.grid as gridlib
-import wx.lib.flatnotebook as fnb
 import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
+
+import dclab
 
 from ..configuration import ConfigurationFile
 from .. import tlabwrap
@@ -33,14 +33,7 @@ class FlatNotebook(wx.Notebook):
     """
     def __init__(self, parent):
         """Constructor"""
-        style = fnb.FNB_RIBBON_TABS|\
-                fnb.FNB_TABS_BORDER_SIMPLE|fnb.FNB_NO_X_BUTTON|\
-                fnb.FNB_NO_NAV_BUTTONS|fnb.FNB_NODRAG
-        # Bugfix for Mac
-        #if platform.system().lower() in ["windows", "linux"]:
-        #    style = style|fnb.FNB_HIDE_ON_SINGLE_TAB
-        self.fnb = wx.Notebook.__init__(self, parent, wx.ID_ANY,
-                                             )#agwStyle=style)
+        self.fnb = wx.Notebook.__init__(self, parent, wx.ID_ANY)
 
 
 class ControlPanel(ScrolledPanel):
@@ -232,7 +225,7 @@ class ControlPanel(ScrolledPanel):
 
     def OnPolygonFilter(self, result):
         """ Called by polygon Window """
-        tlabwrap.PolygonFilter(points=result["points"],
+        dclab.PolygonFilter(points=result["points"],
                                axes=result["axes"])
         # update list of polygon filters
         self.UpdatePages()
@@ -844,7 +837,7 @@ class SubPanelFilter(SubPanel):
         plotsizer.Add(cbg)
 
         # htree control for polygon filter selection
-        pol_filters = tlabwrap.PolygonFilter.instances
+        pol_filters = dclab.PolygonFilter.instances
 
         htreectrl = HT.HyperTreeList(self, name="Polygon Filter Selection",
                 agwStyle=wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|\
@@ -958,8 +951,8 @@ class SubPanelFilter(SubPanel):
         if ch is None:
             return
         unique_id = ch.GetData()
-        p = tlabwrap.PolygonFilter.get_instance_from_id(unique_id)
-        tlabwrap.PolygonFilter(points=p.points, axes=p.axes)
+        p = dclab.PolygonFilter.get_instance_from_id(unique_id)
+        dclab.PolygonFilter(points=p.points, axes=p.axes)
         self.UpdatePanel()
 
     def OnPolygonExport(self, e=None, export_all=False):
@@ -984,14 +977,14 @@ class SubPanelFilter(SubPanel):
             fname += ".poly"
         if not export_all:
             unique_id = ch.GetData()
-            p = tlabwrap.PolygonFilter.get_instance_from_id(unique_id)
+            p = dclab.PolygonFilter.get_instance_from_id(unique_id)
             p.save(fname)
         else:
             # export all
-            tlabwrap.PolygonFilter.save_all(fname)
+            dclab.PolygonFilter.save_all(fname)
 
     def OnPolygonExportAll(self, e=None):
-        if len(tlabwrap.PolygonFilter.instances) != 0:
+        if len(dclab.PolygonFilter.instances) != 0:
             self.OnPolygonExport(export_all=True)
 
     def OnPolygonHtreeChecked(self, e=None):
@@ -1041,7 +1034,7 @@ class SubPanelFilter(SubPanel):
             return # nothing more to do here
         if not fname.endswith(".poly"):
             fname += ".poly"
-        tlabwrap.PolygonFilter.import_all(fname)
+        dclab.PolygonFilter.import_all(fname)
         self.UpdatePanel()
 
     def OnPolygonRemove(self, e=None):
@@ -1049,7 +1042,7 @@ class SubPanelFilter(SubPanel):
         if ch is None:
             return
         unique_id = ch.GetData()
-        tlabwrap.PolygonFilter.remove(unique_id)
+        dclab.PolygonFilter.remove(unique_id)
         self.analysis.PolygonFilterRemove(unique_id)
         c.Delete(ch)
         self.funcparent.frame.PlotArea.Plot(self.analysis)

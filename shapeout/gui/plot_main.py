@@ -16,6 +16,7 @@ import wx.lib.agw.flatnotebook as fnb
 from .. import tlabwrap
 from . import plot_scatter
 from . import plot_contour
+from . import plot_legend
 
 class PlotNotebook(fnb.FlatNotebook):
     """
@@ -117,7 +118,7 @@ class MainPlotArea(wx.Panel):
                     range_joined.append(aplot)
                 elif (i == cols-1 and j == 1 and lll == 1):
                     # Legend plot below contour plot
-                    aplot = tlabwrap.CreateLegendPlot(anal.measurements)
+                    aplot = plot_legend.legend_plot(anal.measurements)
                     legend_plotted = True
                 elif c_plot < maxplots:
                     # Scatter Plot
@@ -135,7 +136,7 @@ class MainPlotArea(wx.Panel):
                     self.index_datasources.append((aplot, id_ds))
                 elif (not legend_plotted and lll == 1 and rows == 1) :
                     # Legend plot in next free window
-                    aplot = tlabwrap.CreateLegendPlot(anal.measurements)
+                    aplot = plot_legend.legend_plot(anal.measurements)
                     legend_plotted = True
                 else:
                     # dummy plot

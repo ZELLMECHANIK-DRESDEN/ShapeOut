@@ -19,7 +19,6 @@ import tempfile
 import traceback
 import warnings
 import wx
-from wx.lib.scrolledpanel import ScrolledPanel
 
 import zipfile
 
@@ -28,6 +27,7 @@ from ..util import findfile
 from .controls import ControlPanel
 from .explorer import ExplorerPanel
 import gaugeframe
+from .. import analysis
 from .. import tlabwrap
 from . import update
 from . import plot_main
@@ -377,7 +377,7 @@ class Frame(gaugeframe.GaugeFrame):
     def NewAnalysis(self, data, search_path="./"):
         """ Create new analysis object and show data """
         wx.BeginBusyCursor()
-        anal = tlabwrap.Analysis(data, search_path=search_path)
+        anal = analysis.Analysis(data, search_path=search_path)
         # Get Plotting and Filtering parameters from previous analysis
         if hasattr(self, "analysis"):
             fpar = self.analysis.GetParameters("Filtering")
@@ -388,12 +388,10 @@ class Frame(gaugeframe.GaugeFrame):
             anal.SetParameters(newcfg)
             # reset contour accuracies
             anal.SetContourAccuracies()
-            # set contour colors
+            # set default contour colors
             anal.SetContourColors()
-            # Automatically reset colors
-            #print(anal.measurements[0].Configuration["Plotting"]["Contour Color"])
-
-            # remember contour colors
+            # set contour colors with previous colors
+            # - only works if len(colors) matches number of measurements
             colors = self.analysis.GetContourColors()
             anal.SetContourColors(colors)
         self.analysis = anal
@@ -734,7 +732,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 del item.analysis
 
         # check session integrity
-        messages = tlabwrap.session_check_index(indexfile, search_path=dirname)
+        messages = analysis.session_check_index(indexfile, search_path=dirname)
         
         while len(messages["missing tdms"]):
             # There are missing tdms files. We need to modify the extracted
@@ -790,7 +788,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             wx.EndBusyCursor()
 
             # Update the extracted index file.
-            tlabwrap.session_update_index(indexfile, updict)
+            analysis.session_update_index(indexfile, updict)
         
         self.NewAnalysis(indexfile, search_path=dirname)
 
