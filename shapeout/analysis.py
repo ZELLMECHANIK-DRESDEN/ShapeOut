@@ -14,6 +14,7 @@ import os
 import warnings
 
 # dclab imports
+import dclab
 from dclab.rtdc_dataset import SaveConfiguration, RTDC_DataSet
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
@@ -100,44 +101,6 @@ class Analysis(object):
             
             mm.UpdateConfiguration(cfg)
             self.measurements.append(mm)
-
-
-    @staticmethod
-    def compute_mode(data):
-        """ Compute an intelligent value for the mode
-        
-        The most common value in experimental is not very useful if there
-        are a lot of digits after the comma. This method approaches this
-        issue by rounding to bin size that is determined by the
-        Freedman–Diaconis rule.
-        
-        Parameters
-        ----------
-        data : 1d ndarray
-            The data for which the mode should be computed.
-        
-        Returns
-        -------
-        mode : float
-            The mode computed with the Freedman-Diaconis rule.
-        """
-        # size
-        n = data.shape[0]
-        # interquartile range
-        iqr = np.percentile(data, 75)-np.percentile(data, 25)
-        # Freedman–Diaconis
-        bin_size = 2 * iqr / n**(1/3)
-        
-        if bin_size == 0:
-            return np.nan
-        
-        # Add bin_size/2, because we want the center of the bin and
-        # not the left corner of the bin.
-        databin = np.round(data/bin_size)*bin_size + bin_size/2
-        u, indices = np.unique(databin, return_inverse=True)
-        mode = u[np.argmax(np.bincount(indices))]
-        
-        return mode
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
@@ -284,49 +247,19 @@ class Analysis(object):
         Computes Mean, Avg, etc for all data sets and returns two lists:
         The headings and the values.
         """
-        columns_once = [ #these are applied to mm
-                        ["Events", lambda mm: np.sum(mm._filter)],
-                       ]
-        columns = [
-                   ["Mean", np.average],
-                   ["SD", np.std],
-                   ["Mode", Analysis.compute_mode],
-                   ["Median", np.median],
-                   ]
-        # heading
-        head = ["Data set"]
-
-        for co in columns_once:
-            head += [co[0]]
-
-        for ax in self.measurements[0].GetPlotAxes():
-            for c in columns:
-                head += [" ".join([_(c[0]), _(ax)])+"  "]
-        
-
-        datalist = list()
-        # loop through measurements
+        datalist = []
+        head = None
         for mm in self.measurements:
-            mmlist = list()
-            mmlist.append(mm.title)
-            for co in columns_once:
-                mmlist.append(co[1](mm))
-            # loop through plotted axes
-            for ax in mm.GetPlotAxes():
-                if mm.Configuration["Filtering"]["Enable Filters"]:
-                    x = getattr(mm, dfn.cfgmaprev[ax])[mm._filter]
-                else:
-                    # filtering disabled
-                    x = getattr(mm, dfn.cfgmaprev[ax])
-                # compute variable and add to datalist
-                for c in columns:
-                    try:
-                        value = c[1](x)
-                    except IndexError:
-                        value = np.nan
-                    mmlist.append(value)
-            datalist.append(mmlist)
-        
+            axes = mm.GetPlotAxes()
+            h, v = dclab.statistics.get_statistics(mm, axes=axes)
+            # Make sure all columns are equal
+            if head is not None:
+                assert head == h, "'{}' has wrong columns!".format(mm.title)
+            else:
+                head = h
+            datalist.append([mm.title]+v)
+            
+        head = ["Data set"] + head
         return head, datalist
 
 
