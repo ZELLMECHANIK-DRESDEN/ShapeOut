@@ -9,6 +9,7 @@ import chaco
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
 from chaco.api import PlotGraphicsContext
 
+import codecs
 import cv2
 import numpy as np
 import os
@@ -691,7 +692,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             if path.lower().endswith(".tsv") is not True:
                 path = path+".tsv"
             self.config.SetWorkingDirectory(os.path.dirname(path), "TSV")
-            with open(path, 'w') as fd:
+            with codecs.open(path, 'w', encoding="utf-8") as fd:
                 fd.writelines(exp)
 
 
