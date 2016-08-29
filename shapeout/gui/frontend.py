@@ -32,6 +32,7 @@ from . import plot_main
 from . import misc
 from . import video
 from . import export
+from . import batch
 from . import plot_export
 
 ########################################################################
@@ -139,6 +140,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         ## Menubar
         self.menubar = wx.MenuBar()
+        self.SetMenuBar(self.menubar)
         
         ## File menu
         fileMenu = wx.Menu()
@@ -186,9 +188,14 @@ class Frame(gaugeframe.GaugeFrame):
         e2stat = exportMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
                        _('Export the statistics data as tab-separated values'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
-        
-        self.SetMenuBar(self.menubar)
 
+        ## Batch menu
+        batchMenu = wx.Menu()
+        self.menubar.Append(batchMenu, _('&Batch'))
+        b_filter = batchMenu.Append(wx.ID_ANY, _('Filter &folder'), 
+                    _('Apply one filter setting to multiple measurements.'))
+        self.Bind(wx.EVT_MENU, self.OnMenuBatchFolder, b_filter)
+        
         ## Help menu
         helpmenu = wx.Menu()
         self.menubar.Append(helpmenu, _('&Help'))
@@ -353,6 +360,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         text += mtext
         
         wx.MessageBox(text, 'Software', wx.OK|wx.ICON_INFORMATION)
+
+
+    def OnMenuBatchFolder(self, e=None):
+        batch.BatchFilterFolder(self, self.analysis)
 
 
     def OnMenuClearMeasurements(self, e=None):

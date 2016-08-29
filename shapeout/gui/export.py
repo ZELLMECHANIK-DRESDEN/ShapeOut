@@ -44,7 +44,7 @@ class ExportAnalysisEventsTSV(wx.Frame):
                     checks.append(tlabwrap.dfn.cfgmap[c])
         checks = list(set(checks))
         checks.sort()
-        self.box = wx.StaticBox(self.panel, label=_("Columns"))
+        self.box = wx.StaticBox(self.panel, label=_("Axes"))
         self.sizerin = wx.StaticBoxSizer(self.box, wx.VERTICAL)
         # get longest text of checks
         dc = wx.ScreenDC()
@@ -60,10 +60,10 @@ class ExportAnalysisEventsTSV(wx.Frame):
             if c in self.analysis.GetPlotAxes():
                 cb.SetValue(True)
         self.topSizer.Add(self.sizerin)
-        btnbrws = wx.Button(self.panel, wx.ID_CLOSE, _("Save to directory"))
+        btnbrws = wx.Button(self.panel, wx.ID_ANY, _("Save to directory"))
         # Binds the button to the function - close the tool
         self.Bind(wx.EVT_BUTTON, self.OnBrowse, btnbrws)
-        self.topSizer.Add(btnbrws)
+        self.topSizer.Add(btnbrws, 0, wx.EXPAND)
         self.panel.SetSizer(self.topSizer)
         self.topSizer.Fit(self)
         self.SetMinSize(self.topSizer.GetMinSizeTuple())
