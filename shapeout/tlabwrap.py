@@ -184,7 +184,7 @@ def GetTDMSTreeGUI(directories):
             if pathdict.has_key(path):
                 i = pathdict[path]
             else:
-                treelist.append(list())
+                treelist.append([])
                 i = len(treelist)-1
                 pathdict[path] = i
                 # The first element of a tree contains the measurement name

@@ -192,7 +192,7 @@ class Frame(gaugeframe.GaugeFrame):
         ## Batch menu
         batchMenu = wx.Menu()
         self.menubar.Append(batchMenu, _('&Batch'))
-        b_filter = batchMenu.Append(wx.ID_ANY, _('Filter &folder'), 
+        b_filter = batchMenu.Append(wx.ID_ANY, _('&Statistical analysis'), 
                     _('Apply one filter setting to multiple measurements.'))
         self.Bind(wx.EVT_MENU, self.OnMenuBatchFolder, b_filter)
         

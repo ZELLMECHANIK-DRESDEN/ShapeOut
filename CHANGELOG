@@ -1,6 +1,7 @@
 0.6.2
+- Add batch filter processing
 - Move statistics computation to dclab (0.1.7dev12):
-  - New columns "Flow rate", "%-gated"
+  - New columns: "Flow rate", "%-gated"
 - Bugfixes:
   - Windows: Saving session on different drive than data causes ValueError
   - Memory leak: Re-plotting scatter plots (`ControlPanel.OnChangeFilter`)

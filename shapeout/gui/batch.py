@@ -5,19 +5,24 @@
 """
 from __future__ import division, print_function
 
+import codecs
 import numpy as np
 import os
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
 import dclab
+from .. import analysis
 from .. import tlabwrap
+
 
 
 class BatchFilterFolder(wx.Frame):
     def __init__(self, parent, analysis):
         self.parent = parent
         self.analysis = analysis
+        self.out_tsv_file = None
+        self.tdms_files = None
         self.axes_panel_sizer = None
         # Get the window positioning correctly
         pos = self.parent.GetPosition()
@@ -30,7 +35,9 @@ class BatchFilterFolder(wx.Frame):
         # init
         self.topSizer.Add(
             wx.StaticText(panel,
-            label=_("Applies one filter to all measurements within a folder."))
+            label=_("Apply the filter setting of one measurement\n"+\
+                    "to all measurements within a folder and\n"+\
+                    "save selected statistical parameters."))
             )
         self.topSizer.AddSpacer(10)
         ## Filter source selection
@@ -45,7 +52,7 @@ class BatchFilterFolder(wx.Frame):
         # Create the dropdownlist
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioHere, self.rbtnhere)
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioThere, self.rbtnthere)
-        self.Bind(wx.EVT_COMBOBOX, self.OnUpdateAxes, self.dropdown)
+        self.Bind(wx.EVT_COMBOBOX, self.OnSelectMeasurement, self.dropdown)
         leftSizer = wx.StaticBoxSizer(boxleft, wx.VERTICAL)
         leftSizer.Add(self.rbtnhere)
         leftSizer.Add(self.rbtnthere)
@@ -61,7 +68,7 @@ class BatchFilterFolder(wx.Frame):
         # Binds the button to the function - close the tool
         self.Bind(wx.EVT_BUTTON, self.OnBrowse, btnbrws)
         self.WXfold_text1 = wx.StaticText(panel,
-                                          label="Please select a folder.")
+                            label=_("Folder containing RT-DC measurements"))
         self.WXfold_text2 = wx.StaticText(panel, label="")
         fold2sizer = wx.BoxSizer(wx.HORIZONTAL)
         fold2sizer.Add(btnbrws)
@@ -86,6 +93,23 @@ class BatchFilterFolder(wx.Frame):
         self.topSizer.Add(self.stat_panel, 1, wx.EXPAND)
         self.SetupStatisticalParameters()
 
+        ## Output selection
+        boxtsv = wx.StaticBox(panel, label=_("Output file"))
+        tsvSizer = wx.StaticBoxSizer(boxtsv, wx.VERTICAL)
+        btnbrwstsv = wx.Button(panel, wx.ID_ANY, _("Browse"))
+        # Binds the button to the function - close the tool
+        self.Bind(wx.EVT_BUTTON, self.OnBrowseTSV, btnbrwstsv)
+        self.WXtsv_text1 = wx.StaticText(panel,
+                               label=_("Results of statistical analysis"))
+        tsv2sizer = wx.BoxSizer(wx.HORIZONTAL)
+        tsv2sizer.Add(btnbrwstsv)
+        tsv2sizer.Add(self.WXtsv_text1, 0,
+                      wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+        tsvSizer.AddSpacer(5)
+        tsvSizer.Add(tsv2sizer, 0,
+                     wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALL)
+        self.topSizer.Add(tsvSizer, 0, wx.EXPAND)
+
         ## Batch button
         btnbatch = wx.Button(self.panel, wx.ID_ANY, _("Perform batch filtering"))
         # Binds the button to the function - close the tool
@@ -106,8 +130,63 @@ class BatchFilterFolder(wx.Frame):
 
 
     def OnBatch(self, e=None):
-        # TODO:
-        pass
+        wx.BeginBusyCursor()
+        # Get selected axes
+        axes = []
+        for ch in self.axes_panel.GetChildren():
+            if (isinstance(ch, wx._controls.CheckBox) and 
+                ch.IsChecked()):
+                name = ch.GetName()
+                if name in dclab.dfn.uid:
+                    axes.append(name)
+        # Get selected columns
+        col_dict = dclab.statistics.Statistics.available_methods
+        columns = []
+        for ch in self.stat_panel.GetChildren():
+            if (isinstance(ch, wx._controls.CheckBox) and 
+                ch.IsChecked()):
+                name = ch.GetName()
+                if name in col_dict:
+                    columns.append(name)
+        
+        # Get filter configuration of selected measurement
+        if self.rbtnhere.GetValue():
+            mhere = self.analysis.measurements[self.dropdown.GetSelection()] 
+            f_config = mhere.Configuration
+        
+        # Make analysis from tdms files
+        anal = analysis.Analysis(self.tdms_files)
+        # Apply configuration
+        [ mm.UpdateConfiguration(f_config) for mm in anal.measurements ]
+        # Apply filters
+        [ mm.ApplyFilter() for mm in anal.measurements ]
+        
+        # Compute statistics
+        head = None
+        rows = []
+        for mm in anal.measurements:
+            h, v = dclab.statistics.get_statistics(rtdc_ds=mm,
+                                                   columns=columns,
+                                                   axes=axes)
+            if head is None:
+                head = h
+            else:
+                assert h==head, "Problem with available columns/axes!"
+            
+            rows.append([mm.tdms_filename, mm.title]+v)
+        
+        head = ["TDMS file", "Title"] + head
+        
+        with codecs.open(self.out_tsv_file, "w", encoding="utf-8") as fd:
+            header = u"\t".join([ h for h in head ])
+            fd.write("# "+header+"\n")
+        
+        with open(self.out_tsv_file, "ab") as fd:
+            for row in rows:
+                fmt=["{:s}"]*2+["{:.10e}"]*len(v)
+                line="\t".join(fmt).format(*row)
+                fd.write(line+"\n")
+        wx.EndBusyCursor()
 
 
     def OnBrowse(self, e=None):
@@ -116,21 +195,49 @@ class BatchFilterFolder(wx.Frame):
         """
         # make directory dialog
         dlg2 = wx.DirDialog(self,
-                message=_("Please select directory containing measuremetns"),
+                message=_("Please select directory containing measurements"),
                 defaultPath=self.parent.config.GetWorkingDirectory("BatchFD"),
                 style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
             thepath = dlg2.GetPath()
+        else:
+            thepath = None
+        dlg2.Destroy()
+        wx.Yield()
+        if thepath is not None:
+            wx.BeginBusyCursor()
             self.WXfold_text1.SetLabel(thepath)
             self.parent.config.SetWorkingDirectory(thepath, "BatchFD")
             # Search directory
-            wx.BeginBusyCursor()
             tree, _cols = tlabwrap.GetTDMSTreeGUI(thepath)
+            self.WXfold_text2.SetLabel(_("Found {} measurement(s).").
+                                       format(len(tree)))
+            self.tdms_files = [ t[1][1] for t in tree]
+            
+            if self.out_tsv_file is not None:
+                self.btnbatch.Enable()
             wx.EndBusyCursor()
-            self.WXfold_text2.SetLabel(_("Found {} measurements.").
-                                       format(len(tree[0][0])))
-            self.measurements = tree[0][0]
+        
+
+
+    def OnBrowseTSV(self, e=None):
+        dlg2 = wx.FileDialog(self,
+                message=_("Please select an output file."),
+                defaultDir=self.parent.config.GetWorkingDirectory("BatchOut"),
+                style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT,
+                wildcard=_("TSV files")+" (*.tsv)|*.tsv")
+        
+        if dlg2.ShowModal() == wx.ID_OK:
+            thepath = dlg2.GetPath()
+            if not thepath.endswith(".tsv"):
+                thepath+=".tsv"
+            self.WXtsv_text1.SetLabel(thepath)
+            thedir = os.path.dirname(thepath)
+            self.parent.config.SetWorkingDirectory(thedir, "BatchOut")
+            self.out_tsv_file = thepath
+        
+        if self.tdms_files is not None:
             self.btnbatch.Enable()
 
     
@@ -138,15 +245,16 @@ class BatchFilterFolder(wx.Frame):
         meas = [ mm.title for mm in self.analysis.measurements ]
         self.dropdown.SetItems(meas)
         self.dropdown.SetSelection(0)
-        self.OnUpdateAxes()
+        self.OnSelectMeasurement()
         
 
     def OnRadioThere(self, e=None):
         print("there")
         self.OnUpdateAxes()
+        self.filter_config = None
         
     
-    def OnUpdateAxes(self, e=None):
+    def OnSelectMeasurement(self, e=None):
         ## Remove initial stuff
         sizer = self.axes_panel_sizer
         panel = self.axes_panel
