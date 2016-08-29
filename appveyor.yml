@@ -119,9 +119,9 @@ test_script:
   - 'python -c "import shapeout; print shapeout.__version__"'
   - "pip install coverage"
   - "pip install coveralls"
-  - "coverage run --source=shapeout ./setup.py test"
-  - "coverage report -m"
-  - "coveralls --verbose"
+  #- "coverage run --source=shapeout ./setup.py test"
+  #- "coverage report -m"
+  #- "coveralls --verbose"
 
 after_test:
   # If tests are successful, create a whl package for the project.
