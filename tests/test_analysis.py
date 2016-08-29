@@ -14,7 +14,7 @@ from shapeout import analysis
 from helper_methods import retreive_tdms, example_data_sets
 
 
-def test_basic():
+def _test_basic():
     f = retreive_tdms(example_data_sets[0])
     anal = analysis.Analysis([f])
     
