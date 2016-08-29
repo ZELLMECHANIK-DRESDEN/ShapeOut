@@ -46,7 +46,7 @@ if __name__ == "__main__":
         install_requires=["dclab", "NumPy>=1.7.0", "SciPy>=0.10.0",
                           "pyper"],
         setup_requires=['pytest-runner'],
-        tests_require=["pytest"],
+        tests_require=["pytest", "urllib3"],
         keywords=["RTDC", "cytometry"],
         classifiers= [
             'Operating System :: OS Independent',
