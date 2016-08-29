@@ -18,7 +18,7 @@ def test_basic():
     f = retreive_tdms(example_data_sets[0])
     anal = analysis.Analysis([f])
     
-    assert len(anal) == 1
+    assert len(anal.measurements) == 1
 
 
 
