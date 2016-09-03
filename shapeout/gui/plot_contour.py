@@ -149,13 +149,13 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
 
 
     for ii, mm in enumerate(measurements):
-        cname = "con_{}_{}_{}".format(mm.name, mm.file_hashes[0][1], ii)
+        cname = "con_{}_{}_{}".format(mm.name, mm.identifier, ii)
         if cname in plot.plots:
             plot.delplot(cname)
 
         (X,Y,density) = mm.GetKDE_Contour(yax=yax, xax=xax)
         pd.set_data(cname, density)
-        
+  
         plev = [np.max(density)*i for i in levels]
 
         if len(plev) == 2:

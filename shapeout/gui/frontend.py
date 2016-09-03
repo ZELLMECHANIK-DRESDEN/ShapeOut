@@ -7,7 +7,6 @@ from __future__ import division, print_function
 
 import chaco
 
-import codecs
 import cv2
 import numpy as np
 import os
@@ -17,8 +16,9 @@ import sys
 import tempfile
 import traceback
 import wx
-
 import zipfile
+
+import dclab
 
 from ..configuration import ConfigurationFile
 from ..util import findfile
@@ -110,11 +110,14 @@ class Frame(gaugeframe.GaugeFrame):
         # We set this to 100 again after show is complete.
         self.spright.SetMinimumPaneSize(sy)
        
-        # fake analysis
-        self.NewAnalysis([tlabwrap.Fake_RTDC_DataSet(tlabwrap.cfg)])
-       
+        # Fake analysis
+        ddict = {"Area" : np.arange(10)*30,
+                 "Defo" : np.arange(10)*.02}
+        rtdc_ds = dclab.RTDC_DataSet(ddict=ddict)
+        rtdc_ds.Configuration["Plotting"]["Contour Color"] = "white"
+        self.NewAnalysis([rtdc_ds])
+
         ## Go
-        
         self.Centre()
         self.Show()
         self.Maximize()
@@ -261,6 +264,7 @@ class Frame(gaugeframe.GaugeFrame):
         #self.statusbar.Refresh()
         
         self.Bind(wx.EVT_CLOSE, self.OnMenuQuit)
+
 
     def NewAnalysis(self, data, search_path="./"):
         """ Create new analysis object and show data """
