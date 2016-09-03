@@ -49,7 +49,7 @@ class Frame(gaugeframe.GaugeFrame):
     """"""
     def __init__(self, version, session_file=None):
         """Constructor"""
-        self.config = ConfigurationFile()
+        self.config = ConfigurationFile(findfile("shapeout.cfg"))
         self.version = version
         #size = (1300,900)
         size = (1200,700)

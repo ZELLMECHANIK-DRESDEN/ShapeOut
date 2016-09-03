@@ -116,6 +116,7 @@ class Analysis(object):
         
         i = 0
         for mm in self.measurements:
+            assert os.path.exists(mm.tdms_filename), "Can only dump tdms data!"
             i += 1
             ident = "{}_{}".format(i,mm.name)
             # the directory in the session zip file where all information

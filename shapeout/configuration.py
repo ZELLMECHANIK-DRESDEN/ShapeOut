@@ -10,7 +10,7 @@ import codecs
 import os
 from os.path import abspath, dirname, join
 import sys
-import warnings
+
 
 from util import findfile
 
@@ -18,7 +18,9 @@ class ConfigurationFile(object):
     """ A fixed configuration file that will be created upon startup.
     
     """
-    def __init__(self):
+    def __init__(self, path=None):
+        """
+        """
         # get default path of configuration
         shcfg = "shapeout.cfg"
         fname = findfile(shcfg)
@@ -26,7 +28,7 @@ class ConfigurationFile(object):
             # Create the file
             if hasattr(sys, 'frozen'):
                 d = abspath(join(sys._MEIPASS,  # @UndefinedVariable
-                                                       "shapeout-data"))
+                                 "shapeout-data"))
                 self.cfgfile = join(d, shcfg)
             else:
                 self.cfgfile = join(abspath(dirname(__file__)), shcfg)
@@ -66,12 +68,10 @@ class ConfigurationFile(object):
             self.working_directory = wd
             cfgso = self.cfgfile
             path=findfile(cfgso)
-            if path == "":
-                warnings.warn("Could not find configuration file {}.".
-                              format(cfgso))
-            fop = codecs.open(path, 'r', "utf-8")
-            fc = fop.readlines()
-            fop.close()
+            assert path != "", "Configuration not found: "+cfgso
+            with codecs.open(path, 'r', "utf-8") as fop:
+                fc = fop.readlines()
+            # Check if we have already saved it there.
             wdirin = False
             for i in range(len(fc)):
                 if fc[i].startswith("Working Directory "+name):
