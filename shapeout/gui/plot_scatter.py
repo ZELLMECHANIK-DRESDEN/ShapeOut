@@ -106,6 +106,16 @@ def scatter_plot(measurement,
                 scatter_plot.plot((x_key, y_key), color="gray",
                                   index_scale=scalex, value_scale=scaley)
 
+    # Display numer of events
+    elabel = ca.PlotLabel(text="",
+                          component=scatter_plot,
+                          vjustify="bottom",
+                          hjustify="right",
+                          name="asd")
+    elabel.id = "event_label_"+mm.identifier
+    scatter_plot.overlays.append(elabel)
+
+    # Set content of scatter plot
     set_scatter_data(scatter_plot, mm)
 
     plot_kwargs = {
@@ -177,14 +187,7 @@ def scatter_plot(measurement,
         mmlabelcolor = "black"
     scatter_plot.title_color = mmlabelcolor
 
-    # Display numer of events
-    if plotfilters["Show Events"]:
-        elabel = ca.PlotLabel(text="{} events".format(np.sum(mm._filter)),
-                              component=scatter_plot,
-                              vjustify="bottom",
-                              hjustify="right")
-        scatter_plot.overlays.append(elabel)
-        
+    
     # zoom tool
     if panzoom:
         zoom = cta.ZoomTool(scatter_plot,
@@ -285,4 +288,13 @@ def set_scatter_data(plot, mm):
     excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
     pd.set_data("excl_index", excl_x)
     pd.set_data("excl_value", excl_y)
-        
+    
+    # Update overlays
+    for ol in plot.overlays:
+        if ol.id == "event_label_"+mm.identifier:
+            # Set events label
+            if plotfilters["Show Events"]:
+                oltext = "{} events".format(np.sum(mm._filter))
+            else:
+                oltext = "ads"
+            ol.text = oltext
