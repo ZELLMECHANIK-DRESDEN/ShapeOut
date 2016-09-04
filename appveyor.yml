@@ -23,7 +23,7 @@ notifications:
 
 environment:
   COVERALLS_REPO_TOKEN:
-    secure: 2bt2CXJJ5FWcDCh1rvnlg7hG+rPqIvfovk5s9OKWdwkJUaSyxpMrp//UJra1nkZ4
+    secure: VKD8D19fMJ/e58OPCBA1hd/w+hKeTAG7p7p9GdBmg0h5AL8iPg7R7etd3IdWf9xe
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
