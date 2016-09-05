@@ -12,7 +12,8 @@ import os
 import warnings
 
 from dclab.rtdc_dataset import hashfile
-from dclab import dfn, GetTDMSFiles, GetProjectNameFromPath
+from dclab import GetTDMSFiles, GetProjectNameFromPath
+from dclab import config as dc_config
 
 from util import findfile
 
@@ -189,12 +190,12 @@ def IsFullMeasurement(fname):
 
 
 def GetDefaultConfiguration(key=None):
-    config = dfn.LoadDefaultConfiguration()
-    config = dfn.LoadConfiguration(cfg_file, config)
+    cfg = dc_config.load_default_config()
+    cfg = dc_config.load_config_file(cfg_file, cfg)
     if key is not None:
-        return config[key]
+        return cfg[key]
     else:
-        return config
+        return cfg
 
 
 def GetEvents(fname):
@@ -213,7 +214,7 @@ def GetFlowRate(fname):
     mx = name.split("_")[0]
     stem = os.path.join(path, mx)
     if os.path.exists(stem+"_para.ini"):
-        camcfg = dfn.LoadConfiguration(stem+"_para.ini")
+        camcfg = dc_config.load_config_file(stem+"_para.ini")
         return camcfg["General"]["Flow Rate [ul/s]"]
     else:
         # analyze the filename
@@ -230,7 +231,7 @@ def GetRegion(fname):
     mx = name.split("_")[0]
     stem = os.path.join(path, mx)
     if os.path.exists(stem+"_para.ini"):
-        camcfg = dfn.LoadConfiguration(stem+"_para.ini")
+        camcfg = dc_config.load_config_file(stem+"_para.ini")
         return camcfg["General"]["Region"].lower()
     else:
         return ""
@@ -380,7 +381,7 @@ def SortConfigurationKeys(cfgkeys):
 
 ## Overwrite the tlab configuration with our own.
 cfg_file = findfile("dclab.cfg")
-cfg = dfn.LoadConfiguration(cfg_file, dfn.cfg)
+cfg = dc_config.load_config_file(cfg_file, dc_config.cfg)
 cfg_ordered_list = GetConfigurationKeys(cfg_file)
 
 thispath = os.path.dirname(os.path.realpath(__file__))

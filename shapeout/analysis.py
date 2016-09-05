@@ -15,9 +15,10 @@ import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import SaveConfiguration, RTDC_DataSet
+from dclab.rtdc_dataset import RTDC_DataSet
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
+from dclab import config
 
 from .tlabwrap import IGNORE_AXES
 
@@ -71,7 +72,7 @@ class Analysis(object):
         if os.path.exists(polygonfile):
             PolygonFilter.import_all(polygonfile)
         # import configurations
-        datadict = dfn.LoadConfiguration(indexname, capitalize=False)
+        datadict = config.load_config_file(indexname, capitalize=False)
         keys = list(datadict.keys())
         # The identifier (in brackets []) contains a number before the first
         # underscore "_" which determines the order of the plots:
@@ -91,7 +92,7 @@ class Analysis(object):
                 raise ValueError("Hashes don't match for file {}.".
                                  format(tloc))
             config_file = os.path.join(thedir, data["config"])
-            cfg = dfn.LoadConfiguration(config_file)
+            cfg = config.load_config_file(config_file)
             
             # Load manually excluded events
             filter_manual_file = os.path.join(os.path.dirname(config_file),
@@ -150,7 +151,7 @@ class Analysis(object):
             out.append("title = "+mm.title)
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
-            SaveConfiguration(cfgfile, mm.Configuration)
+            config.save_config_file(cfgfile, mm.Configuration)
             out.append("config = {}".format(os.path.relpath(cfgfile,
                                                             directory)))
             
@@ -493,7 +494,7 @@ def session_check_index(indexname, search_path="./"):
     """
     missing_files = []
     
-    datadict = dfn.LoadConfiguration(indexname, capitalize=False)
+    datadict = config.load_config_file(indexname, capitalize=False)
     keys = list(datadict.keys())
     # The identifier (in brackets []) contains a number before the first
     # underscore "_" which determines the order of the plots:
@@ -547,7 +548,7 @@ def session_get_tdms_file(index_dict,
 
 
 def session_update_index(indexname, updict={}):
-    datadict = dfn.LoadConfiguration(indexname, capitalize=False)
+    datadict = config.load_config_file(indexname, capitalize=False)
     for key in updict:
         datadict[key].update(updict[key])
-    SaveConfiguration(indexname, datadict)
+    config.save_config_file(indexname, datadict)

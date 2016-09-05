@@ -10,6 +10,7 @@ import numpy as np
 import os
 import wx
 
+import dclab
 from .. import tlabwrap
 
 
@@ -38,10 +39,10 @@ class ExportAnalysisEventsTSV(wx.Frame):
         ## Add checkboxes
         checks = []
         # find out which are actually used in the analysis
-        for c in tlabwrap.dfn.rdv:
+        for c in dclab.dfn.rdv:
             for m in self.analysis.measurements:
                 if np.sum(np.abs(getattr(m, c))):
-                    checks.append(tlabwrap.dfn.cfgmap[c])
+                    checks.append(dclab.dfn.cfgmap[c])
         checks = list(set(checks))
         checks.sort()
         self.box = wx.StaticBox(self.panel, label=_("Axes"))
@@ -54,7 +55,7 @@ class ExportAnalysisEventsTSV(wx.Frame):
         for c in checks:
             # label id (b/c of sorting)
             lid = c+":"+" "*((tl-dc.GetTextExtent(c)[0])//sp)+"\t"
-            label = tlabwrap.dfn.axlabels[c]
+            label = dclab.dfn.axlabels[c]
             cb = wx.CheckBox(self.panel, label=lid + _(label), name=c)
             self.sizerin.Add(cb)
             if c in self.analysis.GetPlotAxes():
@@ -109,7 +110,7 @@ class ExportAnalysisEventsTSV(wx.Frame):
                 if (isinstance(ch, wx._controls.CheckBox) and 
                     ch.IsChecked()):
                     name = ch.GetName()
-                    if name in tlabwrap.dfn.uid:
+                    if name in dclab.dfn.uid:
                         columns.append(name)
             
             # Call the export function of dclab.RTDC_DataSet

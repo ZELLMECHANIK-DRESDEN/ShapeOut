@@ -15,6 +15,7 @@ import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
 import dclab
+from dclab import config as dc_config
 
 from ..configuration import ConfigurationFile
 from .. import tlabwrap
@@ -197,7 +198,7 @@ class ControlPanel(ScrolledPanel):
                 else:
                     val = c.GetValue()
 
-                var,val = tlabwrap.dfn.MapParameterStr2Type(var, val)
+                var, val = dc_config.map_config_value_str2type(var, val)
                 newfilt[var] = val
             elif "Title " in name:
                 # Change title of measurement
@@ -460,12 +461,12 @@ class SubPanel(ScrolledPanel):
         stemp = wx.BoxSizer(wx.HORIZONTAL)
         # these axes should not be displayed in the UI
         ignore_axes = tlabwrap.IGNORE_AXES+analysis.GetUnusableAxes()
-        choices = tlabwrap.dfn.GetParameterChoices(key, item[0],
-                                                ignore_axes=ignore_axes)
+        choices = dc_config.get_config_entry_choices(key, item[0],
+                                                     ignore_axes=ignore_axes)
 
         if len(choices) != 0:
-            if choices[0] in tlabwrap.dfn.axlabels:
-                human_choices = [ _(tlabwrap.dfn.axlabels[c]) for c in choices]
+            if choices[0] in dclab.dfn.axlabels:
+                human_choices = [ _(dclab.dfn.axlabels[c]) for c in choices]
             else:
                 human_choices = choices
 
@@ -487,7 +488,7 @@ class SubPanel(ScrolledPanel):
             stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(c)
 
-        elif (tlabwrap.dfn.GetParameterDtype(key, item[0]) == bool or  # @UndefinedVariable
+        elif (dc_config.get_config_entry_dtype(key, item[0]) == bool or  # @UndefinedVariable
               str(item[1]).capitalize() in ["True", "False"]):
             a = wx.CheckBox(self, label=_(item[0]), name=item[0])
             a.SetValue(item[1])
@@ -545,7 +546,7 @@ class SubPanelAnalysis(SubPanel):
             
             # axes dropdown
             self.axes = analysis.GetUsableAxes()
-            axeslist = [tlabwrap.dfn.axlabels[a] for a in self.axes]
+            axeslist = [dclab.dfn.axlabels[a] for a in self.axes]
             self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
                                     value=_("None"), name="None",
                                     style=wx.CB_DROPDOWN|wx.CB_READONLY)
@@ -602,7 +603,7 @@ class SubPanelAnalysis(SubPanel):
         # Get axis name
         axname = self.axes[self.WXCB_axes.GetSelection()]
         # Get axis property
-        axprop = tlabwrap.dfn.cfgmaprev[axname]
+        axprop = dclab.dfn.cfgmaprev[axname]
         
         # loop through analysis
         treatment = []

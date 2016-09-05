@@ -273,15 +273,15 @@ class BatchFilterFolder(wx.Frame):
         if self.rbtnhere.Value:
             sel = self.dropdown.GetSelection()
             mm = self.analysis.measurements[sel]
-            for c in tlabwrap.dfn.rdv:
+            for c in dclab.dfn.rdv:
                 if np.sum(np.abs(getattr(mm, c))):
-                    checks.append(tlabwrap.dfn.cfgmap[c])
+                    checks.append(dclab.dfn.cfgmap[c])
         else:
-            for c in tlabwrap.dfn.rdv:
-                checks.append(tlabwrap.dfn.cfgmap[c])
+            for c in dclab.dfn.rdv:
+                checks.append(dclab.dfn.cfgmap[c])
 
         checks = list(set(checks))
-        labels = [ tlabwrap.dfn.axlabels[c] for c in checks ]
+        labels = [ dclab.dfn.axlabels[c] for c in checks ]
 
         # Sort checks according to labels
         checks = [x for (_y,x) in sorted(zip(labels,checks))]
