@@ -167,8 +167,8 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     #Check if all input lists have the same length
     msg = "Please define treatment and Time indicator for all Experiments"
     assert len(xs)==len(treatment)==len(timeunit),msg
-    msg = "Please use Linear Mixed Models only to analyze repeated measurements. \
-    Select more measurements"
+    msg = "Linear Mixed Models require repeated measurements. "+\
+          "Please select more treatment repetitions."
     assert len(xs)>=3,msg
 
     ######################Differential Deformation#############################
