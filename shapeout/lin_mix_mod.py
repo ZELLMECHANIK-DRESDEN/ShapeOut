@@ -47,14 +47,18 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     # Initialize median arrays
     Median = np.zeros([bs_iter, 1])
     MedianR = np.zeros([bs_iter, 1])
+    # If this loop is still too slow, we could get rid of it and
+    # do everything with arrays. Depends on whether we will
+    # eventually run into memory problems with array sizes
+    # of y*bs_iter and yR*bs_iter
     for q in range(bs_iter):
         # Channel data:
-        # Select random indices and draw from y
+        # Compute random indices and draw from y
         draw_y_idx = prng_object.random_integers(0, len(y)-1, len(y))
         y_resample = y[draw_y_idx]
         Median[q,0] = np.median(y_resample)
         # Reservoir data
-        # Select random indices and draw from yR
+        # Compute random indices and draw from yR
         draw_yR_idx = prng_object.random_integers(0, len(yR)-1, len(yR))
         yR_resample = yR[draw_yR_idx]
         MedianR[q,0] = np.median(yR_resample)

@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import dclab
 import tempfile
 import webbrowser
@@ -33,6 +35,7 @@ class SubPanelAnalysis(SubPanel):
             self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
                                     value=_("None"), name="None",
                                     style=wx.CB_DROPDOWN|wx.CB_READONLY)
+            self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_axes)
             # Set y-axis as default
             ax = analysis.GetPlotAxes()[1]
             if ax in self.axes:
@@ -128,15 +131,22 @@ class SubPanelAnalysis(SubPanel):
         """
         self.UpdatePanel(self.analysis)
 
+
     def update_info_text(self, e=None):
+        """ The info text helps the user a little bit selecting data.
+        """
         text = ""
         axis = self.WXCB_axes.GetValue()
         # treatments
         trt = [ t.GetValue() for t in self.WXCB_treatment]
         # user selected reservoir somewhere
-        res = len([t for t in trt if t.count(_("Reservoir"))])
+        resc = len([t for t in trt if t.count(_("Reservoir Control"))])
+        rest = len([t for t in trt if t.count(_("Reservoir Treatment"))])
         text_mode = _("Will compute linear mixed-effects model for {}.\n")
-        if res:
+        
+        if not rest*resc and rest+resc:
+            text += _("Please select reservoir for treatment and control.")
+        elif resc+rest:
             text += text_mode.format("{} {}".format(_("differential"), axis))
             text += _(" - Will bootstrap channel/reservoir data.\n")
             text += _(" - Will perform {} bootstrapping iterations.\n".format(
