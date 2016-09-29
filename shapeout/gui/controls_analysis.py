@@ -75,8 +75,13 @@ class SubPanelAnalysis(SubPanel):
                 
                 self.WXCB_treatment.append(cbgtemp)
                 self.WXCB_repetition.append(cbgtemp2)
+                
+                self.Bind(wx.EVT_COMBOBOX, self.update_info_text, cbgtemp2)
+                self.Bind(wx.EVT_COMBOBOX, self.update_info_text, cbgtemp)
 
             hbox.Add(sizer_bag)
+            self.info_text = wx.StaticText(self, label="")
+            hbox.Add(self.info_text, wx.EXPAND)
             
         return hbox
 
@@ -122,6 +127,24 @@ class SubPanelAnalysis(SubPanel):
         Reset everything in the analysis tab.
         """
         self.UpdatePanel(self.analysis)
+
+    def update_info_text(self, e=None):
+        text = ""
+        axis = self.WXCB_axes.GetValue()
+        # treatments
+        trt = [ t.GetValue() for t in self.WXCB_treatment]
+        # user selected reservoir somewhere
+        res = len([t for t in trt if t.count(_("Reservoir"))])
+        text_mode = _("Will compute linear mixed-effects model for {}.\n")
+        if res:
+            text += text_mode.format("{} {}".format(_("differential"), axis))
+            text += _(" - Will bootstrap channel/reservoir data.\n")
+            text += _(" - Will perform {} bootstrapping iterations.\n".format(
+                                                    lin_mix_mod.DEFAULT_BS_ITER))
+        else:
+            text += text_mode.format(axis)
+        self.info_text.SetLabel(text)
+        self.Layout()
 
 
     def UpdatePanel(self, analysis=None):

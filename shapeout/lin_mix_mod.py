@@ -16,35 +16,50 @@ import pyper
 
 from .util import cran
 
-def diffdef(y,yR,Bootstrapiterations=5000):
+DEFAULT_BS_ITER = 1000
+
+
+def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     """
     Using a bootstrapping algorithm, the reservoir distribution is
-    removed from the channel distribution
+    removed from the channel distribution.
+    
     Parameters
     ----------
-    y:   nx1 dim. array from a channel measurement
-    yR:  mx1 dim. array from a reservoir measurement
+    y: 1d ndarray of length N
+        Channel data
+    yR: 1d ndarray of length M
+        Reservoir data
+    bs_iter: int
+        Number of bootstrapping iterations to perform
+    rs: int
+        Random state seed for random number generator
+    
     Returns
     -------
-    Median: Boostrap distribution of medians of y 
-    MedianR: Boostrap distribution of medians of yR 
+    median: nd array of shape (bs_iter, 1)
+        Boostrap distribution of medians of y 
+    median_r: nd array of shape (bs_iter, 1)
+        Boostrap distribution of medians of yR 
     """
     #Seed random numbers that are reproducible on different machines
-    prng_object=np.random.RandomState(117)
-    
-    Median = np.zeros([Bootstrapiterations,1])
-    MedianR = np.zeros([Bootstrapiterations,1])
-
-    for q in range(Bootstrapiterations):
-        #for channel
-        resample_i = np.floor(prng_object.rand(len(y))*len(y)).astype(int)
-        y_resample = y[resample_i]
+    prng_object=np.random.RandomState(rs)
+    # Initialize median arrays
+    Median = np.zeros([bs_iter, 1])
+    MedianR = np.zeros([bs_iter, 1])
+    for q in range(bs_iter):
+        # Channel data:
+        # Select random indices and draw from y
+        draw_y_idx = prng_object.random_integers(0, len(y)-1, len(y))
+        y_resample = y[draw_y_idx]
         Median[q,0] = np.median(y_resample)
-        #for reservoir
-        resample_i = np.floor(prng_object.rand(len(yR))*len(yR)).astype(int)
-        yR_resample = yR[resample_i]
+        # Reservoir data
+        # Select random indices and draw from yR
+        draw_yR_idx = prng_object.random_integers(0, len(yR)-1, len(yR))
+        yR_resample = yR[draw_yR_idx]
         MedianR[q,0] = np.median(yR_resample)
     return [Median,MedianR]
+
 
 def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     '''
