@@ -21,8 +21,8 @@ DEFAULT_BS_ITER = 1000
 
 def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     """
-    Using a bootstrapping algorithm, the reservoir distribution is
-    removed from the channel distribution.
+    Computes bootstrapped median distributions of same size
+    for two distributions of different size.
     
     Parameters
     ----------
@@ -50,7 +50,7 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     # If this loop is still too slow, we could get rid of it and
     # do everything with arrays. Depends on whether we will
     # eventually run into memory problems with array sizes
-    # of y*bs_iter and yR*bs_iter
+    # of y*bs_iter and yR*bs_iter.
     for q in range(bs_iter):
         # Channel data:
         # Compute random indices and draw from y
