@@ -9,6 +9,8 @@
   - Scatter plots: False filtered events shown in gray
   - dclab (0.1.7dev9): Faulty hashing strategy in
     `RTDC_DataSet.GetDownSampledScatter`
+  - dclab:
+    - Corrections/additions in definitions (fRT-DC)
 0.6.1
 - Load session: Allow user to select missing data files (#80)
 - Sessions: Store relative paths in index file for user convenience (#80)
