@@ -209,6 +209,7 @@ def scatter_plot(measurement,
         pan = cta.PanTool(scatter_plot, drag_button="left")
         scatter_plot.tools.append(pan)
 
+    # select tool
     if select:
         my_plot = scatter_plot.plots["scatter_events"][0]
         my_plot.tools.append(

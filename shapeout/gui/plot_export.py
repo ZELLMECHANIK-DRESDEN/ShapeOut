@@ -7,7 +7,7 @@ from __future__ import division, print_function
 
 import chaco
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
-from chaco.api import PlotGraphicsContext
+import chaco.api as ca
 import os
 import warnings
 import wx
@@ -24,6 +24,8 @@ def export_plot_pdf(parent):
             path += ".pdf"
         parent.config.SetWorkingDirectory(os.path.dirname(path), "PDF")
         container = parent.PlotArea.mainplot.container
+
+        retol = hide_scatter_inspector(container)
         
         #old_height = container.height
         #old_width = container.width
@@ -62,13 +64,12 @@ def export_plot_pdf(parent):
         
         # scatter plot classes
         class_sp = (chaco.colormapped_scatterplot.ColormappedScatterPlot,
-                   chaco.scatterplot.ScatterPlot)
+                    chaco.scatterplot.ScatterPlot)
         
         for c in container.components:
             for comp in c.components:
                 if isinstance(comp, class_sp):
                     comp.marker_size /= 2
-        
         
         dest_box = (.01, .01, -.01, -.01)
         try:
@@ -124,6 +125,9 @@ def export_plot_pdf(parent):
                     warnings.warn("Not resetting plot fonts for"+\
                                   "plot component class {}.".format(
                                   item.__class__))
+        
+        if retol is not None:
+            retol.visible = True
 
 
 def export_plot_png(parent):
@@ -143,7 +147,7 @@ def export_plot_png(parent):
 
         dpi=600
         p.do_layout(force=True)
-        gc = PlotGraphicsContext(tuple(p.outer_bounds), dpi=dpi)
+        gc = ca.PlotGraphicsContext(tuple(p.outer_bounds), dpi=dpi)
 
         # temporarily turn off the backbuffer for offscreen rendering
         use_backbuffer = p.use_backbuffer
@@ -154,3 +158,16 @@ def export_plot_png(parent):
         gc.save(path)
 
         p.use_backbuffer = use_backbuffer
+        
+
+def hide_scatter_inspector(container):
+    retol = None
+    for aplot in container.plot_components:
+        if "scatter_events" in aplot.plots:
+            theplot = aplot.plots["scatter_events"][0]
+            for ol in theplot.overlays:
+                if isinstance(ol, ca.ScatterInspectorOverlay):
+                    if ol.visible == True:
+                        retol = ol
+                    ol.visible = False
+    return retol

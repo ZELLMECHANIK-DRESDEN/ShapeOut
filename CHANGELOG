@@ -1,6 +1,7 @@
 0.6.3
 - Bugfixes:
-  - Fix regression: Excluded events plotted on top of filtered events (#86)
+  - Regression: Excluded events plotted on top of filtered events (#86)
+  - Plot export: Scatter inspector event highlighted (#92)
 0.6.2
 - Add batch filter processing
 - Move statistics computation to dclab (0.1.7dev12):

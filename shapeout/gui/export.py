@@ -11,7 +11,6 @@ import os
 import wx
 
 import dclab
-from .. import tlabwrap
 
 
 class ExportAnalysisEventsTSV(wx.Frame):
@@ -129,7 +128,6 @@ class ExportAnalysisEventsTSV(wx.Frame):
             
             for m in self.analysis.measurements:
                 m.ExportTSV(os.path.join(outdir, m.title+".tsv"), columns, filtered=filtered, override=True)
-
 
 
 
