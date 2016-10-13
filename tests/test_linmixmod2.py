@@ -15,7 +15,8 @@ import numpy as np
 
 # Add parent directory to beginning of path variable
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
-from shapeout.lin_mix_mod import linmixmod
+from shapeout.lin_mix_mod import linmixmod, diffdef
+
 
 def test_linmixmod():
     xs = [
@@ -43,15 +44,15 @@ def test_linmixmod():
     assert np.allclose([Result_2["Estimate"]], [17.171341507432501])
     assert 'BOOTSTAP-DISTRIBUTIONS' not in Result_2['Full Summary']
 
+
 def test_diffdef():
-    xs = [
-    [100,99,80,120,140,150,100,100,110,111,140,145], #Larger values (Channel1)
-    [20,10,5,16,14,22,27,26,5,10,11,8,15,17,20,9]#Smaller values (Reservoir1)
-    ]
-    result = diffdef(xs[0],xs[1],Bootstrapiterations=1000)
+    #Larger values (Channel1)
+    y = np.array([100,99,80,120,140,150,100,100,110,111,140,145])
+    #Smaller values (Reservoir1)
+    yR = np.array([20,10,5,16,14,22,27,26,5,10,11,8,15,17,20,9])
+    result = diffdef(y, yR, bs_iter=1000)
     assert np.allclose([np.median(result[0])], [110.5])
     assert np.allclose([np.median(result[1])], [14.5])
-
 
 
 if __name__ == "__main__":

@@ -39,6 +39,9 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     median_r: nd array of shape (bs_iter, 1)
         Boostrap distribution of medians of yR 
     """
+    # Convert to arrays
+    y = np.array(y)
+    yR = np.array(yR)
     #Seed random numbers that are reproducible on different machines
     prng_object=np.random.RandomState(rs)
     # Initialize median arrays
