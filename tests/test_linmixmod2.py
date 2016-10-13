@@ -59,4 +59,4 @@ if __name__ == "__main__":
     loc = locals()
     for key in list(loc.keys()):
         if key.startswith("test_") and hasattr(loc[key], "__call__"):
-loc[key]()
+            loc[key]()
