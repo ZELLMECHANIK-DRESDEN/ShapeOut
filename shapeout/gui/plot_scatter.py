@@ -143,9 +143,6 @@ def scatter_plot(measurement,
         plot_kwargs["type"] = "cmap_scatter"
         plot_kwargs["color_mapper"] = ca.jet
 
-    if pd.get_data("index") is not None:
-        scatter_plot.plot(**plot_kwargs)
-
     # Excluded events
     if (plotfilters["Scatter Plot Excluded Events"] and
         mm._filter.sum() != mm.time.shape[0]):
@@ -156,6 +153,10 @@ def scatter_plot(measurement,
         plot_kwargs_excl["color"] = 0x929292
         if pd.get_data("excl_index") is not None:
             scatter_plot.plot(**plot_kwargs_excl)
+
+    # Plot colored points on top of excluded events
+    if pd.get_data("index") is not None:
+        scatter_plot.plot(**plot_kwargs)
 
     # Set x-y limits
     xlim = scatter_plot.index_mapper.range
@@ -208,6 +209,7 @@ def scatter_plot(measurement,
         pan = cta.PanTool(scatter_plot, drag_button="left")
         scatter_plot.tools.append(pan)
 
+    # select tool
     if select:
         my_plot = scatter_plot.plots["scatter_events"][0]
         my_plot.tools.append(

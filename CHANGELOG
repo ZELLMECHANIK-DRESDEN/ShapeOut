@@ -1,3 +1,9 @@
+0.6.3
+- Bugfixes:
+  - Regression: Excluded events plotted on top of filtered events (#86)
+  - PDF plot export: Scatter inspector event highlighted (#92)
+- Implement differential (w.r.t. reservoir) linear-mixed models
+  analysis with bootstrapping (#88)
 0.6.2
 - Add batch filter processing
 - Move statistics computation to dclab (0.1.7dev12):

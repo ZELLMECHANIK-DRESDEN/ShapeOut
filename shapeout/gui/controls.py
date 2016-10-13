@@ -1,13 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """ ShapeOut - control panels
-
 """
 from __future__ import division, print_function
 
 import numpy as np
-import tempfile
-import webbrowser
 
 import wx
 import wx.grid as gridlib
@@ -20,12 +17,13 @@ from dclab import config as dc_config
 from ..configuration import ConfigurationFile
 from .. import tlabwrap
 from .. import util
-from .. import lin_mix_mod
 
 from .polygonselect import LineDrawerWindow
 from . import plot_scatter
 from . import plot_contour
 
+from .controls_subpanel import SubPanel
+from .controls_analysis import SubPanelAnalysis
 
 
 class FlatNotebook(wx.Notebook):
@@ -410,268 +408,6 @@ class DragListStriped(wx.ListCtrl):
                 else:
                     self.SetItemBackgroundColour(x,wx.WHITE)
 
-
-
-class SubPanel(ScrolledPanel):
-    def __init__(self, parent, funcparent=None, *args, **kwargs):
-        """
-        Notebook page dummy with methods
-        """
-        ScrolledPanel.__init__(self, parent, *args, **kwargs)
-        self.SetupScrolling(scroll_y=True)
-        self.SetupScrolling(scroll_x=True)
-        self.analysis = None
-        self.key = None
-        self.funcparent = funcparent
-
-
-    def _box_from_cfg_read(self, analysis, key):
-        gen = wx.StaticBox(self, label=_(key))
-        hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
-
-        if analysis is not None:
-            items = analysis.GetCommonParameters(key).items()
-            items2 = analysis.GetUncommonParameters(key).items()
-
-            multiplestr = _("(multiple)")
-            for item in items2:
-                items.append((item[0], multiplestr))
-            items.sort()
-            sgen = wx.FlexGridSizer(len(items), 2)
-            
-            for item in items:
-                a = wx.StaticText(self, label=item[0])
-                b = wx.StaticText(self, label=str(item[1]))
-                if item[1] == multiplestr:
-                    a.Disable()
-                    b.Disable()
-                sgen.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
-                sgen.Add(b, 0, wx.ALIGN_CENTER_VERTICAL)
-        
-            sgen.Layout()
-            hbox.Add(sgen)
-        
-        return hbox
-
-    def _create_type_wx_controls(self, analysis, key, item):
-        """ Create a wx control whose type is inferred by item
-        
-        Returns a sizer
-        """
-        stemp = wx.BoxSizer(wx.HORIZONTAL)
-        # these axes should not be displayed in the UI
-        ignore_axes = tlabwrap.IGNORE_AXES+analysis.GetUnusableAxes()
-        choices = dc_config.get_config_entry_choices(key, item[0],
-                                                     ignore_axes=ignore_axes)
-
-        if len(choices) != 0:
-            if choices[0] in dclab.dfn.axlabels:
-                human_choices = [ _(dclab.dfn.axlabels[c]) for c in choices]
-            else:
-                human_choices = choices
-
-            a = wx.StaticText(self, label=_(item[0]))
-            # sort choices with _()?
-            c = wx.ComboBox(self, -1, choices=human_choices,
-                            value=unicode(item[1]), name=item[0],
-                            style=wx.CB_DROPDOWN|wx.CB_READONLY)
-            c.data = choices
-            if not isinstance(item[1], (str, unicode)):
-                # this is important for floats and ints
-                for ch in choices:
-                    if float(ch) == float(item[1]):
-                        c.SetValue(ch)
-            else:
-                # this does not work for floats and ints
-                idc = choices.index(item[1])
-                c.SetSelection(idc)
-            stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
-            stemp.Add(c)
-
-        elif (dc_config.get_config_entry_dtype(key, item[0]) == bool or  # @UndefinedVariable
-              str(item[1]).capitalize() in ["True", "False"]):
-            a = wx.CheckBox(self, label=_(item[0]), name=item[0])
-            a.SetValue(item[1])
-            stemp.Add(a)
-        else:
-            a = wx.StaticText(self, label=_(item[0]))
-            b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
-            stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
-            stemp.Add(b)
-        return stemp
-    
-
-    def OnReset(self, e=None):
-        """ Reset all parameters that are defined in this panel.
-        
-        It is important, that the Name for each wxWidget is set to
-        something available in the default configuration and that
-        self.key is set to a valid key, e.g. "Plotting" or "Filtering".
-        """
-        if self.key is not None:
-            # Get the controls that we change
-            ctrls = self.GetChildren()
-            subkeys = list()
-            # identify controls via their name correspondence in the cfg
-            default = tlabwrap.GetDefaultConfiguration(self.key)
-            for c in ctrls:
-                subkey = c.GetName()
-                if subkey in default:
-                    subkeys.append(subkey)
-            print(subkeys)
-            self.funcparent.Reset(self.key, subkeys)
-            
-
-    def UpdatePanel(self, *args, **kwargs):
-        """ Overwritten by subclass """
-        pass
-
-
-class SubPanelAnalysis(SubPanel):
-    def __init__(self, parent, *args, **kwargs):
-        SubPanel.__init__(self, parent, *args, **kwargs)
-        self.config = ConfigurationFile()
-        self.key = "Analysis"
-
-    
-    def make_analysis_choices(self, analysis):
-        gen = wx.StaticBox(self, label=_("Linear mixed-effects model"))
-        hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
-
-        if analysis is not None:
-            # get common parameters
-            sizer_bag = wx.GridBagSizer(hgap=20, vgap=5)
-            
-            sizer_bag.Add(wx.StaticText(self, label=_("Axis to analyze:")), (0,0), span=wx.GBSpan(1,1))
-            
-            # axes dropdown
-            self.axes = analysis.GetUsableAxes()
-            axeslist = [dclab.dfn.axlabels[a] for a in self.axes]
-            self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
-                                    value=_("None"), name="None",
-                                    style=wx.CB_DROPDOWN|wx.CB_READONLY)
-            # Set y-axis as default
-            ax = analysis.GetPlotAxes()[1]
-            if ax in self.axes:
-                axid = self.axes.index(ax)
-            else:
-                axid = 0
-            self.WXCB_axes.SetSelection(axid)
-            sizer_bag.Add(self.WXCB_axes, (0,1), span=wx.GBSpan(1,4))
-            
-            # Header for table
-            sizer_bag.Add(wx.StaticText(self, label=_("Data set")), (1,0), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label=_("Treatment")), (1,1), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label=_("Repetition")), (1,2), span=wx.GBSpan(1,1))
-            
-            treatments = [_("None"), _("Control")] + [_("Treatment {}").format(i) for i in range(1,5)]
-            repetitions = [str(i) for i in range(1,10)]
-            
-            self.WXCB_treatment = []
-            self.WXCB_repetition = []
-            
-            for ii, mm in enumerate(analysis.measurements):
-                # title
-                sizer_bag.Add(wx.StaticText(self, label=mm.title), (2+ii,0), span=wx.GBSpan(1,1))
-                # treatment
-                cbgtemp = wx.ComboBox(self, -1, choices=treatments,
-                                      name=mm.identifier,
-                                      style=wx.CB_DROPDOWN|wx.CB_READONLY)
-                if mm.title.lower().count("control") or ii==0:
-                    cbgtemp.SetSelection(1)
-                else:
-                    cbgtemp.SetSelection(0)
-                sizer_bag.Add(cbgtemp, (2+ii,1), span=wx.GBSpan(1,1))
-                # repetition
-                cbgtemp2 = wx.ComboBox(self, -1, choices=repetitions,
-                                      name=mm.identifier,
-                                      style=wx.CB_DROPDOWN|wx.CB_READONLY)
-                cbgtemp2.SetSelection(0)
-                sizer_bag.Add(cbgtemp2, (2+ii,2), span=wx.GBSpan(1,1))
-                
-                self.WXCB_treatment.append(cbgtemp)
-                self.WXCB_repetition.append(cbgtemp2)
-
-            hbox.Add(sizer_bag)
-            
-        return hbox
-    
-    def OnApply(self, e=None):
-        """
-        Perfrom LME4 computation
-        """
-        # Get axis name
-        axname = self.axes[self.WXCB_axes.GetSelection()]
-        # Get axis property
-        axprop = dclab.dfn.cfgmaprev[axname]
-        
-        # loop through analysis
-        treatment = []
-        timeunit = []
-        xs = []
-        
-        for ii, mm in enumerate(self.analysis.measurements):
-            # get treatment (ignore 0)
-            if self.WXCB_treatment[ii].GetSelection() == 0:
-                # The user selected _("None")
-                continue
-            xs.append(getattr(mm, axprop)[mm._filter])
-            treatment.append(self.WXCB_treatment[ii].GetValue())
-            # get repetition
-            timeunit.append(int(self.WXCB_repetition[ii].GetValue()))
-            
-        # run lme4
-        result = lin_mix_mod.linmixmod(xs=xs,
-                                       treatment=treatment,
-                                       timeunit=timeunit)
-        # display results
-        # write to temporary file and display with webbrowser
-        with tempfile.NamedTemporaryFile(mode="w", prefix="linmixmod_", suffix=".txt", delete=False) as fd:
-            fd.writelines(result["Full Summary"])
-            
-        webbrowser.open(fd.name)
-    
-    def OnReset(self, e=None):
-        """
-        Reset everything in the analysis tab.
-        """
-        self.UpdatePanel(self.analysis)
-
-    def UpdatePanel(self, analysis=None):
-        if analysis is None:
-            analysis = self.analysis
-        self.analysis = analysis
-
-        for item in self.GetChildren():
-            item.Hide()
-            self.RemoveChild(item)
-            item.Destroy()
-        
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        
-        statbox = self.make_analysis_choices(analysis)
-        sizer.Add(statbox)
-        
-        sizerv = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(sizerv)
-        vertsizer  = wx.BoxSizer(wx.VERTICAL)
-
-        btn_apply = wx.Button(self, label=_("Apply"))
-        ## TODO:
-        # write function in this class that gives ControlPanel a new
-        # analysis, such that OnChangeFilter becomes shorter.
-        self.Bind(wx.EVT_BUTTON, self.OnApply, btn_apply)
-        vertsizer.Add(btn_apply)
-
-        btn_reset = wx.Button(self, label=_("Reset"))
-        self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
-        vertsizer.Add(btn_reset)
-
-        sizer.Add(vertsizer)
-
-        self.SetSizer(sizer)
-        sizer.Fit(self)
-        self.Layout()
 
 
 class SubPanelFilter(SubPanel):
