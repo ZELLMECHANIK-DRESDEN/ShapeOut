@@ -303,4 +303,4 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     Anova_string,"p-Value (Likelihood Ratio Test)" : p,
     "Estimate":Estimate,"Std. Error (Estimate)":StdErrorEstimate,
     "Fixed Effect":FixedEffect,"Std. Error (Fixed Effect)":StdErrorFixEffect}
-return results
+    return results
