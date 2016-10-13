@@ -3,11 +3,8 @@
 """
 A Python script that uses numpy and pyper with R and the "lme4" library
 to compute relations with linear mixed effects models.
-
 Install the "lme4" library with:
-
     R -e "install.packages('lme4', repos='http://cran.r-project.org')"
-
 """
 from __future__ import division, print_function
 
@@ -104,7 +101,6 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
         enumeration matches the index of `xs`.
         (e.g. list containing integers "1" and "2" according to the day
         at which the content in `xs` was measured)          
-
     Returns
     -------
     Linear Mixed Effects Model Result: dictionary
@@ -132,52 +128,34 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     import pyper
     from nptdms import TdmsFile
     import os
-
-    xs = []    
-    #Deformation data from 4 experiments, and Channel and Reservoir each   
-    Files = [\
-    '01_w1_ST'+os.sep+'M1_2us_70A_0.040000ul_s.tdms',\
-    '01_w1_ST'+os.sep+'M4_2us_70A_0.120000ul_s.tdms',\
-    '02_w4_MIT'+os.sep+'M1_2us_70A_0.040000ul_s.tdms',\
-    '02_w4_MIT'+os.sep+'M4_2us_70A_0.120000ul_s.tdms',\
-    '03_w2_ST'+os.sep+'M1_2us_70A_0.040000ul_s.tdms',\
-    '03_w2_ST'+os.sep+'M4_2us_70A_0.120000ul_s.tdms',\
-    '04_w5_MIT'+os.sep+'M1_2us_70A_0.040000ul_s.tdms',\
-    '04_w5_MIT'+os.sep+'M4_2us_70A_0.120000ul_s.tdms']  
-    for tdms in Files:
-        tdms_file = TdmsFile(tdms)
-        circ_chan = tdms_file.object('Cell Track', 'circularity')
-        y = 1.0-circ_chan.data        
-        xs.append(y)
-   
-    #xs[0] and xs[1] is a measurement on a HL60 in Channel and Reservoir, respectively 
-    #xs[2] and xs[3] is a measurement on a HL60 in Channel and Reservoir, respectively 
-    #xs[4] and xs[5] is a measurement on a HL60 in Channel and Reservoir, respectively 
-    #xs[6] and xs[7] is a measurement on a HL60 in Channel and Reservoir, respectively 
-
-    treatment1 = ['Control', 'Reservoir Control', 'Treatment', 'Reservoir Treatment',\
-    'Control', 'Reservoir Control', 'Treatment', 'Reservoir Treatment']
-
-    treatment2 = ['Control', 'Control', 'Treatment', 'Treatment',\
-    'Control', 'Control', 'Treatment', 'Treatment']
-
-    #xs[0:2] are put to Group 1
-    #xs[3:5] are put to Group 2
-    timeunit = [1, 1, 1, 1, 2, 2, 2, 2]
     
-    Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit)
-    #Results: Estimate=0.06250 (i.e. the average Control cell has a diff.deformation 
-    #         of 0.0625)
-    #         FixedEffect=-0.00297 (i.e. The other three HL60 cell have a lower 
-    #         diff.deformation)         
-    #         p-Value(Likelihood Ratio Test)=0.2432 (i.e. there is no signif. effect)
-                
-    Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit)
-    #Results: Estimate=0.05356 (i.e. the average Control cell has a deformation 
-    #         of 0.05356)
-    #         FixedEffect=8.20e-06 (i.e. The other four HL60 cell have a higher 
-    #         deformation)         
-    #         p-Value(Likelihood Ratio Test)=0.99659 (i.e. there is no signif. effect)
+    xs = [
+    [100,99,80,120,140,150,100,100,110,111,140,145], #Larger values (Channel1)
+    [20,10,5,16,14,22,27,26,5,10,11,8,15,17,20,9], #Smaller values (Reservoir1)
+    [115,110,90,110,145,155,110,120,115,120,120,150,100,90,100], #Larger values (Channel2)
+    [30,30,15,26,24,32,37,36,15,20,21,18,25,27,30,19], #Smaller values (Reservoir2)
+    [150,150,130,170,190,250,150,150,160,161,180,195,130,120,125,130,125],
+    [2,1,5,6,4,2,7,6,5,10,1,8,5,7,2,9,11,8,13],
+    [155,155,135,175,195,255,155,155,165,165,185, 200,135,125,130,135,140,150,135,140],
+    [25,15,19,26,44,42,35,20,15,10,11,28,35,10,25,13]] 
+    treatment1 = ['Control', 'Reservoir Control', 'Control', 'Reservoir Control',\
+    'Treatment', 'Reservoir Treatment','Treatment', 'Reservoir Treatment']
+    timeunit1 = [1, 1, 2, 2, 1, 1, 2, 2]
+    Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit1)
+    Estimate= [93.693750004463098])
+    assert 'BOOTSTAP-DISTRIBUTIONS' in Result_1['Full Summary']
+    #Result_1:Estimate=93.69375 (i.e. the average Control value is 93.69)
+    #         FixedEffect=43.93 (i.e. The treatment leads to an increase)         
+    #         p-Value(Likelihood Ratio Test)=0.0006026 (i.e. the increase is significant)
+    #'Reservoir' Measurements are now Controls and 'Channel' measurements are Treatments
+    #This does not use differential deformation in linmixmod()
+    treatment2 = ['Treatment', 'Control', 'Treatment', 'Control',\
+    'Treatment', 'Control','Treatment', 'Control']
+    timeunit2 = [1, 1, 2, 2, 3, 3, 4, 4]
+    Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit2)
+    #Result_2:Estimate=17.17 (i.e. the average Control value is 17.17 )
+    #         FixedEffect=120.257 (i.e. The treatment leads to an increase)         
+    #         p-Value(Likelihood Ratio Test)=0.00033 (i.e. the increase is significant)  
     '''
     
     modelfunc="xs~treatment+(1+treatment|timeunit)"
@@ -195,8 +173,15 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     Median_DiffDef = []
     TimeUnit,Treatment = [],[]
     if 'Reservoir Control' in treatment or 'Reservoir Treatment' in treatment:
-        Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n "         
-        for n in np.unique(timeunit):
+        Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n " 
+        #Find the timeunits for Control 
+        where_contr_ch = np.where('Control' == np.array(treatment))
+        timeunit_contr_ch = np.array(timeunit)[where_contr_ch]
+        #Find the timeunits for Treatment 
+        where_treat_ch = np.where('Treatment' == np.array(treatment))
+        timeunit_treat_ch = np.array(timeunit)[where_treat_ch]
+
+        for n in np.unique(timeunit_contr_ch):
             where_time = np.where(np.array(timeunit)==n)
             xs_n = np.array(xs)[where_time]
             treatment_n = np.array(treatment)[where_time]
@@ -204,16 +189,10 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
             xs_n_contr_ch = xs_n[where_contr_ch]
             where_contr_res = np.where('Reservoir Control' == np.array(treatment_n))
             xs_n_contr_res = xs_n[where_contr_res]
-            where_treat_ch = np.where('Treatment' == np.array(treatment_n))    
-            xs_n_treat_ch = xs_n[where_treat_ch]
-            where_treat_res = np.where('Reservoir Treatment' == np.array(treatment_n))
-            xs_n_treat_res = xs_n[where_treat_res]
 
-            #check that corresponding Controls and a Treatments are selected
+            #check that corresponding Controls are selected
             msg="Please select 1xCh and 1xRes for Control at Repetition "+str(n)
             assert len(where_contr_ch[0])==len(where_contr_res[0])==1,msg
-            msg="Please select 1xCh and 1xRes for Treatment at Repetition "+str(n)             
-            assert len(where_treat_ch[0])==len(where_treat_res[0])==1,msg
            
             #Apply the Bootstraping algorithm to Controls
             y = np.array(xs_n_contr_ch)[0]
@@ -223,13 +202,27 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
             TimeUnit.extend(np.array(n).repeat(len(Median)))    #TimeUnit is a number for the day or the number of the repeat
             Treatment.extend(np.array(['Control']).repeat(len(Median)))            
                 
+        for n in np.unique(timeunit_treat_ch):
+            where_time = np.where(np.array(timeunit)==n)
+            xs_n = np.array(xs)[where_time]
+            treatment_n = np.array(treatment)[where_time]
+            xs_n_contr_res = xs_n[where_contr_res]
+            where_treat_ch = np.where('Treatment' == np.array(treatment_n))    
+            xs_n_treat_ch = xs_n[where_treat_ch]
+            where_treat_res = np.where('Reservoir Treatment' == np.array(treatment_n))
+            xs_n_treat_res = xs_n[where_treat_res]
+
+            #check that corresponding Treatments are selected
+            msg="Please select 1xCh and 1xRes for Treatment at Repetition "+str(n)             
+            assert len(where_treat_ch[0])==len(where_treat_res[0])==1,msg
+      
             #Apply the Bootstraping algorithm to Treatments
             y = np.array(xs_n_treat_ch)[0]
             yR = np.array(xs_n_treat_res)[0]
             [Median,MedianR] = diffdef(y,yR)               
             Median_DiffDef.append(Median - MedianR)
             TimeUnit.extend(np.array(n).repeat(len(Median)))    #TimeUnit is a number for the day or the number of the repeat
-            Treatment.extend(np.array(['Treatment']).repeat(len(Median)))            
+            Treatment.extend(np.array(['Treatment']).repeat(len(Median)))   
 
         #Concat all elements in the lists    
         xs = np.concatenate(Median_DiffDef)
@@ -250,8 +243,7 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
         xs = np.concatenate(xs)
         treatment = np.concatenate(treatment)
         timeunit = np.concatenate(timeunit)
-
-
+        
     #Open a pyper instance
     r1 = pyper.R(use_pandas=True, RCMD=RCMD) 
     r1.assign("xs", xs)
@@ -291,10 +283,7 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     #Extract coefficients
     r1("coefs <- data.frame(coef(summary(Model)))")   
     r1("coefs$p.normal=2*(1-pnorm(abs(coefs$t.value)))")
-
-    #p_normal = np.array(r1.get("coefs$p.normal"))
-    #p_normal = p_normal[1]
-    
+   
     # Convert to array, depending on platform or R version, this is a DataFrame
     # or a numpy array, so we convert it to an array. Because on Windows the
     # result is an array with subarrays of type np.void, we must access the
@@ -314,4 +303,4 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     Anova_string,"p-Value (Likelihood Ratio Test)" : p,
     "Estimate":Estimate,"Std. Error (Estimate)":StdErrorEstimate,
     "Fixed Effect":FixedEffect,"Std. Error (Fixed Effect)":StdErrorFixEffect}
-    return results
+return results
