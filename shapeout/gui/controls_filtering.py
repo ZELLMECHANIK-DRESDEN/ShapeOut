@@ -36,7 +36,7 @@ class SubPanelFilter(SubPanel):
         
         excludeend = ["Min", "Max"]
         excludeis = ["Enable Filters"]
-        excludestart = ["Polygon"]
+        excludestart = ["Polygon", "Hierarchy"]
         
         #sgen = wx.BoxSizer(wx.VERTICAL)
         for item in items:
@@ -59,6 +59,27 @@ class SubPanelFilter(SubPanel):
         sgen.Layout()
         hbox.Add(sgen)
         return hbox
+
+
+    def _box_hierarchy_filter(self, analysis, key):
+        """
+        Display hierarchy filtering elements
+        """
+        gen = wx.StaticBox(self, label=_("Filter Hierarchy"))
+
+        hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
+        
+        fildict = analysis.GetParameters(key)
+        
+        sgen = wx.FlexGridSizer(2, 1)
+        hplabel = "{}: {}".format(_("Hierarchy Parent"),
+                                  fildict["Hierarchy Parent"])
+        sgen.Add(wx.StaticText(self, label=hplabel))
+
+        sgen.Layout()
+        hbox.Add(sgen)
+        return hbox
+
     
 
     def _box_minmax_filter(self, analysis, key):
@@ -420,18 +441,24 @@ class SubPanelFilter(SubPanel):
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         
-        sizerv = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(sizerv)
         # Box filters
         fbox = self._box_minmax_filter(analysis, "Filtering")
-        sizerv.Add(fbox)
-        # Rest filters:
-        rbox = self._box_rest_filter(analysis, "Filtering")
-        sizerv.Add(rbox)
+        sizer.Add(fbox)
+
+        sizerv = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(sizerv)
         
         # Polygon filters
         polysizer = self._box_polygon_filter(analysis)
-        sizer.Add(polysizer)
+        sizerv.Add(polysizer)
+
+        # Hierarchy filters:
+        rbox = self._box_hierarchy_filter(analysis, "Filtering")
+        sizerv.Add(rbox)
+
+        # Rest filters:
+        rbox = self._box_rest_filter(analysis, "Filtering")
+        sizerv.Add(rbox)
         
         ## Polygon box
         # layout: 
