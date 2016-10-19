@@ -4,10 +4,9 @@
 #  # Do not build on commits. Only nightly builds (web interface)
 #  author: /.*/
 
-
-# Do not use shallow_clone, because we get the program version from the git tags
+# Do not use shallow_clone, because coveralls needs a git repository
 #shallow_clone: true
-clone_depth: 100
+clone_depth: 10
 
 
 # Only build master branch

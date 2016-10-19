@@ -136,8 +136,7 @@ def scatter_plot(measurement,
         plot_kwargs["data"] = ("index", "value")
         plot_kwargs["type"] = "scatter"
         plot_kwargs["color"] = "black"
-                  
-    else:                
+    else:
         # Plots with density
         plot_kwargs["data"] = ("index", "value", "color")
         plot_kwargs["type"] = "cmap_scatter"
