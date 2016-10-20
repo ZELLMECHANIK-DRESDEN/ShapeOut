@@ -69,18 +69,34 @@ class SubPanelFilter(SubPanel):
 
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
         
-        fildict = analysis.GetParameters(key)
+        sgen = wx.GridBagSizer()
+        explanation = "Filter hierarchies can be used to apply\n"+\
+        "multiple filters in sequence or to\n"+\
+        "compare subpopulations in a data set."
+        sgen.Add(wx.StaticText(self, label=_(explanation)), (0,0), span=(1,2))
+        sgen.Add(wx.StaticText(self, label=_("Select data set")+": "), (1,0),
+                 flag=wx.ALIGN_CENTER_VERTICAL)
+        items = [ mm.title for mm in self.analysis.measurements ]
+        self.WXCOMBO_hparent = wx.ComboBox(self, choices=items)
+        sgen.Add(self.WXCOMBO_hparent, (1,1)) 
+        self.WXCOMBO_hparent.Bind(wx.EVT_COMBOBOX, self.OnHierarchySelParent)
         
-        sgen = wx.FlexGridSizer(2, 1)
-        hplabel = "{}: {}".format(_("Hierarchy Parent"),
-                                  fildict["Hierarchy Parent"])
-        sgen.Add(wx.StaticText(self, label=hplabel))
+        sgen.Add(wx.StaticText(self, label=_("Hierarchy parent")+": "), (2,0))
+        self.WXTextHParent = wx.StaticText(self, label="")
+        sgen.Add(self.WXTextHParent, (2,1), flag=wx.EXPAND)
+
+        self.WXbtnnew = wx.Button(self, wx.ID_ANY, label=_("Create hierarchy child"))
+        sgen.Add(self.WXbtnnew, (3,0), span=(1,2), flag=wx.EXPAND)
+        self.WXbtnnew.Bind(wx.EVT_BUTTON, self.OnHierarchyCreateChild)
 
         sgen.Layout()
         hbox.Add(sgen)
+
+        if len(items):
+            self.WXCOMBO_hparent.SetSelection(0)
+            self.OnHierarchySelParent()
         return hbox
 
-    
 
     def _box_minmax_filter(self, analysis, key):
         """
@@ -269,6 +285,37 @@ class SubPanelFilter(SubPanel):
                         return c, ch
         # else
         return c, None
+
+
+    def OnHierarchyCreateChild(self, e=None):
+        """
+        Called when the user wants to create a new hierarchy child.
+        Will create a new RTDC_DataSet that is appended to
+        `self.analysis.measurements`.
+        In the end, the entire control panel is updated to give the
+        user access to the new data set.
+        """
+        sel = self.WXCOMBO_hparent.GetSelection()
+        mm = self.analysis.measurements[sel]
+        ds = dclab.RTDC_DataSet(hparent=mm)
+        self.analysis.measurements.append(ds)
+        self.funcparent.OnChangePlot()
+
+
+    def OnHierarchySelParent(self, e=None):
+        """
+        Called when an RTDC_DataSet is selected in the combobox.
+        This methods updates the label of `self.WXTextHParent`. 
+        """
+        sel = self.WXCOMBO_hparent.GetSelection()
+        mm = self.analysis.measurements[sel]
+        hp = mm.Configuration["Filtering"]["Hierarchy Parent"]
+        if hp == "None":
+            label = "no parent"
+        else:
+            label = mm.hparent.title
+        self.WXTextHParent.SetLabel(label)
+    
 
     def OnPolygonCombobox(self, e=None):
         """

@@ -168,8 +168,12 @@ class ControlPanel(ScrolledPanel):
     def OnChangePlot(self, e=None):
         # Set plot order
         if hasattr(self.analysis, "measurements"):
-            print(self.page_plot.plot_order)
-            self.analysis.measurements = [ self.analysis.measurements[ii] for ii in self.page_plot.plot_order ]
+            mms = [ self.analysis.measurements[ii] for ii in self.page_plot.plot_order ]
+            # make sure that we don't miss any new measurements on the way.
+            newmeas = len(self.analysis.measurements) - len(mms)
+            if newmeas > 0:
+                mms += self.analysis.measurements[-newmeas:]
+            self.analysis.measurements = mms
         
         wait = wx.BusyCursor()
         
@@ -179,7 +183,7 @@ class ControlPanel(ScrolledPanel):
         samdict = self.analysis.measurements[0].\
                                        Configuration["Plotting"].copy()
         newfilt = dict()
- 
+        
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
             name = c.GetName()
@@ -198,27 +202,25 @@ class ControlPanel(ScrolledPanel):
 
                 var, val = dc_config.map_config_value_str2type(var, val)
                 newfilt[var] = val
-            elif "Title " in name:
+            elif name.startswith("Title "):
                 # Change title of measurement
                 for mm in self.analysis.measurements:
-                    if mm.identifier in name:
+                    if mm.identifier == name[len("Title "):]:
                         mm.title = c.GetValue()
-            elif "Color " in name:
+            elif name.startswith("Color "):
                 # Change plotting color of measurement
                 for mm in self.analysis.measurements:
-                    if mm.identifier in name:
+                    if mm.identifier == name[len("Title "):]:
                         col = c.GetColour()
                         col = np.array([col.Red(), col.Green(),
                                        col.Blue(), col.Alpha()])/255
                         mm.Configuration["Plotting"]["Contour Color"] = col.tolist()
-        
         cfg = { "Plotting" : newfilt }
         self.analysis.SetParameters(cfg)
 
         # Update Plots
         self.frame.PlotArea.Plot(self.analysis)
         self.UpdatePages()
-        
         del wait
 
 
