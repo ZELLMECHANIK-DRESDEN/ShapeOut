@@ -480,27 +480,29 @@ class Analysis(object):
         """ updates the RTDC_DataSet configuration
 
         """
-        newcfg = copy.deepcopy(newcfg)
-
-        # Address issue with faulty contour plot on log scale
-        # https://github.com/enthought/chaco/issues/300
+        # Only update "Filtering" and "Plotting"
+        upcfg = {}
+        if "Filtering" in newcfg:
+            upcfg["Filtering"] = copy.deepcopy(newcfg["Filtering"])
         if "Plotting" in newcfg:
-            pl = newcfg["Plotting"]
+            upcfg["Plotting"] = copy.deepcopy(newcfg["Plotting"])
+            # prevent applying indivual things to all measurements
+            ignorelist = ["Contour Color"]
+            for skey in upcfg["Plotting"].keys():
+                if skey in ignorelist:
+                    upcfg["Plotting"].pop(skey)
+
+            # Address issue with faulty contour plot on log scale
+            # https://github.com/enthought/chaco/issues/300
+            pl = upcfg["Plotting"]
             if (("Scale X" in pl and pl["Scale X"] == "Log") or
                 ("Scale Y" in pl and pl["Scale Y"] == "Log")):
                 warnings.warn("Disabling contour plot because of chaco issue #300!")
-                newcfg["Plotting"]["Contour Plot"] = False
+                upcfg["Plotting"]["Contour Plot"] = False
 
-        # prevent applying indivual things to all measurements
-        ignorelist = ["Contour Color"]
-        for key in newcfg.keys():
-            for skey in newcfg[key].keys():
-                if skey in ignorelist:
-                    newcfg[key].pop(skey)
-                    
         # update configuration
         for i in range(len(self.measurements)):
-            self.measurements[i].UpdateConfiguration(newcfg)
+            self.measurements[i].UpdateConfiguration(upcfg)
 
 
 
