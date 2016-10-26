@@ -136,23 +136,20 @@ def scatter_plot(measurement,
         plot_kwargs["data"] = ("index", "value")
         plot_kwargs["type"] = "scatter"
         plot_kwargs["color"] = "black"
-                  
-    else:                
+    else:
         # Plots with density
         plot_kwargs["data"] = ("index", "value", "color")
         plot_kwargs["type"] = "cmap_scatter"
         plot_kwargs["color_mapper"] = ca.jet
 
     # Excluded events
-    if (plotfilters["Scatter Plot Excluded Events"] and
-        mm._filter.sum() != mm.time.shape[0]):
-        plot_kwargs_excl = plot_kwargs.copy()
-        plot_kwargs_excl["name"] = "excluded_events"
-        plot_kwargs_excl["data"] = ("excl_index", "excl_value")
-        plot_kwargs_excl["type"] = "scatter"
-        plot_kwargs_excl["color"] = 0x929292
-        if pd.get_data("excl_index") is not None:
-            scatter_plot.plot(**plot_kwargs_excl)
+    plot_kwargs_excl = plot_kwargs.copy()
+    plot_kwargs_excl["name"] = "excluded_events"
+    plot_kwargs_excl["data"] = ("excl_index", "excl_value")
+    plot_kwargs_excl["type"] = "scatter"
+    plot_kwargs_excl["color"] = 0x929292
+    if pd.get_data("excl_index") is not None:
+        scatter_plot.plot(**plot_kwargs_excl)
 
     # Plot colored points on top of excluded events
     if pd.get_data("index") is not None:
@@ -277,19 +274,24 @@ def set_scatter_data(plot, mm):
     pd.set_data("color", density)
 
     # Plot filtered data in grey
-    mm.ApplyFilter()
-    # determine the number of points we are allowed to add
-    if downsampling:
-        # respect the maximum limit of plotted events
-        excl_num = int(downsample_events - np.sum(mm._filter))
+    if (plotfilters["Scatter Plot Excluded Events"] and
+        mm._filter.sum() != mm.time.shape[0]):
+        mm.ApplyFilter()
+        # determine the number of points we are allowed to add
+        if downsampling:
+            # respect the maximum limit of plotted events
+            excl_num = int(downsample_events - np.sum(mm._filter))
+        else:
+            # plot all excluded events
+            excl_num = np.sum(~mm._filter)
+    
+        excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
+        excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
+        pd.set_data("excl_index", excl_x)
+        pd.set_data("excl_value", excl_y)
     else:
-        # plot all excluded events
-        excl_num = np.sum(~mm._filter)
-
-    excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
-    excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
-    pd.set_data("excl_index", excl_x)
-    pd.set_data("excl_value", excl_y)
+        pd.set_data("excl_index", [])
+        pd.set_data("excl_value", [])
     
     # Update overlays
     for ol in plot.overlays:

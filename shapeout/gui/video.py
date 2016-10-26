@@ -196,6 +196,9 @@ class ImagePanel(ScrolledPanel):
         mm = self.analysis.measurements[mm_id]
         # Taking the abspath of the video does not always work with OpenCV?
         #vfile = os.path.join(dataset.fdir, dataset.video)
+        if not os.path.isfile(os.path.join(mm.fdir, mm.video)):
+            # abort
+            return
         old_dir = os.getcwd()
         os.chdir(mm.fdir)
         video = cv2.VideoCapture(mm.video)

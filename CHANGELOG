@@ -1,3 +1,9 @@
+0.6.4
+- Bugfixes:
+  - Batch analysis: Individual measurement parameters not preserved (#96)
+  - Legend plot: >9 measurements cannot be displayed in legend at
+    the same time. Introduced new config key "Legend Autoscaled" (#91) 
+- New filter hierarchy allows to investigate subpopulations (#87, #63)
 0.6.3
 - Bugfixes:
   - Regression: Excluded events plotted on top of filtered events (#86)

@@ -76,32 +76,52 @@ class Analysis(object):
         keys = list(datadict.keys())
         # The identifier (in brackets []) contains a number before the first
         # underscore "_" which determines the order of the plots:
-        keys.sort(key=lambda x: int(x.split("_")[0]))
-        for key in keys:
-            data = datadict[key]
-            tloc = session_get_tdms_file(data, search_path)
-            mm = RTDC_DataSet(tloc)
-            if "title" in data:
-                # title saved starting version 0.5.6.dev6
-                mm.title = data["title"]
-            mmhashes = [h[1] for h in mm.file_hashes]
-            newhashes = [ data["tdms hash"], data["camera.ini hash"],
-                          data["para.ini hash"]
-                        ]
-            if mmhashes != newhashes:
-                raise ValueError("Hashes don't match for file {}.".
-                                 format(tloc))
-            config_file = os.path.join(thedir, data["config"])
-            cfg = config.load_config_file(config_file)
-            
-            # Load manually excluded events
-            filter_manual_file = os.path.join(os.path.dirname(config_file),
-                                              "_filter_manual.npy")
-            if os.path.exists(filter_manual_file):
-                mm._filter_manual = np.load(os.path.join(filter_manual_file))
-            
-            mm.UpdateConfiguration(cfg)
-            self.measurements.append(mm)
+        #keys.sort(key=lambda x: int(x.split("_")[0]))
+        measmts = [None]*len(keys)
+        while measmts.count(None):
+            for key in keys:
+                kidx = int(key[0])-1
+                if measmts[kidx] is not None:
+                    # we have already imported that measurement
+                    continue
+                
+                data = datadict[key]
+                config_file = os.path.join(thedir, data["config"])
+                cfg = config.load_config_file(config_file)
+                
+                if ("special type" in data and
+                    data["special type"] == "hierarchy child"):
+                    # Check if the parent exists
+                    idhp = cfg["Filtering"]["Hierarchy Parent"]
+                    ids = [mm.identifier for mm in measmts if mm is not None]
+                    mms = [mm for mm in measmts if mm is not None]
+                    if idhp in ids:
+                        hparent = mms[ids.index(idhp)]  
+                        mm = RTDC_DataSet(hparent=hparent)
+                else:
+                    tloc = session_get_tdms_file(data, search_path)
+                    mm = RTDC_DataSet(tloc)
+                    mmhashes = [h[1] for h in mm.file_hashes]
+                    newhashes = [ data["tdms hash"], data["camera.ini hash"],
+                                  data["para.ini hash"]
+                                ]
+                    if mmhashes != newhashes:
+                        raise ValueError("Hashes don't match for file {}.".
+                                         format(tloc))
+                if "title" in data:
+                    # title saved starting version 0.5.6.dev6
+                    mm.title = data["title"]
+                
+                # Load manually excluded events
+                filter_manual_file = os.path.join(os.path.dirname(config_file),
+                                                  "_filter_manual.npy")
+                if os.path.exists(filter_manual_file):
+                    mm._filter_manual = np.load(os.path.join(filter_manual_file))
+                
+                mm.UpdateConfiguration(cfg)
+                measmts[kidx] = mm
+        
+        self.measurements = measmts
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
@@ -117,7 +137,10 @@ class Analysis(object):
         
         i = 0
         for mm in self.measurements:
-            assert os.path.exists(mm.tdms_filename), "Can only dump tdms data!"
+            has_tdms = os.path.exists(mm.tdms_filename)
+            is_hchild = hasattr(mm, "hparent")
+            amsg = "RTDC_DataSet must be from tdms file or hierarchy child!"
+            assert has_tdms+is_hchild, amsg
             i += 1
             ident = "{}_{}".format(i,mm.name)
             # the directory in the session zip file where all information
@@ -135,19 +158,22 @@ class Analysis(object):
                     break
             os.mkdir(mmdir)
             out.append("[{}]".format(ident))
-            out.append("tdms hash = "+mm.file_hashes[0][1])
-            out.append("camera.ini hash = "+mm.file_hashes[1][1])
-            out.append("para.ini hash = "+mm.file_hashes[2][1])
-            out.append("name = "+mm.name+".tdms")
-            out.append("fdir = "+mm.fdir)
-            try:
-                # On Windows we have multiple drive letters and
-                # relpath will complain about that if mm.fdir and
-                # rel_path are not on the same drive.
-                rdir = os.path.relpath(mm.fdir, rel_path)
-            except ValueError:
-                rdir = "."
-            out.append("rdir = "+rdir)
+            if has_tdms:
+                out.append("tdms hash = "+mm.file_hashes[0][1])
+                out.append("camera.ini hash = "+mm.file_hashes[1][1])
+                out.append("para.ini hash = "+mm.file_hashes[2][1])
+                out.append("name = "+mm.name+".tdms")
+                out.append("fdir = "+mm.fdir)
+                try:
+                    # On Windows we have multiple drive letters and
+                    # relpath will complain about that if mm.fdir and
+                    # rel_path are not on the same drive.
+                    rdir = os.path.relpath(mm.fdir, rel_path)
+                except ValueError:
+                    rdir = "."
+                out.append("rdir = "+rdir)
+            elif is_hchild:
+                out.append("special type = hierarchy child")
             out.append("title = "+mm.title)
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
@@ -454,27 +480,29 @@ class Analysis(object):
         """ updates the RTDC_DataSet configuration
 
         """
-        newcfg = copy.deepcopy(newcfg)
-
-        # Address issue with faulty contour plot on log scale
-        # https://github.com/enthought/chaco/issues/300
+        # Only update "Filtering" and "Plotting"
+        upcfg = {}
+        if "Filtering" in newcfg:
+            upcfg["Filtering"] = copy.deepcopy(newcfg["Filtering"])
         if "Plotting" in newcfg:
-            pl = newcfg["Plotting"]
+            upcfg["Plotting"] = copy.deepcopy(newcfg["Plotting"])
+            # prevent applying indivual things to all measurements
+            ignorelist = ["Contour Color"]
+            for skey in upcfg["Plotting"].keys():
+                if skey in ignorelist:
+                    upcfg["Plotting"].pop(skey)
+
+            # Address issue with faulty contour plot on log scale
+            # https://github.com/enthought/chaco/issues/300
+            pl = upcfg["Plotting"]
             if (("Scale X" in pl and pl["Scale X"] == "Log") or
                 ("Scale Y" in pl and pl["Scale Y"] == "Log")):
                 warnings.warn("Disabling contour plot because of chaco issue #300!")
-                newcfg["Plotting"]["Contour Plot"] = False
+                upcfg["Plotting"]["Contour Plot"] = False
 
-        # prevent applying indivual things to all measurements
-        ignorelist = ["Contour Color"]
-        for key in newcfg.keys():
-            for skey in newcfg[key].keys():
-                if skey in ignorelist:
-                    newcfg[key].pop(skey)
-                    
         # update configuration
         for i in range(len(self.measurements)):
-            self.measurements[i].UpdateConfiguration(newcfg)
+            self.measurements[i].UpdateConfiguration(upcfg)
 
 
 
@@ -501,9 +529,11 @@ def session_check_index(indexname, search_path="./"):
     keys.sort(key=lambda x: int(x.split("_")[0]))
     for key in keys:    
         data = datadict[key]
-        tdms = session_get_tdms_file(data, search_path)
-        if not os.path.exists(tdms):
-            missing_files.append([key, tdms, data["tdms hash"]])
+        if not ("special type" in data and
+                data["special type"] == "hierarchy child"):
+            tdms = session_get_tdms_file(data, search_path)
+            if not os.path.exists(tdms):
+                missing_files.append([key, tdms, data["tdms hash"]])
     
     messages = {"missing tdms": missing_files}
     return messages

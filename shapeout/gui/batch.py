@@ -157,7 +157,7 @@ class BatchFilterFolder(wx.Frame):
         # Make analysis from tdms files
         anal = analysis.Analysis(self.tdms_files)
         # Apply configuration
-        [ mm.UpdateConfiguration(f_config) for mm in anal.measurements ]
+        anal.SetParameters(f_config)
         # Apply filters
         [ mm.ApplyFilter() for mm in anal.measurements ]
         
