@@ -1,6 +1,7 @@
 0.6.4
 - Bugfixes:
   - Batch analysis: Individual measurement parameters not preserved (#96)
+- New filter hierarchy allows to investigate subpopulations (#87, #63)
 0.6.3
 - Bugfixes:
   - Regression: Excluded events plotted on top of filtered events (#86)
