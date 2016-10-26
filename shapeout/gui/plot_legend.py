@@ -8,6 +8,7 @@ from __future__ import division, unicode_literals
 # Chaco imports
 import chaco.api as ca
 import chaco.tools.api as cta
+import numpy as np
 
 
 def legend_plot(measurements, title_font="modern 12",
@@ -21,15 +22,33 @@ def legend_plot(measurements, title_font="modern 12",
         - mm.Configuration["Plotting"]["Contour Color"]
         - mm.title
     """
+    # The legend is actually a list of plot labels
     aplot = ca.Plot()
-    # normalize our data in range zero to 100
+    # normalize range from zero to 100 for convenience
     aplot.range2d.high=(100,100)
     aplot.range2d.low=(0,0)
     aplot.title = title
     aplot.title_font = title_font
     leftmarg = 7
-    toppos = 90
-    increment = 10
+    fname, fsize = legend_font.rsplit(" ", 1)
+    fsize = int(fsize)
+    autoscale = measurements[0].Configuration["Plotting"]["Legend Autoscaled"]
+    if autoscale and len(measurements)>=10:
+        # This case makes the legend entries fit into the plot window 
+        lm = len(measurements)
+        marker_size = int(np.floor(5/lm*9))
+        fsize = int(np.floor(fsize/lm*9))
+        increment = 100/(lm+1)
+        # This is a heuristic setting that works for most plots:
+        # (not sure how chaco defines marker positions)
+        label_position = -6*(5/lm*9)**.3
+    else:
+        marker_size = 5
+        increment = 10
+        label_position = -10
+    legend_font = " ".join([fname, str(fsize)])
+    toppos = 100 - increment
+        
     for mm in measurements:
         if mm.Configuration["Plotting"]["Scatter Title Colored"]:
             mmlabelcolor = mm.Configuration["Plotting"]["Contour Color"]
@@ -37,10 +56,10 @@ def legend_plot(measurements, title_font="modern 12",
             mmlabelcolor = "black"
         alabel = ca.DataLabel(
                         component=aplot, 
-                        label_position=[0,-increment],
+                        label_position=[0,label_position],
                         data_point=(leftmarg,toppos),
                         padding_bottom=0,
-                        marker_size=5,
+                        marker_size=marker_size,
                         bgcolor="transparent",
                         border_color="transparent",
                         label_text="  "+mm.title,
