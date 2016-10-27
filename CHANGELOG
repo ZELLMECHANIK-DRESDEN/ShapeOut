@@ -5,7 +5,7 @@
     the same time. Introduced new config key "Legend Autoscaled" (#91) 
 - New filter hierarchy allows to investigate subpopulations (#87, #63)
 - dclab
-  - Add InertiaRatio and InertiaRatioRaw to tdms files
+  - Add InertiaRatio and InertiaRatioRaw to tdms files (typo)
 0.6.3
 - Bugfixes:
   - Regression: Excluded events plotted on top of filtered events (#86)
