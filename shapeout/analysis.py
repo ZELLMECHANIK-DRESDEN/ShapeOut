@@ -96,8 +96,12 @@ class Analysis(object):
                     ids = [mm.identifier for mm in measmts if mm is not None]
                     mms = [mm for mm in measmts if mm is not None]
                     if idhp in ids:
+                        # parent exists
                         hparent = mms[ids.index(idhp)]  
                         mm = RTDC_DataSet(hparent=hparent)
+                    else:
+                        # parent doesn't exist - try again in next loop
+                        continue
                 else:
                     tloc = session_get_tdms_file(data, search_path)
                     mm = RTDC_DataSet(tloc)
