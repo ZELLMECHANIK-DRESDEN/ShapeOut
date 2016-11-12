@@ -11,12 +11,9 @@ import cv2
 import numpy as np
 import os
 import platform
-import shutil
 import sys
-import tempfile
 import traceback
 import wx
-import zipfile
 
 import dclab
 
@@ -27,6 +24,7 @@ from .explorer import ExplorerPanel
 import gaugeframe
 from .. import analysis
 from .. import tlabwrap
+from . import autosave
 from . import update
 from . import plot_main
 from . import misc
@@ -34,6 +32,8 @@ from . import video
 from . import export
 from . import batch
 from . import plot_export
+from . import session
+
 
 ########################################################################
 class ExceptionDialog(wx.MessageDialog):
@@ -125,11 +125,18 @@ class Frame(gaugeframe.GaugeFrame):
         self.spright.SetMinimumPaneSize(100)
         self.sptop.SetMinimumPaneSize(100)
         
-        if session_file is not None:
+        # Check if we have an autosaved session that we did not delete
+        recover = autosave.check_recover(self)
+        
+        # Load session file if provided
+        if session_file is not None and not recover:
             self.OnMenuLoad(session_file=session_file)
             
+        # Search for updates
         update.Update(self)
 
+        # Start autosaving
+        autosave.autosave_run(self)
 
         # Set window icon
         try:
@@ -137,6 +144,7 @@ class Frame(gaugeframe.GaugeFrame):
             wx.Frame.SetIcon(self, self.MainIcon)
         except:
             self.MainIcon = None
+
 
     def InitUI(self):
         """Menus, Toolbar, Statusbar"""
@@ -454,91 +462,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         
         dirname = os.path.dirname(fname)
         self.config.SetWorkingDirectory(dirname)
-        Arc = zipfile.ZipFile(fname, mode='r')
-        tempdir = tempfile.mkdtemp()
-        Arc.extractall(tempdir)
-        Arc.close()
-        
-        indexfile = os.path.join(tempdir, "index.txt")
 
-        delist = [self, self.PanelTop, self.PlotArea]
-        for item in delist:
-            if hasattr(item, "analysis"):
-                del item.analysis
-
-        # check session integrity
-        messages = analysis.session_check_index(indexfile, search_path=dirname)
-        
-        while len(messages["missing tdms"]):
-            # There are missing tdms files. We need to modify the extracted
-            # index file with a folder.
-            missing = messages["missing tdms"]
-            directories = [] # search directories
-            updict = {}      # new dicts for individual measurements
-            # Ask user for directory
-            miss = os.path.basename(missing[0][1])
-            
-            message = _("ShapeOut could not find the following measurements:")+\
-                      "\n\n".join([""]+[m[1] for m in missing]) +"\n\n"+\
-                      _("Please select a directory that contains these.")
-            
-            dlg = wx.MessageDialog(self,
-                                   caption=_("Missing tdms files for session"),
-                                   message=message,
-                                   style=wx.CANCEL|wx.OK,
-                                   )
-            mod = dlg.ShowModal()
-            dlg.Destroy()
-            if mod != wx.ID_OK:
-                break
-            
-            dlg = wx.DirDialog(self,
-                               message=_(
-                                        "Please select directory containing {}"
-                                        ).format(miss),
-                               )
-            mod = dlg.ShowModal()
-            path = dlg.GetPath()
-            dlg.Destroy()
-            if mod != wx.ID_OK:
-                break
-
-            # Add search directory            
-            directories.insert(0, path)
-            
-            # Try to find all measurements with that directory (also relative)
-            wx.BeginBusyCursor()
-            remlist = []
-            for m in missing:
-                key, tdms, thash = m
-                newfile = tlabwrap.search_hashed_tdms(tdms, thash, directories)
-                if newfile is not None:
-                    newdir = os.path.dirname(newfile)
-                    updict[key] = {"fdir": newdir}
-                    directories.insert(0, os.path.dirname(newdir))
-                    directories.insert(0, os.path.dirname(os.path.dirname(newdir)))
-                    remlist.append(m)
-            for m in remlist:
-                missing.remove(m)
-            wx.EndBusyCursor()
-
-            # Update the extracted index file.
-            analysis.session_update_index(indexfile, updict)
-        
-        self.NewAnalysis(indexfile, search_path=dirname)
-
-        directories = list()
-        for mm in self.analysis.measurements:
-            if os.path.exists(mm.fdir):
-                directories.append(mm.fdir)
-        
-        bolddirs = self.analysis.GetTDMSFilenames()
-
-        self.OnMenuSearchPathAdd(add=False, path=directories,
-                                 marked=bolddirs)
-        
-        # Remove all temporary files
-        shutil.rmtree(tempdir, ignore_errors=True)
+        session.open_session(fname, self)
         
 
     def OnMenuSearchPath(self, e=None):
@@ -599,10 +524,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 if filename is None:
                     # User did not save session - abort
                     return
-        #self.Close()
-        #self.Destroy()
-        #sys.exit()
-        # Force Exit without cleanup
+            
+        # remove the autosaved file
+        os.remove(autosave.autosave_file)
         os._exit(0)
 
 
@@ -619,20 +543,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 path += ".zmso"
             dirname = os.path.dirname(path)
             self.config.SetWorkingDirectory(dirname, name="Session")
-            # Begin saving
-            returnWD = os.getcwd()
-            tempdir = tempfile.mkdtemp()
-            os.chdir(tempdir)
-            Arc = zipfile.ZipFile(path, mode='w')
-            ## Dump data into directory
-            self.analysis.DumpData(tempdir, rel_path=os.path.dirname(path))
-            for root, _dirs, files in os.walk(tempdir):
-                for f in files:
-                    fw = os.path.join(root,f)
-                    Arc.write(os.path.relpath(fw,tempdir))
-                    os.remove(fw)
-            Arc.close()
-            os.chdir(returnWD)
+            session.save_session(path, self.analysis)
             return path
         else:
             dirname = dlg.GetDirectory()

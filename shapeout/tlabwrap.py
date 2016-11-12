@@ -11,24 +11,9 @@ from nptdms import TdmsFile
 import os
 import warnings
 
-from dclab.rtdc_dataset import hashfile
 from dclab import GetTDMSFiles, GetProjectNameFromPath
 from dclab import config as dc_config
-
 from util import findfile
-
-
-def search_hashed_tdms(tdms_file, tdms_hash, directories):
-    """ Search `directories` for `tdms_file` with matching `tdms_hash`
-    """
-    tdms_file = os.path.basename(tdms_file)
-    for adir in directories:
-        for root, _ds, fs in os.walk(adir):
-            if tdms_file in fs:
-                this_file = os.path.join(root,tdms_file)
-                this_hash = hashfile(this_file)
-                if this_hash == tdms_hash:
-                    return this_file
 
 
 def crop_linear_data(data, xmin, xmax, ymin, ymax):

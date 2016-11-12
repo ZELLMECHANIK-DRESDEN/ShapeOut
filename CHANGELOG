@@ -1,3 +1,7 @@
+0.6.5
+- Sessions are now autosaved every 60s (#97)
+- Bugfixes:
+  - Loading of sessions with hierarchy children failed (#99)
 0.6.4
 - Bugfixes:
   - Batch analysis: Individual measurement parameters not preserved (#96)
