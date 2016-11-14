@@ -88,8 +88,6 @@ def _UpdateConsumer(delayedresult, parent):
             webbrowser.open(url)
             
         parent.Bind(wx.EVT_MENU, get_update, menudl)
-        # Do not block GUI too long!
-    time.sleep(1)
     parent.StatusBar.SetStatusText("")
 
 

@@ -11,6 +11,7 @@ import codecs
 import copy
 import numpy as np
 import os
+import sys
 import warnings
 
 # dclab imports
@@ -51,6 +52,41 @@ class Analysis(object):
         else:
             raise ValueError("Argument not an index file or list of"+\
                              " .tdms files: {}".format(data))
+
+
+    def _clear(self):
+        """Remove all attributes from this instance, making it unusable
+        
+        It is difficult to control how the chaco plots refer to a measurement
+        object.
+        
+        """
+        import gc
+        for _i in range(len(self.measurements)):
+            mm = self.measurements.pop(0)
+            # Deleting all the data in measurements!
+            attrs = dclab.definitions.rdv
+            attrs += ["_filter_"+a for a in attrs]
+            attrs += ["_filter", "_plot_filter", "_Downsampled_Scatter"]
+            for a in attrs:
+                if hasattr(mm, a):
+                    b = getattr(mm, a)
+                    del b
+            # Also delete fluorescence curves
+            for tr in list(mm.traces.keys()):
+                t = mm.traces.pop(tr)
+                del t
+            del mm.traces
+            refs = gc.get_referrers(mm)
+            for r in refs:
+                if hasattr(r, "delplot"):
+                    r.delplot()
+                    import IPython
+                    IPython.embed()
+                del r
+            del mm
+        dclab.cached.Cache.clear_cache()
+        gc.collect()
 
 
     def _ImportDumped(self, indexname, search_path="./"):

@@ -280,6 +280,7 @@ class Frame(gaugeframe.GaugeFrame):
         anal = analysis.Analysis(data, search_path=search_path)
         # Get Plotting and Filtering parameters from previous analysis
         if hasattr(self, "analysis"):
+            # Get Plotting and Filtering parameters from previous analysis
             fpar = self.analysis.GetParameters("Filtering")
             ppar = self.analysis.GetParameters("Plotting")
             newcfg = {"Filtering" : fpar,
@@ -294,6 +295,7 @@ class Frame(gaugeframe.GaugeFrame):
             # - only works if len(colors) matches number of measurements
             colors = self.analysis.GetContourColors()
             anal.SetContourColors(colors)
+            self.analysis._clear()
         self.analysis = anal
         self.PanelTop.NewAnalysis(anal)
         self.PlotArea.Plot(anal)
