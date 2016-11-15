@@ -38,6 +38,7 @@ def _autosave_consumer(delayedresult, parent):
         parent.StatusBar.SetStatusText("Autosaving failed!")
         shutil.rmtree(tempname, ignore_errors=True)
     else:
+        os.remove(autosave_file)
         os.rename(tempname, autosave_file)
         parent.StatusBar.SetStatusText("")
     autosave_run(parent)
