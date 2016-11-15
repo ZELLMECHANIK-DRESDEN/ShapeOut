@@ -535,7 +535,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     return
             
         # remove the autosaved file
-        os.remove(autosave.autosave_file)
+        try:
+            if os.path.exists(autosave.autosave_file):
+                os.remove(autosave.autosave_file)
+        except:
+            pass
         os._exit(0)
 
 
