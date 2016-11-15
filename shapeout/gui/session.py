@@ -114,15 +114,14 @@ def save_session(path, analysis):
     returnWD = os.getcwd()
     tempdir = tempfile.mkdtemp()
     os.chdir(tempdir)
-    Arc = zipfile.ZipFile(path, mode='w')
-    ## Dump data into directory
-    analysis.DumpData(tempdir, rel_path=os.path.dirname(path))
-    for root, _dirs, files in os.walk(tempdir):
-        for f in files:
-            fw = os.path.join(root,f)
-            Arc.write(os.path.relpath(fw,tempdir))
-            os.remove(fw)
-    Arc.close()
+    with zipfile.ZipFile(path, mode='w') as arc:
+        ## Dump data into directory
+        analysis.DumpData(tempdir, rel_path=os.path.dirname(path))
+        for root, _dirs, files in os.walk(tempdir):
+            for f in files:
+                fw = os.path.join(root,f)
+                arc.write(os.path.relpath(fw,tempdir))
+                os.remove(fw)
     os.chdir(returnWD)
 
 

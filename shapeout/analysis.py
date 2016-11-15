@@ -235,9 +235,8 @@ class Analysis(object):
         for i in range(len(out)):
             out[i] += "\r\n"
         
-        index = codecs.open(indexname, "w", "utf-8")
-        index.writelines(out)
-        index.close()
+        with codecs.open(indexname, "w", "utf-8") as index:
+            index.writelines(out)
         
         # Dump polygons
         if len(PolygonFilter.instances) > 0:

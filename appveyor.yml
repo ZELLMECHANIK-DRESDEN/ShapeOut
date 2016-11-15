@@ -6,7 +6,8 @@
 
 # Do not use shallow_clone, because coveralls needs a git repository
 #shallow_clone: true
-clone_depth: 200
+# Use large clone depth so that a tag is included for versioning
+clone_depth: 256
 
 
 # Only build master branch
