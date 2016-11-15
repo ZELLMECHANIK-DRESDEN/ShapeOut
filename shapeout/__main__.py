@@ -58,19 +58,20 @@ def prepare_app():
         warnings.warn(_("Could not determine ShapeOut version."))
         version = None
     
-    # get session file
-    session_file = None
-    for arg in sys.argv:
-        if arg.endswith(".zmso"):
-            print("\nLoading Session "+arg)
-            session_file=arg
-        else:
-            print("Ignoring command line parameter: "+arg)
-
-    app.frame = frontend.Frame(version, session_file=session_file)
+    app.frame = frontend.Frame(version)
     
     return app
 
 if __name__ == "__main__":
+    # get session file
+    session_file = None
+    for arg in sys.argv:
+        if arg.endswith(".zmso"):
+            print("\nUsing Session "+arg)
+            session_file=arg
+        else:
+            print("Ignoring command line parameter: "+arg)
+
     app = prepare_app()
+    app.frame.InitRun(session_file=session_file)
     app.MainLoop()

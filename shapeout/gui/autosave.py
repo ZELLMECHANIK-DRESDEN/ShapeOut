@@ -6,7 +6,6 @@ from __future__ import division, print_function
 
 import appdirs
 import os
-import shutil
 import time
 import wx
 import wx.lib.delayedresult as delayedresult
@@ -31,14 +30,15 @@ def _autosave_consumer(delayedresult, parent):
     parent.StatusBar.SetStatusText("Autosaving...")
     tempname = autosave_file+".tmp"
     mkdir_p(cache_dir)
-    session.save_session(tempname, parent.analysis)
     try:
         session.save_session(tempname, parent.analysis)
     except:
         parent.StatusBar.SetStatusText("Autosaving failed!")
-        shutil.rmtree(tempname, ignore_errors=True)
+        if os.path.exists(tempname):
+            os.remove(tempname)
     else:
-        os.remove(autosave_file)
+        if os.path.exists(autosave_file):
+            os.remove(autosave_file)
         os.rename(tempname, autosave_file)
         parent.StatusBar.SetStatusText("")
     autosave_run(parent)

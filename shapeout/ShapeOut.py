@@ -32,6 +32,7 @@ def main():
     # close the splash screen
     splash.terminate()
     # launch application
+    app.frame.InitRun()
     app.MainLoop()
     
     

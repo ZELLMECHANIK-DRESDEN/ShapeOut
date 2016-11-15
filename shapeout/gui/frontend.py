@@ -47,7 +47,7 @@ class ExceptionDialog(wx.MessageDialog):
 ########################################################################
 class Frame(gaugeframe.GaugeFrame):
     """"""
-    def __init__(self, version, session_file=None):
+    def __init__(self, version):
         """Constructor"""
         self.config = ConfigurationFile(findfile("shapeout.cfg"))
         self.version = version
@@ -125,6 +125,20 @@ class Frame(gaugeframe.GaugeFrame):
         self.spright.SetMinimumPaneSize(100)
         self.sptop.SetMinimumPaneSize(100)
         
+        # Set window icon
+        try:
+            self.MainIcon = misc.getMainIcon()
+            wx.Frame.SetIcon(self, self.MainIcon)
+        except:
+            self.MainIcon = None
+
+
+    def InitRun(self, session_file=None):
+        """Performs the first tasks after the publication starts
+        
+        - start autosaving
+        - check for updates
+        """
         # Check if we have an autosaved session that we did not delete
         recover = autosave.check_recover(self)
         
@@ -137,13 +151,6 @@ class Frame(gaugeframe.GaugeFrame):
 
         # Start autosaving
         autosave.autosave_run(self)
-
-        # Set window icon
-        try:
-            self.MainIcon = misc.getMainIcon()
-            wx.Frame.SetIcon(self, self.MainIcon)
-        except:
-            self.MainIcon = None
 
 
     def InitUI(self):
