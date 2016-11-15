@@ -20,7 +20,7 @@ autosave_file = os.path.join(cache_dir, "autosave.zmso")
 def mkdir_p(adir):
     """Recursively create a directory"""
     adir = os.path.abspath(adir)
-    if not os.path.exists(adir):
+    while not os.path.exists(adir):
         try:
             os.mkdir(adir)
         except:
