@@ -86,6 +86,7 @@ install:
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
   # PIP installs
+  - "pip install appdirs"
   - "pip install nptdms"
   # install pyper (R)
   - "pip install pyper"
