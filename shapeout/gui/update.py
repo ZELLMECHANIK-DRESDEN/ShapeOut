@@ -14,6 +14,7 @@ import wx.lib.delayedresult as delayedresult
 
 from .. import _version as so_version
 
+
 def check_release(
             ghrepo="user/repo",
             version=None, timeout=20):
@@ -57,6 +58,7 @@ def check_release(
                             msg = a["browser_download_url"]
                     
     return update, msg
+
                 
 def Update(parent):
     """ This is a thread for _Update """
@@ -70,6 +72,7 @@ def Update(parent):
     delayedresult.startWorker(_UpdateConsumer, _UpdateWorker,
                               wargs=(ghrepo, version),
                               cargs=(parent,))
+
 
 def _UpdateConsumer(delayedresult, parent):
     results = delayedresult.get()
@@ -85,9 +88,8 @@ def _UpdateConsumer(delayedresult, parent):
             webbrowser.open(url)
             
         parent.Bind(wx.EVT_MENU, get_update, menudl)
-        # Do not block GUI too long!
-    time.sleep(1)
     parent.StatusBar.SetStatusText("")
+
 
 def _UpdateWorker(*args):
     results = check_release(*args)

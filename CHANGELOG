@@ -1,9 +1,17 @@
+0.6.5
+- Sessions are now autosaved every 60s (#97)
+- Bugfixes:
+  - Loading of sessions with hierarchy children failed (#99)
+  - Reduced a memory leak for new analyses that resulted in frequent
+    memory errors (should be less frequent now)
 0.6.4
 - Bugfixes:
   - Batch analysis: Individual measurement parameters not preserved (#96)
   - Legend plot: >9 measurements cannot be displayed in legend at
     the same time. Introduced new config key "Legend Autoscaled" (#91) 
 - New filter hierarchy allows to investigate subpopulations (#87, #63)
+- dclab
+  - Add InertiaRatio and InertiaRatioRaw to tdms files (typo)
 0.6.3
 - Bugfixes:
   - Regression: Excluded events plotted on top of filtered events (#86)

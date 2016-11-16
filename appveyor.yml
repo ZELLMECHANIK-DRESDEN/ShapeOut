@@ -6,7 +6,8 @@
 
 # Do not use shallow_clone, because coveralls needs a git repository
 #shallow_clone: true
-clone_depth: 10
+# Use large clone depth so that a tag is included for versioning
+clone_depth: 256
 
 
 # Only build master branch
@@ -86,6 +87,7 @@ install:
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
   # PIP installs
+  - "pip install appdirs"
   - "pip install nptdms"
   # install pyper (R)
   - "pip install pyper"

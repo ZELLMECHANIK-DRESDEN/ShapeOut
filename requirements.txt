@@ -1,3 +1,4 @@
+appdirs
 chaco>=4.1.0
 cffi>=0.8.2
 dclab>=0.1.0
