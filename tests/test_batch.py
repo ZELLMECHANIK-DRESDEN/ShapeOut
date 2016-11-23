@@ -7,6 +7,7 @@ from __future__ import print_function
 from os.path import abspath, dirname
 import sys
 
+import codecs
 import unittest
 import dclab
 import tempfile
@@ -38,6 +39,19 @@ class TestSimple(unittest.TestCase):
         batch.out_tsv_file=tempfile.mkstemp(".tsv", "shapeout_batch")[1]
         batch.tdms_files=[tdms_path]
         batch.OnBatch()
+        
+        with codecs.open(batch.out_tsv_file, encoding="utf-8") as fd:
+            data = fd.readlines()
+        
+        header = [d.strip().lower() for d in data[0].strip("# ").split("\t")]
+        values = [d.strip() for d in data[1].strip("# ").split("\t")]
+        soll={"%-gated": 100,
+              "events": 156,
+              "flow rate": 0.12,
+              "mean deformation": 1.3096144795e-01}
+        for key in soll:
+            idx = header.index(key)
+            assert float(values[idx]) == soll[key]
 
 
 if __name__ == "__main__":
