@@ -300,5 +300,5 @@ def set_scatter_data(plot, mm):
             if plotfilters["Show Events"]:
                 oltext = "{} events".format(np.sum(mm._filter))
             else:
-                oltext = "ads"
+                oltext = ""
             ol.text = oltext

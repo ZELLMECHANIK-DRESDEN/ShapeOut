@@ -1,6 +1,8 @@
 0.6.6
+- Hide unimportant data in Info tab (#102)
 - Bugfixes:
   - Regression: Error when batch analysis started (#105, #106)
+  - Contour error when plot contains no events (#104)
 0.6.5
 - Sessions are now autosaved every 60s (#97)
 - Bugfixes:
