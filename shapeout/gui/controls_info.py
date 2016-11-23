@@ -29,10 +29,7 @@ class SubPanelInfo(SubPanel):
 
     def UpdatePanel(self, analysis):
         """  """
-        for item in self.GetChildren():
-            item.Hide()
-            self.RemoveChild(item)
-            item.Destroy()
+        self.ClearSubPanel()
 
         # Create three boxes containing information
         sizer = wx.BoxSizer(wx.HORIZONTAL)

@@ -56,11 +56,10 @@ class SubPanel(ScrolledPanel):
                     b.Disable()
                 sgen.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
                 sgen.Add(b, 0, wx.ALIGN_CENTER_VERTICAL)
-        
             sgen.Layout()
             hbox.Add(sgen)
-        
         return hbox
+
 
     def _create_type_wx_controls(self, analysis, key, item):
         """ Create a wx control whose type is inferred by item
@@ -108,7 +107,60 @@ class SubPanel(ScrolledPanel):
             stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(b)
         return stemp
-    
+
+
+    def BindEnableName(self, ctrl_source, value, ctrl_targets):
+        """Convenience function to auto-enable or -disable controls
+        
+        Parameters
+        ----------
+        ctrl_source: name of a wx control
+            The source control
+        value: bool or str
+            The value of the source control
+        ctrl_targets: list of names of wx controls
+            The controls to enable or disable depending on `value`
+        """
+        # Find source
+        for c in self.GetChildren():
+            if c.GetName()==ctrl_source:
+                source=c
+                break
+        else:
+            raise ValueError("Could not find source '{}'".format(ctrl_source))
+
+        # Find targets
+        targets = []
+        for c in self.GetChildren():
+            if c.GetName() in ctrl_targets:
+                targets.append(c)
+
+        assert len(targets) == len(ctrl_targets), "Could not find all targets!"
+        
+        for tar in targets:
+            if isinstance(source, wx._controls.CheckBox):
+                def method(evt=None, tar=tar, value=value):
+                    tar.Enable(source.IsChecked()==value)
+                    if evt is not None:
+                        evt.Skip()
+                event = wx.EVT_CHECKBOX
+            elif isinstance(source, wx._controls.ComboBox):
+                def method(evt=None, tar=tar, value=value):
+                    tar.Enable(source.GetValue()==value)
+                    if evt is not None:
+                        evt.Skip()
+                event = wx.EVT_COMBOBOX
+            self.Bind(event, method, source)
+            # Call the method to set the defaults
+            method()
+
+
+    def ClearSubPanel(self):
+        for item in self.GetChildren():
+            item.Hide()
+            self.RemoveChild(item)
+            item.Destroy()
+
 
     def OnReset(self, e=None):
         """ Reset all parameters that are defined in this panel.
@@ -127,9 +179,8 @@ class SubPanel(ScrolledPanel):
                 subkey = c.GetName()
                 if subkey in default:
                     subkeys.append(subkey)
-            print(subkeys)
             self.funcparent.Reset(self.key, subkeys)
-            
+
 
     def UpdatePanel(self, *args, **kwargs):
         """ Overwritten by subclass """

@@ -481,10 +481,7 @@ class SubPanelFilter(SubPanel):
 
         self.analysis = analysis
         
-        for item in self.GetChildren():
-            item.Hide()
-            self.RemoveChild(item)
-            item.Destroy()
+        self.ClearSubPanel()
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         
@@ -549,6 +546,10 @@ class SubPanelFilter(SubPanel):
         self.OnPolygonCombobox()
 
         sizer.Add(vertsizer)
+
+        self.BindEnableName(ctrl_source="Limit Events Auto",
+                            value=False,
+                            ctrl_targets=["Limit Events"])
 
         self.SetSizer(sizer)
         sizer.Fit(self)
