@@ -1,6 +1,6 @@
 0.6.6
 - Bugfixes:
-  - Regression: Error when batch analysis started (#106)
+  - Regression: Error when batch analysis started (#105, #106)
 0.6.5
 - Sessions are now autosaved every 60s (#97)
 - Bugfixes:

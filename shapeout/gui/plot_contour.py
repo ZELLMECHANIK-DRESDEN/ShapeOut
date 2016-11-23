@@ -153,6 +153,10 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         if cname in plot.plots:
             plot.delplot(cname)
 
+        # Check if there is data to compute a contour from
+        if len(mm._filter)==0 or np.sum(mm._filter)==0:
+            break
+
         (X,Y,density) = mm.GetKDE_Contour(yax=yax, xax=xax)
         pd.set_data(cname, density)
   
