@@ -384,7 +384,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
     def OnMenuBatchFolder(self, e=None):
-        batch.BatchFilterFolder(self, self.analysis)
+        return batch.BatchFilterFolder(self, self.analysis)
 
 
     def OnMenuClearMeasurements(self, e=None):

@@ -162,10 +162,7 @@ class SubPanelAnalysis(SubPanel):
             analysis = self.analysis
         self.analysis = analysis
 
-        for item in self.GetChildren():
-            item.Hide()
-            self.RemoveChild(item)
-            item.Destroy()
+        self.ClearSubPanel()
         
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         

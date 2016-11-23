@@ -11,7 +11,6 @@ import codecs
 import copy
 import numpy as np
 import os
-import sys
 import warnings
 
 # dclab imports
@@ -36,7 +35,7 @@ class Analysis(object):
     def __init__(self, data, search_path="./"):
         """ Analysis data object.
         """
-        self.measurements = list()
+        self.measurements = []
         if isinstance(data, list):
             # New analysis
             for f in data:
@@ -65,7 +64,7 @@ class Analysis(object):
         for _i in range(len(self.measurements)):
             mm = self.measurements.pop(0)
             # Deleting all the data in measurements!
-            attrs = dclab.definitions.rdv
+            attrs = copy.copy(dclab.definitions.rdv)
             attrs += ["_filter_"+a for a in attrs]
             attrs += ["_filter", "_plot_filter", "_Downsampled_Scatter"]
             for a in attrs:
@@ -81,8 +80,6 @@ class Analysis(object):
             for r in refs:
                 if hasattr(r, "delplot"):
                     r.delplot()
-                    import IPython
-                    IPython.embed()
                 del r
             del mm
         dclab.cached.Cache.clear_cache()
