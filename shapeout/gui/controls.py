@@ -23,6 +23,7 @@ from . import plot_contour
 from .controls_subpanel import SubPanel
 from .controls_analysis import SubPanelAnalysis
 from .controls_filtering import SubPanelFilter
+from .controls_info import SubPanelInfo
 
 
 
@@ -414,39 +415,6 @@ class DragListStriped(wx.ListCtrl):
 
 
 
-class SubPanelInfo(SubPanel):
-    def __init__(self, *args, **kwargs):
-        SubPanel.__init__(self, *args, **kwargs)
-
-    def UpdatePanel(self, analysis):
-        """  """
-        for item in self.GetChildren():
-            item.Hide()
-            self.RemoveChild(item)
-            item.Destroy()
-        # Create three boxes containing information
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        genbox = self._box_from_cfg_read(analysis, "General")
-        imbox = self._box_from_cfg_read(analysis, "Image")
-        frbox = self._box_from_cfg_read(analysis, "Framerate")
-        roibox = self._box_from_cfg_read(analysis, "ROI")
-        # same size 
-        h = genbox.GetMinSize()[1]
-        h = max(h, imbox.GetMinSize()[1])
-        h = max(h, frbox.GetMinSize()[1])
-        h = max(h, roibox.GetMinSize()[1])
-        h = max(h, 50)
-        genbox.SetMinSize((-1, h))
-        imbox.SetMinSize((-1, h))
-        frbox.SetMinSize((-1, h))
-        roibox.SetMinSize((-1, h))
-        sizer.Add(genbox)
-        sizer.Add(imbox)
-        sizer.Add(frbox)
-        sizer.Add(roibox)
-        self.SetSizer(sizer)
-        sizer.Fit(self)
-        self.Layout()
         
 
 class SubPanelPlotting(SubPanel):

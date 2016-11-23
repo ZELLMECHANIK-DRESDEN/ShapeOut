@@ -19,13 +19,28 @@ class SubPanel(ScrolledPanel):
         self.funcparent = funcparent
 
 
-    def _box_from_cfg_read(self, analysis, key):
+    def _box_from_cfg_read(self, analysis, key, ignore=[]):
+        """Generate user interface from configuration keys
+        
+        analysis: shapeout analysis instance
+            The data
+        key: str
+            The dictionary key from which to obtain the
+            user interface values
+        ignore: list of str
+            Lower case list of subkeys to not include in the
+            interface
+        """
         gen = wx.StaticBox(self, label=_(key))
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
 
         if analysis is not None:
             items = analysis.GetCommonParameters(key).items()
             items2 = analysis.GetUncommonParameters(key).items()
+
+            # Ignore keys
+            items = [it for it in items if not it[0].lower() in ignore]
+            items2 = [it for it in items2 if not it[0].lower() in ignore]
 
             multiplestr = _("(multiple)")
             for item in items2:
