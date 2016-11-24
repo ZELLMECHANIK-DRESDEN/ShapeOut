@@ -153,18 +153,21 @@ class BatchFilterFolder(wx.Frame):
         if self.rbtnhere.GetValue():
             mhere = self.analysis.measurements[self.dropdown.GetSelection()] 
             f_config = mhere.Configuration
-        
-        # Make analysis from tdms files
-        anal = analysis.Analysis(self.tdms_files)
-        # Apply configuration
-        anal.SetParameters(f_config)
-        # Apply filters
-        [ mm.ApplyFilter() for mm in anal.measurements ]
-        
+
         # Compute statistics
         head = None
         rows = []
-        for mm in anal.measurements:
+        
+        # Process each tdms file separately to reduce memory usage
+        for tdms in self.tdms_files:
+            # Make analysis from tdms file
+            anal = analysis.Analysis([tdms])
+            # Apply configuration
+            anal.SetParameters(f_config)
+            mm = anal.measurements[0]
+            # Apply filters
+            mm.ApplyFilter()
+            # Get statistics
             h, v = dclab.statistics.get_statistics(rtdc_ds=mm,
                                                    columns=columns,
                                                    axes=axes)
@@ -174,7 +177,7 @@ class BatchFilterFolder(wx.Frame):
                 assert h==head, "Problem with available columns/axes!"
             
             rows.append([mm.tdms_filename, mm.title]+v)
-        
+
         head = ["TDMS file", "Title"] + head
         
         with codecs.open(self.out_tsv_file, "w", encoding="utf-8") as fd:
