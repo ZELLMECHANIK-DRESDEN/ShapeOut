@@ -3,6 +3,7 @@ chaco>=4.1.0
 cffi>=0.8.2
 dclab>=0.1.0
 enable>=4.1.0
+fcswrite
 npTDMS>=0.6.2
 numpy>=1.5.1
 opencv>=2.4.0
