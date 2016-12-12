@@ -134,9 +134,9 @@ class SubPanel(ScrolledPanel):
         for c in self.GetChildren():
             if c.GetName() in ctrl_targets:
                 targets.append(c)
-
-        assert len(targets) == len(ctrl_targets), "Could not find all targets!"
         
+        assert len(targets) == len(ctrl_targets), "Could not find all targets!"
+       
         for tar in targets:
             if isinstance(source, wx._controls.CheckBox):
                 def method(evt=None, tar=tar, value=value):

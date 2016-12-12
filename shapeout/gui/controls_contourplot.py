@@ -6,7 +6,6 @@ from __future__ import division, print_function
 
 import numpy as np
 import wx
-import dclab
 
 from .. import tlabwrap
 from .controls_subpanel import SubPanel
