@@ -201,6 +201,9 @@ class Frame(gaugeframe.GaugeFrame):
         e2pdf = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
+        e2svg = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.svg)'), 
+                       _('Export the plot as a scalable vector graphics file'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportSVG, e2svg)
         # export PNG disabled:
         # https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/issues/62
         #e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
@@ -448,7 +451,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         and then changes everything back
         """
         plot_export.export_plot_pdf(self)
+
+
+    def OnMenuExportSVG(self, e=None):
+        """ Saves plot container as SVG
         
+        Uses heuristic methods to resize
+        - the plot
+        - the scatter plot markers
+        and then changes everything back
+        """
+        plot_export.export_plot_svg(self)
+
 
     def OnMenuExportPNG(self, e=None):
         """ Saves plot container as png
