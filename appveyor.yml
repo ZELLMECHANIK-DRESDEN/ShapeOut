@@ -100,6 +100,8 @@ install:
   # requirements from dclab were partly installed with conda:
   #- "pip install dclab --no-deps"
   - "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git --no-deps"
+  # fcswrite
+  - "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git --no-deps"
  
   # Patch libraries
   - '%WITH_COMPILER% %PYTHON%/python freeze_appveyor/patch_libraries.py'

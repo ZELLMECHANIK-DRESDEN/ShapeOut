@@ -192,9 +192,12 @@ class Frame(gaugeframe.GaugeFrame):
         ## Export menu
         exportMenu = wx.Menu()
         self.menubar.Append(exportMenu, _('&Export'))
-        e2dat = exportMenu.Append(wx.ID_ANY, _('All &event data (*.tsv)'), 
-                       _('Export the plotted event data as tab-separated values'))
-        self.Bind(wx.EVT_MENU, self.OnMenuExportData, e2dat)
+        e2tsv = exportMenu.Append(wx.ID_ANY, _('All &event data (*.tsv)'), 
+                _('Export the plotted event data as tab-separated values'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
+        e2fcs = exportMenu.Append(wx.ID_ANY, _('All &event data (*.fcs)'), 
+                _('Export the plotted event data as flow cytometry standard file'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsFCS, e2fcs)
         e2pdf = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
@@ -345,6 +348,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     def OnHelpSoftware(self, e=None):
         # Show About Information
         from dclab import __version__ as dcversion
+        from fcswrite import __version__ as fcversion
         from scipy import __version__ as spversion
         from pyper import __version__ as pyperversion
         from .. import _version as so_version
@@ -361,6 +365,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                "\n\nModules:"+\
                "\n - chaco "+chaco.__version__+\
                "\n - dclab "+dcversion+\
+               "\n - fcswrite "+fcversion+\
                "\n - NumPy "+np.__version__+\
                "\n - OpenCV "+cv2.__version__+\
                "\n - pyper "+pyperversion+\
@@ -410,8 +415,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             tree.Delete(ch)
 
 
-    def OnMenuExportData(self, e=None):
-        """ Export the event data of the entire analysis
+    def OnMenuExportEventsFCS(self, e=None):
+        """Export the event data of the entire analysis as fcs
+        
+        This will open a choice dialog for the user
+        - which data (filtered/unfiltered)
+        - which columns (Area, Deformation, etc)
+        - to which folder should be exported 
+        """
+        # Generate dialog
+        export.ExportAnalysisEventsFCS(self, self.analysis)
+
+
+    def OnMenuExportEventsTSV(self, e=None):
+        """Export the event data of the entire analysis as tsv
         
         This will open a choice dialog for the user
         - which data (filtered/unfiltered)
