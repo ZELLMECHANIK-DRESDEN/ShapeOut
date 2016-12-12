@@ -136,7 +136,7 @@ def export_plot_png(parent):
     # https://github.com/enthought/chaco/issues/295
     dlg = wx.FileDialog(parent, "Export plot as PNG", 
                         parent.config.GetWorkingDirectory("PNG"), "",
-                        "PDF file (*.png)|*.png",
+                        "PNG file (*.png)|*.png",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         path = dlg.GetPath()
