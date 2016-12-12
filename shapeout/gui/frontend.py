@@ -189,19 +189,27 @@ class Frame(gaugeframe.GaugeFrame):
                                 _('Quit ShapeOut'))
         self.Bind(wx.EVT_MENU, self.OnMenuQuit, fquit)
         
-        ## Export menu
-        exportMenu = wx.Menu()
-        self.menubar.Append(exportMenu, _('&Export'))
-        e2tsv = exportMenu.Append(wx.ID_ANY, _('All &event data (*.tsv)'), 
+        ## Export Data menu
+        exportDataMenu = wx.Menu()
+        self.menubar.Append(exportDataMenu, _('Export &Data'))
+        e2tsv = exportDataMenu.Append(wx.ID_ANY, _('All &event data (*.tsv)'), 
                 _('Export the plotted event data as tab-separated values'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
-        e2fcs = exportMenu.Append(wx.ID_ANY, _('All &event data (*.fcs)'), 
+        e2fcs = exportDataMenu.Append(wx.ID_ANY, _('All &event data (*.fcs)'), 
                 _('Export the plotted event data as flow cytometry standard file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsFCS, e2fcs)
-        e2pdf = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
+        e2stat = exportDataMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
+                       _('Export the statistics data as tab-separated values'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
+        
+        ## Export Plot menu
+        exportPlotMenu = wx.Menu()
+        self.menubar.Append(exportPlotMenu, _('Export &Plot'))
+
+        e2pdf = exportPlotMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
-        e2svg = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.svg)'), 
+        e2svg = exportPlotMenu.Append(wx.ID_ANY, _('Graphical &plot (*.svg)'), 
                        _('Export the plot as a scalable vector graphics file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportSVG, e2svg)
         # export PNG disabled:
@@ -209,9 +217,7 @@ class Frame(gaugeframe.GaugeFrame):
         #e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
         #               _('Export the plot as a portable network graphic'))
         #self.Bind(wx.EVT_MENU, self.OnMenuExportPNG, e2png)
-        e2stat = exportMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
-                       _('Export the statistics data as tab-separated values'))
-        self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
+
 
         ## Batch menu
         batchMenu = wx.Menu()
