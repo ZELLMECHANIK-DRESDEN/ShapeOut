@@ -1,6 +1,7 @@
 0.6.7
 - Minimize memory usage for batch processing (#108)
 - Allow export to flow cytometry standard file format (#54)
+- Add "User Defined" Columns for post-processed data (e.g. compensation)
 0.6.6
 - Hide unimportant data in Info tab (#102)
 - Disable/Enable controls dependent on values of other controls (#103)
