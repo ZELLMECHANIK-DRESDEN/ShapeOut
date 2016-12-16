@@ -82,7 +82,6 @@ class Analysis(object):
                     r.delplot()
                 del r
             del mm
-        dclab.cached.Cache.clear_cache()
         gc.collect()
 
 
