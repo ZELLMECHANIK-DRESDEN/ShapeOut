@@ -238,11 +238,11 @@ class ImagePanel(ScrolledPanel):
                 
                 # only do this if there was a contour file loaded
                 if len(mm.contours) > 0:
-                    contours = mm.contours[mm.frame[evt_id]]
-                    
-                    r[contours[:,1], contours[:,0]] = 255
-                    b[contours[:,1], contours[:,0]] = 0
-                    g[contours[:,1], contours[:,0]] = 0
+                    contours = mm.contours[evt_id]
+                    if contours is not None:
+                        r[contours[:,1], contours[:,0]] = 255
+                        b[contours[:,1], contours[:,0]] = 0
+                        g[contours[:,1], contours[:,0]] = 0
                 
                 self.frame.ImageArea.PlotImage(cellimg)
                 

@@ -7,6 +7,7 @@ from __future__ import division, print_function
 
 import chaco
 from chaco.pdf_graphics_context import PdfPlotGraphicsContext
+from chaco.svg_graphics_context import SVGGraphicsContext
 import chaco.api as ca
 import os
 import warnings
@@ -131,9 +132,11 @@ def export_plot_pdf(parent):
 
 
 def export_plot_png(parent):
+    # PNG export is not functional in chaco
+    # https://github.com/enthought/chaco/issues/295
     dlg = wx.FileDialog(parent, "Export plot as PNG", 
                         parent.config.GetWorkingDirectory("PNG"), "",
-                        "PDF file (*.png)|*.png",
+                        "PNG file (*.png)|*.png",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         path = dlg.GetPath()
@@ -159,6 +162,32 @@ def export_plot_png(parent):
 
         p.use_backbuffer = use_backbuffer
         
+
+def export_plot_svg(parent):
+    dlg = wx.FileDialog(parent, _("Export plot as SVG"), 
+                        parent.config.GetWorkingDirectory("SVG"), "",
+                        _("SVG file")+" (*.svg)|*.svg",
+                        wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+    if dlg.ShowModal() == wx.ID_OK:
+        path = dlg.GetPath()
+        if not path.endswith(".svg"):
+            path += ".svg"
+        parent.config.SetWorkingDirectory(os.path.dirname(path), "SVG")
+        container = parent.PlotArea.mainplot.container
+
+        retol = hide_scatter_inspector(container)
+       
+        container.do_layout(force=True)
+        plot = container.components[0]
+        gc = SVGGraphicsContext(plot.outer_bounds)
+        gc.render_component(plot.components[-1])
+        #Start a new page for subsequent draw commands.
+        gc.save(path)
+
+        if retol is not None:
+            retol.visible = True
+
+
 
 def hide_scatter_inspector(container):
     retol = None
