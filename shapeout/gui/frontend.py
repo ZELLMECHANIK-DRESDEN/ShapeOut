@@ -209,9 +209,11 @@ class Frame(gaugeframe.GaugeFrame):
         e2pdf = exportPlotMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
                        _('Export the plot as a portable document file'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
-        e2svg = exportPlotMenu.Append(wx.ID_ANY, _('Graphical &plot (*.svg)'), 
-                       _('Export the plot as a scalable vector graphics file'))
-        self.Bind(wx.EVT_MENU, self.OnMenuExportSVG, e2svg)
+        # export SVG disabled:
+        # The resulting graphic is not better than the PDF and axes are missing
+        #e2svg = exportPlotMenu.Append(wx.ID_ANY, _('Graphical &plot (*.svg)'), 
+        #               _('Export the plot as a scalable vector graphics file'))
+        #self.Bind(wx.EVT_MENU, self.OnMenuExportSVG, e2svg)
         # export PNG disabled:
         # https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/issues/62
         #e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
