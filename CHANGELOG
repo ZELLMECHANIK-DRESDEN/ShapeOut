@@ -1,3 +1,5 @@
+0.6.8
+- Speed-up search for measurements (#113)
 0.6.7
 - Minimize memory usage for batch processing (#108)
 - Allow export to flow cytometry standard file format (#54)

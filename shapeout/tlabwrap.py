@@ -6,6 +6,9 @@
 from __future__ import division, unicode_literals
 
 import codecs
+import cv2
+from distutils.version import LooseVersion
+
 import numpy as np
 from nptdms import TdmsFile
 import os
@@ -14,6 +17,15 @@ import warnings
 from dclab import GetTDMSFiles, GetProjectNameFromPath
 from dclab import config as dc_config
 from util import findfile
+
+
+# Constants in OpenCV moved from "cv2.cv" to "cv2"
+if LooseVersion(cv2.__version__) < LooseVersion("3.0.0"):
+    cv_const = cv2.cv
+    cv_version3 = False
+else:
+    cv_const = cv2
+    cv_version3 = True
 
 
 def crop_linear_data(data, xmin, xmax, ymin, ymax):
@@ -170,7 +182,6 @@ def IsFullMeasurement(fname):
         except:
             is_ok = False
             break
-    
     return is_ok
 
 
@@ -185,9 +196,37 @@ def GetDefaultConfiguration(key=None):
 
 def GetEvents(fname):
     """ Get the number of events for a tdms file
+    
+    There are multiple ways of determining the number of events,
+    which are used in the following order:
+    1. The MX_log.ini file "Events" tag
+    2. The number of frames in the avi file
+    3. The tdms file (very slow, because whole tdms file is loaded)
+    
     """
-    tdms_file = TdmsFile(fname)
-    datalen = len(tdms_file.object("Cell Track", "time").data)
+    mdir = os.path.dirname(fname)
+    mid = os.path.basename(fname).split("_")[0]
+    # 1. The MX_log.ini file "Events" tag
+    logf = os.path.join(mdir, mid+"_log.ini")
+    # 2. The number of frames in the avi file
+    avif = os.path.join(mdir, mid+"_imaq.avi")
+    if os.path.exists(logf):
+        with open(logf) as fd:
+            logd = fd.readlines()
+        for l in logd:
+            if l.strip().startswith("Events:"):
+                datalen = int(l.split(":")[1])
+                break
+    elif os.path.exists(avif):
+        video = cv2.VideoCapture(avif)
+        if cv_version3:
+            datalen = video.get(cv_const.CAP_PROP_FRAME_COUNT)
+        else:
+            datalen = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
+        video.release()
+    else:
+        tdms_file = TdmsFile(fname)
+        datalen = len(tdms_file.object("Cell Track", "time").data)
     return datalen
 
 
