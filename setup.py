@@ -43,8 +43,9 @@ if __name__ == "__main__":
             'GUI':  ["wxPython", "chaco", "opencv"],
             # kiwisolver?
         },
-        install_requires=["appdirs", "dclab", "fcswrite",
-                          "NumPy>=1.7.0", "SciPy>=0.10.0",
+        install_requires=["appdirs", "dclab",
+                          "NumPy>=1.7.0",
+                          "SciPy>=0.10.0",
                           "pyper"],
         setup_requires=['pytest-runner'],
         tests_require=["pytest", "urllib3"],

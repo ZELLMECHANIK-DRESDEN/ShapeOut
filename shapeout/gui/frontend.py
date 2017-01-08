@@ -3,7 +3,7 @@
 """ ShapeOut - wx frontend components
 
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import chaco
 
@@ -196,11 +196,14 @@ class Frame(gaugeframe.GaugeFrame):
                 _('Export the plotted event data as tab-separated values'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
         e2fcs = exportDataMenu.Append(wx.ID_ANY, _('All &event data (*.fcs)'), 
-                _('Export the plotted event data as flow cytometry standard file'))
+                _('Export the plotted event data as flow cytometry standard files'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsFCS, e2fcs)
         e2stat = exportDataMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
                        _('Export the statistics data as tab-separated values'))
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
+        e2avi = exportDataMenu.Append(wx.ID_ANY, _('All &event images (*.avi)'), 
+                _('Export the event images as video files'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsAVI, e2avi)
         
         ## Export Plot menu
         exportPlotMenu = wx.Menu()
@@ -424,6 +427,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 dellist.append(c)
         for ch in dellist:
             tree.Delete(ch)
+
+
+    def OnMenuExportEventsAVI(self, e=None):
+        """Export the event image data to an avi file
+        
+        This will open a dialog for the user to select
+        the target file name.
+        """
+        # Generate dialog
+        export.ExportAnalysisEventsAVI(self, self.analysis)
 
 
     def OnMenuExportEventsFCS(self, e=None):
