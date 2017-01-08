@@ -436,7 +436,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         the target file name.
         """
         # Generate dialog
-        export.ExportAnalysisEventsAVI(self, self.analysis)
+        export.export_event_images_avi(self, self.analysis)
 
 
     def OnMenuExportEventsFCS(self, e=None):

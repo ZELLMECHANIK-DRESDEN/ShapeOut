@@ -134,16 +134,6 @@ class ExportAnalysisEvents(wx.Frame):
 
 
 
-class ExportAnalysisEventsAVI(ExportAnalysisEvents):
-    def __init__(self, parent, analysis):
-        super(ExportAnalysisEventsAVI, self).__init__(parent, analysis, ext="avi")
-
-    def export(self, out_dir, columns, filtered):
-        for m in self.analysis.measurements:
-            m.ExportAVI(os.path.join(out_dir, m.title+".avi"),
-                        override=True)
-
-
 class ExportAnalysisEventsFCS(ExportAnalysisEvents):
     def __init__(self, parent, analysis):
         super(ExportAnalysisEventsFCS, self).__init__(parent, analysis, ext="fcs")
@@ -169,6 +159,17 @@ class ExportAnalysisEventsTSV(ExportAnalysisEvents):
                         override=True)
 
 
+
+def export_event_images_avi(parent, analysis):
+    dlg = wx.DirDialog(parent,
+               message=_("Select directory for video export"),
+               defaultPath=parent.config.GetWorkingDirectory("ExportAVI"),
+               style=wx.DD_DEFAULT_STYLE)
+    if dlg.ShowModal() == wx.ID_OK:
+        out_dir=dlg.GetPath()
+        for m in analysis.measurements:
+            m.ExportAVI(os.path.join(out_dir, m.title+".avi"),
+                        override=True)
 
 def export_statistics_tsv(parent):
     # Get data
