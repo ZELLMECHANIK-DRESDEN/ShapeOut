@@ -72,10 +72,11 @@ class Analysis(object):
                     b = getattr(mm, a)
                     del b
             # Also delete fluorescence curves
-            for tr in list(mm.traces.keys()):
-                t = mm.traces.pop(tr)
-                del t
-            del mm.traces
+            if hasattr(mm, "traces"):
+                for tr in list(mm.traces.keys()):
+                    t = mm.traces.pop(tr)
+                    del t
+                del mm.traces
             refs = gc.get_referrers(mm)
             for r in refs:
                 if hasattr(r, "delplot"):
