@@ -1,5 +1,6 @@
 0.6.9
 - Disable kernel density estimation and contour plot by default (#116) 
+- Add avi export option
 0.6.8
 - Speed-ups:
   - search for measurements (#113)
