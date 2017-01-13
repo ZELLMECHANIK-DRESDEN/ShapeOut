@@ -1,6 +1,10 @@
 0.6.9
 - Disable kernel density estimation and contour plot by default (#116) 
 - Add avi export option
+- dclab:
+  - Add user defined data fields 0...9
+  - Add principal components 1 and 2
+  - Change Cell size to Area
 0.6.8
 - Speed-ups:
   - search for measurements (#113)
