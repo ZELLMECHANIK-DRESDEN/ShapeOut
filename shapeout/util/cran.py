@@ -39,26 +39,28 @@ def get_R_binary(verbose=False):
     first existing file is returned.
     """
     # additional search paths
-    Rpaths = list()
+    Rpaths = []
 
-    # win
-    Rroot_win = "C:\\Program Files\\R"
     append_folders = ["", "bin\\i386"]
-    if os.path.exists(Rroot_win):
-        for append in append_folders:
-            # This will work independent of the installed R version
-            Rpaths += [ os.path.join(Rroot_win, os.path.join(d,append)) for d in os.listdir(Rroot_win) ]
-    # win frozen
+    # Make sure that the R installation that comes with
+    # ShapeOut is the first choice in a frozen win application.
     if hasattr(sys, "frozen"):
         Rroot_win_frozen = os.path.join(os.path.abspath(sys._MEIPASS), "R")  # @UndefinedVariable
         if os.path.exists(Rroot_win_frozen):
             for append in append_folders:
                 Rpaths += [  os.path.join(Rroot_win_frozen, os.path.join(d,append)) for d in os.listdir(Rroot_win_frozen) ]
 
+    # Win regular
+    Rroot_win = "C:\\Program Files\\R"
+    if os.path.exists(Rroot_win):
+        for append in append_folders:
+            # This will work independent of the installed R version
+            Rpaths += [ os.path.join(Rroot_win, os.path.join(d,append)) for d in os.listdir(Rroot_win) ]
+
     # linux
     Rpaths += ["/usr/bin"]
 
-    Rexes = list()
+    Rexes = []
     for binary in ["R", "R.exe"]:
         Rexes += [ os.path.join(loc, binary) for loc in Rpaths ]
 
