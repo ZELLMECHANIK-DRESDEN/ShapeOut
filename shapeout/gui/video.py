@@ -210,20 +210,22 @@ class ImagePanel(ScrolledPanel):
                 totframes = video.get(cv_const.CAP_PROP_FRAME_COUNT)
             else:
                 totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
-            
+            # TODO:
+            # - put all of this magic into a module in dclab, preferable
+            #   into a submodule of rtdc_dataset (yes, that file is big)
             # determine video file offset. Some RTDC setups
             # do not record the first image of a video.
             frames_skipped = mm.Configuration["General"]["Video Frame Offset"]
-            actual_sel_offset = evt_id - frames_skipped
-            if actual_sel_offset < 0:
+            video_frame = evt_id - frames_skipped
+            if video_frame < 0:
                 # Display an empty image if there is no image for the event
                 warnings.warn("No image for event {}.".format(evt_id))
                 self.PlotImage(None)
             else:
                 if cv_version3:
-                    video.set(cv_const.CAP_PROP_POS_FRAMES, actual_sel_offset)
+                    video.set(cv_const.CAP_PROP_POS_FRAMES, video_frame)
                 else:
-                    video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
+                    video.set(cv_const.CV_CAP_PROP_POS_FRAMES, video_frame)
                 
                 flag, cellimg = video.read()
     
@@ -240,7 +242,13 @@ class ImagePanel(ScrolledPanel):
                     
                     # only do this if there was a contour file loaded
                     if len(mm.contours) > 0:
-                        contours = mm.contours[evt_id]
+                        # In case of regular RTDC, the first contour is
+                        # missing. In case of RTFDC, it is there, so we
+                        # might have an offset. We find out if the first
+                        # contour frame is missing by comparing it to
+                        # the "frame" column of the rtdc data set.
+                        coff = mm.contours.get_frame(0) != mm.frame[0]
+                        contours = mm.contours[evt_id-coff]
                         if contours is not None:
                             r[contours[:,1], contours[:,0]] = 255
                             b[contours[:,1], contours[:,0]] = 0

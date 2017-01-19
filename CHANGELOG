@@ -6,6 +6,7 @@
   - Prefer the R package that is shipped with the executable over a
     system installation (#120)
   - Image plot and fluorescence traces were not always updated correctly
+  - Regression: Contour plot offset by one frame in some cases (#121)
 - dclab:
   - Add user defined data fields 0...9
   - Add principal components 1 and 2
