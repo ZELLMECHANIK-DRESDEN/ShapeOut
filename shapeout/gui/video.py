@@ -197,60 +197,59 @@ class ImagePanel(ScrolledPanel):
         mm = self.analysis.measurements[mm_id]
         # Check if video file exists
         if mm.video is None or not os.path.isfile(os.path.join(mm.fdir, mm.video)):
-            # abort
-            self.PlotImage(None)
-            return
-        # Taking the abspath of the video does not always work with OpenCV?
-        #vfile = os.path.join(dataset.fdir, dataset.video)
-        # Instead, go to the directory and open the video there.
-        old_dir = os.getcwd()
-        os.chdir(mm.fdir)
-        video = cv2.VideoCapture(mm.video)
-        os.chdir(old_dir)
-        if cv_version3:
-            totframes = video.get(cv_const.CAP_PROP_FRAME_COUNT)
-        else:
-            totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
-        
-        # determine video file offset. Some RTDC setups
-        # do not record the first image of a video.
-        frames_skipped = mm.Configuration["General"]["Video Frame Offset"]
-        actual_sel_offset = evt_id - frames_skipped
-        if actual_sel_offset < 0:
-            # Display an empty image if there is no image for the event
-            warnings.warn("No image for event {}.".format(evt_id))
             self.PlotImage(None)
         else:
+            # Taking the abspath of the video does not always work with OpenCV?
+            #vfile = os.path.join(dataset.fdir, dataset.video)
+            # Instead, go to the directory and open the video there.
+            old_dir = os.getcwd()
+            os.chdir(mm.fdir)
+            video = cv2.VideoCapture(mm.video)
+            os.chdir(old_dir)
             if cv_version3:
-                video.set(cv_const.CAP_PROP_POS_FRAMES, actual_sel_offset)
+                totframes = video.get(cv_const.CAP_PROP_FRAME_COUNT)
             else:
-                video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
+                totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
             
-            flag, cellimg = video.read()
-
-            if flag:
-                # add contour in red
-                if len(cellimg.shape) == 2:
-                    # convert grayscale to color
-                    cellimg = np.tile(cellimg, [3,1,1]).transpose(1,2,0)
+            # determine video file offset. Some RTDC setups
+            # do not record the first image of a video.
+            frames_skipped = mm.Configuration["General"]["Video Frame Offset"]
+            actual_sel_offset = evt_id - frames_skipped
+            if actual_sel_offset < 0:
+                # Display an empty image if there is no image for the event
+                warnings.warn("No image for event {}.".format(evt_id))
+                self.PlotImage(None)
+            else:
+                if cv_version3:
+                    video.set(cv_const.CAP_PROP_POS_FRAMES, actual_sel_offset)
+                else:
+                    video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
                 
-                
-                r = cellimg[:,:,0]
-                b = cellimg[:,:,1]
-                g = cellimg[:,:,2]
-                
-                # only do this if there was a contour file loaded
-                if len(mm.contours) > 0:
-                    contours = mm.contours[evt_id]
-                    if contours is not None:
-                        r[contours[:,1], contours[:,0]] = 255
-                        b[contours[:,1], contours[:,0]] = 0
-                        g[contours[:,1], contours[:,0]] = 0
-                
-                self.frame.ImageArea.PlotImage(cellimg)
-
-        video.release()
-        print("Frame {} / {}".format(evt_id, totframes))
+                flag, cellimg = video.read()
+    
+                if flag:
+                    # add contour in red
+                    if len(cellimg.shape) == 2:
+                        # convert grayscale to color
+                        cellimg = np.tile(cellimg, [3,1,1]).transpose(1,2,0)
+                    
+                    
+                    r = cellimg[:,:,0]
+                    b = cellimg[:,:,1]
+                    g = cellimg[:,:,2]
+                    
+                    # only do this if there was a contour file loaded
+                    if len(mm.contours) > 0:
+                        contours = mm.contours[evt_id]
+                        if contours is not None:
+                            r[contours[:,1], contours[:,0]] = 255
+                            b[contours[:,1], contours[:,0]] = 0
+                            g[contours[:,1], contours[:,0]] = 0
+                    
+                    self.PlotImage(cellimg)
+    
+            video.release()
+            print("Frame {} / {}".format(evt_id, totframes))
 
         # Update exclude check-box
         self.WXChB_exclude.SetValue(not mm._filter_manual[evt_id])

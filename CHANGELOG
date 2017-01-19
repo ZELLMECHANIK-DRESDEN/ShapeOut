@@ -1,8 +1,11 @@
 0.6.9
-- Prefer the R package that is shipped with the executable over a
-  system installation (#120)
 - Disable kernel density estimation and contour plot by default (#116) 
 - Add avi export option
+- Bugfixes:
+  - Fluorescence traces not shown for some data sets (#118)
+  - Prefer the R package that is shipped with the executable over a
+    system installation (#120)
+  - Image plot and fluorescence traces were not always updated correctly
 - dclab:
   - Add user defined data fields 0...9
   - Add principal components 1 and 2
