@@ -8,9 +8,10 @@ from os.path import abspath, dirname
 import sys
 
 import codecs
-import unittest
 import dclab
+import numpy as np
 import tempfile
+import unittest
 
 # Add parent directory to beginning of path variable
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
@@ -51,7 +52,7 @@ class TestSimple(unittest.TestCase):
               "mean deformation": 1.3096144795e-01}
         for key in soll:
             idx = header.index(key)
-            assert float(values[idx]) == soll[key]
+            assert np.allclose(float(values[idx]), soll[key])
 
 
 if __name__ == "__main__":
