@@ -195,12 +195,14 @@ class ImagePanel(ScrolledPanel):
         """
         self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
-        # Taking the abspath of the video does not always work with OpenCV?
-        #vfile = os.path.join(dataset.fdir, dataset.video)
+        # Check if video file exists
         if mm.video is None or not os.path.isfile(os.path.join(mm.fdir, mm.video)):
             # abort
             self.PlotImage(None)
             return
+        # Taking the abspath of the video does not always work with OpenCV?
+        #vfile = os.path.join(dataset.fdir, dataset.video)
+        # Instead, go to the directory and open the video there.
         old_dir = os.getcwd()
         os.chdir(mm.fdir)
         video = cv2.VideoCapture(mm.video)
@@ -259,20 +261,23 @@ class ImagePanel(ScrolledPanel):
 
         # Plot traces
         if len(list(mm.traces)) != 0:
-
             self.plot_window.control.Show(True)
-
-            for key in list(mm.traces.keys()):
+            empty_traces = []
+            for key in mm.traces:
                 data = mm.traces[key][evt_id]
-                self.trace_data.set_data(key, data)
-            self.trace_data.set_data("x", np.arange(data.shape[0]))
-            
+                if data.size == 0:
+                    empty_traces.append(key)
+                else:
+                    # Set y values for present traces
+                    self.trace_data.set_data(key, data)
+                    dshape = data.shape
+
+            # Set x-values for all plots
+            self.trace_data.set_data("x", np.arange(dshape[0]))
             # Set other trace data to zero if event does not have it
-            zerodata = np.zeros(data.shape[0])
-            for okey in self.trace_data.list_data():
-                if not (okey in list(mm.traces.keys()) or
-                        okey == "x"):
-                    self.trace_data.set_data(okey, zerodata)
+            zerodata = np.zeros(dshape[0])
+            for ekey in empty_traces:
+                self.trace_data.set_data(ekey, zerodata)
 
         else:
             self.plot_window.control.Show(False)
