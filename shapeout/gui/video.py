@@ -193,11 +193,13 @@ class ImagePanel(ScrolledPanel):
             frame identifier, starts at 0
         
         """
+        self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
         # Taking the abspath of the video does not always work with OpenCV?
         #vfile = os.path.join(dataset.fdir, dataset.video)
-        if not os.path.isfile(os.path.join(mm.fdir, mm.video)):
+        if mm.video is None or not os.path.isfile(os.path.join(mm.fdir, mm.video)):
             # abort
+            self.PlotImage(None)
             return
         old_dir = os.getcwd()
         os.chdir(mm.fdir)
@@ -216,7 +218,6 @@ class ImagePanel(ScrolledPanel):
             # Display an empty image if there is no image for the event
             warnings.warn("No image for event {}.".format(evt_id))
             self.PlotImage(None)
-            self.UpdateSelections()
         else:
             if cv_version3:
                 video.set(cv_const.CAP_PROP_POS_FRAMES, actual_sel_offset)
@@ -245,11 +246,7 @@ class ImagePanel(ScrolledPanel):
                         g[contours[:,1], contours[:,0]] = 0
                 
                 self.frame.ImageArea.PlotImage(cellimg)
-                
-                # measurement id
-                mm_id = self.analysis.measurements.index(mm)
-                self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
-        
+
         video.release()
         print("Frame {} / {}".format(evt_id, totframes))
 
