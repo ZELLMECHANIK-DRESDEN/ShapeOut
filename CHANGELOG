@@ -1,4 +1,6 @@
 0.6.9
+- Prefer the R package that is shipped with the executable over a
+  system installation (#120)
 - Disable kernel density estimation and contour plot by default (#116) 
 - Add avi export option
 - dclab:
