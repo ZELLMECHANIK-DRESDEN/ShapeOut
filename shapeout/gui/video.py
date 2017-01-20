@@ -241,18 +241,12 @@ class ImagePanel(ScrolledPanel):
                     g = cellimg[:,:,2]
                     
                     # only do this if there was a contour file loaded
-                    if len(mm.contours) > 0:
-                        # In case of regular RTDC, the first contour is
-                        # missing. In case of RTFDC, it is there, so we
-                        # might have an offset. We find out if the first
-                        # contour frame is missing by comparing it to
-                        # the "frame" column of the rtdc data set.
-                        coff = mm.contours.get_frame(0) != mm.frame[0]
-                        contours = mm.contours[evt_id-coff]
-                        if contours is not None:
-                            r[contours[:,1], contours[:,0]] = 255
-                            b[contours[:,1], contours[:,0]] = 0
-                            g[contours[:,1], contours[:,0]] = 0
+                    if len(mm.contour):
+                        cont = mm.contour[evt_id]
+                        if cont is not None:
+                            r[cont[:,1], cont[:,0]] = 255
+                            b[cont[:,1], cont[:,0]] = 0
+                            g[cont[:,1], cont[:,0]] = 0
                     
                     self.PlotImage(cellimg)
     
