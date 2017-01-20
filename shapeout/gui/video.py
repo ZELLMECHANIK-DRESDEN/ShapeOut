@@ -6,27 +6,13 @@
 from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca
-import cv2
 import dclab
-from distutils.version import LooseVersion
 from enable.api import Window
-
 import numpy as np
-import os
-
 from PIL import Image
-import warnings
 
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
-
-# Constants in OpenCV moved from "cv2.cv" to "cv2"
-if LooseVersion(cv2.__version__) < LooseVersion("3.0.0"):
-    cv_const = cv2.cv
-    cv_version3 = False
-else:
-    cv_const = cv2
-    cv_version3 = True
 
 
 class ImagePanel(ScrolledPanel):
@@ -195,63 +181,26 @@ class ImagePanel(ScrolledPanel):
         """
         self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
-        # Check if video file exists
-        if mm.video is None or not os.path.isfile(os.path.join(mm.fdir, mm.video)):
-            self.PlotImage(None)
+
+        if len(mm.image):
+            # Get the RGB cell image
+            cellimg = mm.image[evt_id]
+            # Only load contour data if there is an image file.
+            # We don't know how big the images should be so we
+            # might run into trouble displaying random contours.
+            if len(mm.contour):
+                r = cellimg[:,:,0]
+                b = cellimg[:,:,1]
+                g = cellimg[:,:,2]
+                cont = mm.contour[evt_id]
+                if cont is not None:
+                    r[cont[:,1], cont[:,0]] = 255
+                    b[cont[:,1], cont[:,0]] = 0
+                    g[cont[:,1], cont[:,0]] = 0
+            self.PlotImage(cellimg)
         else:
-            # Taking the abspath of the video does not always work with OpenCV?
-            #vfile = os.path.join(dataset.fdir, dataset.video)
-            # Instead, go to the directory and open the video there.
-            old_dir = os.getcwd()
-            os.chdir(mm.fdir)
-            video = cv2.VideoCapture(mm.video)
-            os.chdir(old_dir)
-            if cv_version3:
-                totframes = video.get(cv_const.CAP_PROP_FRAME_COUNT)
-            else:
-                totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
-            # TODO:
-            # - put all of this magic into a module in dclab, preferable
-            #   into a submodule of rtdc_dataset (yes, that file is big)
-            # determine video file offset. Some RTDC setups
-            # do not record the first image of a video.
-            frames_skipped = mm.Configuration["General"]["Video Frame Offset"]
-            video_frame = evt_id - frames_skipped
-            if video_frame < 0:
-                # Display an empty image if there is no image for the event
-                warnings.warn("No image for event {}.".format(evt_id))
-                self.PlotImage(None)
-            else:
-                if cv_version3:
-                    video.set(cv_const.CAP_PROP_POS_FRAMES, video_frame)
-                else:
-                    video.set(cv_const.CV_CAP_PROP_POS_FRAMES, video_frame)
-                
-                flag, cellimg = video.read()
-    
-                if flag:
-                    # add contour in red
-                    if len(cellimg.shape) == 2:
-                        # convert grayscale to color
-                        cellimg = np.tile(cellimg, [3,1,1]).transpose(1,2,0)
-                    
-                    
-                    r = cellimg[:,:,0]
-                    b = cellimg[:,:,1]
-                    g = cellimg[:,:,2]
-                    
-                    # only do this if there was a contour file loaded
-                    if len(mm.contour):
-                        cont = mm.contour[evt_id]
-                        if cont is not None:
-                            r[cont[:,1], cont[:,0]] = 255
-                            b[cont[:,1], cont[:,0]] = 0
-                            g[cont[:,1], cont[:,0]] = 0
-                    
-                    self.PlotImage(cellimg)
-    
-            video.release()
-            print("Frame {} / {}".format(evt_id, totframes))
+            # Reset plot if there is not image data
+            self.PlotImage(None)
 
         # Update exclude check-box
         self.WXChB_exclude.SetValue(not mm._filter_manual[evt_id])
