@@ -3,7 +3,7 @@
 """ ShapeOut - wx frontend components
 
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca
 import cv2
@@ -21,7 +21,7 @@ import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
 # Constants in OpenCV moved from "cv2.cv" to "cv2"
-if LooseVersion(cv2.__version__) < "3.0.0":
+if LooseVersion(cv2.__version__) < LooseVersion("3.0.0"):
     cv_const = cv2.cv
     cv_version3 = False
 else:
@@ -193,65 +193,71 @@ class ImagePanel(ScrolledPanel):
             frame identifier, starts at 0
         
         """
+        self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
-        # Taking the abspath of the video does not always work with OpenCV?
-        #vfile = os.path.join(dataset.fdir, dataset.video)
-        if not os.path.isfile(os.path.join(mm.fdir, mm.video)):
-            # abort
-            return
-        old_dir = os.getcwd()
-        os.chdir(mm.fdir)
-        video = cv2.VideoCapture(mm.video)
-        os.chdir(old_dir)
-        if cv_version3:
-            totframes = video.get(cv_const.CAP_PROP_FRAME_COUNT)
-        else:
-            totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
-        
-        # determine video file offset. Some RTDC setups
-        # do not record the first image of a video.
-        frames_skipped = mm.Configuration["General"]["Video Frame Offset"]
-        actual_sel_offset = evt_id - frames_skipped
-        if actual_sel_offset < 0:
-            # Display an empty image if there is no image for the event
-            warnings.warn("No image for event {}.".format(evt_id))
+        # Check if video file exists
+        if mm.video is None or not os.path.isfile(os.path.join(mm.fdir, mm.video)):
             self.PlotImage(None)
-            self.UpdateSelections()
         else:
+            # Taking the abspath of the video does not always work with OpenCV?
+            #vfile = os.path.join(dataset.fdir, dataset.video)
+            # Instead, go to the directory and open the video there.
+            old_dir = os.getcwd()
+            os.chdir(mm.fdir)
+            video = cv2.VideoCapture(mm.video)
+            os.chdir(old_dir)
             if cv_version3:
-                video.set(cv_const.CAP_PROP_POS_FRAMES, actual_sel_offset)
+                totframes = video.get(cv_const.CAP_PROP_FRAME_COUNT)
             else:
-                video.set(cv_const.CV_CAP_PROP_POS_FRAMES, actual_sel_offset)
-            
-            flag, cellimg = video.read()
-
-            if flag:
-                # add contour in red
-                if len(cellimg.shape) == 2:
-                    # convert grayscale to color
-                    cellimg = np.tile(cellimg, [3,1,1]).transpose(1,2,0)
+                totframes = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
+            # TODO:
+            # - put all of this magic into a module in dclab, preferable
+            #   into a submodule of rtdc_dataset (yes, that file is big)
+            # determine video file offset. Some RTDC setups
+            # do not record the first image of a video.
+            frames_skipped = mm.Configuration["General"]["Video Frame Offset"]
+            video_frame = evt_id - frames_skipped
+            if video_frame < 0:
+                # Display an empty image if there is no image for the event
+                warnings.warn("No image for event {}.".format(evt_id))
+                self.PlotImage(None)
+            else:
+                if cv_version3:
+                    video.set(cv_const.CAP_PROP_POS_FRAMES, video_frame)
+                else:
+                    video.set(cv_const.CV_CAP_PROP_POS_FRAMES, video_frame)
                 
-                
-                r = cellimg[:,:,0]
-                b = cellimg[:,:,1]
-                g = cellimg[:,:,2]
-                
-                # only do this if there was a contour file loaded
-                if len(mm.contours) > 0:
-                    contours = mm.contours[evt_id]
-                    if contours is not None:
-                        r[contours[:,1], contours[:,0]] = 255
-                        b[contours[:,1], contours[:,0]] = 0
-                        g[contours[:,1], contours[:,0]] = 0
-                
-                self.frame.ImageArea.PlotImage(cellimg)
-                
-                # measurement id
-                mm_id = self.analysis.measurements.index(mm)
-                self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
-        
-        video.release()
-        print("Frame {} / {}".format(evt_id, totframes))
+                flag, cellimg = video.read()
+    
+                if flag:
+                    # add contour in red
+                    if len(cellimg.shape) == 2:
+                        # convert grayscale to color
+                        cellimg = np.tile(cellimg, [3,1,1]).transpose(1,2,0)
+                    
+                    
+                    r = cellimg[:,:,0]
+                    b = cellimg[:,:,1]
+                    g = cellimg[:,:,2]
+                    
+                    # only do this if there was a contour file loaded
+                    if len(mm.contours) > 0:
+                        # In case of regular RTDC, the first contour is
+                        # missing. In case of RTFDC, it is there, so we
+                        # might have an offset. We find out if the first
+                        # contour frame is missing by comparing it to
+                        # the "frame" column of the rtdc data set.
+                        coff = mm.contours.get_frame(0) != mm.frame[0]
+                        contours = mm.contours[evt_id-coff]
+                        if contours is not None:
+                            r[contours[:,1], contours[:,0]] = 255
+                            b[contours[:,1], contours[:,0]] = 0
+                            g[contours[:,1], contours[:,0]] = 0
+                    
+                    self.PlotImage(cellimg)
+    
+            video.release()
+            print("Frame {} / {}".format(evt_id, totframes))
 
         # Update exclude check-box
         self.WXChB_exclude.SetValue(not mm._filter_manual[evt_id])
@@ -262,20 +268,23 @@ class ImagePanel(ScrolledPanel):
 
         # Plot traces
         if len(list(mm.traces)) != 0:
-
             self.plot_window.control.Show(True)
-
-            for key in list(mm.traces.keys()):
+            empty_traces = []
+            for key in mm.traces:
                 data = mm.traces[key][evt_id]
-                self.trace_data.set_data(key, data)
-            self.trace_data.set_data("x", np.arange(data.shape[0]))
-            
+                if data.size == 0:
+                    empty_traces.append(key)
+                else:
+                    # Set y values for present traces
+                    self.trace_data.set_data(key, data)
+                    dshape = data.shape
+
+            # Set x-values for all plots
+            self.trace_data.set_data("x", np.arange(dshape[0]))
             # Set other trace data to zero if event does not have it
-            zerodata = np.zeros(data.shape[0])
-            for okey in self.trace_data.list_data():
-                if not (okey in list(mm.traces.keys()) or
-                        okey == "x"):
-                    self.trace_data.set_data(okey, zerodata)
+            zerodata = np.zeros(dshape[0])
+            for ekey in empty_traces:
+                self.trace_data.set_data(ekey, zerodata)
 
         else:
             self.plot_window.control.Show(False)
