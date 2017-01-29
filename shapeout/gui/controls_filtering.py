@@ -218,7 +218,11 @@ class SubPanelFilter(SubPanel):
                 agwStyle=wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|\
                          HT.TR_NO_HEADER|HT.TR_EDIT_LABELS)
         htreectrl.DeleteAllItems()
-        htreectrl.AddColumn("")
+        # We are setting names as editable here. However, we cannot do any
+        # event handling here, so we can only change the name in the underlying 
+        # dclab.polygon_filter instance at certain function calls. That should
+        # be enough, though. Use self..
+        htreectrl.AddColumn("", edit=True)
         htreectrl.SetColumnWidth(0, 500)
         rroot = htreectrl.AddRoot("", ct_type=0)
 
@@ -253,6 +257,29 @@ class SubPanelFilter(SubPanel):
         self.OnPolygonCombobox()
         return polysizer
 
+
+    def _set_polygon_filter_names(self):
+        """
+        Set the polygon filter names from the UI in the underlying
+        dclab.polygon_filter classes.
+        
+         
+        """
+        # get selection from htree
+        ctrls = self.GetChildren()
+        # identify controls via their name correspondence in the cfg
+        for c in ctrls:
+            if c.GetName() == "Polygon Filter Selection":
+                # get the selected items
+                r = c.GetRootItem()
+                for ch in r.GetChildren():
+                    # get the name.
+                    name = ch.GetText()
+                    unique_id = ch.GetData()
+                    p = dclab.PolygonFilter.get_instance_from_id(unique_id)
+                    p.name = name
+            
+
     def GetPolygonHtreeChecked(self):
         """ Returns
         """
@@ -269,6 +296,7 @@ class SubPanelFilter(SubPanel):
                         checked.append(ch)
         # else
         return checked
+
 
     def GetPolygonHtreeSelected(self):
         """ Returns
@@ -295,6 +323,7 @@ class SubPanelFilter(SubPanel):
         In the end, the entire control panel is updated to give the
         user access to the new data set.
         """
+        self._set_polygon_filter_names()
         sel = self.WXCOMBO_hparent.GetSelection()
         mm = self.analysis.measurements[sel]
         ds = dclab.RTDC_DataSet(hparent=mm)
@@ -353,15 +382,18 @@ class SubPanelFilter(SubPanel):
             
 
     def OnPolygonDuplicate(self, e=None):
+        self._set_polygon_filter_names()
         _c, ch = self.GetPolygonHtreeSelected()
         if ch is None:
             return
         unique_id = ch.GetData()
         p = dclab.PolygonFilter.get_instance_from_id(unique_id)
-        dclab.PolygonFilter(points=p.points, axes=p.axes)
+        dclab.PolygonFilter(points=p.points, axes=p.axes, name=p.name+" (copy)")
         self.UpdatePanel()
 
+
     def OnPolygonExport(self, e=None, export_all=False):
+        self._set_polygon_filter_names()
         if not export_all:
             _c, ch = self.GetPolygonHtreeSelected()
             if ch is None:
@@ -389,9 +421,12 @@ class SubPanelFilter(SubPanel):
             # export all
             dclab.PolygonFilter.save_all(fname)
 
+
     def OnPolygonExportAll(self, e=None):
+        self._set_polygon_filter_names()
         if len(dclab.PolygonFilter.instances) != 0:
             self.OnPolygonExport(export_all=True)
+
 
     def OnPolygonHtreeChecked(self, e=None):
         """
@@ -443,6 +478,7 @@ class SubPanelFilter(SubPanel):
         dclab.PolygonFilter.import_all(fname)
         self.UpdatePanel()
 
+
     def OnPolygonRemove(self, e=None):
         c, ch = self.GetPolygonHtreeSelected()
         if ch is None:
@@ -452,6 +488,7 @@ class SubPanelFilter(SubPanel):
         self.analysis.PolygonFilterRemove(unique_id)
         c.Delete(ch)
         self.funcparent.frame.PlotArea.Plot(self.analysis)
+
 
     def OnPolygonWindow(self, e=None):
         """ Called when user wants to add a new polygon filter """
@@ -469,7 +506,8 @@ class SubPanelFilter(SubPanel):
         mm = self.analysis.measurements[idn]
         ldw.show_scatter(mm, xax=xax, yax=yax)
         ldw.Show()
-        
+
+
     def UpdatePanel(self, analysis=None):
         if analysis is None:
             # previous analysis is used

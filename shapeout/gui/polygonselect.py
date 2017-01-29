@@ -3,7 +3,7 @@
 """ ShapeOut - polygon selection tool
 
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import chaco.tools.api as cta
 import enable.api as ea
