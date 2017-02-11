@@ -1,5 +1,7 @@
 0.7.0
 - Allow to rename polygon filters (#119)
+- dclab:
+  - Traces are loaded lazily (on demand)
 0.6.9
 - Disable kernel density estimation and contour plot by default (#116) 
 - Add avi export option
