@@ -179,6 +179,7 @@ class ImagePanel(ScrolledPanel):
             frame identifier, starts at 0
         
         """
+        wx.BeginBusyCursor()
         self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
 
@@ -210,30 +211,30 @@ class ImagePanel(ScrolledPanel):
         self.WXSP_plot.SetRange(1, max_evt)
 
         # Plot traces
-        if len(list(mm.traces)) != 0:
+        if len(mm.trace):
             self.plot_window.control.Show(True)
             empty_traces = []
-            for key in mm.traces:
-                data = mm.traces[key][evt_id]
+            for ch in mm.trace:
+                data = mm.trace[ch][evt_id]
                 if data.size == 0:
-                    empty_traces.append(key)
+                    empty_traces.append(ch)
                 else:
                     # Set y values for present traces
-                    self.trace_data.set_data(key, data)
+                    self.trace_data.set_data(ch, data)
                     dshape = data.shape
 
             # Set x-values for all plots
             self.trace_data.set_data("x", np.arange(dshape[0]))
             # Set other trace data to zero if event does not have it
             zerodata = np.zeros(dshape[0])
-            for ekey in empty_traces:
-                self.trace_data.set_data(ekey, zerodata)
+            for ech in empty_traces:
+                self.trace_data.set_data(ech, zerodata)
 
         else:
             self.plot_window.control.Show(False)
-           
         self.Layout()
         self.GetParent().Layout()
+        wx.EndBusyCursor()
        
 
     def PlotImage(self, image=None):
