@@ -8,6 +8,7 @@ from __future__ import division, print_function, unicode_literals
 import chaco
 
 import cv2
+import nptdms
 import numpy as np
 import os
 import platform
@@ -380,6 +381,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                "\n - chaco "+chaco.__version__+\
                "\n - dclab "+dcversion+\
                "\n - fcswrite "+fcversion+\
+               "\n - npTDMS "+nptdms.__version__+\
                "\n - NumPy "+np.__version__+\
                "\n - OpenCV "+cv2.__version__+\
                "\n - pyper "+pyperversion+\
