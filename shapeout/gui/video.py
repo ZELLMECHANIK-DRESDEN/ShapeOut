@@ -293,6 +293,6 @@ class ImagePanel(ScrolledPanel):
 
         if evt_id is not None:
             # Sanity check:
-            self.WXSP_plot.SetValue(evt_id+1)
+            self.WXSP_plot.SetValue(mm.index[evt_id])
 
 
