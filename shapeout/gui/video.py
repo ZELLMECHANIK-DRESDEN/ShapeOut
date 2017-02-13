@@ -281,7 +281,7 @@ class ImagePanel(ScrolledPanel):
     def UpdateSelections(self, mm_id=None, evt_id=None):
         # Determine plot titles and set selection
         sel = self.WXCB_plot.GetSelection()
-        choices = [ mm.title for mm in self.analysis.measurements ]
+        choices = [ m.title for m in self.analysis.measurements ]
         self.WXCB_plot.SetItems(choices)
         
         if mm_id is not None:
@@ -293,6 +293,7 @@ class ImagePanel(ScrolledPanel):
 
         if evt_id is not None:
             # Sanity check:
+            mm = self.analysis.measurements[mm_id]
             self.WXSP_plot.SetValue(mm.index[evt_id])
 
 
