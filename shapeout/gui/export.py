@@ -140,10 +140,10 @@ class ExportAnalysisEventsFCS(ExportAnalysisEvents):
 
     def export(self, out_dir, columns, filtered):
         for m in self.analysis.measurements:
-            m.ExportFCS(os.path.join(out_dir, m.title+".fcs"),
-                        columns,
-                        filtered=filtered,
-                        override=True)
+            m.export.fcs(os.path.join(out_dir, m.title+".fcs"),
+                         columns,
+                         filtered=filtered,
+                         override=True)
 
 
 
@@ -153,10 +153,10 @@ class ExportAnalysisEventsTSV(ExportAnalysisEvents):
 
     def export(self, out_dir, columns, filtered):
         for m in self.analysis.measurements:
-            m.ExportTSV(os.path.join(out_dir, m.title+".tsv"),
-                        columns,
-                        filtered=filtered,
-                        override=True)
+            m.export.tsv(os.path.join(out_dir, m.title+".tsv"),
+                         columns,
+                         filtered=filtered,
+                         override=True)
 
 
 
@@ -168,8 +168,9 @@ def export_event_images_avi(parent, analysis):
     if dlg.ShowModal() == wx.ID_OK:
         out_dir=dlg.GetPath()
         for m in analysis.measurements:
-            m.ExportAVI(os.path.join(out_dir, m.title+".avi"),
-                        override=True)
+            m.export.avi(os.path.join(out_dir, m.title+".avi"),
+                         override=True)
+
 
 def export_statistics_tsv(parent):
     # Get data
