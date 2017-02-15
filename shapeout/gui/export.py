@@ -97,7 +97,7 @@ class ExportAnalysisEvents(wx.Frame):
         
         if dlg2.ShowModal() == wx.ID_OK:
             outdir = dlg2.GetPath()
-            self.parent.config.SetWorkingDirectory(outdir, "ExportTSV")
+            self.parent.config.SetWorkingDirectory(outdir, "ExportData")
             
             # determine if user wants filtered data
             filtered = self.WXCheckFilter.IsChecked()
@@ -115,10 +115,12 @@ class ExportAnalysisEvents(wx.Frame):
             # Call the export function of dclab.RTDC_DataSet
             # Check if the files already exist
             for m in self.analysis.measurements:
-                if os.path.exists(os.path.join(outdir, m.title+".tsv")):
+                if os.path.exists(os.path.join(outdir, m.title+"."+self.ext)):
+                    msg = _("Override existing .{} files in '{}'?").format(
+                                                           self.ext, outdir)
                     dlg3 = wx.MessageDialog(self,
-                        message=_("Override existing .tsv files in '{}'?").format(outdir),
-                        style=wx.YES_NO|wx.YES_DEFAULT|wx.ICON_QUESTION)
+                                message=msg,
+                                style=wx.YES_NO|wx.YES_DEFAULT|wx.ICON_QUESTION)
                     if dlg3.ShowModal() == wx.ID_YES:
                         # ok, leave loop
                         break
