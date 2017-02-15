@@ -175,7 +175,7 @@ def export_event_images_avi(parent, analysis):
 def export_statistics_tsv(parent):
     # Get data
     head, data = parent.analysis.GetStatisticsBasic()
-    exp = list()
+    exp = []
     # Format data
     exp.append("#"+"\t".join(head))
     for subd in data:
