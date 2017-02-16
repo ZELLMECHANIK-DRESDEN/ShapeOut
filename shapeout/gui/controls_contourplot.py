@@ -45,9 +45,13 @@ class SubPanelPlotContour(SubPanel):
         for topic in ["kde multivariate", "contour accuracy"]:
             dellist = list()
             for item in items:
-                if (item[0].startswith(topic) and
-                   not (item[0].endswith(xax) or item[0].endswith(yax))):
-                    dellist.append(item)
+                # item: e.g. ("kde multivariate fl2area", 1000)
+                if item[0].startswith(topic):
+                    # e.g. fl2area
+                    rest = item[0][len(topic):].strip()
+                    if not (rest==xax or rest==yax):
+                        # only keep the indices that we need
+                        dellist.append(item)
             for it in dellist:
                 items.remove(it)
 

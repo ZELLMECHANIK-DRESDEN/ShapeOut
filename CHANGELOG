@@ -1,3 +1,7 @@
+0.7.1
+- Contour plot: do not display unused contour accuracy parameters
+- dclab:
+  - Refactoring to improve code quality
 0.7.0
 - Allow to rename polygon filters (#119)
 - dclab:
