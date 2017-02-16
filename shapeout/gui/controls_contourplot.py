@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """ ShapeOut - contour control panel
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import numpy as np
 import wx
@@ -12,13 +12,13 @@ from .controls_subpanel import SubPanel
 
 
 # These lists name items that belong to separate pages, startsiwth(item)
-Plotting_Elements_Contour = ["Contour", "KDE"]
+Plotting_Elements_Contour = ["contour", "kde"]
 
 
 class SubPanelPlotContour(SubPanel):
     def __init__(self, parent, *args, **kwargs):
         SubPanel.__init__(self, parent, *args, **kwargs)
-        self.key = "Plotting"
+        self.key = "plotting"
 
 
     def _box_from_cfg_contour(self, analysis):
@@ -37,12 +37,12 @@ class SubPanelPlotContour(SubPanel):
         items = analysis.GetParameters(key).items()
         # Remove individual contour color
         for item in items:
-            if item[0] == "Contour Color":
+            if item[0] == "contour color":
                 items.remove(item)
         
         # Remove all items that have nothing to do with plotting
         xax, yax = analysis.GetPlotAxes()
-        for topic in ["KDE Multivariate", "Contour Accuracy"]:
+        for topic in ["kde multivariate", "contour accuracy"]:
             dellist = list()
             for item in items:
                 if (item[0].startswith(topic) and
@@ -73,13 +73,13 @@ class SubPanelPlotContour(SubPanel):
             shor = wx.BoxSizer(wx.HORIZONTAL)
             # title
             tit = wx.TextCtrl(self, value=str(mm.title), size=(300, -1),
-                            name="Title "+mm.identifier)
+                              name="title "+mm.identifier)
             # color
-            color = mm.Configuration["Plotting"]["Contour Color"]
+            color = mm.config["plotting"]["contour color"]
             # convert tuple to wxColour
             if isinstance(color, list):
                 color=wx.Colour(*np.array(color)*255)
-            col = wx.ColourPickerCtrl(self, name="Color "+mm.identifier,
+            col = wx.ColourPickerCtrl(self, name="color "+mm.identifier,
                                       col=color)
             shor.Add(col)
             shor.Add(tit)
@@ -115,9 +115,9 @@ class SubPanelPlotContour(SubPanel):
         sizer.Add(vertsizer)
         
         axes = analysis.GetPlotAxes()
-        self.BindEnableName(ctrl_source="KDE",
-                            value="Multivariate",
-                            ctrl_targets=["KDE Multivariate {}".format(a) for a in axes])
+        self.BindEnableName(ctrl_source="kde",
+                            value="multivariate",
+                            ctrl_targets=["kde multivariate {}".format(a) for a in axes])
 
         self.SetSizer(sizer)
         sizer.Fit(self)

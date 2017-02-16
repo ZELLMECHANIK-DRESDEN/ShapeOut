@@ -49,7 +49,7 @@ def test_data_size():
 
 
 def test_axes_usable():
-    keys = ["Area", "Circ"]
+    keys = ["area", "circ"]
     dicts = [ example_data_dict(s, keys=keys) for s in [10, 100, 12, 382] ]
     anal = analysis.Analysis([dclab.RTDC_DataSet(ddict=d) for d in dicts])
     

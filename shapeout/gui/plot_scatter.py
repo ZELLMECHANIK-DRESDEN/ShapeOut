@@ -46,14 +46,14 @@ def scatter_plot(measurement,
     mm = measurement
     xax, yax = mm.GetPlotAxes()
     # Plotting area
-    plotfilters = mm.Configuration["Plotting"].copy()
-    marker_size = plotfilters["Scatter Marker Size"]
+    plotfilters = mm.config.copy()["plotting"]
+    marker_size = plotfilters["scatter marker size"]
     
     # We will pretend as if we are plotting circularity vs. area
-    areamin = plotfilters[xax+" Min"]
-    areamax = plotfilters[xax+" Max"]
-    circmin = plotfilters[yax+" Min"]
-    circmax = plotfilters[yax+" Max"]
+    areamin = plotfilters[xax+" min"]
+    areamax = plotfilters[xax+" max"]
+    circmin = plotfilters[yax+" min"]
+    circmax = plotfilters[yax+" max"]
 
     if areamin == areamax:
         areamin = getattr(mm, dfn.cfgmaprev[xax]).min()
@@ -69,8 +69,8 @@ def scatter_plot(measurement,
         #plt.figure(1)
         #axScatter = plt.axes()
 
-    scalex = mm.Configuration["Plotting"]["Scale X"].lower()
-    scaley = mm.Configuration["Plotting"]["Scale Y"].lower()
+    scalex = mm.config["Plotting"]["Scale X"].lower()
+    scaley = mm.config["Plotting"]["Scale Y"].lower()
 
     pd = ca.ArrayPlotData()
     
@@ -78,9 +78,9 @@ def scatter_plot(measurement,
     scatter_plot.id = mm.identifier
 
     ## Add isoelastics
-    if mm.Configuration["Plotting"]["Isoelastics"]:
+    if mm.config["plotting"]["isoelastics"]:
         if isoel is None:
-            chansize = mm.Configuration["General"]["Channel Width"]
+            chansize = mm.config["general"]["channel width"]
             #plotdata = list()
             # look for isoelastics:
             for key in list(isoelastics.keys()):
@@ -180,7 +180,7 @@ def scatter_plot(measurement,
     scatter_plot.title = mm.title
     scatter_plot.title_font = "modern 12"
     if plotfilters["Scatter Title Colored"]:
-        mmlabelcolor = plotfilters["Contour Color"]
+        mmlabelcolor = plotfilters["contour color"]
     else:
         mmlabelcolor = "black"
     scatter_plot.title_color = mmlabelcolor
@@ -232,10 +232,10 @@ def scatter_plot(measurement,
 
 
 def set_scatter_data(plot, mm):
-    plotfilters = mm.Configuration["Plotting"].copy()
+    plotfilters = mm.config.copy()["plotting"]
     xax, yax = mm.GetPlotAxes()
     
-    if mm.Configuration["Filtering"]["Enable Filters"]:
+    if mm.config["filtering"]["enable filters"]:
         x = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
         y = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
     else:
@@ -246,14 +246,14 @@ def set_scatter_data(plot, mm):
     #downsampling : int or None
     #    Filter events that are overdrawn by others (saves time).
     #    If set to None then
-    downsampling = plotfilters["Downsampling"]
+    downsampling = plotfilters["downsampling"]
     #downsample_events : int or None
     #    Number of events to draw in the down-sampled plot. This number
     #    is either 
     #    - >=1: limit total number of events drawn
     #    - <1: only perform 1st downsampling step with grid
     #    If set to None, then
-    downsample_events = plotfilters["Downsample Events"]
+    downsample_events = plotfilters["downsample events"]
 
     if downsampling:
         lx = x.shape[0]
@@ -297,7 +297,7 @@ def set_scatter_data(plot, mm):
     for ol in plot.overlays:
         if ol.id == "event_label_"+mm.identifier:
             # Set events label
-            if plotfilters["Show Events"]:
+            if plotfilters["show events"]:
                 oltext = "{} events".format(np.sum(mm._filter))
             else:
                 oltext = ""

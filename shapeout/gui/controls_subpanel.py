@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import dclab
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
+import warnings
 
 from .. import tlabwrap
 
@@ -71,7 +73,6 @@ class SubPanel(ScrolledPanel):
         ignore_axes = tlabwrap.IGNORE_AXES+analysis.GetUnusableAxes()
         choices = dclab.config.get_config_entry_choices(key, item[0],
                                                      ignore_axes=ignore_axes)
-
         if len(choices) != 0:
             if choices[0] in dclab.dfn.axlabels:
                 human_choices = [ _(dclab.dfn.axlabels[c]) for c in choices]
@@ -91,7 +92,7 @@ class SubPanel(ScrolledPanel):
                         c.SetValue(ch)
             else:
                 # this does not work for floats and ints
-                idc = choices.index(item[1])
+                idc = choices.index(item[1].lower())
                 c.SetSelection(idc)
             stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(c)
@@ -121,6 +122,8 @@ class SubPanel(ScrolledPanel):
         ctrl_targets: list of names of wx controls
             The controls to enable or disable depending on `value`
         """
+        ctrl_source = ctrl_source.lower()
+        ctrl_targets = [t.lower() for t in ctrl_targets]
         # Find source
         for c in self.GetChildren():
             if c.GetName()==ctrl_source:
@@ -150,6 +153,9 @@ class SubPanel(ScrolledPanel):
                     if evt is not None:
                         evt.Skip()
                 event = wx.EVT_COMBOBOX
+            elif source.GetLabel() == "":
+                warnings.warn("Empty label!")
+                continue
             self.Bind(event, method, source)
             # Call the method to set the defaults
             method()

@@ -27,16 +27,16 @@ class SubPanelFilter(SubPanel):
         
         items = analysis.GetParameters(key).items()
 
-        sortfunc = lambda x: (x[0].replace("Max", "2")
-                                  .replace("Min", "1"))
+        sortfunc = lambda x: (x[0].replace("max", "2")
+                                  .replace("min", "1"))
         items.sort(key=sortfunc)
         
         
         sgen = wx.FlexGridSizer(len(items), 1)
         
-        excludeend = ["Min", "Max"]
-        excludeis = ["Enable Filters"]
-        excludestart = ["Polygon", "Hierarchy"]
+        excludeend = ["min", "max"]
+        excludeis = ["enable filters"]
+        excludestart = ["polygon", "hierarchy"]
         
         #sgen = wx.BoxSizer(wx.VERTICAL)
         for item in items:
@@ -108,8 +108,8 @@ class SubPanelFilter(SubPanel):
         
         items = analysis.GetParameters(key).items()
 
-        sortfunc = lambda x: (x[0].replace("Max", "2")
-                                  .replace("Min", "1"))
+        sortfunc = lambda x: (x[0].replace("max", "2")
+                                  .replace("min", "1"))
         items.sort(key=sortfunc)
         
         
@@ -118,22 +118,22 @@ class SubPanelFilter(SubPanel):
         
         # distinguish between deformation and circularity
         display_circ = False
-        if "Circ" in analysis.GetPlotAxes():
+        if "circ" in analysis.GetPlotAxes():
             display_circ = True
-            if "Defo" in analysis.GetPlotAxes():
+            if "defo" in analysis.GetPlotAxes():
                 display_circ = False
 
         for item in items:
-            if item[0].startswith("Circ") and display_circ is False:
+            if item[0].startswith("circ") and display_circ is False:
                 pass
-            elif item[0].startswith("Defo") and display_circ is True:
+            elif item[0].startswith("defo") and display_circ is True:
                 pass
-            elif item[0].endswith("Min"):
+            elif item[0].endswith("min"):
                 if item[0][:-4] in analysis.GetUnusableAxes():
                     # ignore this item
                     continue
                 # find item with max
-                idmax = [ii[0] for ii in items].index(item[0][:-3]+"Max")
+                idmax = [ii[0] for ii in items].index(item[0][:-3]+"max")
                 itemmax = items[idmax]
                 a = wx.StaticText(self, label=_("Range "+item[0][:-4]))
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
@@ -144,7 +144,7 @@ class SubPanelFilter(SubPanel):
                 stemp.Add(c)
                 sgen.Add(stemp)
 
-            elif item[0].endswith("Max"):
+            elif item[0].endswith("max"):
                 # did that before
                 pass
             else:
@@ -338,8 +338,8 @@ class SubPanelFilter(SubPanel):
         """
         sel = self.WXCOMBO_hparent.GetSelection()
         mm = self.analysis.measurements[sel]
-        hp = mm.Configuration["Filtering"]["Hierarchy Parent"]
-        if hp == "None":
+        hp = mm.config["Filtering"]["Hierarchy Parent"]
+        if hp.lower() == "none":
             label = "no parent"
         else:
             label = mm.hparent.title
@@ -363,8 +363,8 @@ class SubPanelFilter(SubPanel):
         mm = self.analysis.measurements[sel]
         # get filters
         r = htreectrl.GetRootItem()
-        if "Polygon Filters" in mm.Configuration["Filtering"]:
-            filterlist = mm.Configuration["Filtering"]["Polygon Filters"]
+        if "Polygon Filters" in mm.config["Filtering"]:
+            filterlist = mm.config["Filtering"]["Polygon Filters"]
             #print(filterlist)
             # set visible filters
             for item in r.GetChildren():
@@ -456,7 +456,7 @@ class SubPanelFilter(SubPanel):
                 #print(item.GetData(), "unhecked")
                 pass
         # apply filters to data set
-        mm.Configuration["Filtering"]["Polygon Filters"] = newfilterlist
+        mm.config["Filtering"]["Polygon Filters"] = newfilterlist
         
     
     def OnPolygonImport(self, e=None):

@@ -44,13 +44,13 @@ def contour_plot(measurements, levels=[0.5,0.95],
     contour_plot = ca.Plot(pd)
     contour_plot.id = "ShapeOut_contour_plot"
 
-    scalex = mm.Configuration["Plotting"]["Scale X"].lower()
-    scaley = mm.Configuration["Plotting"]["Scale Y"].lower()
+    scalex = mm.config["plotting"]["scale x"].lower()
+    scaley = mm.config["plotting"]["scale y"].lower()
 
     ## Add isoelastics
-    if mm.Configuration["Plotting"]["Isoelastics"]:
+    if mm.config["plotting"]["isoelastics"]:
         if isoel is None:
-            chansize = mm.Configuration["General"]["Channel Width"]
+            chansize = mm.config["general"]["channel width"]
             #plotdata = list()
             # look for isoelastics:
             for key in list(isoelastics.keys()):
@@ -129,15 +129,15 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
     # Plotting area
     m0 = measurements[0]
     xax, yax = m0.GetPlotAxes()
-    plotfilters = m0.Configuration["Plotting"]
+    plotfilters = m0.config["plotting"]
 
-    scalex = plotfilters["Scale X"].lower()
-    scaley = plotfilters["Scale Y"].lower()
+    scalex = plotfilters["scale x"].lower()
+    scaley = plotfilters["scale y"].lower()
     # We will pretend as if we are plotting circularity vs. area
-    areamin = plotfilters[xax+" Min"]
-    areamax = plotfilters[xax+" Max"]
-    circmin = plotfilters[yax+" Min"]
-    circmax = plotfilters[yax+" Max"]
+    areamin = plotfilters[xax+" min"]
+    areamax = plotfilters[xax+" max"]
+    circmin = plotfilters[yax+" min"]
+    circmax = plotfilters[yax+" max"]
     
     if areamin == areamax:
         areamin = getattr(m0, dfn.cfgmaprev[xax]).min()
@@ -168,8 +168,8 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
             styles = "solid"
         
         # contour widths
-        if "Contour Width" in mm.Configuration["Plotting"]:
-            cwidth = mm.Configuration["Plotting"]["Contour Width"]
+        if "contour width" in mm.config["plotting"]:
+            cwidth = mm.config["plotting"]["contour width"]
         else:
             cwidth = 1.2
 
@@ -179,7 +179,7 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
                           xbounds = (X[0][0], X[0][-1]),
                           ybounds = (Y[0][0], Y[-1][0]),
                           levels = plev,
-                          colors = mm.Configuration["Plotting"]["Contour Color"],
+                          colors = mm.config["plotting"]["contour color"],
                           styles = styles,
                           widths = [cwidth*.7, cwidth], # make outer lines slightly smaller
                           )

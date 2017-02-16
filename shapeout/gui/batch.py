@@ -152,7 +152,7 @@ class BatchFilterFolder(wx.Frame):
         # Get filter configuration of selected measurement
         if self.rbtnhere.GetValue():
             mhere = self.analysis.measurements[self.dropdown.GetSelection()] 
-            f_config = mhere.Configuration
+            f_config = mhere.config
 
         # Compute statistics
         head = None

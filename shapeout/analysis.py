@@ -155,7 +155,7 @@ class Analysis(object):
                 if os.path.exists(filter_manual_file):
                     mm._filter_manual = np.load(os.path.join(filter_manual_file))
                 
-                mm.UpdateConfiguration(cfg)
+                mm.config.update(cfg)
                 measmts[kidx] = mm
         
         self.measurements = measmts
@@ -214,7 +214,7 @@ class Analysis(object):
             out.append("title = "+mm.title)
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
-            config.save_config_file(cfgfile, mm.Configuration)
+            config.save_config_file(cfgfile, mm.config)
             out.append("config = {}".format(os.path.relpath(cfgfile,
                                                             directory)))
             
@@ -250,7 +250,7 @@ class Analysis(object):
         """
         # Reset limit filtering to get the correct number of events
         # This value will be overridden in the end.
-        cfgreset = {"Filtering":{"Limit Events":0}}
+        cfgreset = {"filtering":{"limit events":0}}
         # This also calls ApplyFilter and comutes clean filters
         self.SetParameters(cfgreset)
         
@@ -258,7 +258,8 @@ class Analysis(object):
         minsize = np.inf
         for m in self.measurements:
             minsize = min(minsize, np.sum(m._filter))
-        cfgnew = {"Filtering":{"Limit Events":minsize}}
+            print(minsize)
+        cfgnew = {"filtering":{"limit events":minsize}}
         self.SetParameters(cfgnew)
         return minsize
 
@@ -269,10 +270,10 @@ class Analysis(object):
         for every measurement in the analysis.
         """
         retdict = dict()
-        if self.measurements[0].Configuration.has_key(key):
-            s = set(self.measurements[0].Configuration[key].items())
+        if key in self.measurements[0].config:
+            s = set(self.measurements[0].config[key].items())
             for m in self.measurements[1:]:
-                s2 = set(m.Configuration[key].items())
+                s2 = set(m.config[key].items())
                 s = s & s2
             for item in s:
                 retdict[item[0]] = item[1]
@@ -282,7 +283,7 @@ class Analysis(object):
     def GetContourColors(self):
         colors = list()
         for mm in self.measurements:
-            colors.append(mm.Configuration["Plotting"]["Contour Color"])
+            colors.append(mm.config["Plotting"]["Contour Color"])
         return colors
 
 
@@ -297,7 +298,7 @@ class Analysis(object):
     def GetPlotAxes(self, mid=0):
         #return 
         p = self.GetParameters("Plotting", mid)
-        return [p["Axis X"], p["Axis Y"]]
+        return [p["Axis X"].lower(), p["Axis Y"].lower()]
 
 
     def GetPlotGeometry(self, mid=0):
@@ -346,11 +347,11 @@ class Analysis(object):
         # Get common parameters first:
         com = self.GetCommonParameters(key)
         retdict = dict()
-        if self.measurements[0].Configuration.has_key(key):
-            s = set(self.measurements[0].Configuration[key].items())
+        if key in self.measurements[0].config:
+            s = set(self.measurements[0].config[key].items())
             uncom = set(com.items()) ^ s
             for m in self.measurements[1:]:
-                s2 = set(m.Configuration[key].items())
+                s2 = set(m.config[key].items())
                 uncom2 = set(com.items()) ^ s2
                 
                 newuncom = dict()
@@ -363,8 +364,8 @@ class Analysis(object):
             for item in uncom:
                 vals = list()
                 for m in self.measurements:
-                    if m.Configuration[key].has_key(item[0]):
-                        vals.append(m.Configuration[key][item[0]])
+                    if m.config[key].has_key(item[0]):
+                        vals.append(m.config[key][item[0]])
                     else:
                         vals.append(None)
                         warnings.warn(
@@ -389,7 +390,7 @@ class Analysis(object):
                 # Get the attribute name for the axis
                 atname = dfn.cfgmaprev[ax]
                 if np.sum(np.abs(getattr(mm, atname))) == 0:
-                    unusable.append(ax)
+                    unusable.append(ax.lower())
                     break
         return unusable
 
@@ -415,7 +416,7 @@ class Analysis(object):
     def GetParameters(self, key, mid=0, filter_for_humans=True):
         """ Get parameters that all measurements share.
         """
-        conf = copy.deepcopy(self.measurements[mid].Configuration[key])
+        conf = self.measurements[mid].config.copy()[key]
         # remove generally ignored items from config
         for k in list(conf.keys()):
             for ax in IGNORE_AXES:
@@ -423,7 +424,7 @@ class Analysis(object):
                     conf.pop(k)
         # remove axes that are not owned by all measurements
         for k in list(conf.keys()):
-            if k.endswith("Min") or k.endswith("Max"):
+            if k.endswith("ain") or k.endswith("max"):
                 ax = k[:-4]
                 if ax in self.GetUnusableAxes():
                     conf.pop(k)
@@ -459,7 +460,7 @@ class Analysis(object):
         first measurement of the analysis.
         """
         # check if updating is disabled:
-        if self.measurements[0].Configuration["Plotting"]["Contour Fix Scale"]:
+        if self.measurements[0].config["Plotting"]["Contour Fix Scale"]:
             return
         
         if len(self.measurements) > 1:
@@ -485,8 +486,8 @@ class Analysis(object):
                 acg = float("{:.1e}".format(acc))
                 acm = float("{:.1e}".format(acc*2))
                 for mm in self.measurements:
-                    mm.Configuration["Plotting"]["Contour Accuracy {}".format(name)] = acg
-                    mm.Configuration["Plotting"]["KDE Multivariate {}".format(name)] = acm
+                    mm.config["Plotting"]["Contour Accuracy {}".format(name)] = acg
+                    mm.config["Plotting"]["KDE Multivariate {}".format(name)] = acm
 
 
     def SetContourColors(self, colors=None):
@@ -509,7 +510,7 @@ class Analysis(object):
                 colors = newcolors
 
             for i, mm in enumerate(self.measurements):
-                mm.Configuration["Plotting"]["Contour Color"] = colors[i]
+                mm.config["Plotting"]["Contour Color"] = colors[i]
 
 
     def SetParameters(self, newcfg):
@@ -518,28 +519,28 @@ class Analysis(object):
         """
         # Only update "Filtering" and "Plotting"
         upcfg = {}
-        if "Filtering" in newcfg:
-            upcfg["Filtering"] = copy.deepcopy(newcfg["Filtering"])
-        if "Plotting" in newcfg:
-            upcfg["Plotting"] = copy.deepcopy(newcfg["Plotting"])
+        if "filtering" in newcfg:
+            upcfg["filtering"] = copy.deepcopy(newcfg["filtering"])
+        if "plotting" in newcfg:
+            upcfg["plotting"] = copy.deepcopy(newcfg["plotting"])
             # prevent applying indivual things to all measurements
-            ignorelist = ["Contour Color"]
-            for skey in upcfg["Plotting"].keys():
+            ignorelist = ["contour color"]
+            for skey in upcfg["plotting"].keys():
                 if skey in ignorelist:
-                    upcfg["Plotting"].pop(skey)
+                    upcfg["plotting"].pop(skey)
 
             # Address issue with faulty contour plot on log scale
             # https://github.com/enthought/chaco/issues/300
-            pl = upcfg["Plotting"]
-            if (("Scale X" in pl and pl["Scale X"] == "Log") or
-                ("Scale Y" in pl and pl["Scale Y"] == "Log")):
+            pl = upcfg["plotting"]
+            if (("scale x" in pl and pl["scale x"] == "log") or
+                ("scale y" in pl and pl["scale y"] == "log")):
                 warnings.warn("Disabling contour plot because of chaco issue #300!")
-                upcfg["Plotting"]["Contour Plot"] = False
+                upcfg["plotting"]["contour plot"] = False
 
         # update configuration
-        for i in range(len(self.measurements)):
-            self.measurements[i].UpdateConfiguration(upcfg)
-
+        for mm in self.measurements:
+            mm.config.update(upcfg)
+            mm.ApplyFilter()
 
 
 def darkjet(myrange, **traits):

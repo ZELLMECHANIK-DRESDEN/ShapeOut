@@ -112,10 +112,10 @@ class Frame(gaugeframe.GaugeFrame):
         self.spright.SetMinimumPaneSize(sy)
        
         # Fake analysis
-        ddict = {"Area" : np.arange(10)*30,
-                 "Defo" : np.arange(10)*.02}
+        ddict = {"area" : np.arange(10)*30,
+                 "defo" : np.arange(10)*.02}
         rtdc_ds = dclab.RTDC_DataSet(ddict=ddict)
-        rtdc_ds.Configuration["Plotting"]["Contour Color"] = "white"
+        rtdc_ds.config["plotting"]["contour color"] = "black"
         self.NewAnalysis([rtdc_ds])
 
         ## Go
