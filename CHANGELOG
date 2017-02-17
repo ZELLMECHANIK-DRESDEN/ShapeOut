@@ -1,5 +1,7 @@
 0.7.1
-- Contour plot: do not display unused contour accuracy parameters
+- Bugfixes:
+  - Contour plot displays unused contour accuracy parameters
+  - Persistent busy cursor when trace or video data is missing
 - dclab:
   - Refactoring to improve code quality
 0.7.0

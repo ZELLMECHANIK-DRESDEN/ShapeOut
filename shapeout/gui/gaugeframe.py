@@ -83,7 +83,7 @@ class WorkerThread(td.Thread):
             except mp.TimeoutError:
                 if lc==0:
                     wx.PostEvent(self._notify_window,
-                                 ResultEvent((None,None,
+                                 ResultEvent((None,None,None,
                                               self._worker_id)
                                             )
                                 )
