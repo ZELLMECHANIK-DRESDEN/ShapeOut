@@ -40,8 +40,12 @@ class Analysis(object):
             # New analysis
             for f in data:
                 if os.path.exists(unicode(f)):
-                    # filename
-                    self.measurements.append(RTDC_DataSet(f))
+                    rtdc_ds = RTDC_DataSet(tdms_path=f)
+                    # TODO:
+                    # - use the shapeout configuration file to set plotting defaults
+                    # update with default plotting configuration
+                    rtdc_ds.config["plotting"].update(config.cfg_init["plotting"])
+                    self.measurements.append(rtdc_ds)
                 else:
                     # RTDC data set
                     self.measurements.append(f)

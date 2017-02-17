@@ -338,7 +338,7 @@ class SubPanelFilter(SubPanel):
         """
         sel = self.WXCOMBO_hparent.GetSelection()
         mm = self.analysis.measurements[sel]
-        hp = mm.config["Filtering"]["Hierarchy Parent"]
+        hp = mm.config["filtering"]["hierarchy parent"]
         if hp.lower() == "none":
             label = "no parent"
         else:
@@ -363,8 +363,8 @@ class SubPanelFilter(SubPanel):
         mm = self.analysis.measurements[sel]
         # get filters
         r = htreectrl.GetRootItem()
-        if "Polygon Filters" in mm.config["Filtering"]:
-            filterlist = mm.config["Filtering"]["Polygon Filters"]
+        if "polygon filters" in mm.config["filtering"]:
+            filterlist = mm.config["filtering"]["polygon filters"]
             #print(filterlist)
             # set visible filters
             for item in r.GetChildren():
@@ -456,7 +456,7 @@ class SubPanelFilter(SubPanel):
                 #print(item.GetData(), "unhecked")
                 pass
         # apply filters to data set
-        mm.config["Filtering"]["Polygon Filters"] = newfilterlist
+        mm.config["filtering"]["polygon filters"] = newfilterlist
         
     
     def OnPolygonImport(self, e=None):
@@ -561,10 +561,10 @@ class SubPanelFilter(SubPanel):
         
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
 
-        filten = analysis.GetParameters("Filtering")["Enable Filters"]
+        filten = analysis.GetParameters("filtering")["enable filters"]
         cb = self._create_type_wx_controls(analysis,
                                            "Filtering",
-                                           ["Enable Filters", filten],)
+                                           ["enable filters", filten],)
         vertsizer.Add(cb)
 
         btn_apply = wx.Button(self, label=_("Apply"))
@@ -585,9 +585,9 @@ class SubPanelFilter(SubPanel):
 
         sizer.Add(vertsizer)
 
-        self.BindEnableName(ctrl_source="Limit Events Auto",
+        self.BindEnableName(ctrl_source="limit events auto",
                             value=False,
-                            ctrl_targets=["Limit Events"])
+                            ctrl_targets=["limit events"])
 
         self.SetSizer(sizer)
         sizer.Fit(self)

@@ -228,7 +228,7 @@ class ControlPanel(ScrolledPanel):
     def OnPolygonFilter(self, result):
         """ Called by polygon Window """
         dclab.PolygonFilter(points=result["points"],
-                               axes=result["axes"])
+                            axes=result["axes"])
         # update list of polygon filters
         self.UpdatePages()
         # The first polygon will be applied to all plots
@@ -241,8 +241,8 @@ class ControlPanel(ScrolledPanel):
                     r = c.GetRootItem()
                     cs = r.GetChildren()
                     unique_id = cs[-1].GetData()
-                    newcfg = {"Filtering": 
-                              {"Polygon Filters": [unique_id]} }
+                    newcfg = {"filtering": 
+                             {"polygon filters": [unique_id]} }
                     self.analysis.SetParameters(newcfg)
             # and apply
             self.OnChangeFilter()
