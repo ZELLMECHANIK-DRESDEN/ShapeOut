@@ -631,7 +631,7 @@ class SubPanelStatistics(SubPanel):
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         if analysis is not None:
-            colors = list()
+            colors = []
             for mm in analysis.measurements:
                 colors.append(mm.config["plotting"]["contour color"])
             
