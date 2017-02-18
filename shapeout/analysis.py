@@ -41,7 +41,6 @@ class Analysis(object):
             for f in data:
                 if os.path.exists(unicode(f)):
                     rtdc_ds = RTDC_DataSet(tdms_path=f)
-                    self.measurements.append(rtdc_ds)
                 else:
                     # RTDC data set
                     rtdc_ds = f
