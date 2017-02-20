@@ -5,10 +5,6 @@
 """
 from __future__ import division, print_function, unicode_literals
 
-import chaco
-
-import cv2
-import nptdms
 import numpy as np
 import os
 import platform
@@ -18,22 +14,29 @@ import wx
 
 import dclab
 
+
+from .. import analysis
 from ..configuration import ConfigurationFile
+from .. import tlabwrap
 from ..util import findfile
+
+from . import autosave
+from . import batch
 from .controls import ControlPanel
 from .explorer import ExplorerPanel
-import gaugeframe
-from .. import analysis
-from .. import tlabwrap
-from . import autosave
-from . import update
-from . import plot_main
-from . import misc
-from . import video
 from . import export
-from . import batch
+from . import gaugeframe
+from . import help
+from . import misc
 from . import plot_export
+from . import plot_main
 from . import session
+from . import update
+from . import video
+
+
+
+
 
 
 ########################################################################
@@ -237,10 +240,10 @@ class Frame(gaugeframe.GaugeFrame):
         self.menubar.Append(helpmenu, _('&Help'))
         menuSoftw = helpmenu.Append(wx.ID_ANY, _("&Software"),
                                     _("Information about the software used"))
-        self.Bind(wx.EVT_MENU, self.OnHelpSoftware, menuSoftw)
+        self.Bind(wx.EVT_MENU, self.OnMenuHelpSoftware, menuSoftw)
         menuAbout = helpmenu.Append(wx.ID_ABOUT, _("&About"),
                                     _("Information about this program"))
-        self.Bind(wx.EVT_MENU, self.OnHelpAbout, menuAbout)
+        self.Bind(wx.EVT_MENU, self.OnMenuHelpAbout, menuAbout)
         
         ## Toolbar
         self.toolbar = wx.ToolBar(self, style=wx.TB_FLAT|wx.TB_HORIZONTAL|wx.TB_NODIVIDER)
@@ -327,81 +330,6 @@ class Frame(gaugeframe.GaugeFrame):
         wx.EndBusyCursor()
 
 
-    def OnHelpAbout(self, e=None):
-        description =  ("ShapeOut is a data evaluation tool"+
-            "\nfor real-time deformability cytometry (RT-DC)."+
-            "\nShapeOut is written in Python.")
-        licence = """ShapeOut is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published 
-by the Free Software Foundation, either version 2 of the License, 
-or (at your option) any later version.
-
-ShapeOut is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of 
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-See the GNU General Public License for more details. 
-
-You should have received a copy of the GNU General Public License 
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-        info = wx.AboutDialogInfo()
-        #info.SetIcon(wx.Icon('hunter.png', wx.BITMAP_TYPE_PNG))
-        info.SetName('ShapeOut')
-        info.SetVersion(self.version)
-        info.SetDescription(description)
-        info.SetCopyright(u'(C) 2015 Paul Müller')
-        info.SetWebSite(u"http://zellmechanik.com/")
-        info.SetLicence(licence)
-        info.SetIcon(misc.getMainIcon(pxlength=64))
-        info.AddDeveloper(u'Paul Müller')
-        info.AddDeveloper(u'Maik Herbig')
-        info.AddDeveloper(u'Philipp Rosendahl')
-        info.AddDocWriter(u'Paul Müller')
-        wx.AboutBox(info)
-
-    
-    def OnHelpSoftware(self, e=None):
-        # Show About Information
-        from dclab import __version__ as dcversion
-        from fcswrite import __version__ as fcversion
-        from scipy import __version__ as spversion
-        from pyper import __version__ as pyperversion
-        from .. import _version as so_version
-        from ..util import cran
-        r_version = cran.get_R_version()
-        
-        if hasattr(so_version, "repo_tag"):
-            version = so_version.repo_tag  # @UndefinedVariable
-        else:
-            version = so_version.version
-
-        text = "ShapeOut "+version+\
-               "\n\nPython "+sys.version+\
-               "\n\nModules:"+\
-               "\n - chaco "+chaco.__version__+\
-               "\n - dclab "+dcversion+\
-               "\n - fcswrite "+fcversion+\
-               "\n - npTDMS "+nptdms.__version__+\
-               "\n - NumPy "+np.__version__+\
-               "\n - OpenCV "+cv2.__version__+\
-               "\n - pyper "+pyperversion+\
-               "\n - SciPy "+spversion+\
-               "\n - wxPython "+wx.__version__
-
-        if hasattr(sys, 'frozen'):
-            pyinst = "\n\n"
-            pyinst += _("This executable has been created using PyInstaller.")
-            text += pyinst
-            if 'Anaconda' in sys.version or "Continuum Analytics" in sys.version:
-                conda = "\n\nPowered by Anaconda"
-                text += conda
-        
-        mtext = "\n\n"
-        mtext += "Other software:\n"
-        mtext += "\n".join([ "  "+r for r in r_version.split("\n")])
-        text += mtext
-        
-        wx.MessageBox(text, 'Software', wx.OK|wx.ICON_INFORMATION)
 
 
     def OnMenuBatchFolder(self, e=None):
@@ -499,6 +427,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         
         """
         export.export_statistics_tsv(self)
+
+
+    def OnMenuHelpAbout(self, e=None):
+        help.about()
+
+    
+    def OnMenuHelpSoftware(self, e=None):
+        help.software()
 
 
     def OnMenuLoad(self, e=None, session_file=None):
