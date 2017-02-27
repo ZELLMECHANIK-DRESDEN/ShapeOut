@@ -15,12 +15,13 @@ import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import RTDC_DataSet
+from dclab.rtdc_dataset import RTDC_DataSet, Configuration
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
 from dclab import config
 
 from .tlabwrap import IGNORE_AXES
+from shapeout import tlabwrap
 
 
 
@@ -48,7 +49,7 @@ class Analysis(object):
                 # TODO:
                 # - use the shapeout configuration file to set plotting defaults
                 # update with default plotting configuration
-                rtdc_ds.config["plotting"].update(config.cfg_init["plotting"])
+                rtdc_ds.config["plotting"].update(tlabwrap.cfg["plotting"])
         elif isinstance(data, (unicode, str)) and os.path.exists(data):
             # We are opening a session "index.txt" file
             self._ImportDumped(data, search_path=search_path)
@@ -109,13 +110,12 @@ class Analysis(object):
         if os.path.exists(polygonfile):
             PolygonFilter.import_all(polygonfile)
         # import configurations
-        datadict = config.load_config_file(indexname, capitalize=False)
+        datadict = config.load_config_file(indexname)
         keys = list(datadict.keys())
         # The identifier (in brackets []) contains a number before the first
         # underscore "_" which determines the order of the plots:
         #keys.sort(key=lambda x: int(x.split("_")[0]))
         measmts = [None]*len(keys)
-        hashwarn = []
         while measmts.count(None):
             for key in keys:
                 kidx = int(key[0])-1
@@ -125,7 +125,7 @@ class Analysis(object):
                 
                 data = datadict[key]
                 config_file = os.path.join(thedir, data["config"])
-                cfg = config.load_config_file(config_file)
+                cfg = Configuration(files=[config_file])
                 
                 if ("special type" in data and
                     data["special type"] == "hierarchy child"):
@@ -222,7 +222,7 @@ class Analysis(object):
             out.append("title = "+mm.title)
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
-            config.save_config_file(cfgfile, mm.config)
+            mm.config.save(cfgfile)
             out.append("config = {}".format(os.path.relpath(cfgfile,
                                                             directory)))
             

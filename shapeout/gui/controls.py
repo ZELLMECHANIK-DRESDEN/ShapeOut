@@ -201,7 +201,7 @@ class ControlPanel(ScrolledPanel):
                 else:
                     val = c.GetValue()
 
-                var, val = dc_config.map_config_value_str2type(var, val)
+                var, val = rt_config.keyval_str2typ(var, val)
                 newfilt[var] = val
             elif name.startswith("title "):
                 # Change title of measurement

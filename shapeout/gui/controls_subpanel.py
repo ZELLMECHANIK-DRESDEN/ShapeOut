@@ -1,10 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import copy
 import dclab
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 import warnings
+
+from dclab import definitions as dfn
 
 from .. import tlabwrap
 
@@ -71,8 +74,8 @@ class SubPanel(ScrolledPanel):
         stemp = wx.BoxSizer(wx.HORIZONTAL)
         # these axes should not be displayed in the UI
         ignore_axes = tlabwrap.IGNORE_AXES+analysis.GetUnusableAxes()
-        choices = dclab.config.get_config_entry_choices(key, item[0],
-                                                     ignore_axes=ignore_axes)
+        choices = get_config_entry_choices(key, item[0],
+                                           ignore_axes=ignore_axes)
         if len(choices) != 0:
             if choices[0] in dclab.dfn.axlabels:
                 human_choices = [ _(dclab.dfn.axlabels[c]) for c in choices]
@@ -97,7 +100,7 @@ class SubPanel(ScrolledPanel):
             stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(c)
 
-        elif (dclab.config.get_config_entry_dtype(key, item[0]) == bool or
+        elif (get_config_entry_dtype(key, item[0]) == bool or
               str(item[1]).capitalize() in ["True", "False"]):
             a = wx.CheckBox(self, label=_(item[0]), name=item[0])
             a.SetValue(item[1])
@@ -191,3 +194,57 @@ class SubPanel(ScrolledPanel):
     def UpdatePanel(self, *args, **kwargs):
         """ Overwritten by subclass """
         pass
+
+
+def get_config_entry_choices(key, subkey, ignore_axes=[]):
+    """ Returns the choices for a parameter, if any
+    """
+    key = key.lower()
+    subkey = subkey.lower()
+    ignore_axes = [a.lower() for a in ignore_axes]
+    ## Manually defined types:
+    choices = []
+    
+    if key == "plotting":
+        if subkey == "kde":
+            choices = ["none", "gauss", "multivariate"]
+
+        elif subkey in ["axis x", "axis y"]:
+            choices = copy.copy(dfn.uid)
+            # remove unwanted axes
+            for choice in ignore_axes:
+                if choice in choices:
+                    choices.remove(choice)
+   
+        elif subkey in ["rows", "columns"]:
+            choices = [ str(i) for i in range(1,6) ]
+        elif subkey in ["scatter marker size"]:
+            choices = [ str(i) for i in range(1,5) ]
+        elif subkey.count("scale "):
+            choices = ["linear", "log"]
+    return choices
+
+
+def get_config_entry_dtype(key, subkey, cfg=None):
+    """ Returns dtype of the parameter as defined in dclab.cfg
+    """
+    key = key.lower()
+    subkey = subkey.lower()
+    #default
+    dtype = str
+
+    ## Define dtypes and choices of cfg content
+    # Iterate through cfg to determine standard dtypes
+    cfg_init = tlabwrap.cfg.copy()  
+    if cfg is None:
+        cfg = cfg_init.copy()
+   
+    if key in cfg_init and subkey in cfg_init[key]:
+        dtype = cfg_init[key][subkey].__class__
+    else:
+        try:
+            dtype = cfg[key][subkey].__class__
+        except KeyError:
+            dtype = float
+
+    return dtype
