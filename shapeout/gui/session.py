@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """ ShapeOut - session handling"""
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 from dclab.rtdc_dataset import hashfile
 import os
@@ -95,7 +95,7 @@ def open_session(path, parent):
     
     parent.NewAnalysis(indexfile, search_path=dirname)
 
-    directories = list()
+    directories = []
     for mm in parent.analysis.measurements:
         if os.path.exists(mm.fdir):
             directories.append(mm.fdir)

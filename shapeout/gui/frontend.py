@@ -10,6 +10,7 @@ import os
 import platform
 import sys
 import traceback
+import warnings
 import wx
 
 import dclab
@@ -305,7 +306,21 @@ class Frame(gaugeframe.GaugeFrame):
     def NewAnalysis(self, data, search_path="./"):
         """ Create new analysis object and show data """
         wx.BeginBusyCursor()
-        anal = analysis.Analysis(data, search_path=search_path)
+        # Catch hash comparison warnings and display warning to the user
+        with warnings.catch_warnings(record=True) as ww:
+            warnings.simplefilter("always",
+                                  category=analysis.HashComparisonWarning)
+            anal = analysis.Analysis(data, search_path=search_path)
+            if len(ww):
+                msg = "One or more files referred to in the chosen session "+\
+                      "did not pass the hash check. Nevertheless, ShapeOut "+\
+                      "loaded the data. The following warnings were issued:\n"
+                msg += "".join([ "\n - "+w.message.message for w in ww ])
+                dlg = wx.MessageDialog(None,
+                                       _(msg),
+                                       _('Hash mismatch warning'),
+                                       wx.OK | wx.ICON_WARNING)
+                dlg.ShowModal()
         # Get Plotting and Filtering parameters from previous analysis
         if hasattr(self, "analysis"):
             # Get Plotting and Filtering parameters from previous analysis

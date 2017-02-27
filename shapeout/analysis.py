@@ -115,6 +115,7 @@ class Analysis(object):
         # underscore "_" which determines the order of the plots:
         #keys.sort(key=lambda x: int(x.split("_")[0]))
         measmts = [None]*len(keys)
+        hashwarn = []
         while measmts.count(None):
             for key in keys:
                 kidx = int(key[0])-1
@@ -147,8 +148,9 @@ class Analysis(object):
                                   data["para.ini hash"]
                                 ]
                     if mmhashes != newhashes:
-                        raise ValueError("Hashes don't match for file {}.".
-                                         format(tloc))
+                        msg = "File hashes don't match for: {}".format(tloc)
+                        warnings.warn(msg, HashComparisonWarning)
+
                 if "title" in data:
                     # title saved starting version 0.5.6.dev6
                     mm.title = data["title"]
@@ -161,8 +163,10 @@ class Analysis(object):
                 
                 mm.config.update(cfg)
                 measmts[kidx] = mm
-        
+
         self.measurements = measmts
+        
+
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
@@ -545,6 +549,10 @@ class Analysis(object):
         for mm in self.measurements:
             mm.config.update(upcfg)
             mm.ApplyFilter()
+
+
+class HashComparisonWarning(UserWarning):
+    pass
 
 
 def darkjet(myrange, **traits):
