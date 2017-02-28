@@ -56,6 +56,31 @@ class Analysis(object):
         else:
             raise ValueError("Argument not an index file or list of"+\
                              " .tdms files: {}".format(data))
+        # Complete missing configuration parameters
+        self._complete_config()
+
+
+    def _complete_config(self):
+        """Complete configuration of all RTDC_DataSet sets
+        """
+        for mm in self.measurements:
+            # Sensible values for default contour accuracies
+            keys = []
+            for prop in dfn.rdv:
+                if not np.allclose(getattr(mm, prop), 0):
+                    # There are values for this uid
+                    keys.append(prop)
+            # This lambda function seems to do a good job
+            accl = lambda a: (np.nanmax(a)-np.nanmin(a))/10
+            defs = [["contour accuracy {}", accl],
+                    ["kde multivariate {}", accl],
+                   ]
+            pltng = mm.config["plotting"]
+            for k in keys:
+                for d, l in defs:
+                    var = d.format(dfn.cfgmap[k])
+                    if not var in pltng:
+                        pltng[var] = l(getattr(mm, k))
 
 
     def _clear(self):

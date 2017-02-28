@@ -265,8 +265,17 @@ def set_scatter_data(plot, mm):
     else:
         positions = None
 
-    density = mm.GetKDE_Scatter(yax=yax, xax=xax, positions=positions)
+    kde_type = plotfilters["kde"]
+    kde_kwargs = {}
+    if kde_type == "multivariate":
+        bwx = plotfilters["kde multivariate "+xax]
+        bwy = plotfilters["kde multivariate "+yax]
+        kde_kwargs["bw"] = [bwx, bwy]
 
+    a = time.time()
+    density = mm.get_kde_scatter(xax=xax, yax=yax, positions=positions,
+                                 kde_type=kde_type, kde_kwargs=kde_kwargs)
+    print("...KDE scatter time {}: {:.2f}s".format(kde_type, time.time()-a))
     pd = plot.data
     
     pd.set_data("index", x)
