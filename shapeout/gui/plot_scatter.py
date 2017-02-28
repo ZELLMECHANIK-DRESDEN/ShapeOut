@@ -236,34 +236,24 @@ def set_scatter_data(plot, mm):
     xax, yax = mm.GetPlotAxes()
     
     if mm.config["filtering"]["enable filters"]:
-        x = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
-        y = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
+        x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
+        #y = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
     else:
         # filtering disabled
-        x = getattr(mm, dfn.cfgmaprev[xax])
-        y = getattr(mm, dfn.cfgmaprev[yax])
+        x0 = getattr(mm, dfn.cfgmaprev[xax])
+        #y = getattr(mm, dfn.cfgmaprev[yax])
     
-    #downsampling : int or None
-    #    Filter events that are overdrawn by others (saves time).
-    #    If set to None then
-    downsampling = plotfilters["downsampling"]
-    #downsample_events : int or None
-    #    Number of events to draw in the down-sampled plot. This number
-    #    is either 
-    #    - >=1: limit total number of events drawn
-    #    - <1: only perform 1st downsampling step with grid
-    #    If set to None, then
-    downsample_events = plotfilters["downsample events"]
+    downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
-    if downsampling:
-        lx = x.shape[0]
-        x, y = mm.GetDownSampledScatter(
-                                    downsample_events=downsample_events
-                                    )
-        positions = np.vstack([x.ravel(), y.ravel()])
-        print("Downsampled from {} to {}".format(lx, x.shape[0]))
-    else:
+    a = time.time()
+    lx = x0.shape[0]
+    x, y = mm.get_downsampled_scatter(xax=xax, yax=yax,
+                                      downsample=downsample)
+    if lx == x.shape:
         positions = None
+    else:
+        print("...Downsampled from {} to {} in {:.2f}s".format(lx, x.shape[0], time.time()-a))
+        positions = np.vstack([x.ravel(), y.ravel()])
 
     kde_type = plotfilters["kde"]
     kde_kwargs = {}
@@ -287,9 +277,9 @@ def set_scatter_data(plot, mm):
         mm._filter.sum() != mm.time.shape[0]):
         mm.ApplyFilter()
         # determine the number of points we are allowed to add
-        if downsampling:
+        if downsample:
             # respect the maximum limit of plotted events
-            excl_num = int(downsample_events - np.sum(mm._filter))
+            excl_num = int(downsample - np.sum(mm._filter))
         else:
             # plot all excluded events
             excl_num = np.sum(~mm._filter)

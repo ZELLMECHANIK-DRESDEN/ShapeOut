@@ -64,7 +64,7 @@ class Analysis(object):
         """Complete configuration of all RTDC_DataSet sets
         """
         for mm in self.measurements:
-            # Sensible values for default contour accuracies
+            ## Sensible values for default contour accuracies
             keys = []
             for prop in dfn.rdv:
                 if not np.allclose(getattr(mm, prop), 0):
@@ -81,6 +81,12 @@ class Analysis(object):
                     var = d.format(dfn.cfgmap[k])
                     if not var in pltng:
                         pltng[var] = l(getattr(mm, k))
+            ## Check for missing min/max values and set them to zero
+            for item in dfn.uid:
+                appends = [" min", " max"]
+                for a in appends:
+                    if not item+a in mm.config["plotting"]:
+                        mm.config["plotting"][item+a] = 0
 
 
     def _clear(self):
