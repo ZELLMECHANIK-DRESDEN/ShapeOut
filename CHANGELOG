@@ -3,6 +3,7 @@
 - Bugfixes:
   - Contour plot displays unused contour accuracy parameters
   - Persistent busy cursor when trace or video data is missing
+  - Directory selections not always remembered correctly
 - dclab:
   - Refactoring to improve code quality
 0.7.0

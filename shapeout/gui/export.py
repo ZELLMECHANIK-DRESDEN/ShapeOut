@@ -92,12 +92,12 @@ class ExportAnalysisEvents(wx.Frame):
         # make directory dialog
         dlg2 = wx.DirDialog(self,
                            message=_("Select directory for data export"),
-                           defaultPath=self.parent.config.GetWorkingDirectory("ExportTSV"),
+                           defaultPath=self.parent.config.get_dir("ExportTSV"),
                            style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
             outdir = dlg2.GetPath()
-            self.parent.config.SetWorkingDirectory(outdir, "ExportData")
+            self.parent.config.set_dir(outdir, "ExportData")
             
             # determine if user wants filtered data
             filtered = self.WXCheckFilter.IsChecked()
@@ -165,7 +165,7 @@ class ExportAnalysisEventsTSV(ExportAnalysisEvents):
 def export_event_images_avi(parent, analysis):
     dlg = wx.DirDialog(parent,
                message=_("Select directory for video export"),
-               defaultPath=parent.config.GetWorkingDirectory("ExportAVI"),
+               defaultPath=parent.config.get_dir("ExportAVI"),
                style=wx.DD_DEFAULT_STYLE)
     if dlg.ShowModal() == wx.ID_OK:
         out_dir=dlg.GetPath()
@@ -193,7 +193,7 @@ def export_statistics_tsv(parent):
     # File dialog
     
     dlg = wx.FileDialog(parent, "Choose file to save",
-            parent.config.GetWorkingDirectory("TSV"),
+            parent.config.get_dir("TSV"),
             "", "Tab separated file (*.tsv)|*.tsv;*.TSV",
             wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     # user cannot do anything until he clicks "OK"
@@ -201,7 +201,7 @@ def export_statistics_tsv(parent):
         path = dlg.GetPath()
         if path.lower().endswith(".tsv") is not True:
             path = path+".tsv"
-        parent.config.SetWorkingDirectory(os.path.dirname(path), "TSV")
+        parent.config.set_dir(os.path.dirname(path), "TSV")
         with codecs.open(path, 'w', encoding="utf-8") as fd:
             fd.writelines(exp)
 

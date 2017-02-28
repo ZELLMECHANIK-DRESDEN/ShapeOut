@@ -458,24 +458,19 @@ class Frame(gaugeframe.GaugeFrame):
         if session_file is None:
             # User dialog
             dlg = wx.FileDialog(self, "Open session file",
-                    self.config.GetWorkingDirectory(name="Session"), "",
+                    self.config.get_dir(name="Session"), "",
                             "ShapeOut session (*.zmso)|*.zmso", wx.FD_OPEN)
             
             if dlg.ShowModal() == wx.ID_OK:
-                self.config.SetWorkingDirectory(dlg.GetDirectory(),
-                                                name="Session")
+                self.config.set_dir(dlg.GetDirectory(), name="Session")
                 fname = dlg.GetPath()
                 dlg.Destroy()
             else:
-                self.config.SetWorkingDirectory(dlg.GetDirectory(),
-                                                name="Session")
+                self.config.set_dir(dlg.GetDirectory(), name="Session")
                 dlg.Destroy()
                 return # nothing more to do here
         else:
             fname = session_file 
-        
-        dirname = os.path.dirname(fname)
-        self.config.SetWorkingDirectory(dirname)
 
         session.open_session(fname, self)
         
@@ -487,11 +482,11 @@ class Frame(gaugeframe.GaugeFrame):
         This calls `PanelLeft.SetProjectTree`.
         """
         dlg = wx.DirDialog(self, _("Please select a directory"),
-               defaultPath=self.config.GetWorkingDirectory(name="Main"))
+               defaultPath=self.config.get_dir(name="Main"))
         answer = dlg.ShowModal()
         if answer == wx.ID_OK:
             path = dlg.GetPath()
-            self.config.SetWorkingDirectory(path, name="Main")
+            self.config.set_dir(path, name="Main")
             dlg.Destroy()
             self.GaugeIndefiniteStart(
                                 func=tlabwrap.GetTDMSTreeGUI,
@@ -506,10 +501,10 @@ class Frame(gaugeframe.GaugeFrame):
         """ Convenience wrapper around OnMenuSearchPath"""
         if path is None:
             dlg = wx.DirDialog(self, _("Please select a directory"),
-                          defaultPath=self.config.GetWorkingDirectory())
+                          defaultPath=self.config.get_dir())
             answer = dlg.ShowModal()
             path = dlg.GetPath()
-            self.config.SetWorkingDirectory(path, name="Main")
+            self.config.set_dir(path, name="Main")
             dlg.Destroy()
             if answer != wx.ID_OK:
                 return
@@ -551,7 +546,7 @@ class Frame(gaugeframe.GaugeFrame):
     def OnMenuSaveSimple(self, e=None):
         """ Save configuration without measurement data """
         dlg = wx.FileDialog(self, "Save ShapeOut session", 
-                    self.config.GetWorkingDirectory(name="Session"), "",
+                    self.config.get_dir(name="Session"), "",
                     "ShapeOut session (*.zmso)|*.zmso",
                     wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
@@ -560,12 +555,12 @@ class Frame(gaugeframe.GaugeFrame):
             if not path.endswith(".zmso"):
                 path += ".zmso"
             dirname = os.path.dirname(path)
-            self.config.SetWorkingDirectory(dirname, name="Session")
+            self.config.set_dir(dirname, name="Session")
             session.save_session(path, self.analysis)
             return path
         else:
             dirname = dlg.GetDirectory()
-            self.config.SetWorkingDirectory(dirname, name="Session")
+            self.config.set_dir(dirname, name="Session")
             dlg.Destroy()
 
 

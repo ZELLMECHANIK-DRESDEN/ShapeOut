@@ -199,7 +199,7 @@ class BatchFilterFolder(wx.Frame):
         # make directory dialog
         dlg2 = wx.DirDialog(self,
                 message=_("Please select directory containing measurements"),
-                defaultPath=self.parent.config.GetWorkingDirectory("BatchFD"),
+                defaultPath=self.parent.config.get_dir("BatchFD"),
                 style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
@@ -211,7 +211,7 @@ class BatchFilterFolder(wx.Frame):
         if thepath is not None:
             wx.BeginBusyCursor()
             self.WXfold_text1.SetLabel(thepath)
-            self.parent.config.SetWorkingDirectory(thepath, "BatchFD")
+            self.parent.config.set_dir(thepath, "BatchFD")
             # Search directory
             tree, _cols = tlabwrap.GetTDMSTreeGUI(thepath)
             self.WXfold_text2.SetLabel(_("Found {} measurement(s).").
@@ -227,7 +227,7 @@ class BatchFilterFolder(wx.Frame):
     def OnBrowseTSV(self, e=None):
         dlg2 = wx.FileDialog(self,
                 message=_("Please select an output file."),
-                defaultDir=self.parent.config.GetWorkingDirectory("BatchOut"),
+                defaultDir=self.parent.config.get_dir("BatchOut"),
                 style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT,
                 wildcard=_("TSV files")+" (*.tsv)|*.tsv")
         
@@ -237,7 +237,7 @@ class BatchFilterFolder(wx.Frame):
                 thepath+=".tsv"
             self.WXtsv_text1.SetLabel(thepath)
             thedir = os.path.dirname(thepath)
-            self.parent.config.SetWorkingDirectory(thedir, "BatchOut")
+            self.parent.config.set_dir(thedir, "BatchOut")
             self.out_tsv_file = thepath
         
         if self.tdms_files is not None:
