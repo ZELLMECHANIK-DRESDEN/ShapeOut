@@ -7,8 +7,10 @@ from __future__ import division, unicode_literals
 
 import chaco.api as ca
 import chaco.tools.api as cta
-
-from dclab import *  # @UnusedWildImport
+from dclab import definitions as dfn
+import numpy as np
+import time
+import warnings
 
 from . import misc
 from ..tlabwrap import isoelastics

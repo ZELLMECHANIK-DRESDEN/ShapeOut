@@ -34,6 +34,7 @@ from . import plot_main
 from . import session
 from . import update
 from . import video
+from dclab import rtdc_dataset
 
 
 
@@ -119,7 +120,6 @@ class Frame(gaugeframe.GaugeFrame):
         ddict = {"area" : np.arange(10)*30,
                  "defo" : np.arange(10)*.02}
         rtdc_ds = dclab.RTDC_DataSet(ddict=ddict)
-        rtdc_ds.config["plotting"]["contour color"] = "black"
         self.NewAnalysis([rtdc_ds])
 
         ## Go
@@ -324,10 +324,10 @@ class Frame(gaugeframe.GaugeFrame):
         # Get Plotting and Filtering parameters from previous analysis
         if hasattr(self, "analysis"):
             # Get Plotting and Filtering parameters from previous analysis
-            fpar = self.analysis.GetParameters("Filtering")
-            ppar = self.analysis.GetParameters("Plotting")
-            newcfg = {"Filtering" : fpar,
-                      "Plotting" : ppar  }
+            fpar = self.analysis.GetParameters("filtering")
+            ppar = self.analysis.GetParameters("plotting")
+            newcfg = {"filtering" : fpar,
+                      "plotting" : ppar  }
             # set colors if more than one:
             anal.SetParameters(newcfg)
             # reset contour accuracies

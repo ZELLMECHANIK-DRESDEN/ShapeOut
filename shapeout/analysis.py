@@ -46,10 +46,6 @@ class Analysis(object):
                     # RTDC data set
                     rtdc_ds = f
                 self.measurements.append(rtdc_ds)
-                # TODO:
-                # - use the shapeout configuration file to set plotting defaults
-                # update with default plotting configuration
-                rtdc_ds.config["plotting"].update(tlabwrap.cfg["plotting"])
         elif isinstance(data, (unicode, str)) and os.path.exists(data):
             # We are opening a session "index.txt" file
             self._ImportDumped(data, search_path=search_path)
@@ -64,6 +60,11 @@ class Analysis(object):
         """Complete configuration of all RTDC_DataSet sets
         """
         for mm in self.measurements:
+            # Update configuration with default values from ShapeOut,
+            # but do not override anything.
+            cfgold = mm.config.copy()
+            mm.config.update(tlabwrap.cfg)
+            mm.config.update(cfgold)
             ## Sensible values for default contour accuracies
             keys = []
             for prop in dfn.rdv:
