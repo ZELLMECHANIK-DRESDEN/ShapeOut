@@ -156,8 +156,20 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         # Check if there is data to compute a contour from
         if len(mm._filter)==0 or np.sum(mm._filter)==0:
             break
+        
+        xacc = mm.config["plotting"]["contour accuracy "+xax]
+        yacc = mm.config["plotting"]["contour accuracy "+yax]
+        kde_type = mm.config["plotting"]["kde"]
+        kde_kwargs = {}
+        if kde_type == "multivariate":
+            bwx = plotfilters["kde multivariate "+xax]
+            bwy = plotfilters["kde multivariate "+yax]
+            kde_kwargs["bw"] = [bwx, bwy]
 
-        (X,Y,density) = mm.GetKDE_Contour(yax=yax, xax=xax)
+        a = time.time()
+        (X,Y,density) = mm.get_kde_contour(xax=xax, yax=yax, xacc=xacc, yacc=yacc,
+                                           kde_type=kde_type)
+        print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
         pd.set_data(cname, density)
   
         plev = [np.max(density)*i for i in levels]
