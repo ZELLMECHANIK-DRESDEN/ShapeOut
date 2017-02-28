@@ -564,9 +564,12 @@ class Analysis(object):
             upcfg["plotting"] = copy.deepcopy(newcfg["plotting"])
             # prevent applying indivual things to all measurements
             ignorelist = ["contour color"]
+            pops = []
             for skey in upcfg["plotting"]:
                 if skey in ignorelist:
-                    upcfg["plotting"].pop(skey)
+                    pops.append(skey)
+            for skey in pops:
+                upcfg["plotting"].pop(skey)
 
             # Address issue with faulty contour plot on log scale
             # https://github.com/enthought/chaco/issues/300
