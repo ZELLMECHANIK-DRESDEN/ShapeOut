@@ -3,7 +3,7 @@
 """ configuration - configuration file of ShapeOut
 
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 
 import codecs

@@ -3,14 +3,150 @@
 """ ShapeOut - session handling"""
 from __future__ import division, print_function, unicode_literals
 
+import codecs
 from dclab.rtdc_dataset import hashfile
 import os
 import shutil
 import tempfile
+import warnings
 import wx
 import zipfile
 
-from .. import analysis
+
+
+def get_tdms_file(index_dict,
+                  search_path="./",
+                  errors="ignore"):
+    """ Get the tdms file from entries in the index dictionary
+    
+    The index dictionary is created from each entry in the
+    the index.txt file and contains the keys "name", "fdir", and
+    since version 0.6.1 "rdir".
+    
+    If the file cannot be found on the file system, then a warning
+    is issued if `errors` is set to "ignore", otherwise an IOError
+    is raised.
+    
+    """
+    found = False
+    tdms1 = os.path.join(index_dict["fdir"], index_dict["name"])
+    
+    if os.path.exists(tdms1):
+        found = tdms1
+    else:
+        if "rdir" in index_dict:
+            # try to find relative path
+            sdir = os.path.abspath(search_path)
+            ndir = os.path.abspath(os.path.join(sdir, index_dict["rdir"]))
+            tdms2 = os.path.join(ndir, index_dict["name"])
+            if os.path.exists(tdms2):
+                found = tdms2
+    
+    if not found:
+        if errors == "ignore":
+            warnings.warn("Could not find file: {}".format(tdms1))
+            found = tdms1
+        else:
+            raise IOError("Could not find file: {}".format(tdms1))
+
+    return found
+
+
+def index_check(indexname, search_path="./"):
+    """ Check a session file index for existence of all measurement files
+    """
+    missing_files = []
+    
+    datadict = index_load(indexname)
+    keys = list(datadict.keys())
+    # The identifier (in brackets []) contains a number before the first
+    # underscore "_" which determines the order of the plots:
+    keys.sort(key=lambda x: int(x.split("_")[0]))
+    for key in keys:    
+        data = datadict[key]
+        if not ("special type" in data and
+                data["special type"] == "hierarchy child"):
+            tdms = get_tdms_file(data, search_path)
+            if not os.path.exists(tdms):
+                missing_files.append([key, tdms, data["tdms hash"]])
+    
+    messages = {"missing tdms": missing_files}
+    return messages
+
+
+def index_load(cfgfilename):
+    """ Load a configuration file
+    
+    
+    Parameters
+    ----------
+    cfgfilename : absolute path
+        Filename of the configuration
+    
+    Returns
+    -------
+    cfg : dict
+        Dictionary with configuration
+    """
+    cfg = {}
+
+    with codecs.open(cfgfilename, 'r', 'utf-8') as f:
+        code = f.readlines()
+    
+    for line in code:
+        # We deal with comments and empty lines
+        # We need to check line length first and then we look for
+        # a hash.
+        line = line.split("#")[0].strip()
+        if len(line):
+            if line.startswith("[") and line.endswith("]"):
+                section = line[1:-1]
+                if not section in cfg:
+                    cfg[section] = {}
+                continue
+            var, val = line.split("=", 1)
+            var, val = var.strip(), val.strip()
+            if len(var) != 0 and len(str(val)) != 0:
+                cfg[section][var] = val
+
+    return cfg
+
+
+def index_save(indexname, datadict):
+    """ Save configuration to text file
+
+
+    Parameters
+    ----------
+    indexname : absolute path
+        Filename of the configuration
+    datadict : dict
+        Dictionary containing configuration.
+
+    """
+    out = []
+    keys = list(datadict.keys())
+    keys.sort()
+    for key in keys:
+        out.append("[{}]".format(key))
+        section = datadict[key]
+        ikeys = list(section.keys())
+        ikeys.sort()
+        for ikey in ikeys:
+            out.append("{} = {}".format(ikey,section[ikey]))
+        out.append("")
+    
+    with codecs.open(indexname, "wb", "utf-8") as f:
+        for i in range(len(out)):
+            out[i] = out[i]+"\r\n"
+        f.writelines(out)
+
+
+def index_update(indexname, updict={}):
+    datadict = index_load(indexname)
+    for key in updict:
+        datadict[key].update(updict[key])
+    index_save(indexname, datadict)
 
 
 def open_session(path, parent):
@@ -35,7 +171,7 @@ def open_session(path, parent):
 
     # check session integrity
     dirname = os.path.dirname(path)
-    messages = analysis.session_check_index(indexfile, search_path=dirname)
+    messages = index_check(indexfile, search_path=dirname)
     
     while len(messages["missing tdms"]):
         # There are missing tdms files. We need to modify the extracted
@@ -91,7 +227,7 @@ def open_session(path, parent):
         wx.EndBusyCursor()
 
         # Update the extracted index file.
-        analysis.session_update_index(indexfile, updict)
+        index_update(indexfile, updict)
     
     parent.NewAnalysis(indexfile, search_path=dirname)
 
@@ -103,7 +239,7 @@ def open_session(path, parent):
     bolddirs = parent.analysis.GetTDMSFilenames()
 
     parent.OnMenuSearchPathAdd(add=False, path=directories,
-                             marked=bolddirs)
+                               marked=bolddirs)
     
     # Remove all temporary files
     shutil.rmtree(tempdir, ignore_errors=True)

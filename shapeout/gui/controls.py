@@ -11,7 +11,6 @@ import wx.grid as gridlib
 from wx.lib.scrolledpanel import ScrolledPanel
 
 import dclab
-from dclab import config as dc_config
 from dclab.rtdc_dataset import config as rt_config
 
 from .. import tlabwrap
@@ -183,7 +182,7 @@ class ControlPanel(ScrolledPanel):
         ctrls += list(self.page_cont.GetChildren())
         ctrls += list(self.page_scat.GetChildren())
         samdict = self.analysis.measurements[0].config.copy()["plotting"]
-        newfilt = dict()
+        newfilt = rt_config.CaseInsensitiveDict()
         
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
@@ -216,7 +215,7 @@ class ControlPanel(ScrolledPanel):
                         col = np.array([col.Red(), col.Green(),
                                        col.Blue(), col.Alpha()])/255
                         mm.config["plotting"]["contour color"] = col.tolist()
-        cfg = { "plotting" : newfilt }
+        cfg = {"plotting": newfilt }
         self.analysis.SetParameters(cfg)
 
         # Update Plots

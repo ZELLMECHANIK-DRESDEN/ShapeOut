@@ -18,11 +18,10 @@ import dclab
 from dclab.rtdc_dataset import RTDC_DataSet, Configuration
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
-from dclab import config
 
 from .tlabwrap import IGNORE_AXES
 from shapeout import tlabwrap
-
+from .gui import session
 
 
 class Analysis(object):
@@ -142,7 +141,7 @@ class Analysis(object):
         if os.path.exists(polygonfile):
             PolygonFilter.import_all(polygonfile)
         # import configurations
-        datadict = config.load_config_file(indexname)
+        datadict = session.index_load(indexname)
         keys = list(datadict.keys())
         # The identifier (in brackets []) contains a number before the first
         # underscore "_" which determines the order of the plots:
@@ -173,7 +172,7 @@ class Analysis(object):
                         # parent doesn't exist - try again in next loop
                         continue
                 else:
-                    tloc = session_get_tdms_file(data, search_path)
+                    tloc = session.get_tdms_file(data, search_path)
                     mm = RTDC_DataSet(tloc)
                     mmhashes = [h[1] for h in mm.file_hashes]
                     newhashes = [ data["tdms hash"], data["camera.ini hash"],
@@ -565,7 +564,7 @@ class Analysis(object):
             upcfg["plotting"] = copy.deepcopy(newcfg["plotting"])
             # prevent applying indivual things to all measurements
             ignorelist = ["contour color"]
-            for skey in upcfg["plotting"].keys():
+            for skey in upcfg["plotting"]:
                 if skey in ignorelist:
                     upcfg["plotting"].pop(skey)
 
@@ -598,68 +597,3 @@ def darkjet(myrange, **traits):
     return ColorMapper.from_segment_map(_data, range=myrange, **traits)
 
 
-def session_check_index(indexname, search_path="./"):
-    """ Check a session file index for existance of all measurement files
-    """
-    missing_files = []
-    
-    datadict = config.load_config_file(indexname, capitalize=False)
-    keys = list(datadict.keys())
-    # The identifier (in brackets []) contains a number before the first
-    # underscore "_" which determines the order of the plots:
-    keys.sort(key=lambda x: int(x.split("_")[0]))
-    for key in keys:    
-        data = datadict[key]
-        if not ("special type" in data and
-                data["special type"] == "hierarchy child"):
-            tdms = session_get_tdms_file(data, search_path)
-            if not os.path.exists(tdms):
-                missing_files.append([key, tdms, data["tdms hash"]])
-    
-    messages = {"missing tdms": missing_files}
-    return messages
-
-
-def session_get_tdms_file(index_dict,
-                          search_path="./",
-                          errors="ignore"):
-    """ Get the tdms file from entries in the index dictionary
-    
-    The index dictionary is created from each entry in the
-    the index.txt file and contains the keys "name", "fdir", and
-    since version 0.6.1 "rdir".
-    
-    If the file cannot be found on the file system, then a warning
-    is issued if `errors` is set to "ignore", otherwise an IOError
-    is raised.
-    
-    """
-    found = False
-    tdms1 = os.path.join(index_dict["fdir"], index_dict["name"])
-    
-    if os.path.exists(tdms1):
-        found = tdms1
-    else:
-        if "rdir" in index_dict:
-            # try to find relative path
-            sdir = os.path.abspath(search_path)
-            ndir = os.path.abspath(os.path.join(sdir, index_dict["rdir"]))
-            tdms2 = os.path.join(ndir, index_dict["name"])
-            if os.path.exists(tdms2):
-                found = tdms2
-    
-    if not found:
-        if errors == "ignore":
-            warnings.warn("Could not find file: {}".format(tdms1))
-            found = tdms1
-        else:
-            raise IOError("Could not find file: {}".format(tdms1))
-
-    return found
-
-
-def session_update_index(indexname, updict={}):
-    datadict = config.load_config_file(indexname, capitalize=False)
-    for key in updict:
-        datadict[key].update(updict[key])
-    config.save_config_file(indexname, datadict)
