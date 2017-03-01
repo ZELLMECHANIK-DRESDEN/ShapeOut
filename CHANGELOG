@@ -5,6 +5,7 @@
   - Persistent busy cursor when trace or video data is missing
   - Directory selections not always remembered correctly
 - dclab:
+  - Add histogram-based kernel density estimator
   - Refactoring to improve code quality
 0.7.0
 - Allow to rename polygon filters (#119)

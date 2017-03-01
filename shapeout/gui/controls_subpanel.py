@@ -207,7 +207,7 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
     
     if key == "plotting":
         if subkey == "kde":
-            choices = ["none", "gauss", "multivariate"]
+            choices = list(dclab.kde_methods.methods.keys())
 
         elif subkey in ["axis x", "axis y"]:
             choices = copy.copy(dfn.uid)
