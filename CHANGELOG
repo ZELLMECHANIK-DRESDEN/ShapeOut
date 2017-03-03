@@ -1,4 +1,5 @@
 0.7.1
+- Improved speed by optimization of GUI functions 
 - Hash checks: Replace exception with a user-friendly warning (#128)
 - Bugfixes:
   - Contour plot displays unused contour accuracy parameters

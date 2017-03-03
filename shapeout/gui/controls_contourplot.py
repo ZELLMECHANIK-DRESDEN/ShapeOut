@@ -98,7 +98,6 @@ class SubPanelPlotContour(SubPanel):
 
 
     def UpdatePanel(self, analysis):
-        """  """
         self.ClearSubPanel()
         
         # sizer

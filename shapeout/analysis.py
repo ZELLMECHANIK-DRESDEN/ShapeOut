@@ -428,7 +428,7 @@ class Analysis(object):
             for mm in self.measurements:
                 # Get the attribute name for the axis
                 atname = dfn.cfgmaprev[ax]
-                if np.sum(np.abs(getattr(mm, atname))) == 0:
+                if np.all(getattr(mm, atname)==0):
                     unusable.append(ax.lower())
                     break
         return unusable
@@ -456,17 +456,21 @@ class Analysis(object):
         """ Get parameters that all measurements share.
         """
         conf = self.measurements[mid].config.copy()[key]
-        # remove generally ignored items from config
-        for k in list(conf.keys()):
+        unusable_axes = self.GetUnusableAxes()
+        pops = []
+        for k in conf:
+            # remove generally ignored items from config
             for ax in IGNORE_AXES:
                 if k.startswith(ax) or k.endswith(ax):
-                    conf.pop(k)
-        # remove axes that are not owned by all measurements
-        for k in list(conf.keys()):
-            if k.endswith("ain") or k.endswith("max"):
+                    pops.append(k)
+            # remove axes that are not owned by all measurements
+            if k.endswith("max"):
                 ax = k[:-4]
-                if ax in self.GetUnusableAxes():
-                    conf.pop(k)
+                if ax in unusable_axes:
+                    pops.append(k)
+        for k in list(set(pops)):
+            conf.pop(k)
+            
         return conf
 
 
