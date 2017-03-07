@@ -65,7 +65,7 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     return [Median,MedianR]
 
 
-def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
+def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     '''
     Linear Mixed-Effects Model computation for one fixed effect and one 
     random effect.
@@ -149,7 +149,7 @@ def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
     timeunit1 = [1, 1, 2, 2, 1, 1, 2, 2]
     
     #Example 1: linear mixed models on differential deformations
-    Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit1,model=0)
+    Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit1,model='lmm')
 
     #Result_1:Estimate=93.69375 (i.e. the average Control value is 93.69)
     #         FixedEffect=43.93 (i.e. The treatment leads to an increase)         
@@ -162,7 +162,7 @@ def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
     treatment2 = ['Treatment', 'Control', 'Treatment', 'Control',\
     'Treatment', 'Control','Treatment', 'Control']
     timeunit2 = [1, 1, 2, 2, 3, 3, 4, 4]
-    Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit2,model=0)
+    Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit2,model='lmm')
     
     #Result_2:Estimate=17.17 (i.e. the average Control value is 17.17 )
     #         FixedEffect=120.257 (i.e. The treatment leads to an increase)         
@@ -173,7 +173,7 @@ def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
     treatment3 = ['Treatment', 'Control', 'Treatment', 'Control',\
     'Treatment', 'Control','Treatment', 'Control']
     timeunit3 = [1, 1, 2, 2, 3, 3, 4, 4]    
-    Result_3 = linmixmod(xs=xs,treatment=treatment3,timeunit=timeunit3,model=1)
+    Result_3 = linmixmod(xs=xs,treatment=treatment3,timeunit=timeunit3,model='glmm')
     
     #Result_3:Estimate=2.71 (i.e. the average Control value is exp(2.71)=15.08)
     #         FixedEffect=2.19 (i.e. The treatment leads to an increase)         
