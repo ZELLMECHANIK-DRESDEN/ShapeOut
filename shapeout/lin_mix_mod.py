@@ -103,10 +103,13 @@ def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
         Each item is a description/identifier for a time. The
         enumeration matches the index of `xs`.
         (e.g. list containing integers "1" and "2" according to the day
-        at which the content in `xs` was measured)          
+        at which the content in `xs` was measured) 
+    model: string
+        'lmm': A linear mixed model will be applied
+        'glmm': A generalized linear mixed model will be applied
     Returns
     -------
-    Linear Mixed Effects Model Result: dictionary
+    (Generalized) Linear Mixed Effects Model Result: dictionary
     The dictionary contains:
     -Estimate:  the average value of cells that had Treatment 1
     -Fixed Effect: Change of the estimate value due to the Treatment 2
@@ -251,10 +254,10 @@ def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
         timeunit = np.array(TimeUnit)          
 
     else: #If there is no 'Reservoir Channel' selected dont apply bootstrapping
-        if model==1:
+        if model=='glmm':
             Head_string = "GENERALIZED LINEAR MIXED MODEL: \n " +\
             "---Results are in log space (loglink was used)--- \n "
-        if model==0:
+        if model=='lmm':
             Head_string = "LINEAR MIXED MODEL: \n "
             
         for i in range(len(xs)): 
@@ -288,10 +291,10 @@ def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
                       )
 
     #Random intercept and random slope model
-    if model==1:
+    if model=='glmm':
         r1("Model = glmer("+modelfunc+",RTDC,family=Gamma(link='log'))")
         r1("NullModel = glmer("+nullmodelfunc+",RTDC,family=Gamma(link='log'))")
-    if model==0:
+    if model=='lmm':
         r1("Model = lmer("+modelfunc+",RTDC)")
         r1("NullModel = lmer("+nullmodelfunc+",RTDC)")
 
@@ -344,9 +347,9 @@ def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
     "\nEstimate = \t"+str(estim_y)+\
     "\nFixed effect = \t"+str(fixef_y)
     
-    if model==1:
+    if model=='glmm':
         full_summary = full_summary_gemmixmod
-    if model==0:
+    if model=='lmm':
         full_summary = full_summary_linmixmod
         
     results = {"Full Summary":full_summary,
