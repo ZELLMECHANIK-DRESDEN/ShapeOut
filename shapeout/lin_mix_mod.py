@@ -65,7 +65,7 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     return [Median,MedianR]
 
 
-def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
+def linmixmod(xs, treatment, timeunit, model, RCMD=cran.rcmd):
     '''
     Linear Mixed-Effects Model computation for one fixed effect and one 
     random effect.
@@ -125,7 +125,7 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
            Chambers, J. M. and Hastie, T. J. (1992) Statistical Models in S, 
            Wadsworth & Brooks/Cole
     
-    Example
+    Examples
     -------
     import numpy as np
     import pyper
@@ -144,21 +144,38 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     treatment1 = ['Control', 'Reservoir Control', 'Control', 'Reservoir Control',\
     'Treatment', 'Reservoir Treatment','Treatment', 'Reservoir Treatment']
     timeunit1 = [1, 1, 2, 2, 1, 1, 2, 2]
-    Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit1)
-    Estimate= [93.693750004463098])
-    assert 'BOOTSTAP-DISTRIBUTIONS' in Result_1['Full Summary']
+    
+    #Example 1: linear mixed models on differential deformations
+    Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit1,model=0)
+
     #Result_1:Estimate=93.69375 (i.e. the average Control value is 93.69)
     #         FixedEffect=43.93 (i.e. The treatment leads to an increase)         
     #         p-Value(Likelihood Ratio Test)=0.0006026 (i.e. the increase is significant)
-    #'Reservoir' Measurements are now Controls and 'Channel' measurements are Treatments
+
+    #Example 2: Ordinary Linear mixed models
+    #'Reservoir' measurements are now Controls
+    #'Channel' measurements are Treatments
     #This does not use differential deformation in linmixmod()
     treatment2 = ['Treatment', 'Control', 'Treatment', 'Control',\
     'Treatment', 'Control','Treatment', 'Control']
     timeunit2 = [1, 1, 2, 2, 3, 3, 4, 4]
-    Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit2)
+    Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit2,model=0)
+    
     #Result_2:Estimate=17.17 (i.e. the average Control value is 17.17 )
     #         FixedEffect=120.257 (i.e. The treatment leads to an increase)         
-    #         p-Value(Likelihood Ratio Test)=0.00033 (i.e. the increase is significant)  
+    #         p-Value(Likelihood Ratio Test)=0.00033 (i.e. the deformation
+    #         increases significantly)
+    
+    #Example 3: Generalized Linear mixed models
+    treatment3 = ['Treatment', 'Control', 'Treatment', 'Control',\
+    'Treatment', 'Control','Treatment', 'Control']
+    timeunit3 = [1, 1, 2, 2, 3, 3, 4, 4]    
+    Result_3 = linmixmod(xs=xs,treatment=treatment3,timeunit=timeunit3,model=1)
+    
+    #Result_3:Estimate=2.71 (i.e. the average Control value is exp(2.71)=15.08)
+    #         FixedEffect=2.19 (i.e. The treatment leads to an increase)         
+    #         p-Value(Likelihood Ratio Test)=0.00366 (i.e. the deformation
+    #         increases significantly)     
     '''
     
     modelfunc="xs~treatment+(1+treatment|timeunit)"
@@ -233,8 +250,13 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
         treatment = np.array(Treatment)
         timeunit = np.array(TimeUnit)          
 
-    else: #If there is no 'Reservoir Channel' selected dont apply bootstrapping 
-        Head_string = "LINEAR MIXED MODEL: \n "         
+    else: #If there is no 'Reservoir Channel' selected dont apply bootstrapping
+        if model==1:
+            Head_string = "GENERALIZED LINEAR MIXED MODEL: \n " +\
+            "---Results are in log space (loglink was used)--- \n "
+        if model==0:
+            Head_string = "LINEAR MIXED MODEL: \n "
+            
         for i in range(len(xs)): 
             #Expand every unit in treatment and timeunit to the same length as the 
             #xs[i] they are supposed to describe
@@ -266,8 +288,13 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
                       )
 
     #Random intercept and random slope model
-    r1("Model = lmer("+modelfunc+",RTDC)")
-    r1("NullModel = lmer("+nullmodelfunc+",RTDC)")
+    if model==1:
+        r1("Model = glmer("+modelfunc+",RTDC,family=Gamma(link='log'))")
+        r1("NullModel = glmer("+nullmodelfunc+",RTDC,family=Gamma(link='log'))")
+    if model==0:
+        r1("Model = lmer("+modelfunc+",RTDC)")
+        r1("NullModel = lmer("+nullmodelfunc+",RTDC)")
+
     r1("Anova = anova(Model,NullModel)")
     Model_string = r1("summary(Model)")
     #Delete some first characters made by R
@@ -300,10 +327,30 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     FixedEffect = Coeffs[1][0]   
     StdErrorFixEffect = Coeffs[1][1]
 
-    results = {"Full Summary": Head_string + Model_string+ 
-    "\nFULL COEFFICIENT TABLE:\n" + Coef_string + 
-    "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" + 
-    Anova_string,"p-Value (Likelihood Ratio Test)" : p,
+    #Before getting effect and error for y, transform back (there happened a log transformation in the glmer)
+    estim_y = np.exp(Estimate)
+    #estim_y_error = abs(np.exp(Estimate+StdErrorEstimate)-np.exp(Estimate-StdErrorEstimate))
+    fixef_y = np.exp(Estimate+FixedEffect)-np.exp(Estimate)
+    #fixef_y_error = abs(np.exp(Estimate+StdErrorFixEffect)-np.exp(Estimate-StdErrorFixEffect))        
+    
+    
+    full_summary_linmixmod = Head_string + Model_string+ \
+    "\nFULL COEFFICIENT TABLE:\n" + Coef_string + \
+    "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" + Anova_string
+    full_summary_gemmixmod = Head_string + Model_string+\
+    "\n FULL COEFFICIENT TABLE:\n" + Coef_string+ \
+    "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" + Anova_string + \
+    "\nESTIMATE AND EFFECT TRANSFORMED BACK FROM LOGSPACE"+ \
+    "\nEstimate = \t"+str(estim_y)+\
+    "\nFixed effect = \t"+str(fixef_y)
+    
+    if model==1:
+        full_summary = full_summary_gemmixmod
+    if model==0:
+        full_summary = full_summary_linmixmod
+        
+    results = {"Full Summary":full_summary,
+    "p-Value (Likelihood Ratio Test)" : p,
     "Estimate":Estimate,"Std. Error (Estimate)":StdErrorEstimate,
     "Fixed Effect":FixedEffect,"Std. Error (Fixed Effect)":StdErrorFixEffect}
     return results
