@@ -16,14 +16,14 @@ import wx
 
 def export_plot_pdf(parent):
     dlg = wx.FileDialog(parent, _("Export plot as PDF"), 
-                        parent.config.GetWorkingDirectory("PDF"), "",
+                        parent.config.get_dir("PDF"), "",
                         _("PDF file")+" (*.pdf)|*.pdf",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         path = dlg.GetPath()
         if not path.endswith(".pdf"):
             path += ".pdf"
-        parent.config.SetWorkingDirectory(os.path.dirname(path), "PDF")
+        parent.config.set_dir(os.path.dirname(path), "PDF")
         container = parent.PlotArea.mainplot.container
 
         retol = hide_scatter_inspector(container)
@@ -135,14 +135,14 @@ def export_plot_png(parent):
     # PNG export is not functional in chaco
     # https://github.com/enthought/chaco/issues/295
     dlg = wx.FileDialog(parent, "Export plot as PNG", 
-                        parent.config.GetWorkingDirectory("PNG"), "",
+                        parent.config.get_dir("PNG"), "",
                         "PNG file (*.png)|*.png",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         path = dlg.GetPath()
         if not path.endswith(".png"):
             path += ".png"
-        parent.config.SetWorkingDirectory(os.path.dirname(path), "PNG")
+        parent.config.set_dir(os.path.dirname(path), "PNG")
         container = parent.PlotArea.mainplot.container
         
         # get inner_boundary
@@ -165,14 +165,14 @@ def export_plot_png(parent):
 
 def export_plot_svg(parent):
     dlg = wx.FileDialog(parent, _("Export plot as SVG"), 
-                        parent.config.GetWorkingDirectory("SVG"), "",
+                        parent.config.get_dir("SVG"), "",
                         _("SVG file")+" (*.svg)|*.svg",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         path = dlg.GetPath()
         if not path.endswith(".svg"):
             path += ".svg"
-        parent.config.SetWorkingDirectory(os.path.dirname(path), "SVG")
+        parent.config.set_dir(os.path.dirname(path), "SVG")
         container = parent.PlotArea.mainplot.container
 
         retol = hide_scatter_inspector(container)

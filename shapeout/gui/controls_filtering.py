@@ -27,16 +27,16 @@ class SubPanelFilter(SubPanel):
         
         items = analysis.GetParameters(key).items()
 
-        sortfunc = lambda x: (x[0].replace("Max", "2")
-                                  .replace("Min", "1"))
+        sortfunc = lambda x: (x[0].replace("max", "2")
+                                  .replace("min", "1"))
         items.sort(key=sortfunc)
         
         
         sgen = wx.FlexGridSizer(len(items), 1)
         
-        excludeend = ["Min", "Max"]
-        excludeis = ["Enable Filters"]
-        excludestart = ["Polygon", "Hierarchy"]
+        excludeend = ["min", "max"]
+        excludeis = ["enable filters"]
+        excludestart = ["polygon", "hierarchy"]
         
         #sgen = wx.BoxSizer(wx.VERTICAL)
         for item in items:
@@ -108,32 +108,19 @@ class SubPanelFilter(SubPanel):
         
         items = analysis.GetParameters(key).items()
 
-        sortfunc = lambda x: (x[0].replace("Max", "2")
-                                  .replace("Min", "1"))
+        sortfunc = lambda x: (x[0].replace("max", "2")
+                                  .replace("min", "1"))
         items.sort(key=sortfunc)
         
-        
         sgen = wx.FlexGridSizer(len(items), 2)
-        #sgen = wx.BoxSizer(wx.VERTICAL)
-        
-        # distinguish between deformation and circularity
-        display_circ = False
-        if "Circ" in analysis.GetPlotAxes():
-            display_circ = True
-            if "Defo" in analysis.GetPlotAxes():
-                display_circ = False
 
         for item in items:
-            if item[0].startswith("Circ") and display_circ is False:
-                pass
-            elif item[0].startswith("Defo") and display_circ is True:
-                pass
-            elif item[0].endswith("Min"):
+            if item[0].endswith("min"):
                 if item[0][:-4] in analysis.GetUnusableAxes():
                     # ignore this item
                     continue
                 # find item with max
-                idmax = [ii[0] for ii in items].index(item[0][:-3]+"Max")
+                idmax = [ii[0] for ii in items].index(item[0][:-3]+"max")
                 itemmax = items[idmax]
                 a = wx.StaticText(self, label=_("Range "+item[0][:-4]))
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
@@ -144,7 +131,7 @@ class SubPanelFilter(SubPanel):
                 stemp.Add(c)
                 sgen.Add(stemp)
 
-            elif item[0].endswith("Max"):
+            elif item[0].endswith("max"):
                 # did that before
                 pass
             else:
@@ -338,8 +325,8 @@ class SubPanelFilter(SubPanel):
         """
         sel = self.WXCOMBO_hparent.GetSelection()
         mm = self.analysis.measurements[sel]
-        hp = mm.Configuration["Filtering"]["Hierarchy Parent"]
-        if hp == "None":
+        hp = mm.config["filtering"]["hierarchy parent"]
+        if hp.lower() == "none":
             label = "no parent"
         else:
             label = mm.hparent.title
@@ -363,8 +350,8 @@ class SubPanelFilter(SubPanel):
         mm = self.analysis.measurements[sel]
         # get filters
         r = htreectrl.GetRootItem()
-        if "Polygon Filters" in mm.Configuration["Filtering"]:
-            filterlist = mm.Configuration["Filtering"]["Polygon Filters"]
+        if "polygon filters" in mm.config["filtering"]:
+            filterlist = mm.config["filtering"]["polygon filters"]
             #print(filterlist)
             # set visible filters
             for item in r.GetChildren():
@@ -399,15 +386,15 @@ class SubPanelFilter(SubPanel):
             if ch is None:
                 return
         dlg = wx.FileDialog(self, "Open polygon file",
-                    self.config.GetWorkingDirectory(name="Polygon"), "",
+                    self.config.get_dir(name="Polygon"), "",
                     "ShapeOut polygon file (*.poly)|*.poly", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             fname = dlg.GetPath()
-            self.config.SetWorkingDirectory(dlg.GetDirectory(),
+            self.config.set_dir(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
         else:
-            self.config.SetWorkingDirectory(dlg.GetDirectory(),
+            self.config.set_dir(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
             return # nothing more to do here
@@ -456,20 +443,20 @@ class SubPanelFilter(SubPanel):
                 #print(item.GetData(), "unhecked")
                 pass
         # apply filters to data set
-        mm.Configuration["Filtering"]["Polygon Filters"] = newfilterlist
+        mm.config["filtering"]["polygon filters"] = newfilterlist
         
     
     def OnPolygonImport(self, e=None):
         dlg = wx.FileDialog(self, "Open polygon file",
-                    self.config.GetWorkingDirectory(name="Polygon"), "",
+                    self.config.get_dir(name="Polygon"), "",
                     "ShapeOut polygon file (*.poly)|*.poly", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             fname = dlg.GetPath()
-            self.config.SetWorkingDirectory(dlg.GetDirectory(),
+            self.config.set_dir(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
         else:
-            self.config.SetWorkingDirectory(dlg.GetDirectory(),
+            self.config.set_dir(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
             return # nothing more to do here
@@ -521,15 +508,14 @@ class SubPanelFilter(SubPanel):
         
         self.ClearSubPanel()
 
+        
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         
         # Box filters
         fbox = self._box_minmax_filter(analysis, "Filtering")
         sizer.Add(fbox)
-
         sizerv = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(sizerv)
-        
         # Polygon filters
         polysizer = self._box_polygon_filter(analysis)
         sizerv.Add(polysizer)
@@ -537,11 +523,9 @@ class SubPanelFilter(SubPanel):
         # Hierarchy filters:
         rbox = self._box_hierarchy_filter(analysis, "Filtering")
         sizerv.Add(rbox)
-
         # Rest filters:
         rbox = self._box_rest_filter(analysis, "Filtering")
         sizerv.Add(rbox)
-        
         ## Polygon box
         # layout: 
         #  new          selection box
@@ -560,13 +544,11 @@ class SubPanelFilter(SubPanel):
         # (- show other polygons with selection box)
         
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
-
-        filten = analysis.GetParameters("Filtering")["Enable Filters"]
+        filten = analysis.GetParameters("filtering")["enable filters"]
         cb = self._create_type_wx_controls(analysis,
                                            "Filtering",
-                                           ["Enable Filters", filten],)
+                                           ["enable filters", filten],)
         vertsizer.Add(cb)
-
         btn_apply = wx.Button(self, label=_("Apply"))
         ## TODO:
         # write function in this class that gives ControlPanel a new
@@ -577,7 +559,6 @@ class SubPanelFilter(SubPanel):
         btn_reset = wx.Button(self, label=_("Reset"))
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)
-
         # Set the previously selected measurement
         self._polygon_filter_combo_box.SetSelection(old_meas_selection)
         # Make the htree control below the combobox aware of this selection
@@ -585,10 +566,9 @@ class SubPanelFilter(SubPanel):
 
         sizer.Add(vertsizer)
 
-        self.BindEnableName(ctrl_source="Limit Events Auto",
+        self.BindEnableName(ctrl_source="limit events auto",
                             value=False,
-                            ctrl_targets=["Limit Events"])
-
+                            ctrl_targets=["limit events"])
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()

@@ -15,13 +15,13 @@ import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import RTDC_DataSet
+from dclab.rtdc_dataset import RTDC_DataSet, Configuration
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
-from dclab import config
 
 from .tlabwrap import IGNORE_AXES
-
+from shapeout import tlabwrap
+from .gui import session
 
 
 class Analysis(object):
@@ -40,17 +40,53 @@ class Analysis(object):
             # New analysis
             for f in data:
                 if os.path.exists(unicode(f)):
-                    # filename
-                    self.measurements.append(RTDC_DataSet(f))
+                    rtdc_ds = RTDC_DataSet(tdms_path=f)
                 else:
                     # RTDC data set
-                    self.measurements.append(f)
+                    rtdc_ds = f
+                self.measurements.append(rtdc_ds)
         elif isinstance(data, (unicode, str)) and os.path.exists(data):
             # We are opening a session "index.txt" file
             self._ImportDumped(data, search_path=search_path)
         else:
             raise ValueError("Argument not an index file or list of"+\
                              " .tdms files: {}".format(data))
+        # Complete missing configuration parameters
+        self._complete_config()
+
+
+    def _complete_config(self):
+        """Complete configuration of all RTDC_DataSet sets
+        """
+        for mm in self.measurements:
+            # Update configuration with default values from ShapeOut,
+            # but do not override anything.
+            cfgold = mm.config.copy()
+            mm.config.update(tlabwrap.cfg)
+            mm.config.update(cfgold)
+            ## Sensible values for default contour accuracies
+            keys = []
+            for prop in dfn.rdv:
+                if not np.allclose(getattr(mm, prop), 0):
+                    # There are values for this uid
+                    keys.append(prop)
+            # This lambda function seems to do a good job
+            accl = lambda a: (np.nanmax(a)-np.nanmin(a))/10
+            defs = [["contour accuracy {}", accl],
+                    ["kde accuracy {}", accl],
+                   ]
+            pltng = mm.config["plotting"]
+            for k in keys:
+                for d, l in defs:
+                    var = d.format(dfn.cfgmap[k])
+                    if not var in pltng:
+                        pltng[var] = l(getattr(mm, k))
+            ## Check for missing min/max values and set them to zero
+            for item in dfn.uid:
+                appends = [" min", " max"]
+                for a in appends:
+                    if not item+a in mm.config["plotting"]:
+                        mm.config["plotting"][item+a] = 0
 
 
     def _clear(self):
@@ -105,7 +141,7 @@ class Analysis(object):
         if os.path.exists(polygonfile):
             PolygonFilter.import_all(polygonfile)
         # import configurations
-        datadict = config.load_config_file(indexname, capitalize=False)
+        datadict = session.index_load(indexname)
         keys = list(datadict.keys())
         # The identifier (in brackets []) contains a number before the first
         # underscore "_" which determines the order of the plots:
@@ -120,7 +156,15 @@ class Analysis(object):
                 
                 data = datadict[key]
                 config_file = os.path.join(thedir, data["config"])
-                cfg = config.load_config_file(config_file)
+                cfg = Configuration(files=[config_file])
+                
+                # backwards compatibility:
+                # replace "kde multivariate" with "kde accuracy"
+                for kk in list(cfg["plotting"].keys()):
+                    if kk.startswith("kde multivariate "):
+                        ax = kk.split()[2]
+                        cfg["plotting"]["kde accuracy "+ax] = cfg["plotting"][kk]
+                        cfg["plotting"].pop(kk)
                 
                 if ("special type" in data and
                     data["special type"] == "hierarchy child"):
@@ -136,15 +180,16 @@ class Analysis(object):
                         # parent doesn't exist - try again in next loop
                         continue
                 else:
-                    tloc = session_get_tdms_file(data, search_path)
+                    tloc = session.get_tdms_file(data, search_path)
                     mm = RTDC_DataSet(tloc)
                     mmhashes = [h[1] for h in mm.file_hashes]
                     newhashes = [ data["tdms hash"], data["camera.ini hash"],
                                   data["para.ini hash"]
                                 ]
                     if mmhashes != newhashes:
-                        raise ValueError("Hashes don't match for file {}.".
-                                         format(tloc))
+                        msg = "File hashes don't match for: {}".format(tloc)
+                        warnings.warn(msg, HashComparisonWarning)
+
                 if "title" in data:
                     # title saved starting version 0.5.6.dev6
                     mm.title = data["title"]
@@ -155,10 +200,12 @@ class Analysis(object):
                 if os.path.exists(filter_manual_file):
                     mm._filter_manual = np.load(os.path.join(filter_manual_file))
                 
-                mm.UpdateConfiguration(cfg)
+                mm.config.update(cfg)
                 measmts[kidx] = mm
-        
+
         self.measurements = measmts
+        
+
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
@@ -214,7 +261,7 @@ class Analysis(object):
             out.append("title = "+mm.title)
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
-            config.save_config_file(cfgfile, mm.Configuration)
+            mm.config.save(cfgfile)
             out.append("config = {}".format(os.path.relpath(cfgfile,
                                                             directory)))
             
@@ -250,7 +297,7 @@ class Analysis(object):
         """
         # Reset limit filtering to get the correct number of events
         # This value will be overridden in the end.
-        cfgreset = {"Filtering":{"Limit Events":0}}
+        cfgreset = {"filtering":{"limit events":0}}
         # This also calls ApplyFilter and comutes clean filters
         self.SetParameters(cfgreset)
         
@@ -258,7 +305,8 @@ class Analysis(object):
         minsize = np.inf
         for m in self.measurements:
             minsize = min(minsize, np.sum(m._filter))
-        cfgnew = {"Filtering":{"Limit Events":minsize}}
+            print(minsize)
+        cfgnew = {"filtering":{"limit events":minsize}}
         self.SetParameters(cfgnew)
         return minsize
 
@@ -269,10 +317,10 @@ class Analysis(object):
         for every measurement in the analysis.
         """
         retdict = dict()
-        if self.measurements[0].Configuration.has_key(key):
-            s = set(self.measurements[0].Configuration[key].items())
+        if key in self.measurements[0].config:
+            s = set(self.measurements[0].config[key].items())
             for m in self.measurements[1:]:
-                s2 = set(m.Configuration[key].items())
+                s2 = set(m.config[key].items())
                 s = s & s2
             for item in s:
                 retdict[item[0]] = item[1]
@@ -282,7 +330,7 @@ class Analysis(object):
     def GetContourColors(self):
         colors = list()
         for mm in self.measurements:
-            colors.append(mm.Configuration["Plotting"]["Contour Color"])
+            colors.append(mm.config["Plotting"]["Contour Color"])
         return colors
 
 
@@ -297,7 +345,7 @@ class Analysis(object):
     def GetPlotAxes(self, mid=0):
         #return 
         p = self.GetParameters("Plotting", mid)
-        return [p["Axis X"], p["Axis Y"]]
+        return [p["Axis X"].lower(), p["Axis Y"].lower()]
 
 
     def GetPlotGeometry(self, mid=0):
@@ -346,11 +394,11 @@ class Analysis(object):
         # Get common parameters first:
         com = self.GetCommonParameters(key)
         retdict = dict()
-        if self.measurements[0].Configuration.has_key(key):
-            s = set(self.measurements[0].Configuration[key].items())
+        if key in self.measurements[0].config:
+            s = set(self.measurements[0].config[key].items())
             uncom = set(com.items()) ^ s
             for m in self.measurements[1:]:
-                s2 = set(m.Configuration[key].items())
+                s2 = set(m.config[key].items())
                 uncom2 = set(com.items()) ^ s2
                 
                 newuncom = dict()
@@ -363,8 +411,8 @@ class Analysis(object):
             for item in uncom:
                 vals = list()
                 for m in self.measurements:
-                    if m.Configuration[key].has_key(item[0]):
-                        vals.append(m.Configuration[key][item[0]])
+                    if m.config[key].has_key(item[0]):
+                        vals.append(m.config[key][item[0]])
                     else:
                         vals.append(None)
                         warnings.warn(
@@ -388,8 +436,8 @@ class Analysis(object):
             for mm in self.measurements:
                 # Get the attribute name for the axis
                 atname = dfn.cfgmaprev[ax]
-                if np.sum(np.abs(getattr(mm, atname))) == 0:
-                    unusable.append(ax)
+                if np.all(getattr(mm, atname)==0):
+                    unusable.append(ax.lower())
                     break
         return unusable
 
@@ -415,18 +463,22 @@ class Analysis(object):
     def GetParameters(self, key, mid=0, filter_for_humans=True):
         """ Get parameters that all measurements share.
         """
-        conf = copy.deepcopy(self.measurements[mid].Configuration[key])
-        # remove generally ignored items from config
-        for k in list(conf.keys()):
+        conf = self.measurements[mid].config.copy()[key]
+        unusable_axes = self.GetUnusableAxes()
+        pops = []
+        for k in conf:
+            # remove generally ignored items from config
             for ax in IGNORE_AXES:
                 if k.startswith(ax) or k.endswith(ax):
-                    conf.pop(k)
-        # remove axes that are not owned by all measurements
-        for k in list(conf.keys()):
-            if k.endswith("Min") or k.endswith("Max"):
+                    pops.append(k)
+            # remove axes that are not owned by all measurements
+            if k.endswith("max"):
                 ax = k[:-4]
-                if ax in self.GetUnusableAxes():
-                    conf.pop(k)
+                if ax in unusable_axes:
+                    pops.append(k)
+        for k in list(set(pops)):
+            conf.pop(k)
+            
         return conf
 
 
@@ -459,7 +511,7 @@ class Analysis(object):
         first measurement of the analysis.
         """
         # check if updating is disabled:
-        if self.measurements[0].Configuration["Plotting"]["Contour Fix Scale"]:
+        if self.measurements[0].config["Plotting"]["Contour Fix Scale"]:
             return
         
         if len(self.measurements) > 1:
@@ -485,8 +537,8 @@ class Analysis(object):
                 acg = float("{:.1e}".format(acc))
                 acm = float("{:.1e}".format(acc*2))
                 for mm in self.measurements:
-                    mm.Configuration["Plotting"]["Contour Accuracy {}".format(name)] = acg
-                    mm.Configuration["Plotting"]["KDE Multivariate {}".format(name)] = acm
+                    mm.config["Plotting"]["Contour Accuracy {}".format(name)] = acg
+                    mm.config["Plotting"]["KDE Accuracy {}".format(name)] = acm
 
 
     def SetContourColors(self, colors=None):
@@ -509,7 +561,7 @@ class Analysis(object):
                 colors = newcolors
 
             for i, mm in enumerate(self.measurements):
-                mm.Configuration["Plotting"]["Contour Color"] = colors[i]
+                mm.config["Plotting"]["Contour Color"] = colors[i]
 
 
     def SetParameters(self, newcfg):
@@ -518,28 +570,35 @@ class Analysis(object):
         """
         # Only update "Filtering" and "Plotting"
         upcfg = {}
-        if "Filtering" in newcfg:
-            upcfg["Filtering"] = copy.deepcopy(newcfg["Filtering"])
-        if "Plotting" in newcfg:
-            upcfg["Plotting"] = copy.deepcopy(newcfg["Plotting"])
+        if "filtering" in newcfg:
+            upcfg["filtering"] = copy.deepcopy(newcfg["filtering"])
+        if "plotting" in newcfg:
+            upcfg["plotting"] = copy.deepcopy(newcfg["plotting"])
             # prevent applying indivual things to all measurements
-            ignorelist = ["Contour Color"]
-            for skey in upcfg["Plotting"].keys():
+            ignorelist = ["contour color"]
+            pops = []
+            for skey in upcfg["plotting"]:
                 if skey in ignorelist:
-                    upcfg["Plotting"].pop(skey)
+                    pops.append(skey)
+            for skey in pops:
+                upcfg["plotting"].pop(skey)
 
             # Address issue with faulty contour plot on log scale
             # https://github.com/enthought/chaco/issues/300
-            pl = upcfg["Plotting"]
-            if (("Scale X" in pl and pl["Scale X"] == "Log") or
-                ("Scale Y" in pl and pl["Scale Y"] == "Log")):
+            pl = upcfg["plotting"]
+            if (("scale x" in pl and pl["scale x"] == "log") or
+                ("scale y" in pl and pl["scale y"] == "log")):
                 warnings.warn("Disabling contour plot because of chaco issue #300!")
-                upcfg["Plotting"]["Contour Plot"] = False
+                upcfg["plotting"]["contour plot"] = False
 
         # update configuration
-        for i in range(len(self.measurements)):
-            self.measurements[i].UpdateConfiguration(upcfg)
+        for mm in self.measurements:
+            mm.config.update(upcfg)
+            mm.ApplyFilter()
 
+
+class HashComparisonWarning(UserWarning):
+    pass
 
 
 def darkjet(myrange, **traits):
@@ -553,68 +612,3 @@ def darkjet(myrange, **traits):
     return ColorMapper.from_segment_map(_data, range=myrange, **traits)
 
 
-def session_check_index(indexname, search_path="./"):
-    """ Check a session file index for existance of all measurement files
-    """
-    missing_files = []
-    
-    datadict = config.load_config_file(indexname, capitalize=False)
-    keys = list(datadict.keys())
-    # The identifier (in brackets []) contains a number before the first
-    # underscore "_" which determines the order of the plots:
-    keys.sort(key=lambda x: int(x.split("_")[0]))
-    for key in keys:    
-        data = datadict[key]
-        if not ("special type" in data and
-                data["special type"] == "hierarchy child"):
-            tdms = session_get_tdms_file(data, search_path)
-            if not os.path.exists(tdms):
-                missing_files.append([key, tdms, data["tdms hash"]])
-    
-    messages = {"missing tdms": missing_files}
-    return messages
-
-
-def session_get_tdms_file(index_dict,
-                          search_path="./",
-                          errors="ignore"):
-    """ Get the tdms file from entries in the index dictionary
-    
-    The index dictionary is created from each entry in the
-    the index.txt file and contains the keys "name", "fdir", and
-    since version 0.6.1 "rdir".
-    
-    If the file cannot be found on the file system, then a warning
-    is issued if `errors` is set to "ignore", otherwise an IOError
-    is raised.
-    
-    """
-    found = False
-    tdms1 = os.path.join(index_dict["fdir"], index_dict["name"])
-    
-    if os.path.exists(tdms1):
-        found = tdms1
-    else:
-        if "rdir" in index_dict:
-            # try to find relative path
-            sdir = os.path.abspath(search_path)
-            ndir = os.path.abspath(os.path.join(sdir, index_dict["rdir"]))
-            tdms2 = os.path.join(ndir, index_dict["name"])
-            if os.path.exists(tdms2):
-                found = tdms2
-    
-    if not found:
-        if errors == "ignore":
-            warnings.warn("Could not find file: {}".format(tdms1))
-            found = tdms1
-        else:
-            raise IOError("Could not find file: {}".format(tdms1))
-
-    return found
-
-
-def session_update_index(indexname, updict={}):
-    datadict = config.load_config_file(indexname, capitalize=False)
-    for key in updict:
-        datadict[key].update(updict[key])
-    config.save_config_file(indexname, datadict)

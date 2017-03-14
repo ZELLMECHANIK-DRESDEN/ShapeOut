@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """ ShapeOut - scatter plot control panel
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import wx
 
@@ -10,13 +10,13 @@ from .. import tlabwrap
 from .controls_subpanel import SubPanel
 
 
-Plotting_Elements_Scatter = ["Downsampl", "Scatter"] # Downsampl [sic]
+Plotting_Elements_Scatter = ["downsampl", "scatter"] # Downsampl [sic]
 
 
 class SubPanelPlotScatter(SubPanel):
     def __init__(self, parent, *args, **kwargs):
         SubPanel.__init__(self, parent, *args, **kwargs)
-        self.key = "Plotting"
+        self.key = "plotting"
 
 
     def _box_from_cfg_scatter(self, analysis):
@@ -70,9 +70,9 @@ class SubPanelPlotScatter(SubPanel):
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)
 
-        self.BindEnableName(ctrl_source="Downsampling",
+        self.BindEnableName(ctrl_source="downsampling",
                             value=True,
-                            ctrl_targets=["Downsample Events"])
+                            ctrl_targets=["downsample events"])
 
         sizer.Add(vertsizer)
 

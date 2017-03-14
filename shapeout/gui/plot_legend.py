@@ -19,7 +19,7 @@ def legend_plot(measurements, title_font="modern 12",
     ----------
     measurements : list of instances of RTDS_DataSet
         Contains color information and titel.
-        - mm.Configuration["Plotting"]["Contour Color"]
+        - mm.config["plotting"]["contour color"]
         - mm.title
     """
     # The legend is actually a list of plot labels
@@ -32,7 +32,7 @@ def legend_plot(measurements, title_font="modern 12",
     leftmarg = 7
     fname, fsize = legend_font.rsplit(" ", 1)
     fsize = int(fsize)
-    autoscale = measurements[0].Configuration["Plotting"]["Legend Autoscaled"]
+    autoscale = measurements[0].config["plotting"]["legend autoscaled"]
     if autoscale and len(measurements)>=10:
         # This case makes the legend entries fit into the plot window 
         lm = len(measurements)
@@ -50,8 +50,8 @@ def legend_plot(measurements, title_font="modern 12",
     toppos = 100 - increment
         
     for mm in measurements:
-        if mm.Configuration["Plotting"]["Scatter Title Colored"]:
-            mmlabelcolor = mm.Configuration["Plotting"]["Contour Color"]
+        if mm.config["plotting"]["scatter title colored"]:
+            mmlabelcolor = mm.config["plotting"]["contour color"]
         else:
             mmlabelcolor = "black"
         alabel = ca.DataLabel(
@@ -67,7 +67,7 @@ def legend_plot(measurements, title_font="modern 12",
                         text_color=mmlabelcolor,
                         marker="circle",
                         marker_color="transparent",
-                        marker_line_color=mm.Configuration["Plotting"]["Contour Color"],
+                        marker_line_color=mm.config["plotting"]["contour color"],
                         show_label_coords=False,
                         arrow_visible=False
                               )

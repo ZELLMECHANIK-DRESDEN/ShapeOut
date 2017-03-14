@@ -5,7 +5,6 @@ from distutils.version import LooseVersion
 import urllib2
 import simplejson
 import sys
-import time
 import traceback
 
 import webbrowser

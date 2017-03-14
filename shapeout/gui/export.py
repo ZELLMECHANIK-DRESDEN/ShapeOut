@@ -92,12 +92,12 @@ class ExportAnalysisEvents(wx.Frame):
         # make directory dialog
         dlg2 = wx.DirDialog(self,
                            message=_("Select directory for data export"),
-                           defaultPath=self.parent.config.GetWorkingDirectory("ExportTSV"),
+                           defaultPath=self.parent.config.get_dir("ExportTSV"),
                            style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
             outdir = dlg2.GetPath()
-            self.parent.config.SetWorkingDirectory(outdir, "ExportTSV")
+            self.parent.config.set_dir(outdir, "ExportData")
             
             # determine if user wants filtered data
             filtered = self.WXCheckFilter.IsChecked()
@@ -115,10 +115,12 @@ class ExportAnalysisEvents(wx.Frame):
             # Call the export function of dclab.RTDC_DataSet
             # Check if the files already exist
             for m in self.analysis.measurements:
-                if os.path.exists(os.path.join(outdir, m.title+".tsv")):
+                if os.path.exists(os.path.join(outdir, m.title+"."+self.ext)):
+                    msg = _("Override existing .{} files in '{}'?").format(
+                                                           self.ext, outdir)
                     dlg3 = wx.MessageDialog(self,
-                        message=_("Override existing .tsv files in '{}'?").format(outdir),
-                        style=wx.YES_NO|wx.YES_DEFAULT|wx.ICON_QUESTION)
+                                message=msg,
+                                style=wx.YES_NO|wx.YES_DEFAULT|wx.ICON_QUESTION)
                     if dlg3.ShowModal() == wx.ID_YES:
                         # ok, leave loop
                         break
@@ -140,10 +142,10 @@ class ExportAnalysisEventsFCS(ExportAnalysisEvents):
 
     def export(self, out_dir, columns, filtered):
         for m in self.analysis.measurements:
-            m.ExportFCS(os.path.join(out_dir, m.title+".fcs"),
-                        columns,
-                        filtered=filtered,
-                        override=True)
+            m.export.fcs(os.path.join(out_dir, m.title+".fcs"),
+                         columns,
+                         filtered=filtered,
+                         override=True)
 
 
 
@@ -153,28 +155,29 @@ class ExportAnalysisEventsTSV(ExportAnalysisEvents):
 
     def export(self, out_dir, columns, filtered):
         for m in self.analysis.measurements:
-            m.ExportTSV(os.path.join(out_dir, m.title+".tsv"),
-                        columns,
-                        filtered=filtered,
-                        override=True)
+            m.export.tsv(os.path.join(out_dir, m.title+".tsv"),
+                         columns,
+                         filtered=filtered,
+                         override=True)
 
 
 
 def export_event_images_avi(parent, analysis):
     dlg = wx.DirDialog(parent,
                message=_("Select directory for video export"),
-               defaultPath=parent.config.GetWorkingDirectory("ExportAVI"),
+               defaultPath=parent.config.get_dir("ExportAVI"),
                style=wx.DD_DEFAULT_STYLE)
     if dlg.ShowModal() == wx.ID_OK:
         out_dir=dlg.GetPath()
         for m in analysis.measurements:
-            m.ExportAVI(os.path.join(out_dir, m.title+".avi"),
-                        override=True)
+            m.export.avi(os.path.join(out_dir, m.title+".avi"),
+                         override=True)
+
 
 def export_statistics_tsv(parent):
     # Get data
     head, data = parent.analysis.GetStatisticsBasic()
-    exp = list()
+    exp = []
     # Format data
     exp.append("#"+"\t".join(head))
     for subd in data:
@@ -190,7 +193,7 @@ def export_statistics_tsv(parent):
     # File dialog
     
     dlg = wx.FileDialog(parent, "Choose file to save",
-            parent.config.GetWorkingDirectory("TSV"),
+            parent.config.get_dir("TSV"),
             "", "Tab separated file (*.tsv)|*.tsv;*.TSV",
             wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     # user cannot do anything until he clicks "OK"
@@ -198,7 +201,7 @@ def export_statistics_tsv(parent):
         path = dlg.GetPath()
         if path.lower().endswith(".tsv") is not True:
             path = path+".tsv"
-        parent.config.SetWorkingDirectory(os.path.dirname(path), "TSV")
+        parent.config.set_dir(os.path.dirname(path), "TSV")
         with codecs.open(path, 'w', encoding="utf-8") as fd:
             fd.writelines(exp)
 

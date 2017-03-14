@@ -185,7 +185,10 @@ class ImagePanel(ScrolledPanel):
 
         if len(mm.image):
             # Get the RGB cell image
-            cellimg = mm.image[evt_id]
+            try:
+                cellimg = mm.image[evt_id]
+            except OSError:
+                cellimg = mm.image.dummy
             # Only load contour data if there is an image file.
             # We don't know how big the images should be so we
             # might run into trouble displaying random contours.
@@ -193,8 +196,11 @@ class ImagePanel(ScrolledPanel):
                 r = cellimg[:,:,0]
                 b = cellimg[:,:,1]
                 g = cellimg[:,:,2]
-                cont = mm.contour[evt_id]
-                if cont is not None:
+                try:
+                    cont = mm.contour[evt_id]
+                except IndexError:
+                    pass
+                else:
                     r[cont[:,1], cont[:,0]] = 255
                     b[cont[:,1], cont[:,0]] = 0
                     g[cont[:,1], cont[:,0]] = 0

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """ ShapeOut - control panels
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import numpy as np
 
@@ -11,14 +11,13 @@ import wx.grid as gridlib
 from wx.lib.scrolledpanel import ScrolledPanel
 
 import dclab
-from dclab import config as dc_config
+from dclab.rtdc_dataset import config as rt_config
 
 from .. import tlabwrap
 from .. import util
 
-
-from . import plot_scatter
 from . import plot_contour
+from . import plot_scatter
 
 from .controls_subpanel import SubPanel
 from .controls_analysis import SubPanelAnalysis
@@ -111,9 +110,8 @@ class ControlPanel(ScrolledPanel):
         # get all values
         wx.BeginBusyCursor()
         ctrls = self.page_filter.GetChildren()
-        samdict = self.analysis.measurements[0].\
-                                       Configuration["Filtering"].copy()
-        newfilt = dict()
+        samdict = self.analysis.measurements[0].config.copy()["filtering"]
+        newfilt = rt_config.CaseInsensitiveDict()
 
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
@@ -136,15 +134,15 @@ class ControlPanel(ScrolledPanel):
         # - OnPolygonHtreeChecked    (change filter for each mm)
         #newfilt["Polygon Filters"] = checked
         
-        cfg = { "Filtering" : newfilt }
+        cfg = { "filtering" : newfilt }
         
         # Apply base data limits
-        if cfg["Filtering"]["Limit Events Auto"]:
+        if cfg["filtering"]["limit events auto"]:
             minsize = self.analysis.ForceSameDataSize()
-            cfg["Filtering"]["Limit Events"] = minsize
+            cfg["filtering"]["limit events"] = minsize
             for c in ctrls:
                 name = c.GetName()
-                if name == "Limit Events":
+                if name == "limit events":
                     c.SetValue(str(minsize))
         
         self.analysis.SetParameters(cfg)
@@ -183,9 +181,8 @@ class ControlPanel(ScrolledPanel):
         ctrls = list(self.page_plot.GetChildren())
         ctrls += list(self.page_cont.GetChildren())
         ctrls += list(self.page_scat.GetChildren())
-        samdict = self.analysis.measurements[0].\
-                                       Configuration["Plotting"].copy()
-        newfilt = dict()
+        samdict = self.analysis.measurements[0].config.copy()["plotting"]
+        newfilt = rt_config.CaseInsensitiveDict()
         
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
@@ -203,22 +200,22 @@ class ControlPanel(ScrolledPanel):
                 else:
                     val = c.GetValue()
 
-                var, val = dc_config.map_config_value_str2type(var, val)
+                var, val = rt_config.keyval_str2typ(var, val)
                 newfilt[var] = val
-            elif name.startswith("Title "):
+            elif name.startswith("title "):
                 # Change title of measurement
                 for mm in self.analysis.measurements:
-                    if mm.identifier == name[len("Title "):]:
+                    if mm.identifier == name[len("title "):]:
                         mm.title = c.GetValue()
-            elif name.startswith("Color "):
+            elif name.startswith("color "):
                 # Change plotting color of measurement
                 for mm in self.analysis.measurements:
-                    if mm.identifier == name[len("Title "):]:
+                    if mm.identifier == name[len("title "):]:
                         col = c.GetColour()
                         col = np.array([col.Red(), col.Green(),
                                        col.Blue(), col.Alpha()])/255
-                        mm.Configuration["Plotting"]["Contour Color"] = col.tolist()
-        cfg = { "Plotting" : newfilt }
+                        mm.config["plotting"]["contour color"] = col.tolist()
+        cfg = {"plotting": newfilt }
         self.analysis.SetParameters(cfg)
 
         # Update Plots
@@ -230,7 +227,7 @@ class ControlPanel(ScrolledPanel):
     def OnPolygonFilter(self, result):
         """ Called by polygon Window """
         dclab.PolygonFilter(points=result["points"],
-                               axes=result["axes"])
+                            axes=result["axes"])
         # update list of polygon filters
         self.UpdatePages()
         # The first polygon will be applied to all plots
@@ -243,8 +240,8 @@ class ControlPanel(ScrolledPanel):
                     r = c.GetRootItem()
                     cs = r.GetChildren()
                     unique_id = cs[-1].GetData()
-                    newcfg = {"Filtering": 
-                              {"Polygon Filters": [unique_id]} }
+                    newcfg = {"filtering": 
+                             {"polygon filters": [unique_id]} }
                     self.analysis.SetParameters(newcfg)
             # and apply
             self.OnChangeFilter()
@@ -447,21 +444,21 @@ class SubPanelPlotting(SubPanel):
 
         # Determine the order in which things are displayed
         # in the control panel
-        sortfunc = lambda x: (x[0].replace("Max", "2")
-                                  .replace("Min", "1")
-                                  .replace("Plot", "1")
-                                  .replace("Accuracy", "2")
-                                  .replace("Columns", "a1")
-                                  .replace("Rows", "a2")
-                                  .replace("Axis", "Aa"))
+        sortfunc = lambda x: (x[0].replace("max", "2")
+                                  .replace("min", "1")
+                                  .replace("plot", "1")
+                                  .replace("accuracy", "2")
+                                  .replace("columns", "a1")
+                                  .replace("rows", "a2")
+                                  .replace("axis", "Aa"))
         
         items.sort(key=sortfunc)
         
         # distinguish between deformation and circularity
         display_circ = False
-        if "Circ" in analysis.GetPlotAxes():
+        if "circ" in analysis.GetPlotAxes():
             display_circ = True
-            if "Defo" in analysis.GetPlotAxes():
+            if "defo" in analysis.GetPlotAxes():
                 display_circ = False
         
         xax, yax = analysis.GetPlotAxes()
@@ -477,16 +474,16 @@ class SubPanelPlotting(SubPanel):
             items.remove(it)
         
         # Remove unneccessary controls
-        for topic in ["Min", "Max"]:
+        for topic in ["min", "max"]:
             dellist = list()
             for item in items:
                 if (item[0].endswith(topic) and
                    not (item[0] == "{} {}".format(xax, topic) or 
                         item[0] == "{} {}".format(yax, topic))):
                     dellist.append(item)
-                elif display_circ and item[0] == "Defo {}".format(topic):
+                elif display_circ and item[0] == "defo {}".format(topic):
                     dellist.append(item)
-                elif not display_circ and item[0] == "Circ {}".format(topic):
+                elif not display_circ and item[0] == "circ {}".format(topic):
                     dellist.append(item)
             for it in dellist:
                 items.remove(it)
@@ -494,14 +491,14 @@ class SubPanelPlotting(SubPanel):
         useditems = []
         ## Populate axes
         for item in items:
-            if (item[0].startswith("Axis") or 
-                item[0].startswith("Scale ")):
+            if (item[0].startswith("axis") or 
+                item[0].startswith("scale ")):
                 stemp = self._create_type_wx_controls(analysis, key, item)
                 useditems.append(item)
                 axessizer.Add(stemp)
-            elif item[0].endswith("Min"):
+            elif item[0].endswith("min"):
                 # find item with max
-                idmax = [ii[0] for ii in items].index(item[0][:-3]+"Max")
+                idmax = [ii[0] for ii in items].index(item[0][:-3]+"max")
                 itemmax = items[idmax]
                 a = wx.StaticText(self, label=_("Range "+item[0][:-4]))
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
@@ -516,7 +513,7 @@ class SubPanelPlotting(SubPanel):
         
         ## Contour plot is not here
         for item in items:
-            if item[0].startswith("Contour") or item[0].startswith("KDE"):
+            if item[0].startswith("contour") or item[0].startswith("kde"):
                 useditems.append(item)
                 pass
 
@@ -633,9 +630,9 @@ class SubPanelStatistics(SubPanel):
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         if analysis is not None:
-            colors = list()
+            colors = []
             for mm in analysis.measurements:
-                colors.append(mm.Configuration["Plotting"]["Contour Color"])
+                colors.append(mm.config["plotting"]["contour color"])
             
             head, datalist = analysis.GetStatisticsBasic()
              
@@ -649,7 +646,7 @@ class SubPanelStatistics(SubPanel):
                 myGrid.SetColSize(ii, 10*len(label))
 
             for jj, row, color in zip(range(len(datalist)), datalist, colors):
-                if analysis.GetParameters("Plotting")["Scatter Title Colored"]:
+                if analysis.GetParameters("plotting")["scatter title colored"]:
                     if isinstance(color, (list, tuple)):
                         color = util.rgb_to_hex(color[:3], norm=1)
                 else:

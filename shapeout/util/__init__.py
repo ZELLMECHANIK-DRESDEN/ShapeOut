@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import division, unicode_literals
+
+from pkg_resources import resource_filename  # @UnresolvedImport
 import os
 import numpy as np
 import sys
@@ -9,7 +11,7 @@ import sys
 def findfile(fname):
     """ finds the absolute path of a file
     """
-    dirs = list()
+    dirs = []
     # directory names that make sense
     dirs += [".", "lang", "art", "config", "data"]
 

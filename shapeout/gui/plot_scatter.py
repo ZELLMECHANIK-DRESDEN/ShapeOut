@@ -7,8 +7,10 @@ from __future__ import division, unicode_literals
 
 import chaco.api as ca
 import chaco.tools.api as cta
-
-from dclab import *  # @UnusedWildImport
+from dclab import definitions as dfn
+import numpy as np
+import time
+import warnings
 
 from . import misc
 from ..tlabwrap import isoelastics
@@ -46,14 +48,14 @@ def scatter_plot(measurement,
     mm = measurement
     xax, yax = mm.GetPlotAxes()
     # Plotting area
-    plotfilters = mm.Configuration["Plotting"].copy()
-    marker_size = plotfilters["Scatter Marker Size"]
+    plotfilters = mm.config.copy()["plotting"]
+    marker_size = plotfilters["scatter marker size"]
     
     # We will pretend as if we are plotting circularity vs. area
-    areamin = plotfilters[xax+" Min"]
-    areamax = plotfilters[xax+" Max"]
-    circmin = plotfilters[yax+" Min"]
-    circmax = plotfilters[yax+" Max"]
+    areamin = plotfilters[xax+" min"]
+    areamax = plotfilters[xax+" max"]
+    circmin = plotfilters[yax+" min"]
+    circmax = plotfilters[yax+" max"]
 
     if areamin == areamax:
         areamin = getattr(mm, dfn.cfgmaprev[xax]).min()
@@ -69,8 +71,8 @@ def scatter_plot(measurement,
         #plt.figure(1)
         #axScatter = plt.axes()
 
-    scalex = mm.Configuration["Plotting"]["Scale X"].lower()
-    scaley = mm.Configuration["Plotting"]["Scale Y"].lower()
+    scalex = mm.config["Plotting"]["Scale X"].lower()
+    scaley = mm.config["Plotting"]["Scale Y"].lower()
 
     pd = ca.ArrayPlotData()
     
@@ -78,9 +80,9 @@ def scatter_plot(measurement,
     scatter_plot.id = mm.identifier
 
     ## Add isoelastics
-    if mm.Configuration["Plotting"]["Isoelastics"]:
+    if mm.config["plotting"]["isoelastics"]:
         if isoel is None:
-            chansize = mm.Configuration["General"]["Channel Width"]
+            chansize = mm.config["general"]["channel width"]
             #plotdata = list()
             # look for isoelastics:
             for key in list(isoelastics.keys()):
@@ -180,7 +182,7 @@ def scatter_plot(measurement,
     scatter_plot.title = mm.title
     scatter_plot.title_font = "modern 12"
     if plotfilters["Scatter Title Colored"]:
-        mmlabelcolor = plotfilters["Contour Color"]
+        mmlabelcolor = plotfilters["contour color"]
     else:
         mmlabelcolor = "black"
     scatter_plot.title_color = mmlabelcolor
@@ -232,41 +234,49 @@ def scatter_plot(measurement,
 
 
 def set_scatter_data(plot, mm):
-    plotfilters = mm.Configuration["Plotting"].copy()
+    plotfilters = mm.config.copy()["plotting"]
     xax, yax = mm.GetPlotAxes()
     
-    if mm.Configuration["Filtering"]["Enable Filters"]:
-        x = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
-        y = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
+    if mm.config["filtering"]["enable filters"]:
+        x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
+        y0 = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
     else:
         # filtering disabled
-        x = getattr(mm, dfn.cfgmaprev[xax])
-        y = getattr(mm, dfn.cfgmaprev[yax])
+        x0 = getattr(mm, dfn.cfgmaprev[xax])
+        y0 = getattr(mm, dfn.cfgmaprev[yax])
     
-    #downsampling : int or None
-    #    Filter events that are overdrawn by others (saves time).
-    #    If set to None then
-    downsampling = plotfilters["Downsampling"]
-    #downsample_events : int or None
-    #    Number of events to draw in the down-sampled plot. This number
-    #    is either 
-    #    - >=1: limit total number of events drawn
-    #    - <1: only perform 1st downsampling step with grid
-    #    If set to None, then
-    downsample_events = plotfilters["Downsample Events"]
+    downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
-    if downsampling:
-        lx = x.shape[0]
-        x, y = mm.GetDownSampledScatter(
-                                    downsample_events=downsample_events
-                                    )
-        positions = np.vstack([x.ravel(), y.ravel()])
-        print("Downsampled from {} to {}".format(lx, x.shape[0]))
-    else:
+    a = time.time()
+    lx = x0.shape[0]
+    x, y = mm.get_downsampled_scatter(xax=xax, yax=yax,
+                                      downsample=downsample)
+    if lx == x.shape:
         positions = None
+    else:
+        print("...Downsampled from {} to {} in {:.2f}s".format(lx, x.shape[0], time.time()-a))
+        positions = np.vstack([x.ravel(), y.ravel()])
 
-    density = mm.GetKDE_Scatter(yax=yax, xax=xax, positions=positions)
+    kde_type = plotfilters["kde"]
+    kde_kwargs = {}
+    if kde_type == "multivariate":
+        bwx = plotfilters["kde accuracy "+xax]
+        bwy = plotfilters["kde accuracy "+yax]
+        kde_kwargs["bw"] = [bwx, bwy]
+    elif kde_type == "histogram":
+        bwx = plotfilters["kde accuracy "+xax]
+        bwy = plotfilters["kde accuracy "+yax]
+        binx = int((x0.max()-x0.min())/(1.8*bwx))
+        biny = int((y0.max()-y0.min())/(1.8*bwy))
+        binx = max(5, binx)
+        biny = max(5, biny)
+        kde_kwargs["bins"] = [binx, biny]
 
+    a = time.time()
+    density = mm.get_kde_scatter(xax=xax, yax=yax, positions=positions,
+                                 kde_type=kde_type, kde_kwargs=kde_kwargs)
+    
+    print("...KDE scatter time {}: {:.2f}s".format(kde_type, time.time()-a))
     pd = plot.data
     
     pd.set_data("index", x)
@@ -278,9 +288,9 @@ def set_scatter_data(plot, mm):
         mm._filter.sum() != mm.time.shape[0]):
         mm.ApplyFilter()
         # determine the number of points we are allowed to add
-        if downsampling:
+        if downsample:
             # respect the maximum limit of plotted events
-            excl_num = int(downsample_events - np.sum(mm._filter))
+            excl_num = int(downsample - np.sum(mm._filter))
         else:
             # plot all excluded events
             excl_num = np.sum(~mm._filter)
@@ -297,7 +307,7 @@ def set_scatter_data(plot, mm):
     for ol in plot.overlays:
         if ol.id == "event_label_"+mm.identifier:
             # Set events label
-            if plotfilters["Show Events"]:
+            if plotfilters["show events"]:
                 oltext = "{} events".format(np.sum(mm._filter))
             else:
                 oltext = ""

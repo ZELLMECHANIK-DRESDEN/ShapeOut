@@ -21,14 +21,9 @@ from helper_methods import example_data_dict
 def test_cfg_basic():
     cfg = configuration.ConfigurationFile()
     wd = abspath("./")
-    cfg.SetWorkingDirectory(wd, "Main")
-    cfg.SetWorkingDirectory(dirname(wd), "Peter")
-    rand = str(np.random.random())
-    cfg.SetWorkingDirectory(dirname(wd), rand)
+    cfg.set_dir(dirname(wd), "Peter")
 
-    assert wd == cfg.GetWorkingDirectory("Main")
-    assert dirname(wd) == cfg.GetWorkingDirectory("Peter")
-    assert dirname(wd) == cfg.GetWorkingDirectory(rand)
+    assert dirname(wd) == cfg.get_dir("Peter")
 
 
 if __name__ == "__main__":

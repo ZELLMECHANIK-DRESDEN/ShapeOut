@@ -1,3 +1,14 @@
+0.7.1
+- Improved speed by optimization of GUI functions 
+- Hash checks: Replace exception with a user-friendly warning (#128)
+- Change: Renamed config key "kde multivariate" to "kde accuracy"
+- Bugfixes:
+  - Contour plot displays unused contour accuracy parameters
+  - Persistent busy cursor when trace or video data is missing
+  - Directory selections not always remembered correctly
+- dclab:
+  - Add histogram-based kernel density estimator
+  - Refactoring to improve code quality
 0.7.0
 - Allow to rename polygon filters (#119)
 - dclab:

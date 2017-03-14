@@ -7,8 +7,10 @@ from __future__ import division, unicode_literals
 
 import chaco.api as ca
 import chaco.tools.api as cta
-
-from dclab import *  # @UnusedWildImport
+from dclab import definitions as dfn
+import numpy as np
+import time
+import warnings
 
 from . import misc
 from ..tlabwrap import isoelastics
@@ -44,13 +46,13 @@ def contour_plot(measurements, levels=[0.5,0.95],
     contour_plot = ca.Plot(pd)
     contour_plot.id = "ShapeOut_contour_plot"
 
-    scalex = mm.Configuration["Plotting"]["Scale X"].lower()
-    scaley = mm.Configuration["Plotting"]["Scale Y"].lower()
+    scalex = mm.config["plotting"]["scale x"].lower()
+    scaley = mm.config["plotting"]["scale y"].lower()
 
     ## Add isoelastics
-    if mm.Configuration["Plotting"]["Isoelastics"]:
+    if mm.config["plotting"]["isoelastics"]:
         if isoel is None:
-            chansize = mm.Configuration["General"]["Channel Width"]
+            chansize = mm.config["general"]["channel width"]
             #plotdata = list()
             # look for isoelastics:
             for key in list(isoelastics.keys()):
@@ -127,26 +129,17 @@ def contour_plot(measurements, levels=[0.5,0.95],
 def set_contour_data(plot, measurements, levels=[0.5,0.95]):
     pd = plot.data
     # Plotting area
-    m0 = measurements[0]
-    xax, yax = m0.GetPlotAxes()
-    plotfilters = m0.Configuration["Plotting"]
+    mm = measurements[0]
+    xax, yax = mm.GetPlotAxes()
+    plotfilters = mm.config["plotting"]
 
-    scalex = plotfilters["Scale X"].lower()
-    scaley = plotfilters["Scale Y"].lower()
-    # We will pretend as if we are plotting circularity vs. area
-    areamin = plotfilters[xax+" Min"]
-    areamax = plotfilters[xax+" Max"]
-    circmin = plotfilters[yax+" Min"]
-    circmax = plotfilters[yax+" Max"]
-    
-    if areamin == areamax:
-        areamin = getattr(m0, dfn.cfgmaprev[xax]).min()
-        areamax = getattr(m0, dfn.cfgmaprev[xax]).max()
-
-    if circmin == circmax:
-        circmin = getattr(m0, dfn.cfgmaprev[yax]).min()
-        circmax = getattr(m0, dfn.cfgmaprev[yax]).max()
-
+    if mm.config["filtering"]["enable filters"]:
+        x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
+        y0 = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
+    else:
+        # filtering disabled
+        x0 = getattr(mm, dfn.cfgmaprev[xax])
+        y0 = getattr(mm, dfn.cfgmaprev[yax])
 
     for ii, mm in enumerate(measurements):
         cname = "con_{}_{}_{}".format(mm.name, mm.identifier, ii)
@@ -156,11 +149,32 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         # Check if there is data to compute a contour from
         if len(mm._filter)==0 or np.sum(mm._filter)==0:
             break
+        
+        xacc = mm.config["plotting"]["contour accuracy "+xax]
+        yacc = mm.config["plotting"]["contour accuracy "+yax]
+        kde_type = mm.config["plotting"]["kde"]
+        kde_kwargs = {}
+        if kde_type == "multivariate":
+            bwx = plotfilters["kde accuracy "+xax]
+            bwy = plotfilters["kde accuracy "+yax]
+            kde_kwargs["bw"] = [bwx, bwy]
+        elif kde_type == "histogram":
+            bwx = plotfilters["kde accuracy "+xax]
+            bwy = plotfilters["kde accuracy "+yax]
+            binx = int((x0.max()-x0.min())/(1.8*bwx))
+            biny = int((y0.max()-y0.min())/(1.8*bwy))
+            binx = max(5, binx)
+            biny = max(5, biny)
+            kde_kwargs["bins"] = [binx, biny]
 
-        (X,Y,density) = mm.GetKDE_Contour(yax=yax, xax=xax)
+        a = time.time()
+        (X,Y,density) = mm.get_kde_contour(xax=xax, yax=yax, xacc=xacc, yacc=yacc,
+                                           kde_type=kde_type, kde_kwargs=kde_kwargs)
+
+        print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
         pd.set_data(cname, density)
   
-        plev = [np.max(density)*i for i in levels]
+        plev = list(density.max()*np.array(levels))
 
         if len(plev) == 2:
             styles = ["dot", "solid"]
@@ -168,8 +182,8 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
             styles = "solid"
         
         # contour widths
-        if "Contour Width" in mm.Configuration["Plotting"]:
-            cwidth = mm.Configuration["Plotting"]["Contour Width"]
+        if "contour width" in mm.config["plotting"]:
+            cwidth = mm.config["plotting"]["contour width"]
         else:
             cwidth = 1.2
 
@@ -179,18 +193,7 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
                           xbounds = (X[0][0], X[0][-1]),
                           ybounds = (Y[0][0], Y[-1][0]),
                           levels = plev,
-                          colors = mm.Configuration["Plotting"]["Contour Color"],
+                          colors = mm.config["plotting"]["contour color"],
                           styles = styles,
                           widths = [cwidth*.7, cwidth], # make outer lines slightly smaller
                           )
-
-    # Set x-y limits
-    xlim = plot.index_mapper.range
-    ylim = plot.value_mapper.range
-    xlim.low = areamin
-    xlim.high = areamax
-    ylim.low = circmin
-    ylim.high = circmax
-
-    plot.index_scale = scalex
-    plot.value_scale = scaley

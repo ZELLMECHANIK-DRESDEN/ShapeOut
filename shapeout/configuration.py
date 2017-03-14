@@ -3,7 +3,7 @@
 """ configuration - configuration file of ShapeOut
 
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 
 import codecs
@@ -34,16 +34,16 @@ class ConfigurationFile(object):
                 self.cfgfile = join(abspath(dirname(__file__)), shcfg)
             
             with codecs.open(self.cfgfile, 'wb', "utf-8") as fop:
-                fop.writelines(DefaultConfig)
+                fop.writelines(default)
 
         else:
             self.cfgfile = fname
 
         self.working_directories = {}
-        self.GetWorkingDirectory()
+        self.get_dir()
 
 
-    def GetWorkingDirectory(self, name="Main"):
+    def get_dir(self, name=""):
         """ Returns the current working directory """
         wd = default = "./"
         cfgso = self.cfgfile
@@ -51,19 +51,19 @@ class ConfigurationFile(object):
         if path == "":
             wd = default
         else:
-            fop = codecs.open(path, 'r', "utf-8")
-            fc = fop.readlines()
-            fop.close()
+            with codecs.open(path, 'r', "utf-8") as fop:
+                fc = fop.readlines()
             for line in fc:
-                if line.startswith(("Working Directory "+name).strip()):
-                    wd = line.partition("=")[2].strip()
+                line = line.strip()
+                if line.split("=")[0].strip() == "Working Directory "+name:
+                    wd = line.split("=")[1].strip()
                     if not os.path.exists(wd):
                         wd = default
         self.working_directory = wd
         return wd
         
 
-    def SetWorkingDirectory(self, wd, name="Main"):
+    def set_dir(self, wd, name=""):
         if os.path.exists(wd):
             self.working_directory = wd
             cfgso = self.cfgfile
@@ -74,7 +74,7 @@ class ConfigurationFile(object):
             # Check if we have already saved it there.
             wdirin = False
             for i in range(len(fc)):
-                if fc[i].startswith("Working Directory "+name):
+                if fc[i].split("=")[0].strip() == "Working Directory "+name:
                     fc[i] = u"Working Directory {} = {}".format(name, wd)
                     wdirin = True
             if not wdirin:
@@ -87,5 +87,5 @@ class ConfigurationFile(object):
             fop.writelines(fc)
             fop.close()
 
-DefaultConfig = ["Working Directory = ./"]
+default = ["Working Directory = ./"]
 
