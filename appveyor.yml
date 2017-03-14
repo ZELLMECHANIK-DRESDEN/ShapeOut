@@ -123,7 +123,8 @@ test_script:
   - "pip install coveralls"
   - "coverage run --source=shapeout ./setup.py test || exit 0" #ignore any errors here
   - "coverage report -m"
-  - "coveralls"
+  # Allow coveralls to fail
+  - "coveralls || exit 0"
 
 after_test:
   # If tests are successful, create a whl package for the project.
