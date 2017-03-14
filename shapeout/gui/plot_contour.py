@@ -129,26 +129,17 @@ def contour_plot(measurements, levels=[0.5,0.95],
 def set_contour_data(plot, measurements, levels=[0.5,0.95]):
     pd = plot.data
     # Plotting area
-    m0 = measurements[0]
-    xax, yax = m0.GetPlotAxes()
-    plotfilters = m0.config["plotting"]
+    mm = measurements[0]
+    xax, yax = mm.GetPlotAxes()
+    plotfilters = mm.config["plotting"]
 
-    scalex = plotfilters["scale x"].lower()
-    scaley = plotfilters["scale y"].lower()
-    # We will pretend as if we are plotting circularity vs. area
-    areamin = plotfilters[xax+" min"]
-    areamax = plotfilters[xax+" max"]
-    circmin = plotfilters[yax+" min"]
-    circmax = plotfilters[yax+" max"]
-    
-    if areamin == areamax:
-        areamin = getattr(m0, dfn.cfgmaprev[xax]).min()
-        areamax = getattr(m0, dfn.cfgmaprev[xax]).max()
-
-    if circmin == circmax:
-        circmin = getattr(m0, dfn.cfgmaprev[yax]).min()
-        circmax = getattr(m0, dfn.cfgmaprev[yax]).max()
-
+    if mm.config["filtering"]["enable filters"]:
+        x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
+        y0 = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
+    else:
+        # filtering disabled
+        x0 = getattr(mm, dfn.cfgmaprev[xax])
+        y0 = getattr(mm, dfn.cfgmaprev[yax])
 
     for ii, mm in enumerate(measurements):
         cname = "con_{}_{}_{}".format(mm.name, mm.identifier, ii)
@@ -170,17 +161,20 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         elif kde_type == "histogram":
             bwx = plotfilters["kde accuracy "+xax]
             bwy = plotfilters["kde accuracy "+yax]
-            binx = int((areamax-areamin)/(1.8*bwx))
-            biny = int((circmax-circmin)/(1.8*bwy))
+            binx = int((x0.max()-x0.min())/(1.8*bwx))
+            biny = int((y0.max()-y0.min())/(1.8*bwy))
+            binx = max(5, binx)
+            biny = max(5, biny)
             kde_kwargs["bins"] = [binx, biny]
 
         a = time.time()
         (X,Y,density) = mm.get_kde_contour(xax=xax, yax=yax, xacc=xacc, yacc=yacc,
-                                           kde_type=kde_type)
+                                           kde_type=kde_type, kde_kwargs=kde_kwargs)
+
         print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
         pd.set_data(cname, density)
   
-        plev = [np.max(density)*i for i in levels]
+        plev = list(density.max()*np.array(levels))
 
         if len(plev) == 2:
             styles = ["dot", "solid"]
@@ -203,14 +197,3 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
                           styles = styles,
                           widths = [cwidth*.7, cwidth], # make outer lines slightly smaller
                           )
-
-    # Set x-y limits
-    xlim = plot.index_mapper.range
-    ylim = plot.value_mapper.range
-    xlim.low = areamin
-    xlim.high = areamax
-    ylim.low = circmin
-    ylim.high = circmax
-
-    plot.index_scale = scalex
-    plot.value_scale = scaley

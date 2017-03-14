@@ -239,11 +239,11 @@ def set_scatter_data(plot, mm):
     
     if mm.config["filtering"]["enable filters"]:
         x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
-        #y = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
+        y0 = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
     else:
         # filtering disabled
         x0 = getattr(mm, dfn.cfgmaprev[xax])
-        #y = getattr(mm, dfn.cfgmaprev[yax])
+        y0 = getattr(mm, dfn.cfgmaprev[yax])
     
     downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
@@ -266,8 +266,8 @@ def set_scatter_data(plot, mm):
     elif kde_type == "histogram":
         bwx = plotfilters["kde accuracy "+xax]
         bwy = plotfilters["kde accuracy "+yax]
-        binx = int((x.max()-x.min())/(1.8*bwx))
-        biny = int((y.max()-y.min())/(1.8*bwy))
+        binx = int((x0.max()-x0.min())/(1.8*bwx))
+        biny = int((y0.max()-y0.min())/(1.8*bwy))
         binx = max(5, binx)
         biny = max(5, biny)
         kde_kwargs["bins"] = [binx, biny]
