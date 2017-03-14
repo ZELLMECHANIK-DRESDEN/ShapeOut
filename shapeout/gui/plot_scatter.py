@@ -260,13 +260,22 @@ def set_scatter_data(plot, mm):
     kde_type = plotfilters["kde"]
     kde_kwargs = {}
     if kde_type == "multivariate":
-        bwx = plotfilters["kde multivariate "+xax]
-        bwy = plotfilters["kde multivariate "+yax]
+        bwx = plotfilters["kde accuracy "+xax]
+        bwy = plotfilters["kde accuracy "+yax]
         kde_kwargs["bw"] = [bwx, bwy]
+    elif kde_type == "histogram":
+        bwx = plotfilters["kde accuracy "+xax]
+        bwy = plotfilters["kde accuracy "+yax]
+        binx = int((x.max()-x.min())/(1.8*bwx))
+        biny = int((y.max()-y.min())/(1.8*bwy))
+        binx = max(5, binx)
+        biny = max(5, biny)
+        kde_kwargs["bins"] = [binx, biny]
 
     a = time.time()
     density = mm.get_kde_scatter(xax=xax, yax=yax, positions=positions,
                                  kde_type=kde_type, kde_kwargs=kde_kwargs)
+    
     print("...KDE scatter time {}: {:.2f}s".format(kde_type, time.time()-a))
     pd = plot.data
     

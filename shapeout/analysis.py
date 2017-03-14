@@ -73,7 +73,7 @@ class Analysis(object):
             # This lambda function seems to do a good job
             accl = lambda a: (np.nanmax(a)-np.nanmin(a))/10
             defs = [["contour accuracy {}", accl],
-                    ["kde multivariate {}", accl],
+                    ["kde accuracy {}", accl],
                    ]
             pltng = mm.config["plotting"]
             for k in keys:
@@ -157,6 +157,14 @@ class Analysis(object):
                 data = datadict[key]
                 config_file = os.path.join(thedir, data["config"])
                 cfg = Configuration(files=[config_file])
+                
+                # backwards compatibility:
+                # replace "kde multivariate" with "kde accuracy"
+                for kk in list(cfg["plotting"].keys()):
+                    if kk.startswith("kde multivariate "):
+                        ax = kk.split()[2]
+                        cfg["plotting"]["kde accuracy "+ax] = cfg["plotting"][kk]
+                        cfg["plotting"].pop(kk)
                 
                 if ("special type" in data and
                     data["special type"] == "hierarchy child"):
@@ -530,7 +538,7 @@ class Analysis(object):
                 acm = float("{:.1e}".format(acc*2))
                 for mm in self.measurements:
                     mm.config["Plotting"]["Contour Accuracy {}".format(name)] = acg
-                    mm.config["Plotting"]["KDE Multivariate {}".format(name)] = acm
+                    mm.config["Plotting"]["KDE Accuracy {}".format(name)] = acm
 
 
     def SetContourColors(self, colors=None):

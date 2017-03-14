@@ -42,10 +42,10 @@ class SubPanelPlotContour(SubPanel):
         
         # Remove all items that have nothing to do with plotting
         xax, yax = analysis.GetPlotAxes()
-        for topic in ["kde multivariate", "contour accuracy"]:
+        for topic in ["kde accuracy", "contour accuracy"]:
             dellist = list()
             for item in items:
-                # item: e.g. ("kde multivariate fl2area", 1000)
+                # item: e.g. ("kde accuracy fl2area", 1000)
                 if item[0].startswith(topic):
                     # e.g. fl2area
                     rest = item[0][len(topic):].strip()
@@ -119,9 +119,8 @@ class SubPanelPlotContour(SubPanel):
         
         axes = analysis.GetPlotAxes()
         self.BindEnableName(ctrl_source="kde",
-                            value="multivariate",
-                            ctrl_targets=["kde multivariate {}".format(a) for a in axes])
-
+                            value=["multivariate", "histogram"],
+                            ctrl_targets=["kde accuracy {}".format(a) for a in axes])
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()

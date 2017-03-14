@@ -164,9 +164,15 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         kde_type = mm.config["plotting"]["kde"]
         kde_kwargs = {}
         if kde_type == "multivariate":
-            bwx = plotfilters["kde multivariate "+xax]
-            bwy = plotfilters["kde multivariate "+yax]
+            bwx = plotfilters["kde accuracy "+xax]
+            bwy = plotfilters["kde accuracy "+yax]
             kde_kwargs["bw"] = [bwx, bwy]
+        elif kde_type == "histogram":
+            bwx = plotfilters["kde accuracy "+xax]
+            bwy = plotfilters["kde accuracy "+yax]
+            binx = int((areamax-areamin)/(1.8*bwx))
+            biny = int((circmax-circmin)/(1.8*bwy))
+            kde_kwargs["bins"] = [binx, biny]
 
         a = time.time()
         (X,Y,density) = mm.get_kde_contour(xax=xax, yax=yax, xacc=xacc, yacc=yacc,

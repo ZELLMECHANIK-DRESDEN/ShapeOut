@@ -120,11 +120,13 @@ class SubPanel(ScrolledPanel):
         ----------
         ctrl_source: name of a wx control
             The source control
-        value: bool or str
+        value: bool or str or list of str
             The value of the source control
         ctrl_targets: list of names of wx controls
             The controls to enable or disable depending on `value`
         """
+        if not isinstance(value, list):
+            value=[value]
         ctrl_source = ctrl_source.lower()
         ctrl_targets = [t.lower() for t in ctrl_targets]
         # Find source
@@ -146,13 +148,13 @@ class SubPanel(ScrolledPanel):
         for tar in targets:
             if isinstance(source, wx._controls.CheckBox):
                 def method(evt=None, tar=tar, value=value):
-                    tar.Enable(source.IsChecked()==value)
+                    tar.Enable(source.IsChecked() in value)
                     if evt is not None:
                         evt.Skip()
                 event = wx.EVT_CHECKBOX
             elif isinstance(source, wx._controls.ComboBox):
                 def method(evt=None, tar=tar, value=value):
-                    tar.Enable(source.GetValue()==value)
+                    tar.Enable(source.GetValue() in value)
                     if evt is not None:
                         evt.Skip()
                 event = wx.EVT_COMBOBOX
