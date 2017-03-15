@@ -7,7 +7,7 @@ For this test to work, this must be installed
  - R-base
  - R package 'lme4'
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 import sys
 from os.path import abspath, dirname
 

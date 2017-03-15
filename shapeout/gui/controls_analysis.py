@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import codecs
 import dclab
 import tempfile
 import webbrowser
@@ -20,22 +21,29 @@ class SubPanelAnalysis(SubPanel):
 
     
     def make_analysis_choices(self, analysis):
-        gen = wx.StaticBox(self, label=_("Linear mixed-effects model"))
+        gen = wx.StaticBox(self, label=_("Regression analysis"))
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
 
         if analysis is not None:
             # get common parameters
             sizer_bag = wx.GridBagSizer(hgap=20, vgap=5)
+
+            # Model to apply
+            sizer_bag.Add(wx.StaticText(self, label=_("Model:")), (0,0), span=wx.GBSpan(1,1))
+            choices = [_("Linear mixed model"), _("Generalized linear mixed model")]
+            self.WXCB_model = wx.ComboBox(self, -1, choices=choices,
+                                    value=choices[0], name="None",
+                                    style=wx.CB_DROPDOWN|wx.CB_READONLY)
+            sizer_bag.Add(self.WXCB_model, (0,1), span=wx.GBSpan(1,3))
             
-            sizer_bag.Add(wx.StaticText(self, label=_("Axis to analyze:")), (0,0), span=wx.GBSpan(1,1))
-            
-            # axes dropdown
+            # Axis to analyze
+            sizer_bag.Add(wx.StaticText(self, label=_("Axis to analyze:")), (1,0), span=wx.GBSpan(1,1))
             self.axes = analysis.GetUsableAxes()
             axeslist = [dclab.dfn.axlabels[a] for a in self.axes]
             self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
-                                    value=_("None"), name="None",
-                                    style=wx.CB_DROPDOWN|wx.CB_READONLY)
+                                         style=wx.CB_DROPDOWN|wx.CB_READONLY)
             self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_axes)
+
             # Set y-axis as default
             ax = analysis.GetPlotAxes()[1]
             if ax in self.axes:
@@ -43,12 +51,12 @@ class SubPanelAnalysis(SubPanel):
             else:
                 axid = 0
             self.WXCB_axes.SetSelection(axid)
-            sizer_bag.Add(self.WXCB_axes, (0,1), span=wx.GBSpan(1,4))
+            sizer_bag.Add(self.WXCB_axes, (1,1), span=wx.GBSpan(1,3))
             
             # Header for table
-            sizer_bag.Add(wx.StaticText(self, label=_("Data set")), (1,0), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label=_("Interpretation")), (1,1), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label=_("Repetition")), (1,2), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label=_("Data set")), (2,0), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label=_("Interpretation")), (2,1), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label=_("Repetition")), (2,2), span=wx.GBSpan(1,1))
             
             treatments = [_("None"), _("Control"), _("Treatment"),
                           _("Reservoir Control"), _("Reservoir Treatment")]
@@ -59,7 +67,7 @@ class SubPanelAnalysis(SubPanel):
             
             for ii, mm in enumerate(analysis.measurements):
                 # title
-                sizer_bag.Add(wx.StaticText(self, label=mm.title), (2+ii,0), span=wx.GBSpan(1,1))
+                sizer_bag.Add(wx.StaticText(self, label=mm.title), (3+ii,0), span=wx.GBSpan(1,1))
                 # treatment
                 cbgtemp = wx.ComboBox(self, -1, choices=treatments,
                                       name=mm.identifier,
@@ -68,13 +76,13 @@ class SubPanelAnalysis(SubPanel):
                     cbgtemp.SetSelection(1)
                 else:
                     cbgtemp.SetSelection(0)
-                sizer_bag.Add(cbgtemp, (2+ii,1), span=wx.GBSpan(1,1))
+                sizer_bag.Add(cbgtemp, (3+ii,1), span=wx.GBSpan(1,1))
                 # repetition
                 cbgtemp2 = wx.ComboBox(self, -1, choices=repetitions,
                                       name=mm.identifier,
                                       style=wx.CB_DROPDOWN|wx.CB_READONLY)
                 cbgtemp2.SetSelection(0)
-                sizer_bag.Add(cbgtemp2, (2+ii,2), span=wx.GBSpan(1,1))
+                sizer_bag.Add(cbgtemp2, (3+ii,2), span=wx.GBSpan(1,1))
                 
                 self.WXCB_treatment.append(cbgtemp)
                 self.WXCB_repetition.append(cbgtemp2)
@@ -112,14 +120,24 @@ class SubPanelAnalysis(SubPanel):
             treatment.append(self.WXCB_treatment[ii].GetValue())
             # get repetition
             timeunit.append(int(self.WXCB_repetition[ii].GetValue()))
-            
+        
+        modelid = self.WXCB_model.GetSelection()
+        if modelid==0:
+            model = "lmm"
+        elif modelid==1:
+            model = "glmm"
+        else:
+            raise ValueError("Unsupported model selection!")
+        
         # run lme4
         result = lin_mix_mod.linmixmod(xs=xs,
                                        treatment=treatment,
-                                       timeunit=timeunit)
+                                       timeunit=timeunit,
+                                       model=model)
         # display results
         # write to temporary file and display with webbrowser
-        with tempfile.NamedTemporaryFile(mode="w", prefix="linmixmod_", suffix=".txt", delete=False) as fd:
+        outfile = tempfile.mktemp(prefix="regression_analysis_", suffix=".txt")
+        with codecs.open(outfile, "w", encoding="utf-8") as fd:
             fd.writelines(result["Full Summary"])
             
         webbrowser.open(fd.name)
@@ -142,7 +160,12 @@ class SubPanelAnalysis(SubPanel):
         # user selected reservoir somewhere
         resc = len([t for t in trt if t.count(_("Reservoir Control"))])
         rest = len([t for t in trt if t.count(_("Reservoir Treatment"))])
-        text_mode = _("Will compute linear mixed-effects model for {}.\n")
+        if self.WXCB_model.GetSelection() == 0:
+            text_mode = _("Will compute linear mixed-effects model for {}.\n")
+        elif self.WXCB_model.GetSelection() == 1:
+            text_mode = _("Will compute generalized linear mixed-effects model for {}.\n")
+        else:
+            raise ValueError("Unsupported model selection")
         
         if not rest*resc and rest+resc:
             text += _("Please select reservoir for treatment and control.")

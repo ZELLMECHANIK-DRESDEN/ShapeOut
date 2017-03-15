@@ -6,7 +6,7 @@ to compute relations with linear mixed effects models.
 Install the "lme4" library with:
     R -e "install.packages('lme4', repos='http://cran.r-project.org')"
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import numpy as np
 import pyper
@@ -198,19 +198,19 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     if 'Reservoir Control' in treatment or 'Reservoir Treatment' in treatment:
         Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n " 
         #Find the timeunits for Control 
-        where_contr_ch = np.where('Control' == np.array(treatment))
+        where_contr_ch = np.where(np.array(treatment)=='Control')
         timeunit_contr_ch = np.array(timeunit)[where_contr_ch]
         #Find the timeunits for Treatment 
-        where_treat_ch = np.where('Treatment' == np.array(treatment))
+        where_treat_ch = np.where(np.array(treatment)=='Treatment')
         timeunit_treat_ch = np.array(timeunit)[where_treat_ch]
 
         for n in np.unique(timeunit_contr_ch):
             where_time = np.where(np.array(timeunit)==n)
             xs_n = np.array(xs)[where_time]
             treatment_n = np.array(treatment)[where_time]
-            where_contr_ch = np.where('Control' == np.array(treatment_n))
+            where_contr_ch = np.where(np.array(treatment_n)=='Control')
             xs_n_contr_ch = xs_n[where_contr_ch]
-            where_contr_res = np.where('Reservoir Control' == np.array(treatment_n))
+            where_contr_res = np.where(np.array(treatment_n)=='Reservoir Control')
             xs_n_contr_res = xs_n[where_contr_res]
 
             #check that corresponding Controls are selected
@@ -230,9 +230,9 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
             xs_n = np.array(xs)[where_time]
             treatment_n = np.array(treatment)[where_time]
             xs_n_contr_res = xs_n[where_contr_res]
-            where_treat_ch = np.where('Treatment' == np.array(treatment_n))    
+            where_treat_ch = np.where(np.array(treatment_n)=='Treatment')    
             xs_n_treat_ch = xs_n[where_treat_ch]
-            where_treat_res = np.where('Reservoir Treatment' == np.array(treatment_n))
+            where_treat_res = np.where(np.array(treatment_n)=='Reservoir Treatment')
             xs_n_treat_res = xs_n[where_treat_res]
 
             #check that corresponding Treatments are selected
@@ -255,10 +255,10 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
 
     else: #If there is no 'Reservoir Channel' selected dont apply bootstrapping
         if model=='glmm':
-            Head_string = "GENERALIZED LINEAR MIXED MODEL: \n " +\
-            "---Results are in log space (loglink was used)--- \n "
+            Head_string = "GENERALIZED LINEAR MIXED MODEL: \n" +\
+            "---Results are in log space (loglink was used)--- \n"
         if model=='lmm':
-            Head_string = "LINEAR MIXED MODEL: \n "
+            Head_string = "LINEAR MIXED MODEL: \n"
             
         for i in range(len(xs)): 
             #Expand every unit in treatment and timeunit to the same length as the 
@@ -273,7 +273,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
         timeunit = np.concatenate(timeunit)
         
     #Open a pyper instance
-    r1 = pyper.R(use_pandas=True, RCMD=RCMD) 
+    r1 = pyper.R(RCMD=RCMD, use_pandas=True) 
     r1.assign("xs", xs)
     #Transfer the vectors to R
     r1.assign("treatment", treatment)
@@ -299,16 +299,12 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
         r1("NullModel = lmer("+nullmodelfunc+",RTDC)")
 
     r1("Anova = anova(Model,NullModel)")
-    Model_string = r1("summary(Model)")
-    #Delete some first characters made by R
-    Model_string= Model_string[23:]
-    #in case you prefer a dict for the Model output, do:
-    #Model_dict = np.array(r1.get("summary(Model)")) 
-    Anova_string = r1("Anova")
-    Anova_string = Anova_string[14:]
-    #Anova_dict = np.array(r1.get("Anova"))
-    Coef_string = r1("coef(Model)")
-    Coef_string = Coef_string[20:]
+    Model_string = r1("summary(Model)").decode("utf-8").split("\n", 1)[1]
+    Anova_string = r1("Anova").decode("utf-8").split("\n", 1)[1]
+    Coef_string = r1("coef(Model)").decode("utf-8").split("\n", 2)[2]
+    # Cleanup output
+    Coef_string = Coef_string.replace('attr(,"class")\n', '')
+    Coef_string = Coef_string.replace('[1] "coef.mer"\n', '')
     #"anova" from R does a likelihood ratio test which gives a p-Value 
     p = np.array(r1.get("Anova$Pr[2]"))
 
@@ -336,21 +332,15 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     fixef_y = np.exp(Estimate+FixedEffect)-np.exp(Estimate)
     #fixef_y_error = abs(np.exp(Estimate+StdErrorFixEffect)-np.exp(Estimate-StdErrorFixEffect))        
     
+    full_summary = Head_string + Model_string +\
+                   "\nCOEFFICIENT TABLE:\n" + Coef_string +\
+                   "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" +\
+                   Anova_string
     
-    full_summary_linmixmod = Head_string + Model_string+ \
-    "\nFULL COEFFICIENT TABLE:\n" + Coef_string + \
-    "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" + Anova_string
-    full_summary_gemmixmod = Head_string + Model_string+\
-    "\n FULL COEFFICIENT TABLE:\n" + Coef_string+ \
-    "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" + Anova_string + \
-    "\nESTIMATE AND EFFECT TRANSFORMED BACK FROM LOGSPACE"+ \
-    "\nEstimate = \t"+str(estim_y)+\
-    "\nFixed effect = \t"+str(fixef_y)
-    
-    if model=='glmm':
-        full_summary = full_summary_gemmixmod
-    if model=='lmm':
-        full_summary = full_summary_linmixmod
+    if model=="glmm":
+        full_summary += "\nESTIMATE AND EFFECT TRANSFORMED BACK FROM LOGSPACE" +\
+                        "\nEstimate = \t"+str(estim_y)+\
+                        "\nFixed effect = \t"+str(fixef_y)
         
     results = {"Full Summary":full_summary,
     "p-Value (Likelihood Ratio Test)" : p,
