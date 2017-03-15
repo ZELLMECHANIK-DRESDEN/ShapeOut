@@ -148,9 +148,6 @@ class SubPanelAnalysis(SubPanel):
 
         webbrowser.open(fd.name)
 
-        import IPython
-        IPython.embed()
-
 
     def OnReset(self, e=None):
         """
