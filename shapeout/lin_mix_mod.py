@@ -196,7 +196,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     Median_DiffDef = []
     TimeUnit,Treatment = [],[]
     if 'Reservoir Control' in treatment or 'Reservoir Treatment' in treatment:
-        Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n " 
+        Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n" 
         #Find the timeunits for Control 
         where_contr_ch = np.where(np.array(treatment)=='Control')
         timeunit_contr_ch = np.array(timeunit)[where_contr_ch]
@@ -342,8 +342,10 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
                         "\nEstimate = \t"+str(estim_y)+\
                         "\nFixed effect = \t"+str(fixef_y)
         
-    results = {"Full Summary":full_summary,
-    "p-Value (Likelihood Ratio Test)" : p,
-    "Estimate":Estimate,"Std. Error (Estimate)":StdErrorEstimate,
-    "Fixed Effect":FixedEffect,"Std. Error (Fixed Effect)":StdErrorFixEffect}
+    results = {"Full Summary": full_summary,
+               "p-Value (Likelihood Ratio Test)" : p,
+               "Estimate":Estimate,
+               "Std. Error (Estimate)":StdErrorEstimate,
+               "Fixed Effect":FixedEffect,
+               "Std. Error (Fixed Effect)":StdErrorFixEffect}
     return results
