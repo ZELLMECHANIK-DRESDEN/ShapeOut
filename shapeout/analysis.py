@@ -571,9 +571,9 @@ class Analysis(object):
         # Only update "Filtering" and "Plotting"
         upcfg = {}
         if "filtering" in newcfg:
-            upcfg["filtering"] = copy.deepcopy(newcfg["filtering"])
+            upcfg["filtering"] = newcfg["filtering"].copy()
         if "plotting" in newcfg:
-            upcfg["plotting"] = copy.deepcopy(newcfg["plotting"])
+            upcfg["plotting"] = newcfg["plotting"].copy()
             # prevent applying indivual things to all measurements
             ignorelist = ["contour color"]
             pops = []
@@ -590,6 +590,16 @@ class Analysis(object):
                 ("scale y" in pl and pl["scale y"] == "log")):
                 warnings.warn("Disabling contour plot because of chaco issue #300!")
                 upcfg["plotting"]["contour plot"] = False
+        elif "analysis" in newcfg:
+            upcfg["analysis"] = newcfg["analysis"].copy()
+            ignorelist = ["regression treatment", "regression repetition"]
+            pops = []
+            for skey in upcfg["analysis"]:
+                if skey in ignorelist:
+                    pops.append(skey)
+            for skey in pops:
+                upcfg["analysis"].pop(skey)
+            
 
         # update configuration
         for mm in self.measurements:

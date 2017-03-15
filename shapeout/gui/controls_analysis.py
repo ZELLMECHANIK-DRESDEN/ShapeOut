@@ -9,7 +9,7 @@ import webbrowser
 import wx
 
 from ..configuration import ConfigurationFile
-from .. import lin_mix_mod
+from .. import lin_mix_mod, tlabwrap
 
 from .controls_subpanel import SubPanel
 
@@ -29,10 +29,13 @@ class SubPanelAnalysis(SubPanel):
             sizer_bag = wx.GridBagSizer(hgap=20, vgap=5)
 
             # Model to apply
-            sizer_bag.Add(wx.StaticText(self, label=_("Model:")), (0,0), span=wx.GBSpan(1,1))
-            choices = [_("Linear mixed model"), _("Generalized linear mixed model")]
+            sizer_bag.Add(wx.StaticText(self, label=_("Mixed effects model:")),
+                          (0,0), span=wx.GBSpan(1,1))
+            choices = tlabwrap.get_config_entry_choices("analysis",
+                                                        "regression model")
+            model=analysis.measurements[0].config["analysis"]["regression model"]
             self.WXCB_model = wx.ComboBox(self, -1, choices=choices,
-                                    value=choices[0], name="None",
+                                    value=model, name="regression model",
                                     style=wx.CB_DROPDOWN|wx.CB_READONLY)
             sizer_bag.Add(self.WXCB_model, (0,1), span=wx.GBSpan(1,3))
             
@@ -58,8 +61,8 @@ class SubPanelAnalysis(SubPanel):
             sizer_bag.Add(wx.StaticText(self, label=_("Interpretation")), (2,1), span=wx.GBSpan(1,1))
             sizer_bag.Add(wx.StaticText(self, label=_("Repetition")), (2,2), span=wx.GBSpan(1,1))
             
-            treatments = [_("None"), _("Control"), _("Treatment"),
-                          _("Reservoir Control"), _("Reservoir Treatment")]
+            treatments = ["None", "Control", "Treatment",
+                          "Reservoir Control", "Reservoir Treatment"]
             repetitions = [str(i) for i in range(1,10)]
             
             self.WXCB_treatment = []
@@ -75,13 +78,15 @@ class SubPanelAnalysis(SubPanel):
                 if mm.title.lower().count("control") or ii==0:
                     cbgtemp.SetSelection(1)
                 else:
-                    cbgtemp.SetSelection(0)
+                    cbgtemp.SetValue(mm.config["analysis"]["regression treatment"])
                 sizer_bag.Add(cbgtemp, (3+ii,1), span=wx.GBSpan(1,1))
                 # repetition
                 cbgtemp2 = wx.ComboBox(self, -1, choices=repetitions,
                                       name=mm.identifier,
                                       style=wx.CB_DROPDOWN|wx.CB_READONLY)
-                cbgtemp2.SetSelection(0)
+                cbgtemp2.SetSelection(mm.config["analysis"]["regression repetition"]-1)
+                
+
                 sizer_bag.Add(cbgtemp2, (3+ii,2), span=wx.GBSpan(1,1))
                 
                 self.WXCB_treatment.append(cbgtemp)
@@ -110,6 +115,9 @@ class SubPanelAnalysis(SubPanel):
         treatment = []
         timeunit = []
         xs = []
+
+        model = self.WXCB_model.GetValue()
+        self.analysis.SetParameters({"analysis":{"regression model":model}})
         
         for ii, mm in enumerate(self.analysis.measurements):
             # get treatment (ignore 0)
@@ -117,17 +125,15 @@ class SubPanelAnalysis(SubPanel):
                 # The user selected _("None")
                 continue
             xs.append(getattr(mm, axprop)[mm._filter])
-            treatment.append(self.WXCB_treatment[ii].GetValue())
+            mmtreat = self.WXCB_treatment[ii].GetValue()
+            treatment.append(mmtreat)
             # get repetition
-            timeunit.append(int(self.WXCB_repetition[ii].GetValue()))
-        
-        modelid = self.WXCB_model.GetSelection()
-        if modelid==0:
-            model = "lmm"
-        elif modelid==1:
-            model = "glmm"
-        else:
-            raise ValueError("Unsupported model selection!")
+            mmrep = int(self.WXCB_repetition[ii].GetValue())
+            timeunit.append(mmrep)
+            
+            # Set regression parameters
+            mm.config["analysis"]["regression treatment"] = mmtreat
+            mm.config["analysis"]["regression repetition"] = mmrep
         
         # run lme4
         result = lin_mix_mod.linmixmod(xs=xs,
@@ -139,8 +145,11 @@ class SubPanelAnalysis(SubPanel):
         outfile = tempfile.mktemp(prefix="regression_analysis_", suffix=".txt")
         with codecs.open(outfile, "w", encoding="utf-8") as fd:
             fd.writelines(result["Full Summary"])
-            
+
         webbrowser.open(fd.name)
+
+        import IPython
+        IPython.embed()
 
 
     def OnReset(self, e=None):
