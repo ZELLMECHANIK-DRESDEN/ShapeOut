@@ -196,7 +196,11 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     Median_DiffDef = []
     TimeUnit,Treatment = [],[]
     if 'Reservoir Control' in treatment or 'Reservoir Treatment' in treatment:
-        Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n" 
+        if model=='glmm':
+            Head_string = "GENERALIZED LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n"  +\
+            "---Results are in log space (loglink was used)--- \n"
+        if model=='lmm':
+            Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n"
         #Find the timeunits for Control 
         where_contr_ch = np.where(np.array(treatment)=='Control')
         timeunit_contr_ch = np.array(timeunit)[where_contr_ch]
