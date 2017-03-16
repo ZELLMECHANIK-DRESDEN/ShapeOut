@@ -6,6 +6,7 @@
 from __future__ import division, unicode_literals
 
 import codecs
+import copy
 import cv2
 from distutils.version import LooseVersion
 
@@ -14,6 +15,7 @@ from nptdms import TdmsFile
 import os
 import warnings
 
+import dclab
 from dclab import GetTDMSFiles, GetProjectNameFromPath
 from dclab.rtdc_dataset import config as rt_config
 from util import findfile
@@ -183,6 +185,61 @@ def IsFullMeasurement(fname):
             is_ok = False
             break
     return is_ok
+
+
+def get_config_entry_choices(key, subkey, ignore_axes=[]):
+    """ Returns the choices for a parameter, if any
+    """
+    key = key.lower()
+    subkey = subkey.lower()
+    ignore_axes = [a.lower() for a in ignore_axes]
+    ## Manually defined types:
+    choices = []
+    
+    if key == "plotting":
+        if subkey == "kde":
+            choices = list(dclab.kde_methods.methods.keys())
+        elif subkey in ["axis x", "axis y"]:
+            choices = copy.copy(dclab.dfn.uid)
+            # remove unwanted axes
+            for choice in ignore_axes:
+                if choice in choices:
+                    choices.remove(choice)
+        elif subkey in ["rows", "columns"]:
+            choices = [ str(i) for i in range(1,6) ]
+        elif subkey in ["scatter marker size"]:
+            choices = [ str(i) for i in range(1,5) ]
+        elif subkey.count("scale "):
+            choices = ["linear", "log"]
+    elif key == "analysis":
+        if subkey == "regression model":
+            choices = ["lmm", "glmm"]
+    return choices
+
+
+def get_config_entry_dtype(key, subkey, refcfg=None):
+    """ Returns dtype of the parameter as defined in dclab.cfg
+    """
+    key = key.lower()
+    subkey = subkey.lower()
+    #default
+    dtype = str
+
+    ## Define dtypes and choices of cfg content
+    # Iterate through cfg to determine standard dtypes
+    cfg_init = cfg.copy()  
+    if refcfg is None:
+        refcfg = cfg_init.copy()
+   
+    if key in cfg_init and subkey in cfg_init[key]:
+        dtype = cfg_init[key][subkey].__class__
+    else:
+        try:
+            dtype = refcfg[key][subkey].__class__
+        except KeyError:
+            dtype = float
+
+    return dtype
 
 
 def GetDefaultConfiguration(key=None):
