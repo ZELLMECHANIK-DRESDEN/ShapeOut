@@ -149,7 +149,7 @@ class Analysis(object):
         measmts = [None]*len(keys)
         while measmts.count(None):
             for key in keys:
-                kidx = int(key[0])-1
+                kidx = int(key.split("_")[0])-1
                 if measmts[kidx] is not None:
                     # we have already imported that measurement
                     continue
