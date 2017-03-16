@@ -1,3 +1,6 @@
+0.7.2
+- Bugfixes:
+  - Same default location for find/add measurements dialogs (#139)
 0.7.1
 - Improved speed by optimization of GUI functions 
 - Hash checks: Replace exception with a user-friendly warning (#128)
