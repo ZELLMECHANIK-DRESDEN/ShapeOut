@@ -1,4 +1,7 @@
 0.7.2
+- Regression analysis:
+  - Added generalizes linear mixed effects model (#126)
+  - Remember treatment and repetition for each measurement
 - Bugfixes:
   - Same default location for find/add measurements dialogs (#139)
 0.7.1
