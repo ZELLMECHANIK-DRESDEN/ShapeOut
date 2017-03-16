@@ -1,7 +1,8 @@
 0.7.2
+- Set histrogram-base KDE as default (#133)
 - Regression analysis:
   - Added generalizes linear mixed effects model (#126)
-  - Remember treatment and repetition for each measurement
+  - Remember treatment and repetition for each measurement (#134)
 - Bugfixes:
   - Same default location for find/add measurements dialogs (#139)
 0.7.1
