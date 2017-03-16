@@ -21,13 +21,13 @@ from shapeout.lin_mix_mod import linmixmod, diffdef
 def test_linmixmod():
     xs = [
     [100,99,80,120,140,150,100,100,110,111,140,145], #Larger values (Control Channel1)
-    [20,10,5,16,14,22,27,26,5,10,11,8,15,17,20,9], #Smaller values ( Control Reservoir1)
+    [20,10,5,16,14,22,27,26,5,10,11,8,15,17,20,9], #Smaller values (Control Reservoir1)
     [115,110,90,110,145,155,110,120,115,120,120,150,100,90,100], #Larger values (Control Channel2)
     [30,30,15,26,24,32,37,36,15,20,21,18,25,27,30,19], #Smaller values (Control Reservoir2)
     [150,150,130,170,190,250,150,150,160,161,180,195,130,120,125,130,125], #Larger values (Treatment Channel1)
     [2,1,5,6,4,2,7,6,5,10,1,8,5,7,2,9,11,8,13], #Smaller values (Treatment Reservoir1)
     [155,155,135,175,195,255,155,155,165,165,185, 200,135,125,130,135,140,150,135,140], #Larger values (Treatment Channel2)
-    [25,15,19,26,44,42,35,20,15,10,11,28,35,10,25,13]] #Smaller values (Reservoir2)
+    [25,15,19,26,44,42,35,20,15,10,11,28,35,10,25,13]] #Smaller values (Treatment Reservoir2)
     
     #1.: Differential Deformation in a linear mixed model
     treatment1 = ['Control', 'Reservoir Control', 'Control', 'Reservoir Control',\
