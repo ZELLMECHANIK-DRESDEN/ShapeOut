@@ -60,7 +60,7 @@ The easiest way to run ShapeOut from source is to use
 
   ::
   
-    pyhon shapeout/ShapeOut.py
+    python shapeout/ShapeOut.py
 
   This can be put into a .command file placed on the Desktop.
 

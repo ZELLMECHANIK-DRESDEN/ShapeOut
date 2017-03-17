@@ -285,7 +285,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     #Create a dataframe which contains all the data
     r1("RTDC=data.frame(xs,treatment,timeunit)")
     #Load the necessary library for Linear Mixed Models    
-    lme4resp = r1("library(lme4)") 
+    lme4resp = r1("library(lme4)")
     if lme4resp.count("Error"):
         # Tell the user that something went wrong
         raise OSError("R installation at {}: {}\n".format(RCMD, lme4resp)+

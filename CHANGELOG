@@ -1,5 +1,5 @@
 0.7.2
-- Set histrogram-based KDE as default (#133)
+- Set histogram-based kernel density estimator as default (#133)
 - Regression analysis:
   - Added generalized linear mixed effects model (#126)
   - Remember treatment and repetition for each measurement (#134)
