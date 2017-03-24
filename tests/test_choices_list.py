@@ -11,7 +11,7 @@ import sys
 # Add parent directory to beginning of path variable
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
-from shapeout.gui.controls_subpanel import get_config_entry_choices, get_config_entry_dtype
+from shapeout.tlabwrap import get_config_entry_choices, get_config_entry_dtype
 
 def test_config_choices():
     c1 = get_config_entry_choices("plotting", "kde")

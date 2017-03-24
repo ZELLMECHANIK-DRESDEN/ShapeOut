@@ -482,11 +482,11 @@ class Frame(gaugeframe.GaugeFrame):
         This calls `PanelLeft.SetProjectTree`.
         """
         dlg = wx.DirDialog(self, _("Please select a directory"),
-               defaultPath=self.config.get_dir(name="Main"))
+               defaultPath=self.config.get_dir(name="MeasurementList"))
         answer = dlg.ShowModal()
         if answer == wx.ID_OK:
             path = dlg.GetPath()
-            self.config.set_dir(path, name="Main")
+            self.config.set_dir(path, name="MeasurementList")
             dlg.Destroy()
             self.GaugeIndefiniteStart(
                                 func=tlabwrap.GetTDMSTreeGUI,
@@ -501,10 +501,10 @@ class Frame(gaugeframe.GaugeFrame):
         """ Convenience wrapper around OnMenuSearchPath"""
         if path is None:
             dlg = wx.DirDialog(self, _("Please select a directory"),
-                          defaultPath=self.config.get_dir())
+                   defaultPath=self.config.get_dir(name="MeasurementList"))
             answer = dlg.ShowModal()
             path = dlg.GetPath()
-            self.config.set_dir(path, name="Main")
+            self.config.set_dir(path, name="MeasurementList")
             dlg.Destroy()
             if answer != wx.ID_OK:
                 return

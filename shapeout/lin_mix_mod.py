@@ -6,7 +6,7 @@ to compute relations with linear mixed effects models.
 Install the "lme4" library with:
     R -e "install.packages('lme4', repos='http://cran.r-project.org')"
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import numpy as np
 import pyper
@@ -65,7 +65,7 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     return [Median,MedianR]
 
 
-def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
+def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     '''
     Linear Mixed-Effects Model computation for one fixed effect and one 
     random effect.
@@ -103,10 +103,13 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
         Each item is a description/identifier for a time. The
         enumeration matches the index of `xs`.
         (e.g. list containing integers "1" and "2" according to the day
-        at which the content in `xs` was measured)          
+        at which the content in `xs` was measured) 
+    model: string
+        'lmm': A linear mixed model will be applied
+        'glmm': A generalized linear mixed model will be applied
     Returns
     -------
-    Linear Mixed Effects Model Result: dictionary
+    (Generalized) Linear Mixed Effects Model Result: dictionary
     The dictionary contains:
     -Estimate:  the average value of cells that had Treatment 1
     -Fixed Effect: Change of the estimate value due to the Treatment 2
@@ -125,7 +128,7 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
            Chambers, J. M. and Hastie, T. J. (1992) Statistical Models in S, 
            Wadsworth & Brooks/Cole
     
-    Example
+    Examples
     -------
     import numpy as np
     import pyper
@@ -144,21 +147,38 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     treatment1 = ['Control', 'Reservoir Control', 'Control', 'Reservoir Control',\
     'Treatment', 'Reservoir Treatment','Treatment', 'Reservoir Treatment']
     timeunit1 = [1, 1, 2, 2, 1, 1, 2, 2]
-    Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit1)
-    Estimate= [93.693750004463098])
-    assert 'BOOTSTAP-DISTRIBUTIONS' in Result_1['Full Summary']
+    
+    #Example 1: linear mixed models on differential deformations
+    Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit1,model='lmm')
+
     #Result_1:Estimate=93.69375 (i.e. the average Control value is 93.69)
     #         FixedEffect=43.93 (i.e. The treatment leads to an increase)         
     #         p-Value(Likelihood Ratio Test)=0.0006026 (i.e. the increase is significant)
-    #'Reservoir' Measurements are now Controls and 'Channel' measurements are Treatments
+
+    #Example 2: Ordinary Linear mixed models
+    #'Reservoir' measurements are now Controls
+    #'Channel' measurements are Treatments
     #This does not use differential deformation in linmixmod()
     treatment2 = ['Treatment', 'Control', 'Treatment', 'Control',\
     'Treatment', 'Control','Treatment', 'Control']
     timeunit2 = [1, 1, 2, 2, 3, 3, 4, 4]
-    Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit2)
+    Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit2,model='lmm')
+    
     #Result_2:Estimate=17.17 (i.e. the average Control value is 17.17 )
     #         FixedEffect=120.257 (i.e. The treatment leads to an increase)         
-    #         p-Value(Likelihood Ratio Test)=0.00033 (i.e. the increase is significant)  
+    #         p-Value(Likelihood Ratio Test)=0.00033 (i.e. the deformation
+    #         increases significantly)
+    
+    #Example 3: Generalized Linear mixed models
+    treatment3 = ['Treatment', 'Control', 'Treatment', 'Control',\
+    'Treatment', 'Control','Treatment', 'Control']
+    timeunit3 = [1, 1, 2, 2, 3, 3, 4, 4]    
+    Result_3 = linmixmod(xs=xs,treatment=treatment3,timeunit=timeunit3,model='glmm')
+    
+    #Result_3:Estimate=2.71 (i.e. the average Control value is exp(2.71)=15.08)
+    #         FixedEffect=2.19 (i.e. The treatment leads to an increase)         
+    #         p-Value(Likelihood Ratio Test)=0.00366 (i.e. the deformation
+    #         increases significantly)     
     '''
     
     modelfunc="xs~treatment+(1+treatment|timeunit)"
@@ -176,21 +196,25 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     Median_DiffDef = []
     TimeUnit,Treatment = [],[]
     if 'Reservoir Control' in treatment or 'Reservoir Treatment' in treatment:
-        Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n " 
+        if model=='glmm':
+            Head_string = "GENERALIZED LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n"  +\
+            "---Results are in log space (loglink was used)--- \n"
+        if model=='lmm':
+            Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n"
         #Find the timeunits for Control 
-        where_contr_ch = np.where('Control' == np.array(treatment))
+        where_contr_ch = np.where(np.array(treatment)=='Control')
         timeunit_contr_ch = np.array(timeunit)[where_contr_ch]
         #Find the timeunits for Treatment 
-        where_treat_ch = np.where('Treatment' == np.array(treatment))
+        where_treat_ch = np.where(np.array(treatment)=='Treatment')
         timeunit_treat_ch = np.array(timeunit)[where_treat_ch]
 
         for n in np.unique(timeunit_contr_ch):
             where_time = np.where(np.array(timeunit)==n)
             xs_n = np.array(xs)[where_time]
             treatment_n = np.array(treatment)[where_time]
-            where_contr_ch = np.where('Control' == np.array(treatment_n))
+            where_contr_ch = np.where(np.array(treatment_n)=='Control')
             xs_n_contr_ch = xs_n[where_contr_ch]
-            where_contr_res = np.where('Reservoir Control' == np.array(treatment_n))
+            where_contr_res = np.where(np.array(treatment_n)=='Reservoir Control')
             xs_n_contr_res = xs_n[where_contr_res]
 
             #check that corresponding Controls are selected
@@ -210,9 +234,9 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
             xs_n = np.array(xs)[where_time]
             treatment_n = np.array(treatment)[where_time]
             xs_n_contr_res = xs_n[where_contr_res]
-            where_treat_ch = np.where('Treatment' == np.array(treatment_n))    
+            where_treat_ch = np.where(np.array(treatment_n)=='Treatment')    
             xs_n_treat_ch = xs_n[where_treat_ch]
-            where_treat_res = np.where('Reservoir Treatment' == np.array(treatment_n))
+            where_treat_res = np.where(np.array(treatment_n)=='Reservoir Treatment')
             xs_n_treat_res = xs_n[where_treat_res]
 
             #check that corresponding Treatments are selected
@@ -233,8 +257,13 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
         treatment = np.array(Treatment)
         timeunit = np.array(TimeUnit)          
 
-    else: #If there is no 'Reservoir Channel' selected dont apply bootstrapping 
-        Head_string = "LINEAR MIXED MODEL: \n "         
+    else: #If there is no 'Reservoir Channel' selected dont apply bootstrapping
+        if model=='glmm':
+            Head_string = "GENERALIZED LINEAR MIXED MODEL: \n" +\
+            "---Results are in log space (loglink was used)--- \n"
+        if model=='lmm':
+            Head_string = "LINEAR MIXED MODEL: \n"
+            
         for i in range(len(xs)): 
             #Expand every unit in treatment and timeunit to the same length as the 
             #xs[i] they are supposed to describe
@@ -248,7 +277,7 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
         timeunit = np.concatenate(timeunit)
         
     #Open a pyper instance
-    r1 = pyper.R(use_pandas=True, RCMD=RCMD) 
+    r1 = pyper.R(RCMD=RCMD, use_pandas=True) 
     r1.assign("xs", xs)
     #Transfer the vectors to R
     r1.assign("treatment", treatment)
@@ -256,7 +285,7 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     #Create a dataframe which contains all the data
     r1("RTDC=data.frame(xs,treatment,timeunit)")
     #Load the necessary library for Linear Mixed Models    
-    lme4resp = r1("library(lme4)") 
+    lme4resp = r1("library(lme4)")
     if lme4resp.count("Error"):
         # Tell the user that something went wrong
         raise OSError("R installation at {}: {}\n".format(RCMD, lme4resp)+
@@ -266,19 +295,20 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
                       )
 
     #Random intercept and random slope model
-    r1("Model = lmer("+modelfunc+",RTDC)")
-    r1("NullModel = lmer("+nullmodelfunc+",RTDC)")
+    if model=='glmm':
+        r1("Model = glmer("+modelfunc+",RTDC,family=Gamma(link='log'))")
+        r1("NullModel = glmer("+nullmodelfunc+",RTDC,family=Gamma(link='log'))")
+    if model=='lmm':
+        r1("Model = lmer("+modelfunc+",RTDC)")
+        r1("NullModel = lmer("+nullmodelfunc+",RTDC)")
+
     r1("Anova = anova(Model,NullModel)")
-    Model_string = r1("summary(Model)")
-    #Delete some first characters made by R
-    Model_string= Model_string[23:]
-    #in case you prefer a dict for the Model output, do:
-    #Model_dict = np.array(r1.get("summary(Model)")) 
-    Anova_string = r1("Anova")
-    Anova_string = Anova_string[14:]
-    #Anova_dict = np.array(r1.get("Anova"))
-    Coef_string = r1("coef(Model)")
-    Coef_string = Coef_string[20:]
+    Model_string = r1("summary(Model)").decode("utf-8").split("\n", 1)[1]
+    Anova_string = r1("Anova").decode("utf-8").split("\n", 1)[1]
+    Coef_string = r1("coef(Model)").decode("utf-8").split("\n", 2)[2]
+    # Cleanup output
+    Coef_string = Coef_string.replace('attr(,"class")\n', '')
+    Coef_string = Coef_string.replace('[1] "coef.mer"\n', '')
     #"anova" from R does a likelihood ratio test which gives a p-Value 
     p = np.array(r1.get("Anova$Pr[2]"))
 
@@ -300,10 +330,26 @@ def linmixmod(xs, treatment, timeunit, RCMD=cran.rcmd):
     FixedEffect = Coeffs[1][0]   
     StdErrorFixEffect = Coeffs[1][1]
 
-    results = {"Full Summary": Head_string + Model_string+ 
-    "\nFULL COEFFICIENT TABLE:\n" + Coef_string + 
-    "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" + 
-    Anova_string,"p-Value (Likelihood Ratio Test)" : p,
-    "Estimate":Estimate,"Std. Error (Estimate)":StdErrorEstimate,
-    "Fixed Effect":FixedEffect,"Std. Error (Fixed Effect)":StdErrorFixEffect}
+    #Before getting effect and error for y, transform back (there happened a log transformation in the glmer)
+    estim_y = np.exp(Estimate)
+    #estim_y_error = abs(np.exp(Estimate+StdErrorEstimate)-np.exp(Estimate-StdErrorEstimate))
+    fixef_y = np.exp(Estimate+FixedEffect)-np.exp(Estimate)
+    #fixef_y_error = abs(np.exp(Estimate+StdErrorFixEffect)-np.exp(Estimate-StdErrorFixEffect))        
+    
+    full_summary = Head_string + Model_string +\
+                   "\nCOEFFICIENT TABLE:\n" + Coef_string +\
+                   "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" +\
+                   Anova_string
+    
+    if model=="glmm":
+        full_summary += "\nESTIMATE AND EFFECT TRANSFORMED BACK FROM LOGSPACE" +\
+                        "\nEstimate = \t"+str(estim_y)+\
+                        "\nFixed effect = \t"+str(fixef_y)
+        
+    results = {"Full Summary": full_summary,
+               "p-Value (Likelihood Ratio Test)" : p,
+               "Estimate":Estimate,
+               "Std. Error (Estimate)":StdErrorEstimate,
+               "Fixed Effect":FixedEffect,
+               "Std. Error (Fixed Effect)":StdErrorFixEffect}
     return results
