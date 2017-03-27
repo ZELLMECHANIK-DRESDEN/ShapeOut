@@ -92,6 +92,9 @@ install:
   - "pip install pyper"
   - "pip install reportlab"
   - "pip install simplejson"
+  # fix error (Failed to execute script pyi_rth_pkgres; b/c 'packaging' package is required)
+  # https://github.com/pyinstaller/pyinstaller/issues/1773
+  - "pip install setuptools==19.2"
   # build dependencies
   #- "pip install wheel"
   # dclab
