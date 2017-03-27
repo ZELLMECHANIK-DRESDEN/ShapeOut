@@ -142,8 +142,9 @@ class SubPanelAnalysis(SubPanel):
                                        model=model)
         # display results
         # write to temporary file and display with webbrowser
-        outfile = tempfile.mktemp(prefix="regression_analysis_", suffix=".txt")
-        with codecs.open(outfile, "w", encoding="utf-8") as fd:
+        outf = tempfile.mktemp(prefix="regression_analysis_{}_".format(axprop),
+                               suffix=".txt")
+        with codecs.open(outf, "w", encoding="utf-8") as fd:
             fd.writelines(result["Full Summary"].replace("\n", "\r\n"))
 
         webbrowser.open(fd.name)
