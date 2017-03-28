@@ -49,15 +49,15 @@ class SubPanelCalculate(SubPanel):
             # Viscosity to use
             sizer_bag.Add(wx.StaticText(self, label=_("Viscosity [mPa·s]:")), (2,0))
             self.WXSC_visc = wx.SpinCtrlDouble(self, -1, name="viscosity",
-                                               min=0.5, max=10000,
-                                               initial=0, inc=0.0001)
+                                               min=0.5, max=10000, inc=0.0001)
+            self.WXSC_visc.SetValue(0.0)
             sizer_bag.Add(self.WXSC_visc, (2,1), flag=wx.EXPAND|wx.ALL)
 
             # Temperature to use
             sizer_bag.Add(wx.StaticText(self, label=_("Temperature [°C]:")), (3,0))
             self.WXSC_temp = wx.SpinCtrlDouble(self, -1, name="temperature",
-                                               min=0.0, max=100,
-                                               initial=23, inc=0.01)
+                                               min=0.0, max=100, inc=0.01)
+            self.WXSC_temp.SetValue(23.0)
             sizer_bag.Add(self.WXSC_temp, (3,1), flag=wx.EXPAND|wx.ALL)
             
             compute_btn = wx.Button(self, label=_("Compute elastic modulus"))
@@ -93,6 +93,9 @@ class SubPanelCalculate(SubPanel):
                                      "calculation":{"emodulus temperature":temperature}
                                      })
         
+        if medium == "Other":
+            medium = viscosity
+
         for mm in self.analysis.measurements:
             # compute elastic modulus
             emod = dclab.elastic.get_elasticity(

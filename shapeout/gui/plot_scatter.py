@@ -92,14 +92,14 @@ def scatter_plot(measurement,
                 pd.set_data(x_key, data[:,0])
                 pd.set_data(y_key, data[:,1])
                 sc_plot.plot((x_key, y_key), color="gray",
-                                  index_scale=scalex, value_scale=scaley)
+                              index_scale=scalex, value_scale=scaley)
 
     # Display numer of events
     elabel = ca.PlotLabel(text="",
                           component=sc_plot,
                           vjustify="bottom",
                           hjustify="right",
-                          name="asd")
+                          name="events")
     elabel.id = "event_label_"+mm.identifier
     sc_plot.overlays.append(elabel)
 
@@ -249,10 +249,14 @@ def set_scatter_data(plot, mm):
     elif kde_type == "histogram":
         bwx = plotfilters["kde accuracy "+xax]
         bwy = plotfilters["kde accuracy "+yax]
-        binx = int((x0.max()-x0.min())/(1.8*bwx))
-        biny = int((y0.max()-y0.min())/(1.8*bwy))
-        binx = max(5, binx)
-        biny = max(5, biny)
+        binx = (x0.max()-x0.min())/(1.8*bwx)
+        biny = (y0.max()-y0.min())/(1.8*bwy)
+        if np.isinf(binx):
+            binx = 5
+        if np.isinf(biny):
+            biny = 5            
+        binx = int(max(5, binx))
+        biny = int(max(5, biny))
         kde_kwargs["bins"] = [binx, biny]
 
     a = time.time()
