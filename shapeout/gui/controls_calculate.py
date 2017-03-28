@@ -2,14 +2,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import codecs
 import dclab
-import tempfile
-import webbrowser
 import wx
 
 from ..configuration import ConfigurationFile
-from .. import lin_mix_mod, tlabwrap
+from .. import tlabwrap
 
 from .controls_subpanel import SubPanel
 
@@ -20,7 +17,7 @@ class SubPanelCalculate(SubPanel):
         self.key = "Calculate"
 
     
-    def make_analysis_choices(self, analysis):
+    def make_emodulus_choices(self, analysis):
         gen = wx.StaticBox(self, label=_("Elastic modulus"))
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
 
@@ -29,163 +26,90 @@ class SubPanelCalculate(SubPanel):
             sizer_bag = wx.GridBagSizer(hgap=20, vgap=5)
 
             # Model to apply
-            sizer_bag.Add(wx.StaticText(self, label=_("Mixed effects model:")),
-                          (0,0), span=wx.GBSpan(1,1))
-            choices = tlabwrap.get_config_entry_choices("analysis",
-                                                        "regression model")
-            model=analysis.measurements[0].config["analysis"]["regression model"]
+            sizer_bag.Add(wx.StaticText(self, label=_("Model:")), (0,0))
+            choices = tlabwrap.get_config_entry_choices("calculation",
+                                                        "emodulus model")
+            model=analysis.measurements[0].config["calculation"]["emodulus model"]
             self.WXCB_model = wx.ComboBox(self, -1, choices=choices,
-                                    value=model, name="regression model",
+                                    value=model, name="emodulus model",
                                     style=wx.CB_DROPDOWN|wx.CB_READONLY)
-            sizer_bag.Add(self.WXCB_model, (0,1), span=wx.GBSpan(1,3))
-            self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_model)
+            sizer_bag.Add(self.WXCB_model, (0,1), flag=wx.EXPAND|wx.ALL)
             
-            # Axis to analyze
-            sizer_bag.Add(wx.StaticText(self, label=_("Axis to analyze:")), (1,0), span=wx.GBSpan(1,1))
+            # Medium to use
+            sizer_bag.Add(wx.StaticText(self, label=_("Medium:")), (1,0))
             self.axes = analysis.GetUsableAxes()
-            axeslist = [dclab.dfn.axlabels[a] for a in self.axes]
-            self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
+            mediumlist = tlabwrap.get_config_entry_choices("calculation",
+                                                           "emodulus medium")
+            medium=analysis.measurements[0].config["calculation"]["emodulus medium"]
+            self.WXCB_medium = wx.ComboBox(self, -1, choices=mediumlist,
+                                         value=medium, name="emodulus medium",
                                          style=wx.CB_DROPDOWN|wx.CB_READONLY)
-            self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_axes)
+            sizer_bag.Add(self.WXCB_medium, (1,1), flag=wx.EXPAND|wx.ALL)
+            
+            # Viscosity to use
+            sizer_bag.Add(wx.StaticText(self, label=_("Viscosity [mPa·s]:")), (2,0))
+            self.WXSC_visc = wx.SpinCtrlDouble(self, -1, name="viscosity",
+                                               min=0.5, max=10000,
+                                               initial=0, inc=0.0001)
+            sizer_bag.Add(self.WXSC_visc, (2,1), flag=wx.EXPAND|wx.ALL)
 
-            # Set y-axis as default
-            ax = analysis.GetPlotAxes()[1]
-            if ax in self.axes:
-                axid = self.axes.index(ax)
-            else:
-                axid = 0
-            self.WXCB_axes.SetSelection(axid)
-            sizer_bag.Add(self.WXCB_axes, (1,1), span=wx.GBSpan(1,3))
+            # Temperature to use
+            sizer_bag.Add(wx.StaticText(self, label=_("Temperature [°C]:")), (3,0))
+            self.WXSC_temp = wx.SpinCtrlDouble(self, -1, name="temperature",
+                                               min=0.0, max=100,
+                                               initial=23, inc=0.01)
+            sizer_bag.Add(self.WXSC_temp, (3,1), flag=wx.EXPAND|wx.ALL)
             
-            # Header for table
-            sizer_bag.Add(wx.StaticText(self, label=_("Data set")), (2,0), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label=_("Interpretation")), (2,1), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label=_("Repetition")), (2,2), span=wx.GBSpan(1,1))
+            compute_btn = wx.Button(self, label=_("Compute elastic modulus"))
+            sizer_bag.Add(compute_btn, (4,0), span=(1,2), flag=wx.EXPAND|wx.ALL)
+            self.Bind(wx.EVT_BUTTON, self.OnComputeEmodulus, compute_btn)
             
-            treatments = ["None", "Control", "Treatment",
-                          "Reservoir Control", "Reservoir Treatment"]
-            repetitions = [str(i) for i in range(1,10)]
+            self.BindEnableName(ctrl_source="emodulus medium",
+                                value="Other",
+                                ctrl_targets=["viscosity"])
             
-            self.WXCB_treatment = []
-            self.WXCB_repetition = []
+            mediumlist.remove("Other")
+            self.BindEnableName(ctrl_source="emodulus medium",
+                                value=mediumlist,
+                                ctrl_targets=["temperature"])
             
-            for ii, mm in enumerate(analysis.measurements):
-                # title
-                sizer_bag.Add(wx.StaticText(self, label=mm.title), (3+ii,0), span=wx.GBSpan(1,1))
-                # treatment
-                cbgtemp = wx.ComboBox(self, -1, choices=treatments,
-                                      name=mm.identifier,
-                                      style=wx.CB_DROPDOWN|wx.CB_READONLY)
-                if mm.title.lower().count("control") or ii==0:
-                    cbgtemp.SetSelection(1)
-                else:
-                    cbgtemp.SetValue(mm.config["analysis"]["regression treatment"])
-                sizer_bag.Add(cbgtemp, (3+ii,1), span=wx.GBSpan(1,1))
-                # repetition
-                cbgtemp2 = wx.ComboBox(self, -1, choices=repetitions,
-                                      name=mm.identifier,
-                                      style=wx.CB_DROPDOWN|wx.CB_READONLY)
-                cbgtemp2.SetSelection(mm.config["analysis"]["regression repetition"]-1)
-                
-
-                sizer_bag.Add(cbgtemp2, (3+ii,2), span=wx.GBSpan(1,1))
-                
-                self.WXCB_treatment.append(cbgtemp)
-                self.WXCB_repetition.append(cbgtemp2)
-                
-                self.Bind(wx.EVT_COMBOBOX, self.update_info_text, cbgtemp2)
-                self.Bind(wx.EVT_COMBOBOX, self.update_info_text, cbgtemp)
-
             hbox.Add(sizer_bag)
-            self.info_text = wx.StaticText(self, label="")
-            hbox.Add(self.info_text, wx.EXPAND)
             
         return hbox
 
 
-    def OnApply(self, e=None):
+    def OnComputeEmodulus(self, e=None):
         """
-        Perfrom LME4 computation
+        Compute Emodulus for all measurements
         """
-        # Get axis name
-        axname = self.axes[self.WXCB_axes.GetSelection()]
-        # Get axis property
-        axprop = dclab.dfn.cfgmaprev[axname]
-        
-        # loop through analysis
-        treatment = []
-        timeunit = []
-        xs = []
-
         model = self.WXCB_model.GetValue()
-        self.analysis.SetParameters({"analysis":{"regression model":model}})
+        medium = self.WXCB_medium.GetValue()
+        viscosity = self.WXSC_visc.GetValue()
+        temperature = self.WXSC_temp.GetValue()
+
+        self.analysis.SetParameters({"calculation":{"emodulus model":model},
+                                     "calculation":{"emodulus medium":medium},
+                                     "calculation":{"emodulus viscosity":viscosity},
+                                     "calculation":{"emodulus temperature":temperature}
+                                     })
         
-        for ii, mm in enumerate(self.analysis.measurements):
-            # get treatment (ignore 0)
-            if self.WXCB_treatment[ii].GetSelection() == 0:
-                # The user selected _("None")
-                continue
-            xs.append(getattr(mm, axprop)[mm._filter])
-            mmtreat = self.WXCB_treatment[ii].GetValue()
-            treatment.append(mmtreat)
-            # get repetition
-            mmrep = int(self.WXCB_repetition[ii].GetValue())
-            timeunit.append(mmrep)
+        for mm in self.analysis.measurements:
+            # compute elastic modulus
+            emod = dclab.elastic.get_elasticity(
+                    area=mm.area_um,
+                    deformation=mm.deform,
+                    medium=medium,
+                    channel_width=mm.config["general"]["channel width"],
+                    flow_rate=mm.config["general"]["flow rate [ul/s]"],
+                    temperature=temperature)
+            mm.emodulus=emod
             
-            # Set regression parameters
-            mm.config["analysis"]["regression treatment"] = mmtreat
-            mm.config["analysis"]["regression repetition"] = mmrep
+            for key in ["kde accuracy emodulus", "contour accuracy emodulus"]:
+                if key in mm.config["plotting"]: 
+                    mm.config["plotting"].pop(key)
         
-        # run lme4
-        result = lin_mix_mod.linmixmod(xs=xs,
-                                       treatment=treatment,
-                                       timeunit=timeunit,
-                                       model=model)
-        # display results
-        # write to temporary file and display with webbrowser
-        outf = tempfile.mktemp(prefix="regression_analysis_{}_".format(axprop),
-                               suffix=".txt")
-        with codecs.open(outf, "w", encoding="utf-8") as fd:
-            fd.writelines(result["Full Summary"].replace("\n", "\r\n"))
-
-        webbrowser.open(fd.name)
-
-
-    def OnReset(self, e=None):
-        """
-        Reset everything in the analysis tab.
-        """
-        self.UpdatePanel(self.analysis)
-
-
-    def update_info_text(self, e=None):
-        """ The info text helps the user a little bit selecting data.
-        """
-        text = ""
-        axis = self.WXCB_axes.GetValue()
-        # treatments
-        trt = [ t.GetValue() for t in self.WXCB_treatment]
-        # user selected reservoir somewhere
-        resc = len([t for t in trt if t.count(_("Reservoir Control"))])
-        rest = len([t for t in trt if t.count(_("Reservoir Treatment"))])
-        if self.WXCB_model.GetSelection() == 0:
-            text_mode = _("Will compute linear mixed-effects model for {}.\n")
-        elif self.WXCB_model.GetSelection() == 1:
-            text_mode = _("Will compute generalized linear mixed-effects model for {}.\n")
-        else:
-            raise ValueError("Unsupported model selection")
-        
-        if not rest*resc and rest+resc:
-            text += _("Please select reservoir for treatment and control.")
-        elif resc+rest:
-            text += text_mode.format("{} {}".format(_("differential"), axis))
-            text += _(" - Will bootstrap channel/reservoir data.\n")
-            text += _(" - Will perform {} bootstrapping iterations.\n".format(
-                                                    lin_mix_mod.DEFAULT_BS_ITER))
-        else:
-            text += text_mode.format(axis)
-        self.info_text.SetLabel(text)
-        self.Layout()
+        self.analysis._complete_config()
+        self.funcparent.OnChangeFilter()
 
 
     def UpdatePanel(self, analysis=None):
@@ -196,23 +120,12 @@ class SubPanelCalculate(SubPanel):
         self.ClearSubPanel()
         
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        
-        statbox = self.make_analysis_choices(analysis)
+        statbox = self.make_emodulus_choices(analysis)
         sizer.Add(statbox)
         
         sizerv = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(sizerv)
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
-
-        btn_apply = wx.Button(self, label=_("Apply"))
-
-
-        self.Bind(wx.EVT_BUTTON, self.OnApply, btn_apply)
-        vertsizer.Add(btn_apply)
-
-        btn_reset = wx.Button(self, label=_("Reset"))
-        self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
-        vertsizer.Add(btn_reset)
 
         sizer.Add(vertsizer)
 

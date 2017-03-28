@@ -51,20 +51,6 @@ def scatter_plot(measurement,
     plotfilters = mm.config.copy()["plotting"]
     marker_size = plotfilters["scatter marker size"]
     
-    # We will pretend as if we are plotting circularity vs. area
-    areamin = plotfilters[xax+" min"]
-    areamax = plotfilters[xax+" max"]
-    circmin = plotfilters[yax+" min"]
-    circmax = plotfilters[yax+" max"]
-
-    if areamin == areamax:
-        areamin = getattr(mm, dfn.cfgmaprev[xax]).min()
-        areamax = getattr(mm, dfn.cfgmaprev[xax]).max()
-
-    if circmin == circmax:
-        circmin = getattr(mm, dfn.cfgmaprev[yax]).min()
-        circmax = getattr(mm, dfn.cfgmaprev[yax]).max()
-
     # Commence plotting
     if axScatter is not None:
         raise NotImplementedError("Tell Chaco to reuse plots?")
@@ -76,8 +62,8 @@ def scatter_plot(measurement,
 
     pd = ca.ArrayPlotData()
     
-    scatter_plot = ca.Plot(pd)
-    scatter_plot.id = mm.identifier
+    sc_plot = ca.Plot(pd)
+    sc_plot.id = mm.identifier
 
     ## Add isoelastics
     if mm.config["plotting"]["isoelastics"]:
@@ -105,20 +91,20 @@ def scatter_plot(measurement,
                 #
                 pd.set_data(x_key, data[:,0])
                 pd.set_data(y_key, data[:,1])
-                scatter_plot.plot((x_key, y_key), color="gray",
+                sc_plot.plot((x_key, y_key), color="gray",
                                   index_scale=scalex, value_scale=scaley)
 
     # Display numer of events
     elabel = ca.PlotLabel(text="",
-                          component=scatter_plot,
+                          component=sc_plot,
                           vjustify="bottom",
                           hjustify="right",
                           name="asd")
     elabel.id = "event_label_"+mm.identifier
-    scatter_plot.overlays.append(elabel)
+    sc_plot.overlays.append(elabel)
 
     # Set content of scatter plot
-    set_scatter_data(scatter_plot, mm)
+    set_scatter_data(sc_plot, mm)
 
     plot_kwargs = {
                    "name": "scatter_events",
@@ -151,46 +137,38 @@ def scatter_plot(measurement,
     plot_kwargs_excl["type"] = "scatter"
     plot_kwargs_excl["color"] = 0x929292
     if pd.get_data("excl_index") is not None:
-        scatter_plot.plot(**plot_kwargs_excl)
+        sc_plot.plot(**plot_kwargs_excl)
 
     # Plot colored points on top of excluded events
     if pd.get_data("index") is not None:
-        scatter_plot.plot(**plot_kwargs)
-
-    # Set x-y limits
-    xlim = scatter_plot.index_mapper.range
-    ylim = scatter_plot.value_mapper.range
-    xlim.low = areamin
-    xlim.high = areamax
-    ylim.low = circmin
-    ylim.high = circmax
+        sc_plot.plot(**plot_kwargs)
 
     # Axes
-    left_axis = ca.PlotAxis(scatter_plot, orientation='left',
+    left_axis = ca.PlotAxis(sc_plot, orientation='left',
                             title=dfn.axlabels[yax],
                             tick_generator=misc.MyTickGenerator())
     
-    bottom_axis = ca.PlotAxis(scatter_plot, orientation='bottom',
+    bottom_axis = ca.PlotAxis(sc_plot, orientation='bottom',
                               title=dfn.axlabels[xax],
                               tick_generator=misc.MyTickGenerator())
     # Show log scale only with 10** values (#56)
-    scatter_plot.index_axis.tick_generator=misc.MyTickGenerator()
-    scatter_plot.value_axis.tick_generator=misc.MyTickGenerator()
-    scatter_plot.overlays.append(left_axis)
-    scatter_plot.overlays.append(bottom_axis)
+    sc_plot.index_axis.tick_generator=misc.MyTickGenerator()
+    sc_plot.value_axis.tick_generator=misc.MyTickGenerator()
+    sc_plot.overlays.append(left_axis)
+    sc_plot.overlays.append(bottom_axis)
 
-    scatter_plot.title = mm.title
-    scatter_plot.title_font = "modern 12"
+    sc_plot.title = mm.title
+    sc_plot.title_font = "modern 12"
     if plotfilters["Scatter Title Colored"]:
         mmlabelcolor = plotfilters["contour color"]
     else:
         mmlabelcolor = "black"
-    scatter_plot.title_color = mmlabelcolor
+    sc_plot.title_color = mmlabelcolor
 
     
     # zoom tool
     if panzoom:
-        zoom = cta.ZoomTool(scatter_plot,
+        zoom = cta.ZoomTool(sc_plot,
                         tool_mode="box",
                         color="beige",
                         minimum_screen_delta=50,
@@ -200,17 +178,17 @@ def scatter_plot(measurement,
                         drag_button="right",
                         enable_wheel=True,
                         zoom_factor=1.1)
-        scatter_plot.tools.append(zoom)
-        scatter_plot.aspect_ratio = 1
-        scatter_plot.use_downsampling = True
+        sc_plot.tools.append(zoom)
+        sc_plot.aspect_ratio = 1
+        sc_plot.use_downsampling = True
         
         # pan tool
-        pan = cta.PanTool(scatter_plot, drag_button="left")
-        scatter_plot.tools.append(pan)
+        pan = cta.PanTool(sc_plot, drag_button="left")
+        sc_plot.tools.append(pan)
 
     # select tool
     if select:
-        my_plot = scatter_plot.plots["scatter_events"][0]
+        my_plot = sc_plot.plots["scatter_events"][0]
         my_plot.tools.append(
             cta.ScatterInspector(
                 my_plot,
@@ -230,7 +208,7 @@ def scatter_plot(measurement,
             )
 
 
-    return scatter_plot
+    return sc_plot
 
 
 def set_scatter_data(plot, mm):
@@ -244,6 +222,8 @@ def set_scatter_data(plot, mm):
         # filtering disabled
         x0 = getattr(mm, dfn.cfgmaprev[xax])
         y0 = getattr(mm, dfn.cfgmaprev[yax])
+
+    x0, y0 = remove_nan_inf(x0,y0)
     
     downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
@@ -251,6 +231,9 @@ def set_scatter_data(plot, mm):
     lx = x0.shape[0]
     x, y = mm.get_downsampled_scatter(xax=xax, yax=yax,
                                       downsample=downsample)
+    
+    x, y = remove_nan_inf(x,y)
+    
     if lx == x.shape:
         positions = None
     else:
@@ -283,6 +266,7 @@ def set_scatter_data(plot, mm):
     pd.set_data("value", y)
     pd.set_data("color", density)
 
+
     # Plot filtered data in grey
     if (plotfilters["Scatter Plot Excluded Events"] and
         mm._filter.sum() != mm.time.shape[0]):
@@ -297,6 +281,9 @@ def set_scatter_data(plot, mm):
     
         excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
         excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
+        
+        excl_x, excl_y = remove_nan_inf(excl_x, excl_y)
+        
         pd.set_data("excl_index", excl_x)
         pd.set_data("excl_value", excl_y)
     else:
@@ -312,3 +299,25 @@ def set_scatter_data(plot, mm):
             else:
                 oltext = ""
             ol.text = oltext
+
+    # Set x-y limits
+    xlim = plot.index_mapper.range
+    ylim = plot.value_mapper.range
+    xlim.low = x.min()
+    xlim.high = x.max()
+    ylim.low = y.min()
+    ylim.high = y.max()
+
+
+def remove_nan_inf(x,y):
+    for issome in [np.isnan, np.isinf]:
+        xsome = issome(x)
+        x = x[~xsome]
+        y = y[~xsome]
+
+    for issome in [np.isnan, np.isinf]:
+        ysome = issome(y)
+        x = x[~ysome]
+        y = y[~ysome]
+        
+    return x,y

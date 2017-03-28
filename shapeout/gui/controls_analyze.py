@@ -37,7 +37,8 @@ class SubPanelAnalyze(SubPanel):
             self.WXCB_model = wx.ComboBox(self, -1, choices=choices,
                                     value=model, name="regression model",
                                     style=wx.CB_DROPDOWN|wx.CB_READONLY)
-            sizer_bag.Add(self.WXCB_model, (0,1), span=wx.GBSpan(1,3))
+            sizer_bag.Add(self.WXCB_model, (0,1), span=wx.GBSpan(1,2),
+                          flag=wx.EXPAND|wx.ALL)
             self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_model)
             
             # Axis to analyze
@@ -55,7 +56,8 @@ class SubPanelAnalyze(SubPanel):
             else:
                 axid = 0
             self.WXCB_axes.SetSelection(axid)
-            sizer_bag.Add(self.WXCB_axes, (1,1), span=wx.GBSpan(1,3))
+            sizer_bag.Add(self.WXCB_axes, (1,1), span=wx.GBSpan(1,2),
+                          flag=wx.EXPAND|wx.ALL)
             
             # Header for table
             sizer_bag.Add(wx.StaticText(self, label=_("Data set")), (2,0), span=wx.GBSpan(1,1))
@@ -80,15 +82,14 @@ class SubPanelAnalyze(SubPanel):
                     cbgtemp.SetSelection(1)
                 else:
                     cbgtemp.SetValue(mm.config["analysis"]["regression treatment"])
-                sizer_bag.Add(cbgtemp, (3+ii,1), span=wx.GBSpan(1,1))
+                sizer_bag.Add(cbgtemp, (3+ii,1), flag=wx.EXPAND|wx.ALL)
                 # repetition
                 cbgtemp2 = wx.ComboBox(self, -1, choices=repetitions,
                                       name=mm.identifier,
                                       style=wx.CB_DROPDOWN|wx.CB_READONLY)
                 cbgtemp2.SetSelection(mm.config["analysis"]["regression repetition"]-1)
-                
 
-                sizer_bag.Add(cbgtemp2, (3+ii,2), span=wx.GBSpan(1,1))
+                sizer_bag.Add(cbgtemp2, (3+ii,2), flag=wx.EXPAND|wx.ALL)
                 
                 self.WXCB_treatment.append(cbgtemp)
                 self.WXCB_repetition.append(cbgtemp2)

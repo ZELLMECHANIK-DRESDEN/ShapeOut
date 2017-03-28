@@ -71,7 +71,7 @@ class Analysis(object):
                     # There are values for this uid
                     keys.append(prop)
             # This lambda function seems to do a good job
-            accl = lambda a: (np.nanmax(a)-np.nanmin(a))/10
+            accl = lambda a: (remove_nan_inf(a).max()-remove_nan_inf(a).min())/10
             defs = [["contour accuracy {}", accl],
                     ["kde accuracy {}", accl],
                    ]
@@ -622,3 +622,8 @@ def darkjet(myrange, **traits):
     return ColorMapper.from_segment_map(_data, range=myrange, **traits)
 
 
+def remove_nan_inf(x):
+    for issome in [np.isnan, np.isinf]:
+        xsome = issome(x)
+        x = x[~xsome]
+    return x
