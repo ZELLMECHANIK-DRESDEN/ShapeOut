@@ -599,7 +599,8 @@ class Analysis(object):
                     pops.append(skey)
             for skey in pops:
                 upcfg["analysis"].pop(skey)
-            
+        elif "calculation" in newcfg:
+            upcfg["calculation"] = newcfg["calculation"].copy()
 
         # update configuration
         for mm in self.measurements:

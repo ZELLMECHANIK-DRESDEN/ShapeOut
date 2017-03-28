@@ -24,12 +24,12 @@ class SubPanelCalculate(SubPanel):
         if analysis is not None:
             # get common parameters
             sizer_bag = wx.GridBagSizer(hgap=20, vgap=5)
-
+            mm = analysis.measurements[0]
             # Model to apply
             sizer_bag.Add(wx.StaticText(self, label=_("Model:")), (0,0))
             choices = tlabwrap.get_config_entry_choices("calculation",
                                                         "emodulus model")
-            model=analysis.measurements[0].config["calculation"]["emodulus model"]
+            model=mm.config["calculation"]["emodulus model"]
             self.WXCB_model = wx.ComboBox(self, -1, choices=choices,
                                     value=model, name="emodulus model",
                                     style=wx.CB_DROPDOWN|wx.CB_READONLY)
@@ -40,7 +40,7 @@ class SubPanelCalculate(SubPanel):
             self.axes = analysis.GetUsableAxes()
             mediumlist = tlabwrap.get_config_entry_choices("calculation",
                                                            "emodulus medium")
-            medium=analysis.measurements[0].config["calculation"]["emodulus medium"]
+            medium=mm.config["calculation"]["emodulus medium"]
             self.WXCB_medium = wx.ComboBox(self, -1, choices=mediumlist,
                                          value=medium, name="emodulus medium",
                                          style=wx.CB_DROPDOWN|wx.CB_READONLY)
@@ -50,14 +50,14 @@ class SubPanelCalculate(SubPanel):
             sizer_bag.Add(wx.StaticText(self, label=_("Viscosity [mPa·s]:")), (2,0))
             self.WXSC_visc = wx.SpinCtrlDouble(self, -1, name="viscosity",
                                                min=0.5, max=10000, inc=0.0001)
-            self.WXSC_visc.SetValue(0.0)
+            self.WXSC_visc.SetValue(mm.config["calculation"]["emodulus viscosity"])
             sizer_bag.Add(self.WXSC_visc, (2,1), flag=wx.EXPAND|wx.ALL)
 
             # Temperature to use
             sizer_bag.Add(wx.StaticText(self, label=_("Temperature [°C]:")), (3,0))
             self.WXSC_temp = wx.SpinCtrlDouble(self, -1, name="temperature",
                                                min=0.0, max=100, inc=0.01)
-            self.WXSC_temp.SetValue(23.0)
+            self.WXSC_temp.SetValue(mm.config["calculation"]["emodulus temperature"])
             sizer_bag.Add(self.WXSC_temp, (3,1), flag=wx.EXPAND|wx.ALL)
             
             compute_btn = wx.Button(self, label=_("Compute elastic modulus"))
@@ -87,10 +87,11 @@ class SubPanelCalculate(SubPanel):
         viscosity = self.WXSC_visc.GetValue()
         temperature = self.WXSC_temp.GetValue()
 
-        self.analysis.SetParameters({"calculation":{"emodulus model":model},
-                                     "calculation":{"emodulus medium":medium},
-                                     "calculation":{"emodulus viscosity":viscosity},
-                                     "calculation":{"emodulus temperature":temperature}
+        self.analysis.SetParameters({"calculation":
+                                     {"emodulus model":model,
+                                      "emodulus medium":medium,
+                                      "emodulus viscosity":viscosity,
+                                      "emodulus temperature":temperature}
                                      })
         
         if medium == "Other":
