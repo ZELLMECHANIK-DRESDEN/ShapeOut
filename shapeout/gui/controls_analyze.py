@@ -13,11 +13,11 @@ from .. import lin_mix_mod, tlabwrap
 
 from .controls_subpanel import SubPanel
 
-class SubPanelAnalysis(SubPanel):
+class SubPanelAnalyze(SubPanel):
     def __init__(self, parent, *args, **kwargs):
         SubPanel.__init__(self, parent, *args, **kwargs)
         self.config = ConfigurationFile()
-        self.key = "Analysis"
+        self.key = "Analyze"
 
     
     def make_analysis_choices(self, analysis):
