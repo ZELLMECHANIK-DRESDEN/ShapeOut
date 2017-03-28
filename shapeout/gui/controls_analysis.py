@@ -38,6 +38,7 @@ class SubPanelAnalysis(SubPanel):
                                     value=model, name="regression model",
                                     style=wx.CB_DROPDOWN|wx.CB_READONLY)
             sizer_bag.Add(self.WXCB_model, (0,1), span=wx.GBSpan(1,3))
+            self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_model)
             
             # Axis to analyze
             sizer_bag.Add(wx.StaticText(self, label=_("Axis to analyze:")), (1,0), span=wx.GBSpan(1,1))
