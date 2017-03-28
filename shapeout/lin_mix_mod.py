@@ -277,7 +277,9 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
         timeunit = np.concatenate(timeunit)
         
     #Open a pyper instance
-    r1 = pyper.R(RCMD=RCMD, use_pandas=True) 
+    r1 = pyper.R(RCMD=RCMD, use_pandas=True)
+    # try to fix unicode decode errors by forcing english
+    r1('Sys.setenv(LANG = "en")')
     r1.assign("xs", xs)
     #Transfer the vectors to R
     r1.assign("treatment", treatment)
@@ -285,7 +287,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     #Create a dataframe which contains all the data
     r1("RTDC=data.frame(xs,treatment,timeunit)")
     #Load the necessary library for Linear Mixed Models    
-    lme4resp = r1("library(lme4)").decode('utf-8')
+    lme4resp = r1("library(lme4)")
     if lme4resp.count("Error"):
         # Tell the user that something went wrong
         raise OSError("R installation at {}: {}\n".format(RCMD, lme4resp)+
