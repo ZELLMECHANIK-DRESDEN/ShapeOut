@@ -283,3 +283,26 @@ def set_scatter_data(plot, mm):
             else:
                 oltext = ""
             ol.text = oltext
+
+    # Density, as returned by dclab contains `nans` where x or y
+    # is nan or inf. Use this information to set the plot limits.
+    bad = np.isnan(density)
+
+    # Set x-y limits
+    xlim = plot.index_mapper.range
+    xmin = mm.config["plotting"][xax+" min"]
+    xmax = mm.config["plotting"][xax+" max"]
+    if xmin == xmax:
+        xmin = x[~bad].min()
+        xmax = x[~bad].max()
+    xlim.low = xmin
+    xlim.high = xmax
+
+    ylim = plot.value_mapper.range
+    ymin = mm.config["plotting"][yax+" min"]
+    ymax = mm.config["plotting"][yax+" max"]
+    if ymin == ymax:
+        ymin = y[~bad].min()
+        ymax = y[~bad].max()
+    ylim.low = ymin
+    ylim.high = ymax
