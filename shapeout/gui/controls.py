@@ -105,8 +105,8 @@ class ControlPanel(ScrolledPanel):
         # destroy everything on Info panel and replot.
         if anal is not None:
             self.analysis = anal
-            
         self.UpdatePages()
+        self.OnChangeFilter()
 
 
     def OnChangeFilter(self, e=None):
