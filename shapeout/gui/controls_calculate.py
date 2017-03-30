@@ -105,6 +105,7 @@ class SubPanelCalculate(SubPanel):
                     medium=medium,
                     channel_width=mm.config["general"]["channel width"],
                     flow_rate=mm.config["general"]["flow rate [ul/s]"],
+                    px_um=mm.config["image"]["pix size"],
                     temperature=temperature)
             mm.emodulus=emod
             
