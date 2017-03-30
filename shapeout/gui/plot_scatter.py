@@ -247,11 +247,9 @@ def set_scatter_data(plot, mm):
     print("...KDE scatter time {}: {:.2f}s".format(kde_type, time.time()-a))
     
     pd = plot.data
-    
     pd.set_data("index", x)
     pd.set_data("value", y)
     pd.set_data("color", density)
-
 
     # Plot filtered data in grey
     if (plotfilters["Scatter Plot Excluded Events"] and
