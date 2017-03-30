@@ -13,9 +13,8 @@ import time
 import warnings
 
 from ..tlabwrap import isoelastics
-
-from . import misc
 from . import plot_common
+
 
 def contour_plot(measurements, levels=[0.5,0.95],
                  axContour=None, isoel=None,

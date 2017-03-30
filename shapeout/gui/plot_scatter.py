@@ -13,9 +13,8 @@ import time
 import warnings
 
 from ..tlabwrap import isoelastics
-
-from . import misc
 from . import plot_common
+
 
 def reset_inspector(plot):
     """ Hides the scatter inspector until the user clicks again.
