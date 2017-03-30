@@ -343,9 +343,8 @@ class Analysis(object):
 
 
     def GetPlotAxes(self, mid=0):
-        #return 
-        p = self.GetParameters("Plotting", mid)
-        return [p["Axis X"].lower(), p["Axis Y"].lower()]
+        p = self.GetParameters("plotting", mid)
+        return [p["axis x"].lower(), p["axis y"].lower()]
 
 
     def GetPlotGeometry(self, mid=0):
@@ -362,7 +361,8 @@ class Analysis(object):
         datalist = []
         head = None
         for mm in self.measurements:
-            axes = mm.GetPlotAxes()
+            axes= [mm.config["plotting"]["axis x"].lower(),
+                   mm.config["plotting"]["axis y"].lower()]
             h, v = dclab.statistics.get_statistics(mm, axes=axes)
             # Make sure all columns are equal
             if head is not None:

@@ -12,9 +12,10 @@ import numpy as np
 import time
 import warnings
 
-from . import misc
 from ..tlabwrap import isoelastics
 
+from . import misc
+from . import plot_common
 
 def reset_inspector(plot):
     """ Hides the scatter inspector until the user clicks again.
@@ -46,7 +47,8 @@ def scatter_plot(measurement,
         Add point selection tool.
     """
     mm = measurement
-    xax, yax = mm.GetPlotAxes()
+    xax = mm.config["plotting"]["axis x"].lower()
+    yax = mm.config["plotting"]["axis y"].lower()
     # Plotting area
     plotfilters = mm.config.copy()["plotting"]
     marker_size = plotfilters["scatter marker size"]
@@ -146,14 +148,14 @@ def scatter_plot(measurement,
     # Axes
     left_axis = ca.PlotAxis(sc_plot, orientation='left',
                             title=dfn.axlabels[yax],
-                            tick_generator=misc.MyTickGenerator())
+                            tick_generator=plot_common.MyTickGenerator())
     
     bottom_axis = ca.PlotAxis(sc_plot, orientation='bottom',
                               title=dfn.axlabels[xax],
-                              tick_generator=misc.MyTickGenerator())
+                              tick_generator=plot_common.MyTickGenerator())
     # Show log scale only with 10** values (#56)
-    sc_plot.index_axis.tick_generator=misc.MyTickGenerator()
-    sc_plot.value_axis.tick_generator=misc.MyTickGenerator()
+    sc_plot.index_axis.tick_generator=plot_common.MyTickGenerator()
+    sc_plot.value_axis.tick_generator=plot_common.MyTickGenerator()
     sc_plot.overlays.append(left_axis)
     sc_plot.overlays.append(bottom_axis)
 
@@ -213,57 +215,38 @@ def scatter_plot(measurement,
 
 def set_scatter_data(plot, mm):
     plotfilters = mm.config.copy()["plotting"]
-    xax, yax = mm.GetPlotAxes()
+    xax = mm.config["plotting"]["axis x"].lower()
+    yax = mm.config["plotting"]["axis y"].lower()
     
     if mm.config["filtering"]["enable filters"]:
         x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
-        y0 = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
     else:
         # filtering disabled
         x0 = getattr(mm, dfn.cfgmaprev[xax])
-        y0 = getattr(mm, dfn.cfgmaprev[yax])
 
-    x0, y0 = remove_nan_inf(x0,y0)
-    
     downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
     a = time.time()
     lx = x0.shape[0]
     x, y = mm.get_downsampled_scatter(xax=xax, yax=yax,
                                       downsample=downsample)
-    
-    x, y = remove_nan_inf(x,y)
-    
     if lx == x.shape:
         positions = None
     else:
         print("...Downsampled from {} to {} in {:.2f}s".format(lx, x.shape[0], time.time()-a))
         positions = np.vstack([x.ravel(), y.ravel()])
 
-    kde_type = plotfilters["kde"]
-    kde_kwargs = {}
-    if kde_type == "multivariate":
-        bwx = plotfilters["kde accuracy "+xax]
-        bwy = plotfilters["kde accuracy "+yax]
-        kde_kwargs["bw"] = [bwx, bwy]
-    elif kde_type == "histogram":
-        bwx = plotfilters["kde accuracy "+xax]
-        bwy = plotfilters["kde accuracy "+yax]
-        binx = (x0.max()-x0.min())/(1.8*bwx)
-        biny = (y0.max()-y0.min())/(1.8*bwy)
-        if np.isinf(binx):
-            binx = 5
-        if np.isinf(biny):
-            biny = 5            
-        binx = int(max(5, binx))
-        biny = int(max(5, biny))
-        kde_kwargs["bins"] = [binx, biny]
 
+    kde_type = mm.config["plotting"]["kde"].lower()
+    kde_kwargs = plot_common.get_kde_kwargs(x=x, y=y, kde_type=kde_type,
+                                            xacc=mm.config["plotting"]["kde accuracy "+xax],
+                                            yacc=mm.config["plotting"]["kde accuracy "+yax])
+    
     a = time.time()
     density = mm.get_kde_scatter(xax=xax, yax=yax, positions=positions,
                                  kde_type=kde_type, kde_kwargs=kde_kwargs)
-    
     print("...KDE scatter time {}: {:.2f}s".format(kde_type, time.time()-a))
+    
     pd = plot.data
     
     pd.set_data("index", x)
@@ -285,9 +268,7 @@ def set_scatter_data(plot, mm):
     
         excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
         excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
-        
-        excl_x, excl_y = remove_nan_inf(excl_x, excl_y)
-        
+
         pd.set_data("excl_index", excl_x)
         pd.set_data("excl_value", excl_y)
     else:
@@ -304,24 +285,14 @@ def set_scatter_data(plot, mm):
                 oltext = ""
             ol.text = oltext
 
+    # Density, as returned by dclab contains `nans` where x or y
+    # is nan or inf. Use this information to set the plot limits.
+    bad = np.isnan(density)
+
     # Set x-y limits
     xlim = plot.index_mapper.range
     ylim = plot.value_mapper.range
-    xlim.low = x.min()
-    xlim.high = x.max()
-    ylim.low = y.min()
-    ylim.high = y.max()
-
-
-def remove_nan_inf(x,y):
-    for issome in [np.isnan, np.isinf]:
-        xsome = issome(x)
-        x = x[~xsome]
-        y = y[~xsome]
-
-    for issome in [np.isnan, np.isinf]:
-        ysome = issome(y)
-        x = x[~ysome]
-        y = y[~ysome]
-        
-    return x,y
+    xlim.low = x[~bad].min()
+    xlim.high = x[~bad].max()
+    ylim.low = y[~bad].min()
+    ylim.high = y[~bad].max()

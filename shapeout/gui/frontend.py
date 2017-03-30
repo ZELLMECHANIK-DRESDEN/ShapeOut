@@ -345,8 +345,6 @@ class Frame(gaugeframe.GaugeFrame):
         wx.EndBusyCursor()
 
 
-
-
     def OnMenuBatchFolder(self, e=None):
         return batch.BatchFilterFolder(self, self.analysis)
 

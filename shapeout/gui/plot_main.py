@@ -3,7 +3,7 @@
 """ ShapeOut - wx and chaco plot components
 
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca
 import enable.api as ea
@@ -273,7 +273,8 @@ class MainPlotArea(wx.Panel):
             # Get the cell and plot it
             mm = self.scatter2measure[thisplotselect]
             # Update the currently plotted list of events `mm._plot_filter`
-            xax, yax = mm.GetPlotAxes()
+            xax = mm.config["plotting"]["axis x"].lower()
+            yax = mm.config["plotting"]["axis y"].lower()
             plotdic = mm.config.copy()["plotting"]
             downsample = plotdic["downsampling"]*plotdic["downsample events"]
             mm.get_downsampled_scatter(xax=xax, yax=yax, downsample=downsample)

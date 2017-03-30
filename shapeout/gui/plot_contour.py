@@ -12,9 +12,10 @@ import numpy as np
 import time
 import warnings
 
-from . import misc
 from ..tlabwrap import isoelastics
 
+from . import misc
+from . import plot_common
 
 def contour_plot(measurements, levels=[0.5,0.95],
                  axContour=None, isoel=None,
@@ -36,7 +37,8 @@ def contour_plot(measurements, levels=[0.5,0.95],
         The plot has square shape.
     """
     mm = measurements[0]
-    xax, yax = mm.GetPlotAxes()
+    xax = mm.config["plotting"]["axis x"].lower()
+    yax = mm.config["plotting"]["axis y"].lower()
 
     # Commence plotting
     if axContour is not None:
@@ -88,14 +90,14 @@ def contour_plot(measurements, levels=[0.5,0.95],
     # Axes
     left_axis = ca.PlotAxis(contour_plot, orientation='left',
                             title=dfn.axlabels[yax],
-                            tick_generator=misc.MyTickGenerator())
+                            tick_generator=plot_common.MyTickGenerator())
     
     bottom_axis = ca.PlotAxis(contour_plot, orientation='bottom',
                               title=dfn.axlabels[xax],
-                              tick_generator=misc.MyTickGenerator())
+                              tick_generator=plot_common.MyTickGenerator())
     # Show log scale only with 10** values (#56)
-    contour_plot.index_axis.tick_generator=misc.MyTickGenerator()
-    contour_plot.value_axis.tick_generator=misc.MyTickGenerator()
+    contour_plot.index_axis.tick_generator=plot_common.MyTickGenerator()
+    contour_plot.value_axis.tick_generator=plot_common.MyTickGenerator()
     contour_plot.overlays.append(left_axis)
     contour_plot.overlays.append(bottom_axis)
 
@@ -130,8 +132,8 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
     pd = plot.data
     # Plotting area
     mm = measurements[0]
-    xax, yax = mm.GetPlotAxes()
-    plotfilters = mm.config["plotting"]
+    xax = mm.config["plotting"]["axis x"].lower()
+    yax = mm.config["plotting"]["axis y"].lower()
 
     if mm.config["filtering"]["enable filters"]:
         x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
@@ -149,23 +151,13 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         # Check if there is data to compute a contour from
         if len(mm._filter)==0 or np.sum(mm._filter)==0:
             break
-        
+
+        kde_type = mm.config["plotting"]["kde"].lower()
+        kde_kwargs = plot_common.get_kde_kwargs(x=x0, y=y0, kde_type=kde_type,
+                                                xacc=mm.config["plotting"]["kde accuracy "+xax],
+                                                yacc=mm.config["plotting"]["kde accuracy "+yax])
         xacc = mm.config["plotting"]["contour accuracy "+xax]
         yacc = mm.config["plotting"]["contour accuracy "+yax]
-        kde_type = mm.config["plotting"]["kde"]
-        kde_kwargs = {}
-        if kde_type == "multivariate":
-            bwx = plotfilters["kde accuracy "+xax]
-            bwy = plotfilters["kde accuracy "+yax]
-            kde_kwargs["bw"] = [bwx, bwy]
-        elif kde_type == "histogram":
-            bwx = plotfilters["kde accuracy "+xax]
-            bwy = plotfilters["kde accuracy "+yax]
-            binx = int((x0.max()-x0.min())/(1.8*bwx))
-            biny = int((y0.max()-y0.min())/(1.8*bwy))
-            binx = max(5, binx)
-            biny = max(5, biny)
-            kde_kwargs["bins"] = [binx, biny]
 
         a = time.time()
         (X,Y,density) = mm.get_kde_contour(xax=xax, yax=yax, xacc=xacc, yacc=yacc,
