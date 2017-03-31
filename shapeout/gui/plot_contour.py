@@ -155,28 +155,30 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         kde_kwargs = plot_common.get_kde_kwargs(x=x0, y=y0, kde_type=kde_type,
                                                 xacc=mm.config["plotting"]["kde accuracy "+xax],
                                                 yacc=mm.config["plotting"]["kde accuracy "+yax])
+        # Accuracy for plotting contour data
         xacc = mm.config["plotting"]["contour accuracy "+xax]
         yacc = mm.config["plotting"]["contour accuracy "+yax]
 
         a = time.time()
         (X,Y,density) = mm.get_kde_contour(xax=xax, yax=yax, xacc=xacc, yacc=yacc,
                                            kde_type=kde_type, kde_kwargs=kde_kwargs)
-
         print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
+        
         pd.set_data(cname, density)
   
-        plev = list(density.max()*np.array(levels))
-
-        if len(plev) == 2:
-            styles = ["dot", "solid"]
-        else:
-            styles = "solid"
-        
         # contour widths
         if "contour width" in mm.config["plotting"]:
             cwidth = mm.config["plotting"]["contour width"]
         else:
             cwidth = 1.2
+
+        plev = list(np.nanmax(density)*np.array(levels))
+        if len(plev) == 2:
+            styles = ["dot", "solid"]
+            widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
+        else:
+            styles = "solid"
+            widths = cwidth
 
         plot.contour_plot(cname,
                           name=cname,
@@ -186,5 +188,5 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
                           levels = plev,
                           colors = mm.config["plotting"]["contour color"],
                           styles = styles,
-                          widths = [cwidth*.7, cwidth], # make outer lines slightly smaller
+                          widths = widths,
                           )
