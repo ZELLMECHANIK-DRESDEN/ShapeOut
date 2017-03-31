@@ -183,34 +183,30 @@ class MainPlotArea(wx.Panel):
         Updates the data in panel top
         """
         ctrls = self.frame.PanelTop.page_plot.GetChildren()
-        #samdict = self.analysis.measurements[0].\
-        #                               Configuration["Plotting"].copy()
-        newfilt = dict()
- 
+        newfilt = {}
         xax, yax = self.analysis.GetPlotAxes()
  
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
             name = c.GetName()
-            if   name == xax+" Min":
+            if name == xax+" min":
                 ol0 = float("{:.4e}".format(obj.low[0]))
                 newfilt[name] = ol0
                 c.SetValue(unicode(ol0))
-            elif name == xax+" Max":
+            elif name == xax+" max":
                 oh0 = float("{:.4e}".format(obj.high[0]))
                 newfilt[name] = oh0
                 c.SetValue(unicode(oh0))
-            elif name == yax+" Min":
+            elif name == yax+" min":
                 ol1 = float("{:.4e}".format(obj.low[1]))
                 newfilt[name] =ol1
                 c.SetValue(unicode(ol1))
-            elif name == yax+" Max":
+            elif name == yax+" max":
                 oh1 = float("{:.4e}".format(obj.high[1]))
                 newfilt[name] = oh1
                 c.SetValue(unicode(oh1))
-                
 
-        cfg = { "Plotting" : newfilt }
+        cfg = {"plotting" : newfilt}
         self.analysis.SetParameters(cfg)
 
 
