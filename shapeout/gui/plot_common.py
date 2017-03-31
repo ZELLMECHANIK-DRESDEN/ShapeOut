@@ -31,11 +31,11 @@ def get_kde_kwargs(x, y, kde_type, xacc, yacc):
         # The histogram accuracy is scaled by 1.8 to approximately
         # match the multivariate kde.
         try:
-            binx = naninfminmaxdiff/(1.8*xacc)
+            binx = naninfminmaxdiff(x)/(1.8*xacc)
         except:
             binx = 5
         try:
-            biny = naninfminmaxdiff/(1.8*yacc)
+            biny = naninfminmaxdiff(y)/(1.8*yacc)
         except:
             biny = 5
         binx = int(max(5, binx))
@@ -72,4 +72,5 @@ def my_log_auto_ticks(data_low, data_high,
 def naninfminmaxdiff(x):
     bad = np.isnan(x)+np.isinf(x)
     x = x[~bad]
-    return x.max(), x.min()
+    diff = (x.max()-x.min())
+    return diff

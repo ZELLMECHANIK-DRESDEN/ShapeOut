@@ -165,7 +165,7 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
         
         pd.set_data(cname, density)
-  
+
         # contour widths
         if "contour width" in mm.config["plotting"]:
             cwidth = mm.config["plotting"]["contour width"]

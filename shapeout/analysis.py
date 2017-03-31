@@ -102,7 +102,7 @@ class Analysis(object):
             # Deleting all the data in measurements!
             attrs = copy.copy(dclab.definitions.rdv)
             attrs += ["_filter_"+a for a in attrs]
-            attrs += ["_filter", "_plot_filter", "_Downsampled_Scatter"]
+            attrs += ["_filter"]
             for a in attrs:
                 if hasattr(mm, a):
                     b = getattr(mm, a)

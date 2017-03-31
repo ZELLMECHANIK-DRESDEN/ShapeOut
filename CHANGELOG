@@ -3,7 +3,8 @@
 - Bugfixes:
   - Regression analysis not working for some Windows regional settings (#142)
   - Filters not applied when loading a session
-  - Not possible to manually set plotting range
+  - Regression: Not possible to manually set plotting range
+  - Excluded events were plotted despite downsampling limit
 0.7.2
 - Set histogram-based kernel density estimator as default (#133)
 - Regression analysis:

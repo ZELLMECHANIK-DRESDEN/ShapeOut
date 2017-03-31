@@ -227,8 +227,7 @@ def set_scatter_data(plot, mm):
 
     a = time.time()
     lx = x0.shape[0]
-    x, y = mm.get_downsampled_scatter(xax=xax, yax=yax,
-                                      downsample=downsample)
+    x, y = mm.get_downsampled_scatter(xax=xax, yax=yax, downsample=downsample)
     if lx == x.shape:
         positions = None
     else:
@@ -259,6 +258,7 @@ def set_scatter_data(plot, mm):
         if downsample:
             # respect the maximum limit of plotted events
             excl_num = int(downsample - np.sum(mm._filter))
+            excl_num *= (excl_num>0)
         else:
             # plot all excluded events
             excl_num = np.sum(~mm._filter)
