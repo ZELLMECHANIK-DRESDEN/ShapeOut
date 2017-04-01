@@ -107,7 +107,7 @@ class MainPlotArea(wx.Panel):
 
         c_plot = 0
         legend_plotted = False
-        range_joined = list()
+        range_joined = []
         for j in range(rows):
             for i in range(cols):
                 #k = i + j*rows
@@ -151,13 +151,12 @@ class MainPlotArea(wx.Panel):
                 container.add(aplot)
 
         # connect all plots' panning and zooming
-        comp = None
         for comp in range_joined[1:]:
-            comp.range2d = container.components[0].range2d
+            comp.range2d = range_joined[0].range2d
 
         # Connect range with displayed range
-        if comp is not None:
-            comp.range2d.on_trait_change(self.OnPlotRangeChanged)
+        if len(range_joined):
+            range_joined[0].range2d.on_trait_change(self.OnPlotRangeChanged)
 
         container.padding = 10
         container.padding_left = 30
