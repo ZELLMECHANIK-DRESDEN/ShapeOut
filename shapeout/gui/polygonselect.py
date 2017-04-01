@@ -156,4 +156,3 @@ class LineDrawerWindow(wx.Frame):
             
             mm_id = self.parent.frame.ImageArea.analysis.measurements.index(dataset)
             self.parent.frame.ImageArea.ShowEvent(mm_id=mm_id, evt_id=actual_sel)
-

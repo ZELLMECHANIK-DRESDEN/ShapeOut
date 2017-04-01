@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import dclab
 import wx
 
 from ..configuration import ConfigurationFile
@@ -93,7 +92,6 @@ class SubPanelCalculate(SubPanel):
                                       "emodulus viscosity":viscosity,
                                       "emodulus temperature":temperature}
                                      })
-    
         
         self.analysis.compute_emodulus()
         self.funcparent.OnChangeFilter()

@@ -1,15 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import copy
+
 import dclab
+import warnings
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
-import warnings
-
-from dclab import definitions as dfn
 
 from .. import tlabwrap
+
 
 class SubPanel(ScrolledPanel):
     def __init__(self, parent, funcparent=None, *args, **kwargs):
@@ -196,5 +195,3 @@ class SubPanel(ScrolledPanel):
     def UpdatePanel(self, *args, **kwargs):
         """ Overwritten by subclass """
         pass
-
-

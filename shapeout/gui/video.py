@@ -301,5 +301,3 @@ class ImagePanel(ScrolledPanel):
             # Sanity check:
             mm = self.analysis.measurements[mm_id]
             self.WXSP_plot.SetValue(mm.index[evt_id])
-
-
