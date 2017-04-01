@@ -204,8 +204,42 @@ class Analysis(object):
                 measmts[kidx] = mm
 
         self.measurements = measmts
-        
 
+        # Compute elastic modulus if the columns are present
+        if "kde accuracy emodulus" in mm.config["plotting"]:
+            self.compute_emodulus()
+
+
+    def compute_emodulus(self):
+        """Compute Young's modulus using "calculation" config key
+        """
+        calccfg = self.measurements[0].config["calculation"]
+
+        model = calccfg["emodulus model"]
+        assert model=="elastic sphere"
+        
+        medium = calccfg["emodulus medium"]
+        viscosity = calccfg["emodulus viscosity"]
+        if medium == "Other":
+            medium = viscosity
+
+        for mm in self.measurements:
+            # compute elastic modulus
+            emod = dclab.elastic.get_elasticity(
+                    area=mm.area_um,
+                    deformation=mm.deform,
+                    medium=medium,
+                    channel_width=mm.config["general"]["channel width"],
+                    flow_rate=mm.config["general"]["flow rate [ul/s]"],
+                    px_um=mm.config["image"]["pix size"],
+                    temperature=mm.config["calculation"]["emodulus temperature"])
+            mm.emodulus=emod
+            
+            for key in ["kde accuracy emodulus", "contour accuracy emodulus"]:
+                if key in mm.config["plotting"]: 
+                    mm.config["plotting"].pop(key)
+        
+        self._complete_config()
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):

@@ -93,27 +93,9 @@ class SubPanelCalculate(SubPanel):
                                       "emodulus viscosity":viscosity,
                                       "emodulus temperature":temperature}
                                      })
+    
         
-        if medium == "Other":
-            medium = viscosity
-
-        for mm in self.analysis.measurements:
-            # compute elastic modulus
-            emod = dclab.elastic.get_elasticity(
-                    area=mm.area_um,
-                    deformation=mm.deform,
-                    medium=medium,
-                    channel_width=mm.config["general"]["channel width"],
-                    flow_rate=mm.config["general"]["flow rate [ul/s]"],
-                    px_um=mm.config["image"]["pix size"],
-                    temperature=temperature)
-            mm.emodulus=emod
-            
-            for key in ["kde accuracy emodulus", "contour accuracy emodulus"]:
-                if key in mm.config["plotting"]: 
-                    mm.config["plotting"].pop(key)
-        
-        self.analysis._complete_config()
+        self.analysis.compute_emodulus()
         self.funcparent.OnChangeFilter()
 
 
