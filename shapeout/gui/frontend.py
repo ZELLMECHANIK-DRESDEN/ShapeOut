@@ -34,14 +34,9 @@ from . import plot_main
 from . import session
 from . import update
 from . import video
-from dclab import rtdc_dataset
 
 
 
-
-
-
-########################################################################
 class ExceptionDialog(wx.MessageDialog):
     """"""
     def __init__(self, msg):
@@ -50,7 +45,7 @@ class ExceptionDialog(wx.MessageDialog):
                                           wx.OK|wx.ICON_ERROR)   
 
 
-########################################################################
+
 class Frame(gaugeframe.GaugeFrame):
     """"""
     def __init__(self, version):
@@ -181,9 +176,9 @@ class Frame(gaugeframe.GaugeFrame):
         self.Bind(wx.EVT_MENU, self.OnMenuClearMeasurements, fpathclear)
         fileMenu.AppendSeparator()
         # save
-        fsave = fileMenu.Append(wx.ID_SAVEAS, _('Save Session'), 
+        fsave = fileMenu.Append(wx.ID_SAVE, _('Save Session'), 
                                 _('Select .zmso file'))
-        self.Bind(wx.EVT_MENU, self.OnMenuSaveSimple, fsave)
+        self.Bind(wx.EVT_MENU, self.OnMenuSave, fsave)
         # load
         fload = fileMenu.Append(wx.ID_OPEN, _('Open Session'), 
                                 _('Select .zmso file'))
@@ -541,7 +536,7 @@ class Frame(gaugeframe.GaugeFrame):
         os._exit(0)
 
 
-    def OnMenuSaveSimple(self, e=None):
+    def OnMenuSave(self, e=None):
         """ Save configuration without measurement data """
         dlg = wx.FileDialog(self, "Save ShapeOut session", 
                     self.config.get_dir(name="Session"), "",
@@ -560,15 +555,6 @@ class Frame(gaugeframe.GaugeFrame):
             dirname = dlg.GetDirectory()
             self.config.set_dir(dirname, name="Session")
             dlg.Destroy()
-
-
-    def OnMenuSaveFull(self, e=None):
-        """ Save configuration including measurement data """
-        pass
-
-
-
-########################################################################
 
 
 
@@ -590,5 +576,3 @@ def MyExceptionHook(etype, value, trace):
     dlg.ShowModal()
     dlg.Destroy()     
     wx.EndBusyCursor()
-
-
