@@ -1,10 +1,13 @@
 0.7.3
-- Added computation of elastic modulus
+- Add interface to calculate elastic modulus
 - Bugfixes:
   - Regression analysis not working for some Windows regional settings (#142)
   - Filters not applied when loading a session
   - Regression: Not possible to manually set plotting range
   - Excluded events were plotted despite downsampling limit
+- dclab 0.2.2dev13:
+  - Add filtering option "remove invalid events" to remove nan/inf
+  - Add methods to compute elastic modulus
 0.7.2
 - Set histogram-based kernel density estimator as default (#133)
 - Regression analysis:
