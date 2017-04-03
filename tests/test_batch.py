@@ -33,9 +33,16 @@ class TestSimple(unittest.TestCase):
         # load data
         tdms_path = retreive_tdms(example_data_sets[0])
         ds = dclab.RTDC_DataSet(tdms_path=tdms_path)
-        #anal = shapeout.analysis.Analysis()
+
         # start session
         self.frame.NewAnalysis([ds])
+        
+        # Disable new option "remove invalid events" which removes the last
+        # event and invalidates this test case:
+        # new analysis overrides filtering. -> Change filtering afterwards.
+        ds.config["filtering"]["remove invalid events"] = False
+        ds.ApplyFilter()
+
         batch = self.frame.OnMenuBatchFolder()
         batch.out_tsv_file=tempfile.mkstemp(".tsv", "shapeout_batch")[1]
         batch.tdms_files=[tdms_path]
@@ -50,6 +57,7 @@ class TestSimple(unittest.TestCase):
               "events": 156,
               "flow rate": 0.12,
               "mean deformation": 1.3096144795e-01}
+
         for key in soll:
             idx = header.index(key)
             assert np.allclose(float(values[idx]), soll[key])
