@@ -259,7 +259,7 @@ class ControlPanel(ScrolledPanel):
                     newcfg.pop(k)
         self.analysis.SetParameters({key : newcfg})
         if key == "Plotting" and "Contour Plot" in subkeys:
-            self.analysis.SetContourAccuracies()
+            self.analysis.init_plot_accuracies()
         self.UpdatePages()
         self.frame.PlotArea.Plot(self.analysis)
         
