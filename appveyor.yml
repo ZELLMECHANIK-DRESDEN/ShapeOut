@@ -9,12 +9,6 @@
 # Use large clone depth so that a tag is included for versioning
 clone_depth: 256
 
-
-# Only build master branch
-## seems to prevent building tags
-#branches:
-#  only:
-#  - master
 notifications:
   - provider: Email
     on_build_success: false
