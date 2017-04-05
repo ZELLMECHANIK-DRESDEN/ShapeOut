@@ -65,6 +65,7 @@ hiddenimports = ["nptdms", "nptdms.version", "nptdms.tdms", "nptdms.tdmsinfo"]
 # scipy stats
 hiddenimports += ["scipy.stats", "scipy.special", "scipy.special._ufuncs_cxx"]
 hiddenimports += ["dclab", "six"]
+#hiddenimports += collect_submodules('pkg_resources._vendor')
 
 
 appdir = relpath(appdir,dir)
@@ -135,7 +136,7 @@ exe = EXE(pyz,
           strip=None,
           upx=True,
           icon=icofile,	
-          console=False)
+          console=True)
 
 # things that are safe to remove and save space
 remove_startswith = ["IPython", "libnvidia-glcore",

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """ ShapeOut - info control panel
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import wx
 

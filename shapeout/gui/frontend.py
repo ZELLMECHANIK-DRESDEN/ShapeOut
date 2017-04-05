@@ -34,14 +34,9 @@ from . import plot_main
 from . import session
 from . import update
 from . import video
-from dclab import rtdc_dataset
 
 
 
-
-
-
-########################################################################
 class ExceptionDialog(wx.MessageDialog):
     """"""
     def __init__(self, msg):
@@ -50,7 +45,7 @@ class ExceptionDialog(wx.MessageDialog):
                                           wx.OK|wx.ICON_ERROR)   
 
 
-########################################################################
+
 class Frame(gaugeframe.GaugeFrame):
     """"""
     def __init__(self, version):
@@ -181,9 +176,9 @@ class Frame(gaugeframe.GaugeFrame):
         self.Bind(wx.EVT_MENU, self.OnMenuClearMeasurements, fpathclear)
         fileMenu.AppendSeparator()
         # save
-        fsave = fileMenu.Append(wx.ID_SAVEAS, _('Save Session'), 
+        fsave = fileMenu.Append(wx.ID_SAVE, _('Save Session'), 
                                 _('Select .zmso file'))
-        self.Bind(wx.EVT_MENU, self.OnMenuSaveSimple, fsave)
+        self.Bind(wx.EVT_MENU, self.OnMenuSave, fsave)
         # load
         fload = fileMenu.Append(wx.ID_OPEN, _('Open Session'), 
                                 _('Select .zmso file'))
@@ -306,11 +301,23 @@ class Frame(gaugeframe.GaugeFrame):
     def NewAnalysis(self, data, search_path="./"):
         """ Create new analysis object and show data """
         wx.BeginBusyCursor()
+        # Get Plotting and Filtering parameters from previous analysis
+        if hasattr(self, "analysis"):
+            # Get Plotting and Filtering parameters from previous analysis
+            newcfg = {}
+            for key in ["analysis", "calculation", "filtering", "plotting"]:
+                newcfg[key] = self.analysis.GetParameters(key)
+            contour_colors = self.analysis.GetContourColors()
+            self.analysis._clear()
+        else:
+            newcfg = {}
+            contour_colors = None
+        
         # Catch hash comparison warnings and display warning to the user
         with warnings.catch_warnings(record=True) as ww:
             warnings.simplefilter("always",
                                   category=analysis.HashComparisonWarning)
-            anal = analysis.Analysis(data, search_path=search_path)
+            anal = analysis.Analysis(data, search_path=search_path, config=newcfg)
             if len(ww):
                 msg = "One or more files referred to in the chosen session "+\
                       "did not pass the hash check. Nevertheless, ShapeOut "+\
@@ -321,30 +328,14 @@ class Frame(gaugeframe.GaugeFrame):
                                        _('Hash mismatch warning'),
                                        wx.OK | wx.ICON_WARNING)
                 dlg.ShowModal()
-        # Get Plotting and Filtering parameters from previous analysis
-        if hasattr(self, "analysis"):
-            # Get Plotting and Filtering parameters from previous analysis
-            fpar = self.analysis.GetParameters("filtering")
-            ppar = self.analysis.GetParameters("plotting")
-            newcfg = {"filtering" : fpar,
-                      "plotting" : ppar  }
-            # set colors if more than one:
-            anal.SetParameters(newcfg)
-            # reset contour accuracies
-            anal.SetContourAccuracies()
-            # set default contour colors
-            anal.SetContourColors()
-            # set contour colors with previous colors
-            # - only works if len(colors) matches number of measurements
-            colors = self.analysis.GetContourColors()
-            anal.SetContourColors(colors)
-            self.analysis._clear()
+
+            # Set previous contour colors
+            anal.SetContourColors(contour_colors)
+
         self.analysis = anal
         self.PanelTop.NewAnalysis(anal)
         self.PlotArea.Plot(anal)
         wx.EndBusyCursor()
-
-
 
 
     def OnMenuBatchFolder(self, e=None):
@@ -543,7 +534,7 @@ class Frame(gaugeframe.GaugeFrame):
         os._exit(0)
 
 
-    def OnMenuSaveSimple(self, e=None):
+    def OnMenuSave(self, e=None):
         """ Save configuration without measurement data """
         dlg = wx.FileDialog(self, "Save ShapeOut session", 
                     self.config.get_dir(name="Session"), "",
@@ -562,15 +553,6 @@ class Frame(gaugeframe.GaugeFrame):
             dirname = dlg.GetDirectory()
             self.config.set_dir(dirname, name="Session")
             dlg.Destroy()
-
-
-    def OnMenuSaveFull(self, e=None):
-        """ Save configuration including measurement data """
-        pass
-
-
-
-########################################################################
 
 
 
@@ -592,5 +574,3 @@ def MyExceptionHook(etype, value, trace):
     dlg.ShowModal()
     dlg.Destroy()     
     wx.EndBusyCursor()
-
-

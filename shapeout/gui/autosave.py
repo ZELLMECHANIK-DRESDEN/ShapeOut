@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """ ShapeOut - autosaving of sessions
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import appdirs
 import os

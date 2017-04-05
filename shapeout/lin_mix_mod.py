@@ -277,7 +277,9 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
         timeunit = np.concatenate(timeunit)
         
     #Open a pyper instance
-    r1 = pyper.R(RCMD=RCMD, use_pandas=True) 
+    r1 = pyper.R(RCMD=RCMD, use_pandas=True)
+    # try to fix unicode decode errors by forcing english
+    r1('Sys.setenv(LANG = "en")')
     r1.assign("xs", xs)
     #Transfer the vectors to R
     r1.assign("treatment", treatment)

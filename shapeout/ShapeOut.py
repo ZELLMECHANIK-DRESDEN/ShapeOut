@@ -6,11 +6,14 @@ ShapeOut launcher with splash screen
 from __future__ import print_function
 
 import multiprocessing as mp
+from os.path import abspath, dirname
 import sys
 import wx
 import wx.lib.agw.advancedsplash as AS
 
-from util import findfile
+sys.path.insert(0, dirname(dirname(abspath(__file__))))
+
+from shapeout.util import findfile
 
 def main():
     # Note: The order in which the splash screen is initiated and the

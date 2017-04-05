@@ -214,6 +214,11 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
     elif key == "analysis":
         if subkey == "regression model":
             choices = ["lmm", "glmm"]
+    elif key == "calculation":
+        if subkey == "emodulus model":
+            choices = ["elastic sphere"]
+        if subkey == "emodulus medium":
+            choices = ["CellCarrier", "CellCarrier B", "Other"]
     return choices
 
 

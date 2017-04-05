@@ -3,7 +3,7 @@
 """ ShapeOut - classes and methods for batch processing
 
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import codecs
 import numpy as np

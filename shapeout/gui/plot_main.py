@@ -3,7 +3,7 @@
 """ ShapeOut - wx and chaco plot components
 
 """
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca
 import enable.api as ea
@@ -107,7 +107,7 @@ class MainPlotArea(wx.Panel):
 
         c_plot = 0
         legend_plotted = False
-        range_joined = list()
+        range_joined = []
         for j in range(rows):
             for i in range(cols):
                 #k = i + j*rows
@@ -151,13 +151,12 @@ class MainPlotArea(wx.Panel):
                 container.add(aplot)
 
         # connect all plots' panning and zooming
-        comp = None
         for comp in range_joined[1:]:
-            comp.range2d = container.components[0].range2d
+            comp.range2d = range_joined[0].range2d
 
         # Connect range with displayed range
-        if comp is not None:
-            comp.range2d.on_trait_change(self.OnPlotRangeChanged)
+        if len(range_joined):
+            range_joined[0].range2d.on_trait_change(self.OnPlotRangeChanged)
 
         container.padding = 10
         container.padding_left = 30
@@ -183,34 +182,30 @@ class MainPlotArea(wx.Panel):
         Updates the data in panel top
         """
         ctrls = self.frame.PanelTop.page_plot.GetChildren()
-        #samdict = self.analysis.measurements[0].\
-        #                               Configuration["Plotting"].copy()
-        newfilt = dict()
- 
+        newfilt = {}
         xax, yax = self.analysis.GetPlotAxes()
  
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
             name = c.GetName()
-            if   name == xax+" Min":
+            if name == xax+" min":
                 ol0 = float("{:.4e}".format(obj.low[0]))
                 newfilt[name] = ol0
                 c.SetValue(unicode(ol0))
-            elif name == xax+" Max":
+            elif name == xax+" max":
                 oh0 = float("{:.4e}".format(obj.high[0]))
                 newfilt[name] = oh0
                 c.SetValue(unicode(oh0))
-            elif name == yax+" Min":
+            elif name == yax+" min":
                 ol1 = float("{:.4e}".format(obj.low[1]))
                 newfilt[name] =ol1
                 c.SetValue(unicode(ol1))
-            elif name == yax+" Max":
+            elif name == yax+" max":
                 oh1 = float("{:.4e}".format(obj.high[1]))
                 newfilt[name] = oh1
                 c.SetValue(unicode(oh1))
-                
 
-        cfg = { "Plotting" : newfilt }
+        cfg = {"plotting" : newfilt}
         self.analysis.SetParameters(cfg)
 
 
@@ -273,7 +268,8 @@ class MainPlotArea(wx.Panel):
             # Get the cell and plot it
             mm = self.scatter2measure[thisplotselect]
             # Update the currently plotted list of events `mm._plot_filter`
-            xax, yax = mm.GetPlotAxes()
+            xax = mm.config["plotting"]["axis x"].lower()
+            yax = mm.config["plotting"]["axis y"].lower()
             plotdic = mm.config.copy()["plotting"]
             downsample = plotdic["downsampling"]*plotdic["downsample events"]
             mm.get_downsampled_scatter(xax=xax, yax=yax, downsample=downsample)

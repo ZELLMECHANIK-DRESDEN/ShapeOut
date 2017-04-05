@@ -32,7 +32,7 @@ class Analysis(object):
      - common configuration parameters of the data sets
      - Plotting parameters
     """
-    def __init__(self, data, search_path="./"):
+    def __init__(self, data, search_path="./", config={}):
         """ Analysis data object.
         """
         self.measurements = []
@@ -51,8 +51,48 @@ class Analysis(object):
         else:
             raise ValueError("Argument not an index file or list of"+\
                              " .tdms files: {}".format(data))
+        # Set configuration (e.g. from previous analysis)
+        if len(config):
+            self.SetParameters(config)
         # Complete missing configuration parameters
         self._complete_config()
+        # Complete missing data columns
+        self._complete_data()
+        # Reset contour accuracies
+        self.init_plot_accuracies()
+
+
+    def _clear(self):
+        """Remove all attributes from this instance, making it unusable
+        
+        It is difficult to control how the chaco plots refer to a measurement
+        object.
+        
+        """
+        import gc
+        for _i in range(len(self.measurements)):
+            mm = self.measurements.pop(0)
+            # Deleting all the data in measurements!
+            attrs = copy.copy(dclab.definitions.rdv)
+            attrs += ["_filter_"+a for a in attrs]
+            attrs += ["_filter"]
+            for a in attrs:
+                if hasattr(mm, a):
+                    b = getattr(mm, a)
+                    del b
+            # Also delete fluorescence curves
+            if hasattr(mm, "traces"):
+                for tr in list(mm.traces.keys()):
+                    t = mm.traces.pop(tr)
+                    del t
+                del mm.traces
+            refs = gc.get_referrers(mm)
+            for r in refs:
+                if hasattr(r, "delplot"):
+                    r.delplot()
+                del r
+            del mm
+        gc.collect()
 
 
     def _complete_config(self):
@@ -71,7 +111,7 @@ class Analysis(object):
                     # There are values for this uid
                     keys.append(prop)
             # This lambda function seems to do a good job
-            accl = lambda a: (np.nanmax(a)-np.nanmin(a))/10
+            accl = lambda a: (remove_nan_inf(a).max()-remove_nan_inf(a).min())/10
             defs = [["contour accuracy {}", accl],
                     ["kde accuracy {}", accl],
                    ]
@@ -89,37 +129,11 @@ class Analysis(object):
                         mm.config["plotting"][item+a] = 0
 
 
-    def _clear(self):
-        """Remove all attributes from this instance, making it unusable
-        
-        It is difficult to control how the chaco plots refer to a measurement
-        object.
-        
-        """
-        import gc
-        for _i in range(len(self.measurements)):
-            mm = self.measurements.pop(0)
-            # Deleting all the data in measurements!
-            attrs = copy.copy(dclab.definitions.rdv)
-            attrs += ["_filter_"+a for a in attrs]
-            attrs += ["_filter", "_plot_filter", "_Downsampled_Scatter"]
-            for a in attrs:
-                if hasattr(mm, a):
-                    b = getattr(mm, a)
-                    del b
-            # Also delete fluorescence curves
-            if hasattr(mm, "traces"):
-                for tr in list(mm.traces.keys()):
-                    t = mm.traces.pop(tr)
-                    del t
-                del mm.traces
-            refs = gc.get_referrers(mm)
-            for r in refs:
-                if hasattr(r, "delplot"):
-                    r.delplot()
-                del r
-            del mm
-        gc.collect()
+    def _complete_data(self):
+        """Computes missing data columns if necessary"""
+        axes = self.GetPlotAxes()
+        if "emodulus" in axes:
+            self.compute_emodulus()
 
 
     def _ImportDumped(self, indexname, search_path="./"):
@@ -204,8 +218,38 @@ class Analysis(object):
                 measmts[kidx] = mm
 
         self.measurements = measmts
-        
 
+        # Compute elastic modulus if the columns are present
+        if "kde accuracy emodulus" in mm.config["plotting"]:
+            self.compute_emodulus()
+
+
+    def compute_emodulus(self):
+        """Compute Young's modulus using "calculation" config key
+        """
+        calccfg = self.measurements[0].config["calculation"]
+
+        model = calccfg["emodulus model"]
+        assert model=="elastic sphere"
+        
+        medium = calccfg["emodulus medium"]
+        viscosity = calccfg["emodulus viscosity"]
+        if medium == "Other":
+            medium = viscosity
+
+        for mm in self.measurements:
+            # compute elastic modulus
+            emod = dclab.elastic.get_elasticity(
+                    area=mm.area_um,
+                    deformation=mm.deform,
+                    medium=medium,
+                    channel_width=mm.config["general"]["channel width"],
+                    flow_rate=mm.config["general"]["flow rate [ul/s]"],
+                    px_um=mm.config["image"]["pix size"],
+                    temperature=mm.config["calculation"]["emodulus temperature"])
+            mm.emodulus=emod
+        
+        self._complete_config()
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
@@ -343,9 +387,8 @@ class Analysis(object):
 
 
     def GetPlotAxes(self, mid=0):
-        #return 
-        p = self.GetParameters("Plotting", mid)
-        return [p["Axis X"].lower(), p["Axis Y"].lower()]
+        p = self.GetParameters("plotting", mid)
+        return [p["axis x"].lower(), p["axis y"].lower()]
 
 
     def GetPlotGeometry(self, mid=0):
@@ -362,7 +405,8 @@ class Analysis(object):
         datalist = []
         head = None
         for mm in self.measurements:
-            axes = mm.GetPlotAxes()
+            axes= [mm.config["plotting"]["axis x"].lower(),
+                   mm.config["plotting"]["axis y"].lower()]
             h, v = dclab.statistics.get_statistics(mm, axes=axes)
             # Make sure all columns are equal
             if head is not None:
@@ -482,6 +526,38 @@ class Analysis(object):
         return conf
 
 
+    def init_plot_accuracies(self):
+        """ Set initial (heuristic) accuracies for all plots.
+        
+        It is not always easy to determine the correct accuracy for
+        the contour plots. This method sets these accuracies for the user.
+        
+        All keys of the active axes are changed, e.g.:
+          - "contour accuracy area"
+          - "contour accuracy defo"
+          - "kde accuracy defo"
+          - "kde accuracy defo"
+        
+        Note that the accuracies are not updated when the key
+        ["Plotting"]["Contour Fix Scale"] is set to `True` for the
+        first measurement of the analysis.
+        """
+        # check if updating is disabled:
+        if self.measurements[0].config["plotting"]["contour fix scale"]:
+            return
+        
+        # Remove contour accuracies for the current plots
+        for key in dfn.uid:
+            for mm in self.measurements:
+                for var in ["contour accuracy {}".format(key),
+                            "kde accuracy {}".format(key)]:
+                    if var in mm.config["plotting"]:
+                        mm.config["plotting"].pop(var)
+
+        # Set default accuracies
+        self._complete_config()
+
+
     def PolygonFilterRemove(self, filt):
         """
         Removes a polygon filter from all elements of the analysis.
@@ -491,54 +567,6 @@ class Analysis(object):
                 mm.PolygonFilterRemove(filt)
             except ValueError:
                 pass
-
-
-    def SetContourAccuracies(self, points=70):
-        """ Set initial (heuristic) accuracies for all plots.
-        
-        It is not always easy to determine the correct accuracy for
-        the contour plots. This method sets these accuracies for the
-        active axes for the user. Each axis is divided into `points`
-        segments and the length of each segment is then used for the
-        accuracy.
-        
-        All keys of the active axes are changed, e.g.:
-          - "Contour Accuracy Area"
-          - "Contour Accuracy Defo"
-        
-        Note that the accuracies are not updated when the key
-        ["Plotting"]["Contour Fix Scale"] is set to `True` for the
-        first measurement of the analysis.
-        """
-        # check if updating is disabled:
-        if self.measurements[0].config["Plotting"]["Contour Fix Scale"]:
-            return
-        
-        if len(self.measurements) > 1:
-            # first create dictionary with min/max keys
-            minmaxdict = dict()
-            for name in dfn.uid:
-                minmaxdict["{} Min".format(name)] = list()
-                minmaxdict["{} Max".format(name)] = list()
-                
-            for mm in self.measurements:
-                # uid is defined in definitions
-                for name in dfn.uid:
-                    if hasattr(mm, dfn.cfgmaprev[name]):
-                        att = getattr(mm, dfn.cfgmaprev[name])
-                        minmaxdict["{} Min".format(name)].append(att.min())
-                        minmaxdict["{} Max".format(name)].append(att.max())
-            # set contour accuracy for every element
-            for name in dfn.uid:
-                atmax = np.average(minmaxdict["{} Max".format(name)])
-                atmin = np.average(minmaxdict["{} Min".format(name)])
-                acc = (atmax-atmin)/points
-                # round to 2 significant digits
-                acg = float("{:.1e}".format(acc))
-                acm = float("{:.1e}".format(acc*2))
-                for mm in self.measurements:
-                    mm.config["Plotting"]["Contour Accuracy {}".format(name)] = acg
-                    mm.config["Plotting"]["KDE Accuracy {}".format(name)] = acm
 
 
     def SetContourColors(self, colors=None):
@@ -560,8 +588,8 @@ class Analysis(object):
                     newcolors.append(color)
                 colors = newcolors
 
-            for i, mm in enumerate(self.measurements):
-                mm.config["Plotting"]["Contour Color"] = colors[i]
+            for ii, mm in enumerate(self.measurements):
+                mm.config["plotting"]["contour color"] = colors[ii]
 
 
     def SetParameters(self, newcfg):
@@ -590,7 +618,7 @@ class Analysis(object):
                 ("scale y" in pl and pl["scale y"] == "log")):
                 warnings.warn("Disabling contour plot because of chaco issue #300!")
                 upcfg["plotting"]["contour plot"] = False
-        elif "analysis" in newcfg:
+        if "analysis" in newcfg:
             upcfg["analysis"] = newcfg["analysis"].copy()
             ignorelist = ["regression treatment", "regression repetition"]
             pops = []
@@ -599,7 +627,8 @@ class Analysis(object):
                     pops.append(skey)
             for skey in pops:
                 upcfg["analysis"].pop(skey)
-            
+        if "calculation" in newcfg:
+            upcfg["calculation"] = newcfg["calculation"].copy()
 
         # update configuration
         for mm in self.measurements:
@@ -622,3 +651,8 @@ def darkjet(myrange, **traits):
     return ColorMapper.from_segment_map(_data, range=myrange, **traits)
 
 
+def remove_nan_inf(x):
+    for issome in [np.isnan, np.isinf]:
+        xsome = issome(x)
+        x = x[~xsome]
+    return x

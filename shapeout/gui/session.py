@@ -272,5 +272,3 @@ def search_hashed_tdms(tdms_file, tdms_hash, directories):
                 this_hash = hashfile(this_file)
                 if this_hash == tdms_hash:
                     return this_file
-
-
