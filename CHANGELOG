@@ -6,7 +6,7 @@
   - Regression: Not possible to manually set plotting range
   - Excluded events were plotted despite downsampling limit
   - Support columns containing NaN and infinite values
-- dclab 0.2.2dev13:
+- dclab 0.2.3:
   - Add filtering option "remove invalid events" to remove nan/inf
   - Add methods to compute elastic modulus
 0.7.2
