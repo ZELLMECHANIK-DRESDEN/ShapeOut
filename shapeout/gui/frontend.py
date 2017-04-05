@@ -304,10 +304,9 @@ class Frame(gaugeframe.GaugeFrame):
         # Get Plotting and Filtering parameters from previous analysis
         if hasattr(self, "analysis"):
             # Get Plotting and Filtering parameters from previous analysis
-            fpar = self.analysis.GetParameters("filtering")
-            ppar = self.analysis.GetParameters("plotting")
-            newcfg = {"filtering" : fpar,
-                      "plotting" : ppar  }
+            newcfg = {}
+            for key in ["analysis", "calculation", "filtering", "plotting"]:
+                newcfg[key] = self.analysis.GetParameters(key)
             contour_colors = self.analysis.GetContourColors()
             self.analysis._clear()
         else:

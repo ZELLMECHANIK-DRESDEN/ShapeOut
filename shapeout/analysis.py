@@ -61,6 +61,40 @@ class Analysis(object):
         # Reset contour accuracies
         self.init_plot_accuracies()
 
+
+    def _clear(self):
+        """Remove all attributes from this instance, making it unusable
+        
+        It is difficult to control how the chaco plots refer to a measurement
+        object.
+        
+        """
+        import gc
+        for _i in range(len(self.measurements)):
+            mm = self.measurements.pop(0)
+            # Deleting all the data in measurements!
+            attrs = copy.copy(dclab.definitions.rdv)
+            attrs += ["_filter_"+a for a in attrs]
+            attrs += ["_filter"]
+            for a in attrs:
+                if hasattr(mm, a):
+                    b = getattr(mm, a)
+                    del b
+            # Also delete fluorescence curves
+            if hasattr(mm, "traces"):
+                for tr in list(mm.traces.keys()):
+                    t = mm.traces.pop(tr)
+                    del t
+                del mm.traces
+            refs = gc.get_referrers(mm)
+            for r in refs:
+                if hasattr(r, "delplot"):
+                    r.delplot()
+                del r
+            del mm
+        gc.collect()
+
+
     def _complete_config(self):
         """Complete configuration of all RTDC_DataSet sets
         """
@@ -100,39 +134,6 @@ class Analysis(object):
         axes = self.GetPlotAxes()
         if "emodulus" in axes:
             self.compute_emodulus()
-
-
-    def _clear(self):
-        """Remove all attributes from this instance, making it unusable
-        
-        It is difficult to control how the chaco plots refer to a measurement
-        object.
-        
-        """
-        import gc
-        for _i in range(len(self.measurements)):
-            mm = self.measurements.pop(0)
-            # Deleting all the data in measurements!
-            attrs = copy.copy(dclab.definitions.rdv)
-            attrs += ["_filter_"+a for a in attrs]
-            attrs += ["_filter"]
-            for a in attrs:
-                if hasattr(mm, a):
-                    b = getattr(mm, a)
-                    del b
-            # Also delete fluorescence curves
-            if hasattr(mm, "traces"):
-                for tr in list(mm.traces.keys()):
-                    t = mm.traces.pop(tr)
-                    del t
-                del mm.traces
-            refs = gc.get_referrers(mm)
-            for r in refs:
-                if hasattr(r, "delplot"):
-                    r.delplot()
-                del r
-            del mm
-        gc.collect()
 
 
     def _ImportDumped(self, indexname, search_path="./"):
@@ -617,7 +618,7 @@ class Analysis(object):
                 ("scale y" in pl and pl["scale y"] == "log")):
                 warnings.warn("Disabling contour plot because of chaco issue #300!")
                 upcfg["plotting"]["contour plot"] = False
-        elif "analysis" in newcfg:
+        if "analysis" in newcfg:
             upcfg["analysis"] = newcfg["analysis"].copy()
             ignorelist = ["regression treatment", "regression repetition"]
             pops = []
@@ -626,7 +627,7 @@ class Analysis(object):
                     pops.append(skey)
             for skey in pops:
                 upcfg["analysis"].pop(skey)
-        elif "calculation" in newcfg:
+        if "calculation" in newcfg:
             upcfg["calculation"] = newcfg["calculation"].copy()
 
         # update configuration
