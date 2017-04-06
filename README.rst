@@ -9,6 +9,11 @@ and visualization of RT-DC data sets. For more informaion please visit
 http://zellmechanik.com/.
 
 
+Manual and User Guide
+---------------------
+The manual and user guide can be found at http://www.zellmechanik.com/download.
+
+
 Installation
 ------------
 Installers for ShapeOut are available at the `release page <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/releases>`__.
