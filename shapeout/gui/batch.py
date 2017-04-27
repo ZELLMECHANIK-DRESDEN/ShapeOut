@@ -69,7 +69,7 @@ class BatchFilterFolder(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnBrowse, btnbrws)
         self.WXfold_text1 = wx.StaticText(panel,
                             label=_("Folder containing RT-DC measurements"))
-        self.WXfold_text2 = wx.StaticText(panel, label="")
+        self.WXfold_text2 = wx.StaticText(panel, label=_("(no folder selected)"))
         fold2sizer = wx.BoxSizer(wx.HORIZONTAL)
         fold2sizer.Add(btnbrws)
         fold2sizer.Add(self.WXfold_text1, 0,
@@ -77,7 +77,8 @@ class BatchFilterFolder(wx.Frame):
         foldSizer.AddSpacer(5)
         foldSizer.Add(fold2sizer, 0,
                       wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALL)
-        foldSizer.Add(self.WXfold_text2, 0, wx.EXPAND)
+        foldSizer.Add(self.WXfold_text2)
+        foldSizer.AddSpacer(5)
         self.topSizer.Add(foldSizer, 0, wx.EXPAND)
 
         ## Axes checkboxes
