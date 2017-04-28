@@ -24,6 +24,11 @@ class BatchFilterFolder(wx.Frame):
         self.out_tsv_file = None
         self.tdms_files = None
         self.axes_panel_sizer = None
+        # Columns checks
+        self.toggled_event_columns = True
+        # Statistical parameters checks
+        self.toggled_stat_parms = False
+
         # Get the window positioning correctly
         pos = self.parent.GetPosition()
         pos = (pos[0]+100, pos[1]+100)
@@ -60,6 +65,7 @@ class BatchFilterFolder(wx.Frame):
         leftSizer.Add(self.dropdown)
         leftSizer.AddSpacer(5)
         self.topSizer.Add(leftSizer, 0, wx.EXPAND)
+        self.topSizer.AddSpacer(10)
 
         ## Folder selection
         boxfold = wx.StaticBox(panel, label=_("Input folder"))
@@ -69,7 +75,7 @@ class BatchFilterFolder(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnBrowse, btnbrws)
         self.WXfold_text1 = wx.StaticText(panel,
                             label=_("Folder containing RT-DC measurements"))
-        self.WXfold_text2 = wx.StaticText(panel, label=_("(no folder selected)"))
+        self.WXfold_text2 = wx.StaticText(panel, label=_("(No folder selected)"))
         fold2sizer = wx.BoxSizer(wx.HORIZONTAL)
         fold2sizer.Add(btnbrws)
         fold2sizer.Add(self.WXfold_text1, 0,
@@ -80,18 +86,19 @@ class BatchFilterFolder(wx.Frame):
         foldSizer.Add(self.WXfold_text2)
         foldSizer.AddSpacer(5)
         self.topSizer.Add(foldSizer, 0, wx.EXPAND)
+        self.topSizer.AddSpacer(10)
 
         ## Axes checkboxes
         self.axes_panel = ScrolledPanel(panel, -1, size=(-1,200))
         self.axes_panel.SetupScrolling()
         self.topSizer.Add(self.axes_panel, 1, wx.EXPAND)
-
-        self.topSizer.AddSpacer(15)
+        self.topSizer.AddSpacer(10)
 
         ## Statistical parameters
         self.stat_panel = ScrolledPanel(panel, -1, size=(-1,200))
         self.stat_panel.SetupScrolling()
         self.topSizer.Add(self.stat_panel, 1, wx.EXPAND)
+        self.topSizer.AddSpacer(10)
         self.SetupStatisticalParameters()
 
         ## Output selection
@@ -257,7 +264,7 @@ class BatchFilterFolder(wx.Frame):
         self.OnUpdateAxes()
         self.filter_config = None
         
-    
+
     def OnSelectMeasurement(self, e=None):
         ## Remove initial stuff
         sizer = self.axes_panel_sizer
@@ -270,9 +277,19 @@ class BatchFilterFolder(wx.Frame):
                 window.Destroy()
             sizerin = sizer
         else:
-            box = wx.StaticBox(self.axes_panel, label=_("Data axes"))
-            sizerin = wx.StaticBoxSizer(box, wx.VERTICAL)
-            
+            box = wx.StaticBox(self.axes_panel, label=_("Event columns"))
+            sizerbox = wx.StaticBoxSizer(box, wx.HORIZONTAL)
+            sizerin = wx.BoxSizer(orient=wx.VERTICAL)
+            sizerbox.Add(sizerin)
+            sizersel = wx.BoxSizer(orient=wx.VERTICAL)
+            btnselect = wx.Button(self.axes_panel, wx.ID_ANY, _("(De-)select all"))
+            sizersel.Add(btnselect, 0, wx.ALIGN_RIGHT)
+            sizerbox.Add(sizersel, 1, wx.EXPAND|wx.ALIGN_RIGHT)
+            self.Bind(wx.EVT_BUTTON, self.OnToggleAllEventColumns, btnselect)
+            sizerbox.AddSpacer(5)
+
+        self.axes_panel_sizer=sizerin
+
         checks = []
         if self.rbtnhere.Value:
             sel = self.dropdown.GetSelection()
@@ -300,19 +317,54 @@ class BatchFilterFolder(wx.Frame):
                 cb.SetValue(True)
         
         self.axes_panel.SetupScrolling()
-        self.axes_panel.SetSizer(sizerin)
-        sizerin.Fit(self.axes_panel)
-        self.axes_panel_sizer=sizerin
+        self.axes_panel.SetSizer(sizerbox)
+        sizerbox.Fit(self.axes_panel)
         self.topSizer.Fit(self.panel)
         size=self.topSizer.GetMinSizeTuple()
         self.SetSize((size[0]+1, -1))
         self.SetSize((size[0]-1, -1))
 
 
+    def OnToggleAllEventColumns(self, e=None):
+        """Set all values of the event columns to 
+        `self.toggled_event_columns` and invert
+        `self.toggled_event_columns`.
+        """
+        panel = self.axes_panel
+        for ch in panel.GetChildren():
+            if isinstance(ch, wx._controls.CheckBox):
+                ch.SetValue(self.toggled_event_columns)
+            
+        # Invert for next execution
+        self.toggled_event_columns = not self.toggled_event_columns
+
+
+    def OnToggleAllStatParms(self, e=None):
+        """Set all values of the statistical parameters to 
+        `self.toggled_stat_parms` and invert
+        `self.toggled_stat_parms`.
+        """
+        panel = self.stat_panel
+        for ch in panel.GetChildren():
+            if isinstance(ch, wx._controls.CheckBox):
+                ch.SetValue(self.toggled_stat_parms)
+            
+        # Invert for next execution
+        self.toggled_stat_parms = not self.toggled_stat_parms
+
+
     def SetupStatisticalParameters(self, e=None):
         ## Remove initial stuff
         box = wx.StaticBox(self.stat_panel, label=_("Statistical parameters"))
-        sizerin = wx.StaticBoxSizer(box, wx.VERTICAL)
+        sizerbox = wx.StaticBoxSizer(box, wx.HORIZONTAL)
+        sizerin = wx.BoxSizer(orient=wx.VERTICAL)
+        sizerbox.Add(sizerin)
+        sizersel = wx.BoxSizer(orient=wx.VERTICAL)
+        btnselect = wx.Button(self.stat_panel, wx.ID_ANY, _("(De-)select all"))
+        sizersel.Add(btnselect, 0, wx.ALIGN_RIGHT)
+        sizerbox.Add(sizersel, 1, wx.EXPAND|wx.ALIGN_RIGHT)
+        self.Bind(wx.EVT_BUTTON, self.OnToggleAllStatParms, btnselect)
+        sizerbox.AddSpacer(5)
             
         checks = list(dclab.statistics.Statistics.available_methods.keys())
         checks.sort()
@@ -322,7 +374,7 @@ class BatchFilterFolder(wx.Frame):
             cb = wx.CheckBox(self.stat_panel, label=c, name=c)
             sizerin.Add(cb)
             cb.SetValue(True)
-        
+
         self.stat_panel.SetupScrolling()
-        self.stat_panel.SetSizer(sizerin)
-        sizerin.Fit(self.stat_panel)
+        self.stat_panel.SetSizer(sizerbox)
+        sizerbox.Fit(self.stat_panel)
