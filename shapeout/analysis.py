@@ -34,6 +34,24 @@ class Analysis(object):
     """
     def __init__(self, data, search_path="./", config={}):
         """ Analysis data object.
+        
+        Parameters
+        ----------
+        data: str or list of (str, dclab.RTDC_DataSet)
+            The data to load. The nature of `data` is inferred
+            from its type:
+            - str: A session 'index.txt' file
+            - list: A list of paths of tdms files or RTDC_DataSet
+        search_path: str
+            In case `data` is a string, `search_path` is used to
+            find missing tdms files on disk.
+        config: dict
+            A configuration dictionary that will be applied to
+            each RTDC_DataSet before completing the configuration
+            and data. The completion of the configuration takes
+            at the end of the initialization of this class and
+            the configuration must be applied beforehand to make
+            sure that parameters such as "emodulus" are computed.
         """
         self.measurements = []
         if isinstance(data, list):
@@ -52,7 +70,7 @@ class Analysis(object):
             raise ValueError("Argument not an index file or list of"+\
                              " .tdms files: {}".format(data))
         # Set configuration (e.g. from previous analysis)
-        if len(config):
+        if config:
             self.SetParameters(config)
         # Complete missing configuration parameters
         self._complete_config()
