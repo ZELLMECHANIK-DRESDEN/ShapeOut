@@ -156,22 +156,27 @@ class BatchFilterFolder(wx.Frame):
                 name = ch.GetName()
                 if name in col_dict:
                     columns.append(name)
-        
         # Get filter configuration of selected measurement
         if self.rbtnhere.GetValue():
             mhere = self.analysis.measurements[self.dropdown.GetSelection()] 
             f_config = mhere.config
-
         # Compute statistics
         head = None
         rows = []
-        
         # Process each tdms file separately to reduce memory usage
         for tdms in self.tdms_files:
             # Make analysis from tdms file
-            anal = analysis.Analysis([tdms])
-            # Apply configuration
-            anal.SetParameters(f_config)
+            anal = analysis.Analysis([tdms], config=f_config)
+            # `Analysis` tries to be as efficient as possible with the data.
+            # Axes like "emodulus" are not computed unless they are set
+            # as the plotting axes. To make sure that we compute all data
+            # before performing statistics, we need to temporarily set the
+            # plotting axis (issue #149). Since the plotting axes are not
+            # used in any way in batch analysis, this does not have any
+            # side effects:
+            for ax in axes:
+                anal.SetParameters({"plotting":{"axis x": ax}})
+                anal._complete_data()
             mm = anal.measurements[0]
             # Apply filters
             mm.ApplyFilter()
