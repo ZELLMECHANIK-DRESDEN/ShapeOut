@@ -11,6 +11,7 @@
   - Add methods to compute elastic modulus
 - fcswrite 0.1.4
   - Range for fluorescence data is always 2**15
+  - Range for Deformation/Circularity is 100 or 1
 0.7.2
 - Set histogram-based kernel density estimator as default (#133)
 - Regression analysis:
