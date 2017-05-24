@@ -14,7 +14,7 @@
 - dclab 0.2.3:
   - Add filtering option "remove invalid events" to remove nan/inf
   - Add methods to compute elastic modulus
-- fcswrite 0.1.4
+- fcswrite 0.1.3dev6
   - Range for fluorescence data is always 2**15
   - Range for Deformation/Circularity is 100 or 1.0
 0.7.2
