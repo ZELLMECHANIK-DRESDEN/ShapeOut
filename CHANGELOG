@@ -1,7 +1,8 @@
 0.7.4
 - Add de-/select all buttons to Batch | Statistical analysis
 - Bugfixes:
-  - Young's modulus not computed in batch mode (#149)
+  - Young's modulus not computed in batch analysis (#149)
+  - dclab 0.2.3.dev4: Loading old session files with polygon filters (#152)
 0.7.3
 - Add interface to calculate elastic modulus
 - Bugfixes:
