@@ -3,6 +3,7 @@
 - Bugfixes:
   - Young's modulus not computed in batch analysis (#149)
   - dclab 0.2.3.dev4: Loading old session files with polygon filters (#152)
+  - Sessions saved with Windows cannot be opened on Linux (#153) 
 0.7.3
 - Add interface to calculate elastic modulus
 - Bugfixes:

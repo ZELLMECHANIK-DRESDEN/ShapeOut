@@ -187,7 +187,10 @@ class Analysis(object):
                     continue
                 
                 data = datadict[key]
-                config_file = os.path.join(thedir, data["config"])
+                # os.path.normpath replaces forward slash with
+                # backslash on Windows
+                config_file = os.path.normpath(os.path.join(thedir,
+                                                            data["config"]))
                 cfg = Configuration(files=[config_file])
                 
                 # backwards compatibility:
@@ -324,8 +327,9 @@ class Analysis(object):
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
             mm.config.save(cfgfile)
-            out.append("config = {}".format(os.path.relpath(cfgfile,
-                                                            directory)))
+            # Use forward slash such that sessions saved on Windows
+            # can be opened on *nix as well.
+            out.append("config = {}/config.txt".format(ident))
             
             # save manual filters
             np.save(os.path.join(mmdir, "_filter_manual.npy"), mm._filter_manual)
