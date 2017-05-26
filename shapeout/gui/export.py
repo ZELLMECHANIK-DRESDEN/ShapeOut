@@ -17,6 +17,7 @@ class ExportAnalysisEvents(wx.Frame):
         self.parent = parent
         self.analysis = analysis
         self.ext = ext
+        self.toggled_event_columns = True
         # Get the window positioning correctly
         pos = self.parent.GetPosition()
         pos = (pos[0]+100, pos[1]+100)
@@ -30,11 +31,17 @@ class ExportAnalysisEvents(wx.Frame):
                     label=_("Export all event data as *.{} files.".format(ext)))
         self.topSizer.Add(textinit)
         # Chechbox asking for Mono-Model
+        horsizer = wx.BoxSizer(wx.HORIZONTAL)
         self.WXCheckFilter = wx.CheckBox(self.panel,
          label=_("export filtered data only"))
         self.WXCheckFilter.SetValue(True)
-        self.topSizer.Add(self.WXCheckFilter)
-        
+        horsizer.Add(self.WXCheckFilter, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL)
+        horsizer.AddStretchSpacer()
+        # Button to (de)select all variables
+        btnselect = wx.Button(self.panel, wx.ID_ANY, _("(De-)select all"))
+        self.Bind(wx.EVT_BUTTON, self.OnToggleAllEventColumns, btnselect)
+        horsizer.Add(btnselect, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        self.topSizer.Add(horsizer, 0, wx.EXPAND)
         ## Add checkboxes
         checks = []
         # find out which are actually used in the analysis
@@ -130,6 +137,19 @@ class ExportAnalysisEvents(wx.Frame):
             
             self.export(out_dir=outdir, columns=columns, filtered=filtered)
             
+    def OnToggleAllEventColumns(self, e=None):
+        """Set all values of the event columns to 
+        `self.toggled_event_columns` and invert
+        `self.toggled_event_columns`.
+        """
+        panel = self.panel
+        for ch in panel.GetChildren():
+            if (isinstance(ch, wx._controls.CheckBox) and 
+                ch.GetName() in dclab.dfn.uid):
+                ch.SetValue(self.toggled_event_columns)
+            
+        # Invert for next execution
+        self.toggled_event_columns = not self.toggled_event_columns
 
     def export(self, out_dir, columns, filtered):
         raise NotImplementedError("Please subclass and rewrite this function.")

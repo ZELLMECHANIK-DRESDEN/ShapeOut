@@ -248,7 +248,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         names = [['Load Measurements', wx.ID_REPLACE, wx.ART_FIND_AND_REPLACE],
                  ['Add Measurements', wx.ID_FIND, wx.ART_FIND],
-                 ['Save Session', wx.ID_SAVEAS, wx.ART_FILE_SAVE_AS],
+                 ['Save Session', wx.ID_SAVE, wx.ART_FILE_SAVE_AS],
                  ['Open Session', wx.ID_OPEN, wx.ART_FILE_OPEN],
                 ]
         

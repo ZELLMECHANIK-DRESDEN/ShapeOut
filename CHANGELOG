@@ -1,3 +1,11 @@
+0.7.4
+- Add de-/select all buttons to Batch | Statistical analysis
+- Add de-/select all buttons to export all events data (#148)
+- Bugfixes:
+  - Young's modulus not computed in batch analysis (#149)
+  - dclab 0.2.3.dev4: Loading old session files with polygon filters (#152)
+  - Sessions saved with Windows cannot be opened on Linux (#153)
+  - Regression: save button did not work
 0.7.3
 - Add interface to calculate elastic modulus
 - Bugfixes:
@@ -9,7 +17,7 @@
 - dclab 0.2.3:
   - Add filtering option "remove invalid events" to remove nan/inf
   - Add methods to compute elastic modulus
-- fcswrite 0.1.4
+- fcswrite 0.1.3dev6
   - Range for fluorescence data is always 2**15
   - Range for Deformation/Circularity is 100 or 1.0
 0.7.2
