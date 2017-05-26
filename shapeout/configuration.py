@@ -32,7 +32,7 @@ class ConfigurationFile(object):
                 self.cfgfile = join(d, shcfg)
             else:
                 self.cfgfile = join(abspath(dirname(__file__)), shcfg)
-            
+
             with codecs.open(self.cfgfile, 'wb', "utf-8") as fop:
                 fop.writelines(default)
 

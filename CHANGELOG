@@ -1,5 +1,6 @@
 0.7.4
 - Add de-/select all buttons to Batch | Statistical analysis
+- Add de-/select all buttons to export all events data (#148)
 - Bugfixes:
   - Young's modulus not computed in batch analysis (#149)
   - dclab 0.2.3.dev4: Loading old session files with polygon filters (#152)
