@@ -110,6 +110,9 @@ class Analysis(object):
 
     def _complete_config(self, measurements=None):
         """Complete configuration of all RTDC_DataSet sets
+        
+        Sets configuration keywords that are not (necessarily)
+        used/required by dclab.
         """
         if measurements is None:
             measurements = self.measurements
