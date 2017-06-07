@@ -16,7 +16,7 @@ import os
 import warnings
 
 import dclab
-from dclab import GetTDMSFiles, GetProjectNameFromPath
+from dclab.rtdc_dataset.fmt_tdms import get_project_name_from_path, get_tdms_files
 from dclab.rtdc_dataset import config as rt_config
 from util import findfile
 
@@ -127,7 +127,7 @@ def GetTDMSTreeGUI(directories):
     treelist = list()
     
     for directory in directories:
-        files = GetTDMSFiles(directory)
+        files = get_tdms_files(directory)
 
         #cols = [_("Measurement"), _("Creation Date")]
         #to = os.path.getctime(f)
@@ -147,7 +147,7 @@ def GetTDMSTreeGUI(directories):
                 i = len(treelist)-1
                 pathdict[path] = i
                 # The first element of a tree contains the measurement name
-                project = GetProjectNameFromPath(path)
+                project = get_project_name_from_path(path)
                 treelist[i].append((project, path))
             # Get data from filename
             mx = name.split("_")[0]

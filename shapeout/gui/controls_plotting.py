@@ -188,7 +188,7 @@ class SubPanelPlotting(SubPanel):
         xax, yax = analysis.GetPlotAxes()
 
         # Remove all items that have nothing to do with this page
-        dellist = list()
+        dellist = []
         exclude = Plotting_Elements_Scatter+Plotting_Elements_Contour
         for item in items:
             for stid in exclude:
@@ -199,7 +199,7 @@ class SubPanelPlotting(SubPanel):
         
         # Remove unneccessary controls
         for topic in ["min", "max"]:
-            dellist = list()
+            dellist = []
             for item in items:
                 if (item[0].endswith(topic) and
                    not (item[0] == "{} {}".format(xax, topic) or 

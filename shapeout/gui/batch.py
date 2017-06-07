@@ -300,7 +300,7 @@ class BatchFilterFolder(wx.Frame):
             sel = self.dropdown.GetSelection()
             mm = self.analysis.measurements[sel]
             for c in dclab.dfn.rdv:
-                if np.sum(np.abs(getattr(mm, c))):
+                if np.sum(np.abs(mm[c])):
                     checks.append(dclab.dfn.cfgmap[c])
         else:
             for c in dclab.dfn.rdv:

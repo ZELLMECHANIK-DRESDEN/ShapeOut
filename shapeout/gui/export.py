@@ -47,7 +47,7 @@ class ExportAnalysisEvents(wx.Frame):
         # find out which are actually used in the analysis
         for c in dclab.dfn.rdv:
             for m in self.analysis.measurements:
-                if np.sum(np.abs(getattr(m, c))):
+                if np.sum(np.abs(m[c])):
                     checks.append(dclab.dfn.cfgmap[c])
         checks = list(set(checks))
         checks.sort()

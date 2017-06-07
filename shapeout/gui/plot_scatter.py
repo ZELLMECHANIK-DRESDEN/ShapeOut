@@ -218,10 +218,10 @@ def set_scatter_data(plot, mm):
     yax = mm.config["plotting"]["axis y"].lower()
     
     if mm.config["filtering"]["enable filters"]:
-        x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
+        x0 = mm[dfn.cfgmaprev[xax]][mm._filter]
     else:
         # filtering disabled
-        x0 = getattr(mm, dfn.cfgmaprev[xax])
+        x0 = mm[dfn.cfgmaprev[xax]]
 
     downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
@@ -252,7 +252,7 @@ def set_scatter_data(plot, mm):
 
     # Plot filtered data in grey
     if (plotfilters["Scatter Plot Excluded Events"] and
-        mm._filter.sum() != mm.time.shape[0]):
+        mm._filter.sum() != len(mm)):
         mm.ApplyFilter()
         # determine the number of points we are allowed to add
         if downsample:
@@ -263,8 +263,8 @@ def set_scatter_data(plot, mm):
             # plot all excluded events
             excl_num = np.sum(~mm._filter)
     
-        excl_x = getattr(mm, dfn.cfgmaprev[xax])[~mm._filter][:excl_num]
-        excl_y = getattr(mm, dfn.cfgmaprev[yax])[~mm._filter][:excl_num]
+        excl_x = mm[dfn.cfgmaprev[xax]][~mm._filter][:excl_num]
+        excl_y = mm[dfn.cfgmaprev[yax]][~mm._filter][:excl_num]
 
         pd.set_data("excl_index", excl_x)
         pd.set_data("excl_value", excl_y)

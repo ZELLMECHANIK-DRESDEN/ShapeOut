@@ -31,7 +31,7 @@ def test_dump():
     
     odir = tempfile.mkdtemp()
     try:
-        index = anal.DumpData(odir)
+        anal.DumpData(odir)
     except AssertionError:
         pass
     else:

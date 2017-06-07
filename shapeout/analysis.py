@@ -15,7 +15,8 @@ import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import RTDC_DataSet, Configuration
+from dclab.rtdc_dataset import RTDC_DataSet, Configuration, fmt_tdms,\
+    fmt_hierarchy
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
 
@@ -96,14 +97,8 @@ class Analysis(object):
             attrs += ["_filter"]
             for a in attrs:
                 if hasattr(mm, a):
-                    b = getattr(mm, a)
+                    b = mm[a]
                     del b
-            # Also delete fluorescence curves
-            if hasattr(mm, "traces"):
-                for tr in list(mm.traces.keys()):
-                    t = mm.traces.pop(tr)
-                    del t
-                del mm.traces
             refs = gc.get_referrers(mm)
             for r in refs:
                 if hasattr(r, "delplot"):
@@ -113,10 +108,13 @@ class Analysis(object):
         gc.collect()
 
 
-    def _complete_config(self):
+    def _complete_config(self, measurements=None):
         """Complete configuration of all RTDC_DataSet sets
         """
-        for mm in self.measurements:
+        if measurements is None:
+            measurements = self.measurements
+        
+        for mm in measurements:
             # Update configuration with default values from ShapeOut,
             # but do not override anything.
             cfgold = mm.config.copy()
@@ -125,7 +123,7 @@ class Analysis(object):
             ## Sensible values for default contour accuracies
             keys = []
             for prop in dfn.rdv:
-                if not np.allclose(getattr(mm, prop), 0):
+                if not np.allclose(mm[prop], 0):
                     # There are values for this uid
                     keys.append(prop)
             # This lambda function seems to do a good job
@@ -138,7 +136,7 @@ class Analysis(object):
                 for d, l in defs:
                     var = d.format(dfn.cfgmap[k])
                     if not var in pltng:
-                        pltng[var] = l(getattr(mm, k))
+                        pltng[var] = l(mm[k])
             ## Check for missing min/max values and set them to zero
             for item in dfn.uid:
                 appends = [" min", " max"]
@@ -225,6 +223,7 @@ class Analysis(object):
                         msg = "File hashes don't match for: {}".format(tloc)
                         warnings.warn(msg, HashComparisonWarning)
 
+
                 if "title" in data:
                     # title saved starting version 0.5.6.dev6
                     mm.title = data["title"]
@@ -232,23 +231,27 @@ class Analysis(object):
                 # Load manually excluded events
                 filter_manual_file = os.path.join(os.path.dirname(config_file),
                                                   "_filter_manual.npy")
+                
                 if os.path.exists(filter_manual_file):
                     mm._filter_manual = np.load(os.path.join(filter_manual_file))
                 
                 mm.config.update(cfg)
                 measmts[kidx] = mm
 
+                # Compute elastic modulus if the columns are present
+                if "kde accuracy emodulus" in mm.config["plotting"]:
+                    self.compute_emodulus([mm])
+
         self.measurements = measmts
 
-        # Compute elastic modulus if the columns are present
-        if "kde accuracy emodulus" in mm.config["plotting"]:
-            self.compute_emodulus()
 
-
-    def compute_emodulus(self):
+    def compute_emodulus(self, measurements=None):
         """Compute Young's modulus using "calculation" config key
         """
-        calccfg = self.measurements[0].config["calculation"]
+        if measurements is None:
+            measurements = self.measurements
+            
+        calccfg = measurements[0].config["calculation"]
 
         model = calccfg["emodulus model"]
         assert model=="elastic sphere"
@@ -258,19 +261,19 @@ class Analysis(object):
         if medium == "Other":
             medium = viscosity
 
-        for mm in self.measurements:
+        for mm in measurements:
             # compute elastic modulus
             emod = dclab.elastic.get_elasticity(
-                    area=mm.area_um,
-                    deformation=mm.deform,
+                    area=mm["area_um"],
+                    deformation=mm["deform"],
                     medium=medium,
                     channel_width=mm.config["general"]["channel width"],
                     flow_rate=mm.config["general"]["flow rate [ul/s]"],
                     px_um=mm.config["image"]["pix size"],
                     temperature=mm.config["calculation"]["emodulus temperature"])
-            mm.emodulus=emod
+            mm._events["emodulus"]=emod
         
-        self._complete_config()
+        self._complete_config(measurements)
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
@@ -286,12 +289,12 @@ class Analysis(object):
         
         i = 0
         for mm in self.measurements:
-            has_tdms = os.path.exists(mm.tdms_filename)
-            is_hchild = hasattr(mm, "hparent")
+            has_tdms = isinstance(mm, fmt_tdms.RTDC_TDMS)
+            is_hchild = isinstance(mm, fmt_hierarchy.RTDC_Hierarchy)
             amsg = "RTDC_DataSet must be from tdms file or hierarchy child!"
             assert has_tdms+is_hchild, amsg
             i += 1
-            ident = "{}_{}".format(i,mm.name)
+            ident = "{}_{}".format(i, mm.name)
             # the directory in the session zip file where all information
             # will be stored:
             mmdir = os.path.join(directory, ident)
@@ -502,7 +505,7 @@ class Analysis(object):
             for mm in self.measurements:
                 # Get the attribute name for the axis
                 atname = dfn.cfgmaprev[ax]
-                if np.all(getattr(mm, atname)==0):
+                if np.all(mm[atname]==0):
                     unusable.append(ax.lower())
                     break
         return unusable
