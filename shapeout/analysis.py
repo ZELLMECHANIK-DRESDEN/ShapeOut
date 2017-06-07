@@ -271,7 +271,8 @@ class Analysis(object):
                     flow_rate=mm.config["general"]["flow rate [ul/s]"],
                     px_um=mm.config["image"]["pix size"],
                     temperature=mm.config["calculation"]["emodulus temperature"])
-            mm._events["emodulus"]=emod
+            mm._events["emodulus"] = emod
+            mm._filter_emodulus = np.ones(emod.shape, dtype=bool)
         
         self._complete_config(measurements)
 

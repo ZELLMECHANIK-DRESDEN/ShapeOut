@@ -52,6 +52,7 @@ def software():
     """Displays the software dialog"""
     # Version information
     vinfo = [
+             ["appdirs", "appdirs", "__version__"],
              ["chaco", "chaco", "__version__"],
              ["dclab", "dclab", "__version__"],
              ["fcswrite", "fcswrite", "__version__"],

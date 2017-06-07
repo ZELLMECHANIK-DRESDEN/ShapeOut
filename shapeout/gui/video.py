@@ -301,4 +301,4 @@ class ImagePanel(ScrolledPanel):
         if evt_id is not None:
             # Sanity check:
             mm = self.analysis.measurements[mm_id]
-            self.WXSP_plot.SetValue(mm.index[evt_id])
+            self.WXSP_plot.SetValue(mm["index"][evt_id])
