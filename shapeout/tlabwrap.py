@@ -474,4 +474,4 @@ isoeldir = findfile("isoelastics")
 isoelastics = LoadIsoelastics(os.path.join(thispath, isoeldir))
 
 # Axes that should not be displayed  by Shape Out
-IGNORE_AXES = ["areapix", "frame"]
+IGNORE_AXES = ["areapix", "frame", "arearaw"]

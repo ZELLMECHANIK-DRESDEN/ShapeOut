@@ -9,12 +9,12 @@ sys.path.insert(0, dirname(dirname(abspath(__file__))))
 from dclab.rtdc_dataset.fmt_tdms import get_tdms_files
 
 
-def example_data_dict(size=100, keys=["Area", "Defo"]):
+def example_data_dict(size=100, keys=["area", "defo"]):
     """ Example dict with which an RTDC_DataSet can be instantiated.
     """
     ddict = {}
     for ii, key in enumerate(keys):
-        if key in ["Time", "Frame"]:
+        if key in ["time", "frame"]:
             val = np.arange(size)
         else:
             state = np.random.RandomState(size+ii)

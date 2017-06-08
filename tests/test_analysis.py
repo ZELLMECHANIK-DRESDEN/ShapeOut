@@ -54,8 +54,8 @@ def test_axes_usable():
     anal = analysis.Analysis([dclab.RTDC_DataSet(ddict=d) for d in dicts])
     
     axes = anal.GetUsableAxes()
-    for ax in axes:
-        assert ax in keys
+    for ax in keys:
+        assert ax in axes
 
 
 

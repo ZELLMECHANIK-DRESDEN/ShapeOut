@@ -22,7 +22,7 @@ from helper_methods import retreive_tdms, example_data_sets
 
 
 class TestSimple(unittest.TestCase):
-    '''Test the PyJibe mixer GUI'''
+    '''Test ShapeOut batch'''
     def setUp(self):
         '''Create the GUI'''
         self.app = prepare_app()

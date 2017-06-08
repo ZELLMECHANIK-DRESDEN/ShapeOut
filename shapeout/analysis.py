@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - Analysis class
-
-"""
+"""ShapeOut - Analysis class"""
 from __future__ import division, unicode_literals
 
 import chaco.api as ca
@@ -50,7 +48,7 @@ class Analysis(object):
             A configuration dictionary that will be applied to
             each RTDC_DataSet before completing the configuration
             and data. The completion of the configuration takes
-            at the end of the initialization of this class and
+            place at the end of the initialization of this class and
             the configuration must be applied beforehand to make
             sure that parameters such as "emodulus" are computed.
         """
@@ -75,8 +73,6 @@ class Analysis(object):
             self.SetParameters(config)
         # Complete missing configuration parameters
         self._complete_config()
-        # Complete missing data columns
-        self._complete_data()
         # Reset contour accuracies
         self.init_plot_accuracies()
 
@@ -126,7 +122,7 @@ class Analysis(object):
             ## Sensible values for default contour accuracies
             keys = []
             for prop in dfn.rdv:
-                if not np.allclose(mm[prop], 0):
+                if prop in mm:
                     # There are values for this uid
                     keys.append(prop)
             # This lambda function seems to do a good job
@@ -138,7 +134,7 @@ class Analysis(object):
             for k in keys:
                 for d, l in defs:
                     var = d.format(dfn.cfgmap[k])
-                    if not var in pltng:
+                    if var not in pltng:
                         pltng[var] = l(mm[k])
             ## Check for missing min/max values and set them to zero
             for item in dfn.uid:
@@ -146,13 +142,6 @@ class Analysis(object):
                 for a in appends:
                     if not item+a in mm.config["plotting"]:
                         mm.config["plotting"][item+a] = 0
-
-
-    def _complete_data(self):
-        """Computes missing data columns if necessary"""
-        axes = self.GetPlotAxes()
-        if "emodulus" in axes:
-            self.compute_emodulus()
 
 
     def _ImportDumped(self, indexname, search_path="./"):
@@ -195,13 +184,23 @@ class Analysis(object):
                 cfg = Configuration(files=[config_file])
                 
                 # backwards compatibility:
-                # replace "kde multivariate" with "kde accuracy"
+                # - 0.7.1: replace "kde multivariate" with "kde accuracy"
                 for kk in list(cfg["plotting"].keys()):
                     if kk.startswith("kde multivariate "):
                         ax = kk.split()[2]
                         cfg["plotting"]["kde accuracy "+ax] = cfg["plotting"][kk]
                         cfg["plotting"].pop(kk)
-                
+                # - 0.7.5: remove unused computation of emodulus from config
+                if "kde accuracy emodulus" not in cfg["plotting"]:
+                    # user did not compute emodulus
+                    if "calculation" in cfg:
+                        for kk in ["emodulus medium", 
+                                   "emodulus model",
+                                   "emodulus temperature",
+                                   "emodulus viscosity"]:
+                            if kk in cfg["calculation"]:
+                                cfg["calculation"].pop(kk)
+                # Start importing data
                 if ("special type" in data and
                     data["special type"] == "hierarchy child"):
                     # Check if the parent exists
@@ -241,43 +240,7 @@ class Analysis(object):
                 mm.config.update(cfg)
                 measmts[kidx] = mm
 
-                # Compute elastic modulus if the columns are present
-                if "kde accuracy emodulus" in mm.config["plotting"]:
-                    self.compute_emodulus([mm])
-
         self.measurements = measmts
-
-
-    def compute_emodulus(self, measurements=None):
-        """Compute Young's modulus using "calculation" config key
-        """
-        if measurements is None:
-            measurements = self.measurements
-            
-        calccfg = measurements[0].config["calculation"]
-
-        model = calccfg["emodulus model"]
-        assert model=="elastic sphere"
-        
-        medium = calccfg["emodulus medium"]
-        viscosity = calccfg["emodulus viscosity"]
-        if medium == "Other":
-            medium = viscosity
-
-        for mm in measurements:
-            # compute elastic modulus
-            emod = dclab.elastic.get_elasticity(
-                    area=mm["area_um"],
-                    deformation=mm["deform"],
-                    medium=medium,
-                    channel_width=mm.config["general"]["channel width"],
-                    flow_rate=mm.config["general"]["flow rate [ul/s]"],
-                    px_um=mm.config["image"]["pix size"],
-                    temperature=mm.config["calculation"]["emodulus temperature"])
-            mm._events["emodulus"] = emod
-            mm._filter_emodulus = np.ones(emod.shape, dtype=bool)
-        
-        self._complete_config(measurements)
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
@@ -625,7 +588,6 @@ class Analysis(object):
         """ updates the RTDC_DataSet configuration
 
         """
-        # Only update "Filtering" and "Plotting"
         upcfg = {}
         if "filtering" in newcfg:
             upcfg["filtering"] = newcfg["filtering"].copy()
@@ -639,7 +601,6 @@ class Analysis(object):
                     pops.append(skey)
             for skey in pops:
                 upcfg["plotting"].pop(skey)
-
             # Address issue with faulty contour plot on log scale
             # https://github.com/enthought/chaco/issues/300
             pl = upcfg["plotting"]
@@ -659,9 +620,11 @@ class Analysis(object):
         if "calculation" in newcfg:
             upcfg["calculation"] = newcfg["calculation"].copy()
 
-        # update configuration
         for mm in self.measurements:
+            # update configuration
             mm.config.update(upcfg)
+        for mm in self.measurements:
+            # apply filter in separate loop (safer for hierarchies)
             mm.ApplyFilter()
 
 
