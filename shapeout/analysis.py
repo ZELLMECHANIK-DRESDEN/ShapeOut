@@ -121,21 +121,21 @@ class Analysis(object):
             mm.config.update(cfgold)
             ## Sensible values for default contour accuracies
             keys = []
-            for prop in dfn.rdv:
-                if prop in mm:
+            for prop in self.GetPlotAxes():
+                if dfn.cfgmaprev[prop] in mm:
                     # There are values for this uid
-                    keys.append(prop)
+                    keys.append(dfn.cfgmaprev[prop])
             # This lambda function seems to do a good job
             accl = lambda a: (remove_nan_inf(a).max()-remove_nan_inf(a).min())/10
             defs = [["contour accuracy {}", accl],
                     ["kde accuracy {}", accl],
                    ]
             pltng = mm.config["plotting"]
-            for k in keys:
+            for kk in keys:
                 for d, l in defs:
-                    var = d.format(dfn.cfgmap[k])
+                    var = d.format(dfn.cfgmap[kk])
                     if var not in pltng:
-                        pltng[var] = l(mm[k])
+                        pltng[var] = l(mm[kk])
             ## Check for missing min/max values and set them to zero
             for item in dfn.uid:
                 appends = [" min", " max"]
@@ -238,6 +238,7 @@ class Analysis(object):
                     mm._filter_manual = np.load(os.path.join(filter_manual_file))
                 
                 mm.config.update(cfg)
+                mm.ApplyFilter()
                 measmts[kidx] = mm
 
         self.measurements = measmts
@@ -472,7 +473,7 @@ class Analysis(object):
             for mm in self.measurements:
                 # Get the attribute name for the axis
                 atname = dfn.cfgmaprev[ax]
-                if np.all(mm[atname]==0):
+                if atname not in mm:
                     unusable.append(ax.lower())
                     break
         return unusable
@@ -626,6 +627,9 @@ class Analysis(object):
         for mm in self.measurements:
             # apply filter in separate loop (safer for hierarchies)
             mm.ApplyFilter()
+        
+        # Trigger computation of kde/contour accuracies for ancillary columns
+        self._complete_config()
 
 
 class HashComparisonWarning(UserWarning):

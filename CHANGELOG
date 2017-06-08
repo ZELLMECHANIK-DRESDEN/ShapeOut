@@ -1,5 +1,8 @@
 0.7.5
 - Determine configuration file path with appdirs
+- Add on-the-fly computation of volume (dclab 0.2.3dev23)
+- Change: Disable "remove invalid events" in filtering to
+  avoid computation of ancillary columns (performance)
 0.7.4
 - Add de-/select all buttons to Batch | Statistical analysis
 - Add de-/select all buttons to export all events data (#148)
