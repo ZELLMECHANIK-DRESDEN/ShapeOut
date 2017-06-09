@@ -147,7 +147,7 @@ class SubPanelFilter(SubPanel):
         # layout: 
         #  new          selection box
         #  duplicate    (multiple selections)
-        #  edit
+        #  invert
         #  delete
         #  import
         #  export       preview plot
@@ -173,10 +173,9 @@ class SubPanelFilter(SubPanel):
         duplicate.Bind(wx.EVT_BUTTON, self.OnPolygonDuplicate)
         optsizer.Add(duplicate)
         # edit
-        edit = wx.Button(self, label=_("Edit"))
-        #edit.Bind(wx.EVT_BUTTON, self.OnPolygonEdit)
-        edit.Disable()
-        optsizer.Add(edit)
+        invert = wx.Button(self, label=_("Invert"))
+        invert.Bind(wx.EVT_BUTTON, self.OnPolygonInvert)
+        optsizer.Add(invert)
 
         # remove
         remove = wx.Button(self, label=_("Remove"))
@@ -375,7 +374,9 @@ class SubPanelFilter(SubPanel):
             return
         unique_id = ch.GetData()
         p = dclab.PolygonFilter.get_instance_from_id(unique_id)
-        dclab.PolygonFilter(points=p.points, axes=p.axes, name=p.name+" (copy)")
+        dclab.PolygonFilter(points=p.points,
+                            axes=p.axes,
+                            name=p.name+" (copy)")
         self.UpdatePanel()
 
 
@@ -463,6 +464,21 @@ class SubPanelFilter(SubPanel):
         if not fname.endswith(".poly"):
             fname += ".poly"
         dclab.PolygonFilter.import_all(fname)
+        self.UpdatePanel()
+
+
+    def OnPolygonInvert(self, e=None):
+        self._set_polygon_filter_names()
+        _c, ch = self.GetPolygonHtreeSelected()
+        if ch is None:
+            return
+        unique_id = ch.GetData()
+        p = dclab.PolygonFilter.get_instance_from_id(unique_id)
+        dclab.PolygonFilter(points=p.points,
+                            axes=p.axes,
+                            name=p.name+" (inverted)",
+                            inverted=(not p.inverted),
+                            )
         self.UpdatePanel()
 
 

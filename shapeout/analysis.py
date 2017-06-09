@@ -557,7 +557,7 @@ class Analysis(object):
         """
         for mm in self.measurements:
             try:
-                mm.PolygonFilterRemove(filt)
+                mm.polygon_filter_rm(filt)
             except ValueError:
                 pass
 
