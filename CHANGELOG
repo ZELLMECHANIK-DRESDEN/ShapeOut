@@ -1,5 +1,6 @@
 0.7.5
-- Determine configuration file path with appdirs
+- Allow to create an inverted copy of a polygon filter (#127)
+- Define new configuration file path with appdirs
 - Add on-the-fly computation of volume (dclab 0.2.3dev23)
 - Change: Disable "remove invalid events" in filtering to
   avoid computation of ancillary columns (performance)
