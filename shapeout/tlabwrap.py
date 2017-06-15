@@ -31,7 +31,7 @@ else:
 
 
 def crop_linear_data(data, xmin, xmax, ymin, ymax):
-    """ Crop plotting data.
+    """Crop plotting data.
     
     Crops plotting data of monotonous function and linearly interpolates
     values at end of interval.
@@ -114,7 +114,7 @@ def crop_linear_data(data, xmin, xmax, ymin, ymax):
 
         
 def GetTDMSTreeGUI(directories):
-    """ Returns projects (folders) and measurements therein
+    """Return projects (folders) and measurements therein
     
     This is a convenience function for the GUI
     """
@@ -163,8 +163,9 @@ def GetTDMSTreeGUI(directories):
 
 
 def IsFullMeasurement(fname):
-    """ Checks for existence of ini files and returns False if some
-        files are missing.
+    """
+    Check for existence of ini files and returns False if some
+    files are missing.
     """
     is_ok = True
     path, name = os.path.split(fname)
@@ -188,8 +189,7 @@ def IsFullMeasurement(fname):
 
 
 def get_config_entry_choices(key, subkey, ignore_axes=[]):
-    """ Returns the choices for a parameter, if any
-    """
+    """Return the choices for a parameter, if any"""
     key = key.lower()
     subkey = subkey.lower()
     ignore_axes = [a.lower() for a in ignore_axes]
@@ -223,8 +223,7 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
 
 
 def get_config_entry_dtype(key, subkey, refcfg=None):
-    """ Returns dtype of the parameter as defined in dclab.cfg
-    """
+    """Return dtype of the parameter as defined in dclab.cfg"""
     key = key.lower()
     subkey = subkey.lower()
     #default
@@ -256,7 +255,7 @@ def GetDefaultConfiguration(key=None):
 
 
 def GetEvents(fname):
-    """ Get the number of events for a tdms file
+    """Get the number of events for a tdms file
     
     There are multiple ways of determining the number of events,
     which are used in the following order:
@@ -292,9 +291,7 @@ def GetEvents(fname):
 
 
 def GetFlowRate(fname):
-    """ Get the flow rate for a tdms file in [ul/s]. 
-    
-    """
+    """Get the flow rate for a tdms file in [ul/s]"""
     path, name = os.path.split(fname)
     mx = name.split("_")[0]
     stem = os.path.join(path, mx)
@@ -310,8 +307,7 @@ def GetFlowRate(fname):
 
 
 def GetRegion(fname):
-    """ Get the region (inlet/outlet) for a measurement
-    """
+    """Get the region (inlet/outlet) for a measurement"""
     path, name = os.path.split(fname)
     mx = name.split("_")[0]
     stem = os.path.join(path, mx)
@@ -323,7 +319,7 @@ def GetRegion(fname):
 
 
 def LoadIsoelastics(isoeldir, isoels={}):
-    """ Load isoelastics from directories.
+    """Load isoelastics from directories
     
     
     Parameters
@@ -421,7 +417,7 @@ def GetConfigurationKeys(cfgfilename, capitalize=True):
 
 def SortConfigurationKeys(cfgkeys):
     """
-    Sorts a list of configuration keys according to the appearance in the
+    Sort a list of configuration keys according to the appearance in the
     ShapeOut dclab.cfg configuration file.
     
     If items are not present in this file, then the will be sorted according to
