@@ -81,6 +81,7 @@ install:
   - "pip freeze"
   # PIP installs
   - "pip install appdirs"
+  - "pip install imageio"
   - "pip install nptdms"
   # install pyper (R)
   - "pip install pyper"
