@@ -1,4 +1,5 @@
 0.7.5
+- Move from OpenCV to imageio (#129)
 - Allow to select region and flow rate in batch processing (#132)
 - Allow to create an inverted copy of a polygon filter (#127)
 - Define new configuration file path with appdirs

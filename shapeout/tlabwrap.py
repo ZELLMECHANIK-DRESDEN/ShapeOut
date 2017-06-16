@@ -7,9 +7,8 @@ from __future__ import division, unicode_literals
 
 import codecs
 import copy
-import cv2
-from distutils.version import LooseVersion
 
+import imageio
 import numpy as np
 from nptdms import TdmsFile
 import os
@@ -19,15 +18,6 @@ import dclab
 from dclab.rtdc_dataset.fmt_tdms import get_project_name_from_path, get_tdms_files
 from dclab.rtdc_dataset import config as rt_config
 from util import findfile
-
-
-# Constants in OpenCV moved from "cv2.cv" to "cv2"
-if LooseVersion(cv2.__version__) < LooseVersion("3.0.0"):
-    cv_const = cv2.cv
-    cv_version3 = False
-else:
-    cv_const = cv2
-    cv_version3 = True
 
 
 def crop_linear_data(data, xmin, xmax, ymin, ymax):
@@ -278,12 +268,8 @@ def GetEvents(fname):
                 datalen = int(l.split(":")[1])
                 break
     elif os.path.exists(avif):
-        video = cv2.VideoCapture(avif)
-        if cv_version3:
-            datalen = video.get(cv_const.CAP_PROP_FRAME_COUNT)
-        else:
-            datalen = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
-        video.release()
+        video = imageio.get_reader(avif)
+        datalen = len(video)
     else:
         tdms_file = TdmsFile(fname)
         datalen = len(tdms_file.object("Cell Track", "time").data)
