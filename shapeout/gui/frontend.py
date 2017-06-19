@@ -543,7 +543,7 @@ class Frame(gaugeframe.GaugeFrame):
             if result == wx.ID_CANCEL:
                 return # abort
             elif result == wx.ID_YES:
-                filename = self.OnMenuSaveSimple()
+                filename = self.OnMenuSave()
                 if filename is None:
                     # User did not save session - abort
                     return
