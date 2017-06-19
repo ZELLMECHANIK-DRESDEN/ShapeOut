@@ -133,8 +133,8 @@ exe = EXE(pyz,
           exclude_binaries=True,
           name=name+".exe",
           debug=False,
-          strip=None,
-          upx=True,
+          strip=False,
+          upx=False,
           icon=icofile,	
           console=False)
 

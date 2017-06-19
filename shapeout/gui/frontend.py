@@ -163,8 +163,8 @@ class Frame(gaugeframe.GaugeFrame):
             msg = "ShapeOut needs to download `FFMPEG` in order " \
                  +"to display and export video data. Please make " \
                  +"sure you are connected to the internet and " \
-                 +"click OK. Depending on your connection, this" \
-                 +"may take a while. Please be patient. There" \
+                 +"click OK. Depending on your connection, this " \
+                 +"may take a while. Please be patient. There " \
                  +"is no progress dialog."
             dlg = wx.MessageDialog(parent=None,
                                    message=msg, 
