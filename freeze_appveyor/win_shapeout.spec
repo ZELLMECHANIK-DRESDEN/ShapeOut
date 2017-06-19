@@ -126,16 +126,19 @@ a = Analysis([script],
 
              
 a.datas += datas
-             
+
+options = [ ('u', None, 'OPTION'), ('W ignore', None, 'OPTION') ]
+
 pyz = PYZ(a.pure)
 exe = EXE(pyz,
           a.scripts,
+          options,
           exclude_binaries=True,
           name=name+".exe",
           debug=False,
           strip=False,
           upx=False,
-          icon=icofile,	
+          icon=icofile,
           console=False)
 
 # things that are safe to remove and save space
@@ -150,6 +153,6 @@ coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
-               strip=None,
-               upx=True,
+               strip=False,
+               upx=False,
                name=name)
