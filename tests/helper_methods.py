@@ -10,7 +10,7 @@ from dclab.rtdc_dataset.fmt_tdms import get_tdms_files
 
 
 def example_data_dict(size=100, keys=["area", "defo"]):
-    """ Example dict with which an RTDC_DataSet can be instantiated.
+    """Example dict with which an RT-DC dataset can be instantiated.
     """
     ddict = {}
     for ii, key in enumerate(keys):

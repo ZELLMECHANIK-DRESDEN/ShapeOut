@@ -119,7 +119,7 @@ class ExportAnalysisEvents(wx.Frame):
                     if name in dclab.dfn.uid:
                         columns.append(name)
             
-            # Call the export function of dclab.RTDC_DataSet
+            # Call the export function of dclab.rtdc_dataset
             # Check if the files already exist
             for m in self.analysis.measurements:
                 if os.path.exists(os.path.join(outdir, m.title+"."+self.ext)):

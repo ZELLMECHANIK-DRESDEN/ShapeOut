@@ -304,7 +304,7 @@ class SubPanelFilter(SubPanel):
     def OnHierarchyCreateChild(self, e=None):
         """
         Called when the user wants to create a new hierarchy child.
-        Will create a new RTDC_DataSet that is appended to
+        Will create a new RT-DC dataset that is appended to
         `self.analysis.measurements`.
         In the end, the entire control panel is updated to give the
         user access to the new data set.
@@ -312,14 +312,14 @@ class SubPanelFilter(SubPanel):
         self._set_polygon_filter_names()
         sel = self.WXCOMBO_hparent.GetSelection()
         mm = self.analysis.measurements[sel]
-        ds = dclab.RTDC_DataSet(hparent=mm)
+        ds = dclab.new_dataset(mm)
         self.analysis.measurements.append(ds)
         self.funcparent.OnChangePlot()
 
 
     def OnHierarchySelParent(self, e=None):
         """
-        Called when an RTDC_DataSet is selected in the combobox.
+        Called when an RT-DC dataset is selected in the combobox.
         This methods updates the label of `self.WXTextHParent`. 
         """
         sel = self.WXCOMBO_hparent.GetSelection()

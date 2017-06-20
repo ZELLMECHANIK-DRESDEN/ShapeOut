@@ -13,8 +13,7 @@ import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import RTDC_DataSet, Configuration, fmt_tdms,\
-    fmt_hierarchy
+from dclab.rtdc_dataset import Configuration, fmt_tdms, fmt_hierarchy
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
 
@@ -36,17 +35,17 @@ class Analysis(object):
         
         Parameters
         ----------
-        data: str or list of (str, dclab.RTDC_DataSet)
+        data: str or list of (str, dclab.rtdc_dataset.RTDCBase)
             The data to load. The nature of `data` is inferred
             from its type:
             - str: A session 'index.txt' file
-            - list: A list of paths of tdms files or RTDC_DataSet
+            - list: A list of paths of tdms files or RTDCBase
         search_path: str
             In case `data` is a string, `search_path` is used to
             find missing tdms files on disk.
         config: dict
             A configuration dictionary that will be applied to
-            each RTDC_DataSet before completing the configuration
+            each RT-DC dataset before completing the configuration
             and data. The completion of the configuration takes
             place at the end of the initialization of this class and
             the configuration must be applied beforehand to make
@@ -57,7 +56,7 @@ class Analysis(object):
             # New analysis
             for f in data:
                 if os.path.exists(unicode(f)):
-                    rtdc_ds = RTDC_DataSet(tdms_path=f)
+                    rtdc_ds = dclab.new_dataset(f)
                 else:
                     # RTDC data set
                     rtdc_ds = f
@@ -105,7 +104,7 @@ class Analysis(object):
 
 
     def _complete_config(self, measurements=None):
-        """Complete configuration of all RTDC_DataSet sets
+        """Complete configuration of all RT-DC datasets
         
         Sets configuration keywords that are not (necessarily)
         used/required by dclab.
@@ -210,13 +209,13 @@ class Analysis(object):
                     if idhp in ids:
                         # parent exists
                         hparent = mms[ids.index(idhp)]  
-                        mm = RTDC_DataSet(hparent=hparent)
+                        mm = dclab.new_dataset(hparent)
                     else:
                         # parent doesn't exist - try again in next loop
                         continue
                 else:
                     tloc = session.get_tdms_file(data, search_path)
-                    mm = RTDC_DataSet(tloc)
+                    mm = dclab.new_dataset(tloc)
                     mmhashes = [h[1] for h in mm.file_hashes]
                     newhashes = [ data["tdms hash"], data["camera.ini hash"],
                                   data["para.ini hash"]
@@ -259,7 +258,7 @@ class Analysis(object):
         for mm in self.measurements:
             has_tdms = isinstance(mm, fmt_tdms.RTDC_TDMS)
             is_hchild = isinstance(mm, fmt_hierarchy.RTDC_Hierarchy)
-            amsg = "RTDC_DataSet must be from tdms file or hierarchy child!"
+            amsg = "RT-DC dataset must be from tdms file or hierarchy child!"
             assert has_tdms+is_hchild, amsg
             i += 1
             ident = "{}_{}".format(i, mm.name)
@@ -586,7 +585,7 @@ class Analysis(object):
 
 
     def SetParameters(self, newcfg):
-        """ updates the RTDC_DataSet configuration
+        """ updates the RT-DC dataset configuration
 
         """
         upcfg = {}

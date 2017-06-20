@@ -116,7 +116,7 @@ class Frame(gaugeframe.GaugeFrame):
         # Fake analysis
         ddict = {"area" : np.arange(10)*30,
                  "defo" : np.arange(10)*.02}
-        rtdc_ds = dclab.RTDC_DataSet(ddict=ddict)
+        rtdc_ds = dclab.new_dataset(ddict)
         self.NewAnalysis([rtdc_ds])
 
         ## Go
