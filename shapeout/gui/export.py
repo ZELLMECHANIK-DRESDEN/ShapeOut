@@ -45,10 +45,10 @@ class ExportAnalysisEvents(wx.Frame):
         ## Add checkboxes
         checks = []
         # find out which are actually used in the analysis
-        for c in dclab.dfn.rdv:
-            for m in self.analysis.measurements:
-                if np.sum(np.abs(m[c])):
-                    checks.append(dclab.dfn.cfgmap[c])
+        for cc in dclab.dfn.rdv:
+            for mm in self.analysis.measurements:
+                if cc in mm:
+                    checks.append(dclab.dfn.cfgmap[cc])
         checks = list(set(checks))
         checks.sort()
         self.box = wx.StaticBox(self.panel, label=_("Axes"))
