@@ -126,7 +126,7 @@ class SubPanelAnalyze(SubPanel):
             if self.WXCB_treatment[ii].GetSelection() == 0:
                 # The user selected _("None")
                 continue
-            xs.append(getattr(mm, axprop)[mm._filter])
+            xs.append(mm[axprop][mm._filter])
             mmtreat = self.WXCB_treatment[ii].GetValue()
             treatment.append(mmtreat)
             # get repetition

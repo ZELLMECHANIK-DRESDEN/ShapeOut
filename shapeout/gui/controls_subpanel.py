@@ -75,7 +75,7 @@ class SubPanel(ScrolledPanel):
         ignore_axes = tlabwrap.IGNORE_AXES+analysis.GetUnusableAxes()
         choices = tlabwrap.get_config_entry_choices(key, item[0],
                                            ignore_axes=ignore_axes)
-        if len(choices) != 0:
+        if choices:
             if choices[0] in dclab.dfn.axlabels:
                 human_choices = [ _(dclab.dfn.axlabels[c]) for c in choices]
             else:
@@ -141,8 +141,9 @@ class SubPanel(ScrolledPanel):
         for c in self.GetChildren():
             if c.GetName() in ctrl_targets:
                 targets.append(c)
-        
+
         assert len(targets) == len(ctrl_targets), "Could not find all targets!"
+
        
         for tar in targets:
             if isinstance(source, wx._controls.CheckBox):

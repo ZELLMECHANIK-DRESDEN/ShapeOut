@@ -6,9 +6,6 @@ files that are used by ../appveyor.yaml and pyinstaller.
 - `hook-*.py` : pyinstaller hooks   
   specify packages that must be included in binary distribution.
 
-- `install.ps1` : install Miniconda   
-  powershell script that donwloads and installs stuff
-
 - `patch_libraries` : patches existing Python libraries      
   For example `pyface` raised unneccessary `NotImplementedError`s
   when frozen. 

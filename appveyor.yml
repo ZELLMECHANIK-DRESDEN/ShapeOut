@@ -48,7 +48,7 @@ install:
   # install R with lme4
   - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.2/R-3.2.2-win.exe
   - R-3.2.2-win.exe /silent
-  # Installing an older version of R di neither work so:
+  # Installing an older version of R did neither work so:
   #- choco install -dfvy -version 3.2.2 -source 'http://cran.at.r-project.org/bin/windows/base/old/3.2.2/;http://cran.at.r-project.org/bin/windows/base/old/;c:\projects\shapeout' r.project
   # nor so:
   #- choco install -y -version 3.2.2 r.project
@@ -75,12 +75,15 @@ install:
   #- "conda update -f conda"
   # Anaconda client for searching packages?
   #- "conda install anaconda-client"
-  - "conda install --yes --quiet -c https://conda.binstar.org/menpo chaco cffi enable kiwisolver numpy opencv pillow pip pyqt pyface requests scipy pywin32 statsmodels wxpython"
+  - "conda install --yes --quiet -c https://conda.binstar.org/menpo chaco cffi enable kiwisolver numpy pillow pip pyqt pyface requests scipy pywin32 statsmodels wxpython"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
   # PIP installs
   - "pip install appdirs"
+  #- "pip install imageio"
+  # Try installing with patched version
+  - "pip install git+https://github.com/paulmueller/imageio.git"
   - "pip install nptdms"
   # install pyper (R)
   - "pip install pyper"

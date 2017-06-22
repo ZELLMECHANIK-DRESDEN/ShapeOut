@@ -1,3 +1,11 @@
+0.7.5
+- Move from OpenCV to imageio (#129)
+- Allow to select region and flow rate in batch processing (#132)
+- Allow to create an inverted copy of a polygon filter (#127)
+- Define new configuration file path with appdirs
+- Add on-the-fly computation of volume (dclab 0.2.3dev23)
+- Change: Disable "remove invalid events" in filtering to
+  avoid computation of ancillary columns (performance)
 0.7.4
 - Add de-/select all buttons to Batch | Statistical analysis
 - Add de-/select all buttons to export all events data (#148)

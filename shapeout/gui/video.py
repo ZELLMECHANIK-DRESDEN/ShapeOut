@@ -183,21 +183,21 @@ class ImagePanel(ScrolledPanel):
         self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
 
-        if len(mm.image):
+        if "image" in mm:
             # Get the RGB cell image
             try:
-                cellimg = mm.image[evt_id]
+                cellimg = mm["image"][evt_id]
             except OSError:
-                cellimg = mm.image.dummy
+                cellimg = mm["image"].dummy
             # Only load contour data if there is an image file.
             # We don't know how big the images should be so we
             # might run into trouble displaying random contours.
-            if len(mm.contour):
+            if "contour" in mm:
                 r = cellimg[:,:,0]
                 b = cellimg[:,:,1]
                 g = cellimg[:,:,2]
                 try:
-                    cont = mm.contour[evt_id]
+                    cont = mm["contour"][evt_id]
                 except IndexError:
                     pass
                 else:
@@ -213,22 +213,23 @@ class ImagePanel(ScrolledPanel):
         self.WXChB_exclude.SetValue(not mm._filter_manual[evt_id])
 
         # Set max value for spin control
-        max_evt = self.analysis.measurements[mm_id].time.shape[0]
+        max_evt = len(self.analysis.measurements[mm_id])
         self.WXSP_plot.SetRange(1, max_evt)
 
         # Plot traces
-        if len(mm.trace):
+        if "trace" in mm:
             self.plot_window.control.Show(True)
             empty_traces = []
-            for ch in mm.trace:
-                data = mm.trace[ch][evt_id]
+            for ch in mm["trace"]:
+                data = mm["trace"][ch][evt_id]
                 if data.size == 0:
                     empty_traces.append(ch)
                 else:
                     # Set y values for present traces
                     self.trace_data.set_data(ch, data)
                     dshape = data.shape
-
+            else:
+                dshape=(10,1)
             # Set x-values for all plots
             self.trace_data.set_data("x", np.arange(dshape[0]))
             # Set other trace data to zero if event does not have it
@@ -300,4 +301,4 @@ class ImagePanel(ScrolledPanel):
         if evt_id is not None:
             # Sanity check:
             mm = self.analysis.measurements[mm_id]
-            self.WXSP_plot.SetValue(mm.index[evt_id])
+            self.WXSP_plot.SetValue(mm["index"][evt_id])

@@ -5,12 +5,14 @@
 """
 from __future__ import division, print_function, unicode_literals
 
-import numpy as np
 import os
 import platform
 import sys
 import traceback
 import warnings
+
+import imageio.plugins.ffmpeg as imioff
+import numpy as np
 import wx
 
 import dclab
@@ -114,7 +116,7 @@ class Frame(gaugeframe.GaugeFrame):
         # Fake analysis
         ddict = {"area" : np.arange(10)*30,
                  "defo" : np.arange(10)*.02}
-        rtdc_ds = dclab.RTDC_DataSet(ddict=ddict)
+        rtdc_ds = dclab.new_dataset(ddict)
         self.NewAnalysis([rtdc_ds])
 
         ## Go
@@ -138,6 +140,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         - start autosaving
         - check for updates
+        - download ffmpeg
         """
         # Check if we have an autosaved session that we did not delete
         recover = autosave.check_recover(self)
@@ -151,6 +154,26 @@ class Frame(gaugeframe.GaugeFrame):
 
         # Start autosaving
         autosave.autosave_run(self)
+
+        # download ffmpeg for imageio
+        try:
+            imioff.get_exe()
+        except imioff.NeedDownloadError:
+            # Tell the user that we will download ffmpeg now!
+            msg = "ShapeOut needs to download `FFMPEG` in order " \
+                 +"to display and export video data. Please make " \
+                 +"sure you are connected to the internet and " \
+                 +"click OK. Depending on your connection, this " \
+                 +"may take a while. Please be patient. There " \
+                 +"is no progress dialog."
+            dlg = wx.MessageDialog(parent=None,
+                                   message=msg, 
+                                   caption="FFMPEG download",
+                                   style=wx.OK|wx.CANCEL|wx.ICON_QUESTION)
+
+            if dlg.ShowModal() == wx.ID_OK:
+                imioff.download()
+
 
 
     def InitUI(self):
@@ -520,7 +543,7 @@ class Frame(gaugeframe.GaugeFrame):
             if result == wx.ID_CANCEL:
                 return # abort
             elif result == wx.ID_YES:
-                filename = self.OnMenuSaveSimple()
+                filename = self.OnMenuSave()
                 if filename is None:
                     # User did not save session - abort
                     return

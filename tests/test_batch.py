@@ -22,7 +22,7 @@ from helper_methods import retreive_tdms, example_data_sets
 
 
 class TestSimple(unittest.TestCase):
-    '''Test the PyJibe mixer GUI'''
+    '''Test ShapeOut batch'''
     def setUp(self):
         '''Create the GUI'''
         self.app = prepare_app()
@@ -32,7 +32,7 @@ class TestSimple(unittest.TestCase):
     def test_batch(self):
         # load data
         tdms_path = retreive_tdms(example_data_sets[0])
-        ds = dclab.RTDC_DataSet(tdms_path=tdms_path)
+        ds = dclab.new_dataset(tdms_path)
 
         # start session
         self.frame.NewAnalysis([ds])

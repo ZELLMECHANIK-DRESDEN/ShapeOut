@@ -45,10 +45,10 @@ class ExportAnalysisEvents(wx.Frame):
         ## Add checkboxes
         checks = []
         # find out which are actually used in the analysis
-        for c in dclab.dfn.rdv:
-            for m in self.analysis.measurements:
-                if np.sum(np.abs(getattr(m, c))):
-                    checks.append(dclab.dfn.cfgmap[c])
+        for cc in dclab.dfn.rdv:
+            for mm in self.analysis.measurements:
+                if cc in mm:
+                    checks.append(dclab.dfn.cfgmap[cc])
         checks = list(set(checks))
         checks.sort()
         self.box = wx.StaticBox(self.panel, label=_("Axes"))
@@ -119,7 +119,7 @@ class ExportAnalysisEvents(wx.Frame):
                     if name in dclab.dfn.uid:
                         columns.append(name)
             
-            # Call the export function of dclab.RTDC_DataSet
+            # Call the export function of dclab.rtdc_dataset
             # Check if the files already exist
             for m in self.analysis.measurements:
                 if os.path.exists(os.path.join(outdir, m.title+"."+self.ext)):

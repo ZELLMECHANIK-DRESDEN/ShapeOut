@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - Analysis class
-
-"""
+"""ShapeOut - Analysis class"""
 from __future__ import division, unicode_literals
 
 import chaco.api as ca
@@ -15,7 +13,7 @@ import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import RTDC_DataSet, Configuration
+from dclab.rtdc_dataset import Configuration, fmt_tdms, fmt_hierarchy
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
 
@@ -37,19 +35,19 @@ class Analysis(object):
         
         Parameters
         ----------
-        data: str or list of (str, dclab.RTDC_DataSet)
+        data: str or list of (str, dclab.rtdc_dataset.RTDCBase)
             The data to load. The nature of `data` is inferred
             from its type:
             - str: A session 'index.txt' file
-            - list: A list of paths of tdms files or RTDC_DataSet
+            - list: A list of paths of tdms files or RTDCBase
         search_path: str
             In case `data` is a string, `search_path` is used to
             find missing tdms files on disk.
         config: dict
             A configuration dictionary that will be applied to
-            each RTDC_DataSet before completing the configuration
+            each RT-DC dataset before completing the configuration
             and data. The completion of the configuration takes
-            at the end of the initialization of this class and
+            place at the end of the initialization of this class and
             the configuration must be applied beforehand to make
             sure that parameters such as "emodulus" are computed.
         """
@@ -58,7 +56,7 @@ class Analysis(object):
             # New analysis
             for f in data:
                 if os.path.exists(unicode(f)):
-                    rtdc_ds = RTDC_DataSet(tdms_path=f)
+                    rtdc_ds = dclab.new_dataset(f)
                 else:
                     # RTDC data set
                     rtdc_ds = f
@@ -74,8 +72,6 @@ class Analysis(object):
             self.SetParameters(config)
         # Complete missing configuration parameters
         self._complete_config()
-        # Complete missing data columns
-        self._complete_data()
         # Reset contour accuracies
         self.init_plot_accuracies()
 
@@ -96,14 +92,8 @@ class Analysis(object):
             attrs += ["_filter"]
             for a in attrs:
                 if hasattr(mm, a):
-                    b = getattr(mm, a)
+                    b = mm[a]
                     del b
-            # Also delete fluorescence curves
-            if hasattr(mm, "traces"):
-                for tr in list(mm.traces.keys()):
-                    t = mm.traces.pop(tr)
-                    del t
-                del mm.traces
             refs = gc.get_referrers(mm)
             for r in refs:
                 if hasattr(r, "delplot"):
@@ -113,10 +103,16 @@ class Analysis(object):
         gc.collect()
 
 
-    def _complete_config(self):
-        """Complete configuration of all RTDC_DataSet sets
+    def _complete_config(self, measurements=None):
+        """Complete configuration of all RT-DC datasets
+        
+        Sets configuration keywords that are not (necessarily)
+        used/required by dclab.
         """
-        for mm in self.measurements:
+        if measurements is None:
+            measurements = self.measurements
+        
+        for mm in measurements:
             # Update configuration with default values from ShapeOut,
             # but do not override anything.
             cfgold = mm.config.copy()
@@ -124,34 +120,27 @@ class Analysis(object):
             mm.config.update(cfgold)
             ## Sensible values for default contour accuracies
             keys = []
-            for prop in dfn.rdv:
-                if not np.allclose(getattr(mm, prop), 0):
+            for prop in self.GetPlotAxes():
+                if dfn.cfgmaprev[prop] in mm:
                     # There are values for this uid
-                    keys.append(prop)
+                    keys.append(dfn.cfgmaprev[prop])
             # This lambda function seems to do a good job
             accl = lambda a: (remove_nan_inf(a).max()-remove_nan_inf(a).min())/10
             defs = [["contour accuracy {}", accl],
                     ["kde accuracy {}", accl],
                    ]
             pltng = mm.config["plotting"]
-            for k in keys:
+            for kk in keys:
                 for d, l in defs:
-                    var = d.format(dfn.cfgmap[k])
-                    if not var in pltng:
-                        pltng[var] = l(getattr(mm, k))
+                    var = d.format(dfn.cfgmap[kk])
+                    if var not in pltng:
+                        pltng[var] = l(mm[kk])
             ## Check for missing min/max values and set them to zero
             for item in dfn.uid:
                 appends = [" min", " max"]
                 for a in appends:
                     if not item+a in mm.config["plotting"]:
                         mm.config["plotting"][item+a] = 0
-
-
-    def _complete_data(self):
-        """Computes missing data columns if necessary"""
-        axes = self.GetPlotAxes()
-        if "emodulus" in axes:
-            self.compute_emodulus()
 
 
     def _ImportDumped(self, indexname, search_path="./"):
@@ -194,13 +183,23 @@ class Analysis(object):
                 cfg = Configuration(files=[config_file])
                 
                 # backwards compatibility:
-                # replace "kde multivariate" with "kde accuracy"
+                # - 0.7.1: replace "kde multivariate" with "kde accuracy"
                 for kk in list(cfg["plotting"].keys()):
                     if kk.startswith("kde multivariate "):
                         ax = kk.split()[2]
                         cfg["plotting"]["kde accuracy "+ax] = cfg["plotting"][kk]
                         cfg["plotting"].pop(kk)
-                
+                # - 0.7.5: remove unused computation of emodulus from config
+                if "kde accuracy emodulus" not in cfg["plotting"]:
+                    # user did not compute emodulus
+                    if "calculation" in cfg:
+                        for kk in ["emodulus medium", 
+                                   "emodulus model",
+                                   "emodulus temperature",
+                                   "emodulus viscosity"]:
+                            if kk in cfg["calculation"]:
+                                cfg["calculation"].pop(kk)
+                # Start importing data
                 if ("special type" in data and
                     data["special type"] == "hierarchy child"):
                     # Check if the parent exists
@@ -210,13 +209,13 @@ class Analysis(object):
                     if idhp in ids:
                         # parent exists
                         hparent = mms[ids.index(idhp)]  
-                        mm = RTDC_DataSet(hparent=hparent)
+                        mm = dclab.new_dataset(hparent)
                     else:
                         # parent doesn't exist - try again in next loop
                         continue
                 else:
                     tloc = session.get_tdms_file(data, search_path)
-                    mm = RTDC_DataSet(tloc)
+                    mm = dclab.new_dataset(tloc)
                     mmhashes = [h[1] for h in mm.file_hashes]
                     newhashes = [ data["tdms hash"], data["camera.ini hash"],
                                   data["para.ini hash"]
@@ -225,6 +224,7 @@ class Analysis(object):
                         msg = "File hashes don't match for: {}".format(tloc)
                         warnings.warn(msg, HashComparisonWarning)
 
+
                 if "title" in data:
                     # title saved starting version 0.5.6.dev6
                     mm.title = data["title"]
@@ -232,45 +232,15 @@ class Analysis(object):
                 # Load manually excluded events
                 filter_manual_file = os.path.join(os.path.dirname(config_file),
                                                   "_filter_manual.npy")
+                
                 if os.path.exists(filter_manual_file):
                     mm._filter_manual = np.load(os.path.join(filter_manual_file))
                 
                 mm.config.update(cfg)
+                mm.ApplyFilter()
                 measmts[kidx] = mm
 
         self.measurements = measmts
-
-        # Compute elastic modulus if the columns are present
-        if "kde accuracy emodulus" in mm.config["plotting"]:
-            self.compute_emodulus()
-
-
-    def compute_emodulus(self):
-        """Compute Young's modulus using "calculation" config key
-        """
-        calccfg = self.measurements[0].config["calculation"]
-
-        model = calccfg["emodulus model"]
-        assert model=="elastic sphere"
-        
-        medium = calccfg["emodulus medium"]
-        viscosity = calccfg["emodulus viscosity"]
-        if medium == "Other":
-            medium = viscosity
-
-        for mm in self.measurements:
-            # compute elastic modulus
-            emod = dclab.elastic.get_elasticity(
-                    area=mm.area_um,
-                    deformation=mm.deform,
-                    medium=medium,
-                    channel_width=mm.config["general"]["channel width"],
-                    flow_rate=mm.config["general"]["flow rate [ul/s]"],
-                    px_um=mm.config["image"]["pix size"],
-                    temperature=mm.config["calculation"]["emodulus temperature"])
-            mm.emodulus=emod
-        
-        self._complete_config()
 
 
     def DumpData(self, directory, fullout=False, rel_path="./"):
@@ -286,12 +256,12 @@ class Analysis(object):
         
         i = 0
         for mm in self.measurements:
-            has_tdms = os.path.exists(mm.tdms_filename)
-            is_hchild = hasattr(mm, "hparent")
-            amsg = "RTDC_DataSet must be from tdms file or hierarchy child!"
+            has_tdms = isinstance(mm, fmt_tdms.RTDC_TDMS)
+            is_hchild = isinstance(mm, fmt_hierarchy.RTDC_Hierarchy)
+            amsg = "RT-DC dataset must be from tdms file or hierarchy child!"
             assert has_tdms+is_hchild, amsg
             i += 1
-            ident = "{}_{}".format(i,mm.name)
+            ident = "{}_{}".format(i, mm.name)
             # the directory in the session zip file where all information
             # will be stored:
             mmdir = os.path.join(directory, ident)
@@ -502,7 +472,7 @@ class Analysis(object):
             for mm in self.measurements:
                 # Get the attribute name for the axis
                 atname = dfn.cfgmaprev[ax]
-                if np.all(getattr(mm, atname)==0):
+                if atname not in mm:
                     unusable.append(ax.lower())
                     break
         return unusable
@@ -586,7 +556,7 @@ class Analysis(object):
         """
         for mm in self.measurements:
             try:
-                mm.PolygonFilterRemove(filt)
+                mm.polygon_filter_rm(filt)
             except ValueError:
                 pass
 
@@ -615,10 +585,9 @@ class Analysis(object):
 
 
     def SetParameters(self, newcfg):
-        """ updates the RTDC_DataSet configuration
+        """ updates the RT-DC dataset configuration
 
         """
-        # Only update "Filtering" and "Plotting"
         upcfg = {}
         if "filtering" in newcfg:
             upcfg["filtering"] = newcfg["filtering"].copy()
@@ -632,7 +601,6 @@ class Analysis(object):
                     pops.append(skey)
             for skey in pops:
                 upcfg["plotting"].pop(skey)
-
             # Address issue with faulty contour plot on log scale
             # https://github.com/enthought/chaco/issues/300
             pl = upcfg["plotting"]
@@ -652,10 +620,15 @@ class Analysis(object):
         if "calculation" in newcfg:
             upcfg["calculation"] = newcfg["calculation"].copy()
 
-        # update configuration
         for mm in self.measurements:
+            # update configuration
             mm.config.update(upcfg)
+        for mm in self.measurements:
+            # apply filter in separate loop (safer for hierarchies)
             mm.ApplyFilter()
+        
+        # Trigger computation of kde/contour accuracies for ancillary columns
+        self._complete_config()
 
 
 class HashComparisonWarning(UserWarning):

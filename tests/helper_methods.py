@@ -6,15 +6,15 @@ import zipfile
 
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
-import dclab
+from dclab.rtdc_dataset.fmt_tdms import get_tdms_files
 
 
-def example_data_dict(size=100, keys=["Area", "Defo"]):
-    """ Example dict with which an RTDC_DataSet can be instantiated.
+def example_data_dict(size=100, keys=["area", "defo"]):
+    """Example dict with which an RT-DC dataset can be instantiated.
     """
     ddict = {}
     for ii, key in enumerate(keys):
-        if key in ["Time", "Frame"]:
+        if key in ["time", "frame"]:
             val = np.arange(size)
         else:
             state = np.random.RandomState(size+ii)
@@ -40,7 +40,7 @@ def retreive_tdms(zip_file):
     
     ## Load RTDC Data set
     # find tdms files
-    tdmsfiles = dclab.GetTDMSFiles(edest)
+    tdmsfiles = get_tdms_files(edest)
     
     if len(tdmsfiles) == 1:
         tdmsfiles = tdmsfiles[0]

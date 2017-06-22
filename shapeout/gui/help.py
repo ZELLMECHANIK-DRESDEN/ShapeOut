@@ -52,12 +52,13 @@ def software():
     """Displays the software dialog"""
     # Version information
     vinfo = [
+             ["appdirs", "appdirs", "__version__"],
              ["chaco", "chaco", "__version__"],
              ["dclab", "dclab", "__version__"],
              ["fcswrite", "fcswrite", "__version__"],
+             ["imageio", "imageio", "__version__"],
              ["npTDMS", "nptdms", "__version__"],
              ["NumPy", "numpy", "__version__"],
-             ["OpenCV", "cv2", "__version__"],
              ["pyper", "pyper", "__version__"],
              ["SciPy", "scipy", "__version__"],
              ["statsmodels", "statsmodels", "__version__"],

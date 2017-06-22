@@ -7,31 +7,21 @@ from __future__ import division, unicode_literals
 
 import codecs
 import copy
-import cv2
-from distutils.version import LooseVersion
 
+import imageio
 import numpy as np
 from nptdms import TdmsFile
 import os
 import warnings
 
 import dclab
-from dclab import GetTDMSFiles, GetProjectNameFromPath
+from dclab.rtdc_dataset.fmt_tdms import get_project_name_from_path, get_tdms_files
 from dclab.rtdc_dataset import config as rt_config
 from util import findfile
 
 
-# Constants in OpenCV moved from "cv2.cv" to "cv2"
-if LooseVersion(cv2.__version__) < LooseVersion("3.0.0"):
-    cv_const = cv2.cv
-    cv_version3 = False
-else:
-    cv_const = cv2
-    cv_version3 = True
-
-
 def crop_linear_data(data, xmin, xmax, ymin, ymax):
-    """ Crop plotting data.
+    """Crop plotting data.
     
     Crops plotting data of monotonous function and linearly interpolates
     values at end of interval.
@@ -114,7 +104,7 @@ def crop_linear_data(data, xmin, xmax, ymin, ymax):
 
         
 def GetTDMSTreeGUI(directories):
-    """ Returns projects (folders) and measurements therein
+    """Return projects (folders) and measurements therein
     
     This is a convenience function for the GUI
     """
@@ -127,7 +117,7 @@ def GetTDMSTreeGUI(directories):
     treelist = list()
     
     for directory in directories:
-        files = GetTDMSFiles(directory)
+        files = get_tdms_files(directory)
 
         #cols = [_("Measurement"), _("Creation Date")]
         #to = os.path.getctime(f)
@@ -147,7 +137,7 @@ def GetTDMSTreeGUI(directories):
                 i = len(treelist)-1
                 pathdict[path] = i
                 # The first element of a tree contains the measurement name
-                project = GetProjectNameFromPath(path)
+                project = get_project_name_from_path(path)
                 treelist[i].append((project, path))
             # Get data from filename
             mx = name.split("_")[0]
@@ -163,8 +153,9 @@ def GetTDMSTreeGUI(directories):
 
 
 def IsFullMeasurement(fname):
-    """ Checks for existence of ini files and returns False if some
-        files are missing.
+    """
+    Check for existence of ini files and returns False if some
+    files are missing.
     """
     is_ok = True
     path, name = os.path.split(fname)
@@ -188,8 +179,7 @@ def IsFullMeasurement(fname):
 
 
 def get_config_entry_choices(key, subkey, ignore_axes=[]):
-    """ Returns the choices for a parameter, if any
-    """
+    """Return the choices for a parameter, if any"""
     key = key.lower()
     subkey = subkey.lower()
     ignore_axes = [a.lower() for a in ignore_axes]
@@ -223,8 +213,7 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
 
 
 def get_config_entry_dtype(key, subkey, refcfg=None):
-    """ Returns dtype of the parameter as defined in dclab.cfg
-    """
+    """Return dtype of the parameter as defined in dclab.cfg"""
     key = key.lower()
     subkey = subkey.lower()
     #default
@@ -256,7 +245,7 @@ def GetDefaultConfiguration(key=None):
 
 
 def GetEvents(fname):
-    """ Get the number of events for a tdms file
+    """Get the number of events for a tdms file
     
     There are multiple ways of determining the number of events,
     which are used in the following order:
@@ -279,12 +268,8 @@ def GetEvents(fname):
                 datalen = int(l.split(":")[1])
                 break
     elif os.path.exists(avif):
-        video = cv2.VideoCapture(avif)
-        if cv_version3:
-            datalen = video.get(cv_const.CAP_PROP_FRAME_COUNT)
-        else:
-            datalen = video.get(cv_const.CV_CAP_PROP_FRAME_COUNT)
-        video.release()
+        video = imageio.get_reader(avif)
+        datalen = len(video)
     else:
         tdms_file = TdmsFile(fname)
         datalen = len(tdms_file.object("Cell Track", "time").data)
@@ -292,9 +277,7 @@ def GetEvents(fname):
 
 
 def GetFlowRate(fname):
-    """ Get the flow rate for a tdms file in [ul/s]. 
-    
-    """
+    """Get the flow rate for a tdms file in [ul/s]"""
     path, name = os.path.split(fname)
     mx = name.split("_")[0]
     stem = os.path.join(path, mx)
@@ -310,8 +293,7 @@ def GetFlowRate(fname):
 
 
 def GetRegion(fname):
-    """ Get the region (inlet/outlet) for a measurement
-    """
+    """Get the region (inlet/outlet) for a measurement"""
     path, name = os.path.split(fname)
     mx = name.split("_")[0]
     stem = os.path.join(path, mx)
@@ -323,7 +305,7 @@ def GetRegion(fname):
 
 
 def LoadIsoelastics(isoeldir, isoels={}):
-    """ Load isoelastics from directories.
+    """Load isoelastics from directories
     
     
     Parameters
@@ -421,7 +403,7 @@ def GetConfigurationKeys(cfgfilename, capitalize=True):
 
 def SortConfigurationKeys(cfgkeys):
     """
-    Sorts a list of configuration keys according to the appearance in the
+    Sort a list of configuration keys according to the appearance in the
     ShapeOut dclab.cfg configuration file.
     
     If items are not present in this file, then the will be sorted according to
@@ -474,4 +456,4 @@ isoeldir = findfile("isoelastics")
 isoelastics = LoadIsoelastics(os.path.join(thispath, isoeldir))
 
 # Axes that should not be displayed  by Shape Out
-IGNORE_AXES = ["areapix", "frame"]
+IGNORE_AXES = ["areapix", "frame", "arearaw"]

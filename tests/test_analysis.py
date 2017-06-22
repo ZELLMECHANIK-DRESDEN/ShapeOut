@@ -19,7 +19,7 @@ from helper_methods import example_data_dict
 
 def test_basic():
     ddict = example_data_dict(size=8472)
-    ds = dclab.RTDC_DataSet(ddict=ddict)
+    ds = dclab.new_dataset(ddict)
     anal = analysis.Analysis([ds])
     
     assert len(anal.measurements) == 1
@@ -27,11 +27,11 @@ def test_basic():
 
 def test_dump():
     dicts = [ example_data_dict(s) for s in [10, 100, 12, 382] ]
-    anal = analysis.Analysis([dclab.RTDC_DataSet(ddict=d) for d in dicts])
+    anal = analysis.Analysis([dclab.new_dataset(d) for d in dicts])
     
     odir = tempfile.mkdtemp()
     try:
-        index = anal.DumpData(odir)
+        anal.DumpData(odir)
     except AssertionError:
         pass
     else:
@@ -40,7 +40,7 @@ def test_dump():
 
 def test_data_size():
     dicts = [ example_data_dict(s) for s in [10, 100, 12, 382] ]
-    anal = analysis.Analysis([dclab.RTDC_DataSet(ddict=d) for d in dicts])
+    anal = analysis.Analysis([dclab.new_dataset(d) for d in dicts])
     
     minsize = anal.ForceSameDataSize()
     assert minsize == 10
@@ -51,11 +51,11 @@ def test_data_size():
 def test_axes_usable():
     keys = ["area", "circ"]
     dicts = [ example_data_dict(s, keys=keys) for s in [10, 100, 12, 382] ]
-    anal = analysis.Analysis([dclab.RTDC_DataSet(ddict=d) for d in dicts])
+    anal = analysis.Analysis([dclab.new_dataset(d) for d in dicts])
     
     axes = anal.GetUsableAxes()
-    for ax in axes:
-        assert ax in keys
+    for ax in keys:
+        assert ax in axes
 
 
 

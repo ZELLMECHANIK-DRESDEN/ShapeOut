@@ -135,12 +135,12 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
     yax = mm.config["plotting"]["axis y"].lower()
 
     if mm.config["filtering"]["enable filters"]:
-        x0 = getattr(mm, dfn.cfgmaprev[xax])[mm._filter]
-        y0 = getattr(mm, dfn.cfgmaprev[yax])[mm._filter]
+        x0 = mm[dfn.cfgmaprev[xax]][mm._filter]
+        y0 = mm[dfn.cfgmaprev[yax]][mm._filter]
     else:
         # filtering disabled
-        x0 = getattr(mm, dfn.cfgmaprev[xax])
-        y0 = getattr(mm, dfn.cfgmaprev[yax])
+        x0 = mm[dfn.cfgmaprev[xax]]
+        y0 = mm[dfn.cfgmaprev[yax]]
 
     for ii, mm in enumerate(measurements):
         cname = "con_{}_{}_{}".format(mm.name, mm.identifier, ii)

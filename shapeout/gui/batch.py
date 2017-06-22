@@ -6,7 +6,6 @@
 from __future__ import division, print_function, unicode_literals
 
 import codecs
-import numpy as np
 import os
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
@@ -75,7 +74,15 @@ class BatchFilterFolder(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.OnBrowse, btnbrws)
         self.WXfold_text1 = wx.StaticText(panel,
                             label=_("Folder containing RT-DC measurements"))
-        self.WXfold_text2 = wx.StaticText(panel, label=_("(No folder selected)"))
+        self.WXdropdown_flowrate = wx.ComboBox(panel, -1, _("All measurements"), (15, 30),
+                                               wx.DefaultSize, [_("All measurements")],
+                                               wx.CB_DROPDOWN|wx.CB_READONLY)
+        self.WXdropdown_flowrate.Disable()
+        self.WXdropdown_region = wx.ComboBox(panel, -1, _("Channel and Reservoir"), (15, 30),
+                                               wx.DefaultSize, [_("Channel and Reservoir"),
+                                                                _("Channel only"),
+                                                                _("Reservoir only")],
+                                               wx.CB_DROPDOWN|wx.CB_READONLY)
         fold2sizer = wx.BoxSizer(wx.HORIZONTAL)
         fold2sizer.Add(btnbrws)
         fold2sizer.Add(self.WXfold_text1, 0,
@@ -83,7 +90,8 @@ class BatchFilterFolder(wx.Frame):
         foldSizer.AddSpacer(5)
         foldSizer.Add(fold2sizer, 0,
                       wx.EXPAND|wx.ALIGN_CENTER_VERTICAL|wx.ALL)
-        foldSizer.Add(self.WXfold_text2)
+        foldSizer.Add(self.WXdropdown_flowrate, 0, wx.EXPAND|wx.ALL)
+        foldSizer.Add(self.WXdropdown_region, 0, wx.EXPAND|wx.ALL)
         foldSizer.AddSpacer(5)
         self.topSizer.Add(foldSizer, 0, wx.EXPAND)
         self.topSizer.AddSpacer(10)
@@ -163,20 +171,30 @@ class BatchFilterFolder(wx.Frame):
         # Compute statistics
         head = None
         rows = []
+        # Determine which flow rates to use
+        idflow = self.WXdropdown_flowrate.GetSelection() - 1
+        if idflow < 0:
+            files = self.tdms_files
+        else:
+            files = self.flow_dict[self.flow_rates[idflow]] 
+        # Filter regions
+        regid = self.WXdropdown_region.GetSelection()
+        if regid > 0:
+            if regid == 1:
+                reg = "channel"
+            elif regid == 2:
+                reg = "reservoir"
+            newfiles = []
+            for tt in files:
+                if tlabwrap.GetRegion(tt) == reg:
+                    newfiles.append(tt)
+            files = newfiles
+        assert files, "No valid measurements with current selection!"
+        
         # Process each tdms file separately to reduce memory usage
-        for tdms in self.tdms_files:
+        for tdms in files:
             # Make analysis from tdms file
             anal = analysis.Analysis([tdms], config=f_config)
-            # `Analysis` tries to be as efficient as possible with the data.
-            # Axes like "emodulus" are not computed unless they are set
-            # as the plotting axes. To make sure that we compute all data
-            # before performing statistics, we need to temporarily set the
-            # plotting axis (issue #149). Since the plotting axes are not
-            # used in any way in batch analysis, this does not have any
-            # side effects:
-            for ax in axes:
-                anal.SetParameters({"plotting":{"axis x": ax}})
-                anal._complete_data()
             mm = anal.measurements[0]
             # Apply filters
             mm.ApplyFilter()
@@ -227,14 +245,30 @@ class BatchFilterFolder(wx.Frame):
             self.parent.config.set_dir(thepath, "BatchFD")
             # Search directory
             tree, _cols = tlabwrap.GetTDMSTreeGUI(thepath)
-            self.WXfold_text2.SetLabel(_("Found {} measurement(s).").
-                                       format(len(tree)))
             self.tdms_files = [ t[1][1] for t in tree]
             
             if self.out_tsv_file is not None:
                 self.btnbatch.Enable()
             wx.EndBusyCursor()
         
+        # Update WXdropdown_flowrate and self.flow_rates
+        # Determine flow rates
+        flow_dict = {}
+        for tt in self.tdms_files:
+            fr = tlabwrap.GetFlowRate(tt)
+            if fr not in flow_dict:
+                flow_dict[fr] = []
+            flow_dict[fr].append(tt)
+        selections = [_("All measurements ({})").format(len(self.tdms_files))]
+        self.flow_rates = list(flow_dict.keys())
+        self.flow_rates.sort()
+        for fr in self.flow_rates:
+            num = len(flow_dict[fr])
+            selections += [_("Flow rate {} µl/s ({})").format(fr, num)] 
+        self.WXdropdown_flowrate.SetItems(selections)
+        self.WXdropdown_flowrate.SetSelection(0)
+        self.WXdropdown_flowrate.Enable()
+        self.flow_dict = flow_dict
 
 
     def OnBrowseTSV(self, e=None):
@@ -300,7 +334,7 @@ class BatchFilterFolder(wx.Frame):
             sel = self.dropdown.GetSelection()
             mm = self.analysis.measurements[sel]
             for c in dclab.dfn.rdv:
-                if np.sum(np.abs(getattr(mm, c))):
+                if c in mm:
                     checks.append(dclab.dfn.cfgmap[c])
         else:
             for c in dclab.dfn.rdv:
