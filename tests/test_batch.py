@@ -41,7 +41,7 @@ class TestSimple(unittest.TestCase):
         # event and invalidates this test case:
         # new analysis overrides filtering. -> Change filtering afterwards.
         ds.config["filtering"]["remove invalid events"] = False
-        ds.ApplyFilter()
+        ds.apply_filter()
 
         batch = self.frame.OnMenuBatchFolder()
         batch.out_tsv_file=tempfile.mkstemp(".tsv", "shapeout_batch")[1]

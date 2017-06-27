@@ -197,7 +197,7 @@ class BatchFilterFolder(wx.Frame):
             anal = analysis.Analysis([tdms], config=f_config)
             mm = anal.measurements[0]
             # Apply filters
-            mm.ApplyFilter()
+            mm.apply_filter()
             # Get statistics
             h, v = dclab.statistics.get_statistics(rtdc_ds=mm,
                                                    columns=columns,

@@ -253,7 +253,7 @@ def set_scatter_data(plot, mm):
     # Plot filtered data in grey
     if (plotfilters["Scatter Plot Excluded Events"] and
         mm._filter.sum() != len(mm)):
-        mm.ApplyFilter()
+        mm.apply_filter()
         # determine the number of points we are allowed to add
         if downsample:
             # respect the maximum limit of plotted events

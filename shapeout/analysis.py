@@ -238,7 +238,7 @@ class Analysis(object):
                     mm._filter_manual = np.load(os.path.join(filter_manual_file))
                 
                 mm.config.update(cfg)
-                mm.ApplyFilter()
+                mm.apply_filter()
                 measmts[kidx] = mm
 
         self.measurements = measmts
@@ -326,7 +326,7 @@ class Analysis(object):
         # Reset limit filtering to get the correct number of events
         # This value will be overridden in the end.
         cfgreset = {"filtering":{"limit events":0}}
-        # This also calls ApplyFilter and comutes clean filters
+        # This also calls apply_filter and comutes clean filters
         self.SetParameters(cfgreset)
         
         # Get minimum size
@@ -618,7 +618,7 @@ class Analysis(object):
             mm.config.update(upcfg)
         for mm in self.measurements:
             # apply filter in separate loop (safer for hierarchies)
-            mm.ApplyFilter()
+            mm.apply_filter()
         
         # Trigger computation of kde/contour accuracies for ancillary columns
         self._complete_config()
