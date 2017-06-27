@@ -1,14 +1,8 @@
 0.7.6
-- Changes:
-  - .tdms files are not anymore hashed which speeds up
-    opening measurement data (dclab 0.2.4dev1).
-  - .tdms file hashes stored in older session files are ignored.
-    When the location of the measurement files changes and the
-    user is asked to select the correct folder, ShapeOut could
-    potentially open the wrong measurement file. This problem can
-    be avoided by making sure that the relative paths between
-    measurement and session files are not changed. A workaround
-    is to open and again save the session with version 0.7.5.
+- .tdms files are not anymore hashed which speeds up
+  opening measurement data (dclab 0.2.4dev1). When old
+  sessions are opened, the hashes are still computed
+  to correctly identify the measurement data.
 0.7.5
 - Move from OpenCV to imageio (#129)
 - Allow to select region and flow rate in batch processing (#132)

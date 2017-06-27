@@ -7,6 +7,7 @@ import chaco.api as ca
 from chaco.color_mapper import ColorMapper
 import codecs
 import copy
+import gc
 import numpy as np
 import os
 import warnings
@@ -69,6 +70,7 @@ class Analysis(object):
         else:
             raise ValueError("Argument not an index file or list of"+\
                              " measurement files: {}".format(data))
+        
         # Set configuration (e.g. from previous analysis)
         if config:
             self.SetParameters(config)
@@ -76,7 +78,7 @@ class Analysis(object):
         self._complete_config()
         # Reset contour accuracies
         self.init_plot_accuracies()
-
+        
 
     def _clear(self):
         """Remove all attributes from this instance, making it unusable
@@ -85,7 +87,6 @@ class Analysis(object):
         object.
         
         """
-        import gc
         for _i in range(len(self.measurements)):
             mm = self.measurements.pop(0)
             # Deleting all the data in measurements!
@@ -183,29 +184,12 @@ class Analysis(object):
                 config_file = os.path.normpath(os.path.join(thedir,
                                                             data["config"]))
                 cfg = Configuration(files=[config_file])
-                
-                # backwards compatibility:
-                # - 0.7.1: replace "kde multivariate" with "kde accuracy"
-                for kk in list(cfg["plotting"].keys()):
-                    if kk.startswith("kde multivariate "):
-                        ax = kk.split()[2]
-                        cfg["plotting"]["kde accuracy "+ax] = cfg["plotting"][kk]
-                        cfg["plotting"].pop(kk)
-                # - 0.7.5: remove unused computation of emodulus from config
-                if "kde accuracy emodulus" not in cfg["plotting"]:
-                    # user did not compute emodulus
-                    if "calculation" in cfg:
-                        for kk in ["emodulus medium", 
-                                   "emodulus model",
-                                   "emodulus temperature",
-                                   "emodulus viscosity"]:
-                            if kk in cfg["calculation"]:
-                                cfg["calculation"].pop(kk)
+
                 # Start importing data
                 if ("special type" in data and
                     data["special type"] == "hierarchy child"):
                     # Check if the parent exists
-                    idhp = cfg["Filtering"]["Hierarchy Parent"]
+                    idhp = cfg["filtering"]["hierarchy parent"]
                     ids = [mm.identifier for mm in measmts if mm is not None]
                     mms = [mm for mm in measmts if mm is not None]
                     if idhp in ids:
@@ -218,11 +202,7 @@ class Analysis(object):
                 else:
                     tloc = session.get_measurement_file(data, search_path)
                     mm = dclab.new_dataset(tloc)
-                    # Since version 0.7.6, we are only comparing the hash
-                    # of the RTDCBase instance and not of the measurement
-                    # file. This is faster. Older sessions contained the
-                    # "tdms hash" key, which we simply ignore here.
-                    if "hash" in data and hash(mm) != data["hash"]:
+                    if hash(mm) != data["hash"]:
                         msg = "File hashes don't match for: {}".format(tloc)
                         warnings.warn(msg, HashComparisonWarning)
 
@@ -240,7 +220,6 @@ class Analysis(object):
                 mm.config.update(cfg)
                 mm.apply_filter()
                 measmts[kidx] = mm
-
         self.measurements = measmts
 
 

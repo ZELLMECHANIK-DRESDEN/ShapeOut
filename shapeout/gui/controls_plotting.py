@@ -182,7 +182,7 @@ class SubPanelPlotting(SubPanel):
         display_circ = False
         if "circ" in analysis.GetPlotAxes():
             display_circ = True
-            if "defo" in analysis.GetPlotAxes():
+            if "deform" in analysis.GetPlotAxes():
                 display_circ = False
         
         xax, yax = analysis.GetPlotAxes()

@@ -96,10 +96,12 @@ class ImagePanel(ScrolledPanel):
         exclsizer.Add(updbutton, 0, wx.ALIGN_RIGHT)
         
         ## Add traces plot
+        # TODO:
+        # - write method in dclab that gets all traces across file formats
         x = np.linspace(-np.pi, np.pi, 50)
         y = np.cos(x)+1
         plotkwargs = {}
-        for key in dclab.dfn.tr_data:
+        for key in dclab.rtdc_dataset.fmt_tdms.naming.tr_data:
             plotkwargs[key[1]] = y
         
         self.trace_data = ca.ArrayPlotData(x=x, **plotkwargs)

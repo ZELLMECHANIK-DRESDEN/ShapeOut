@@ -114,8 +114,8 @@ class Frame(gaugeframe.GaugeFrame):
         self.spright.SetMinimumPaneSize(sy)
        
         # Fake analysis
-        ddict = {"area" : np.arange(10)*30,
-                 "defo" : np.arange(10)*.02}
+        ddict = {"area_um" : np.arange(10)*30,
+                 "deform" : np.arange(10)*.02}
         rtdc_ds = dclab.new_dataset(ddict)
         self.NewAnalysis([rtdc_ds])
 

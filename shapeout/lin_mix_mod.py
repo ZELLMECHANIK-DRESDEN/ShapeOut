@@ -89,7 +89,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     ----------
     xs: list of multiple 1D ndarrays
         Each index of `xs` contains an array of response variables.
-        (eg. list containing "Area" data of several measurements)
+        (eg. list containing "area_um" data of several measurements)
     treatment: list
         Each item is a description/identifier for a treatment. The
         enumeration matches the index of `xs`.

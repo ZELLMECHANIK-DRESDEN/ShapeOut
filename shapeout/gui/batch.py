@@ -299,7 +299,6 @@ class BatchFilterFolder(wx.Frame):
         
 
     def OnRadioThere(self, e=None):
-        print("there")
         self.OnUpdateAxes()
         self.filter_config = None
         

@@ -33,7 +33,6 @@ class TestSimple(unittest.TestCase):
         # load data
         tdms_path = retreive_tdms(example_data_sets[0])
         ds = dclab.new_dataset(tdms_path)
-
         # start session
         self.frame.NewAnalysis([ds])
         

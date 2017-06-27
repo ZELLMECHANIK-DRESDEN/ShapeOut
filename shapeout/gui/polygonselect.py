@@ -91,7 +91,7 @@ class LineDrawerWindow(wx.Frame):
             self.MainIcon = None
         self.Show(True)
 
-    def show_scatter(self, measurement, xax="area", yax="defo"):
+    def show_scatter(self, measurement, xax="area_um", yax="deform"):
         self.mm = measurement
         aplot = self._create_plot_component(measurement, xax=xax, yax=yax)
         aplot.padding = 50
