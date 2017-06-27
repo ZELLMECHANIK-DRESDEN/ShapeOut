@@ -207,7 +207,7 @@ class BatchFilterFolder(wx.Frame):
             else:
                 assert h==head, "Problem with available columns/axes!"
             
-            rows.append([mm.tdms_filename, mm.title]+v)
+            rows.append([mm.path, mm.title]+v)
 
         head = ["TDMS file", "Title"] + head
         

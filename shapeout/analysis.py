@@ -13,13 +13,14 @@ import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import Configuration, fmt_tdms, fmt_hierarchy
+from dclab.rtdc_dataset import Configuration
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
 
 from .tlabwrap import IGNORE_AXES
 from shapeout import tlabwrap
 from .gui import session
+from ._version import version
 
 
 class Analysis(object):
@@ -39,10 +40,11 @@ class Analysis(object):
             The data to load. The nature of `data` is inferred
             from its type:
             - str: A session 'index.txt' file
-            - list: A list of paths of tdms files or RTDCBase
+            - list: A list of paths of measurement files or instances
+                    of RTDCBase
         search_path: str
             In case `data` is a string, `search_path` is used to
-            find missing tdms files on disk.
+            find missing files on disk.
         config: dict
             A configuration dictionary that will be applied to
             each RT-DC dataset before completing the configuration
@@ -66,7 +68,7 @@ class Analysis(object):
             self._ImportDumped(data, search_path=search_path)
         else:
             raise ValueError("Argument not an index file or list of"+\
-                             " .tdms files: {}".format(data))
+                             " measurement files: {}".format(data))
         # Set configuration (e.g. from previous analysis)
         if config:
             self.SetParameters(config)
@@ -151,10 +153,10 @@ class Analysis(object):
         indexname : str
             Path to index.txt file
         search_path : str
-            Relative search path where to look for tdms files if
+            Relative search path where to look for measurement files if
             the absolute path stored in index.txt cannot be found.
         """
-        ## Read index file and locate tdms file.
+        ## Read index file and locate measurement file.
         thedir = os.path.dirname(indexname)
         # Load polygons before importing any data
         polygonfile = os.path.join(thedir, "PolygonFilters.poly")
@@ -214,16 +216,15 @@ class Analysis(object):
                         # parent doesn't exist - try again in next loop
                         continue
                 else:
-                    tloc = session.get_tdms_file(data, search_path)
+                    tloc = session.get_measurement_file(data, search_path)
                     mm = dclab.new_dataset(tloc)
-                    mmhashes = [h[1] for h in mm.file_hashes]
-                    newhashes = [ data["tdms hash"], data["camera.ini hash"],
-                                  data["para.ini hash"]
-                                ]
-                    if mmhashes != newhashes:
+                    # Since version 0.7.6, we are only comparing the hash
+                    # of the RTDCBase instance and not of the measurement
+                    # file. This is faster. Older sessions contained the
+                    # "tdms hash" key, which we simply ignore here.
+                    if "hash" in data and hash(mm) != data["hash"]:
                         msg = "File hashes don't match for: {}".format(tloc)
                         warnings.warn(msg, HashComparisonWarning)
-
 
                 if "title" in data:
                     # title saved starting version 0.5.6.dev6
@@ -243,7 +244,7 @@ class Analysis(object):
         self.measurements = measmts
 
 
-    def DumpData(self, directory, fullout=False, rel_path="./"):
+    def DumpData(self, directory, rel_path="./"):
         """ Dumps all the data from the analysis to a `directory`
         
         Returns a list of filenames that are required to restore this
@@ -252,16 +253,15 @@ class Analysis(object):
         """
         indexname = os.path.join(directory, "index.txt")
         # Create Index file
-        out = ["# ShapeOut Measurement Index"]
+        out = ["# ShapeOut measurement index",
+               "# Software version {}".format(version)]
         
         i = 0
         for mm in self.measurements:
-            has_tdms = isinstance(mm, fmt_tdms.RTDC_TDMS)
-            is_hchild = isinstance(mm, fmt_hierarchy.RTDC_Hierarchy)
             amsg = "RT-DC dataset must be from tdms file or hierarchy child!"
-            assert has_tdms+is_hchild, amsg
+            assert mm.format in ["tdms", "hierarchy"], amsg
             i += 1
-            ident = "{}_{}".format(i, mm.name)
+            ident = "{}_{}".format(i, mm.identifier)
             # the directory in the session zip file where all information
             # will be stored:
             mmdir = os.path.join(directory, ident)
@@ -277,21 +277,19 @@ class Analysis(object):
                     break
             os.mkdir(mmdir)
             out.append("[{}]".format(ident))
-            if has_tdms:
-                out.append("tdms hash = "+mm.file_hashes[0][1])
-                out.append("camera.ini hash = "+mm.file_hashes[1][1])
-                out.append("para.ini hash = "+mm.file_hashes[2][1])
-                out.append("name = "+mm.name+".tdms")
-                out.append("fdir = "+mm.fdir)
+            if mm.format == "tdms":
+                out.append("hash = {}".format(hash(mm)))
+                out.append("name = {}".format(os.path.basename(mm.path)))
+                out.append("fdir = {}".format(os.path.dirname(mm.path)))
                 try:
                     # On Windows we have multiple drive letters and
-                    # relpath will complain about that if mm.fdir and
-                    # rel_path are not on the same drive.
-                    rdir = os.path.relpath(mm.fdir, rel_path)
+                    # relpath will complain about that if dirname(mm.path)
+                    # and rel_path are not on the same drive.
+                    rdir = os.path.relpath(os.path.dirname(mm.path), rel_path)
                 except ValueError:
                     rdir = "."
-                out.append("rdir = "+rdir)
-            elif is_hchild:
+                out.append("rdir = {}".format(rdir))
+            elif mm.format == "hierarchy":
                 out.append("special type = hierarchy child")
             out.append("title = "+mm.title)
             # Save configurations
@@ -303,12 +301,6 @@ class Analysis(object):
             
             # save manual filters
             np.save(os.path.join(mmdir, "_filter_manual.npy"), mm._filter_manual)
-            
-            if fullout:
-                # create directory that contains tdms and ini files
-                
-                ## create copy function that works on all oses!
-                raise NotImplementedError("Unable to copy files!")
 
             out.append("")
             
@@ -371,10 +363,10 @@ class Analysis(object):
 
 
     def GetNames(self):
-        """ Returns the names of all measurements """
+        """ Returns the titles of all measurements """
         names = list()
         for mm in self.measurements:
-            names.append(mm.name)
+            names.append(mm.title)
         return names
 
 
@@ -411,10 +403,11 @@ class Analysis(object):
         return head, datalist
 
 
-    def GetTDMSFilenames(self):
+    def GetFilenames(self):
+        """Returns paths of measurements"""
         names = list()
         for mm in self.measurements:
-            names.append(mm.tdms_filename)
+            names.append(mm.path)
         return names
 
 
@@ -433,8 +426,8 @@ class Analysis(object):
         if key in self.measurements[0].config:
             s = set(self.measurements[0].config[key].items())
             uncom = set(com.items()) ^ s
-            for m in self.measurements[1:]:
-                s2 = set(m.config[key].items())
+            for nn in self.measurements[1:]:
+                s2 = set(nn.config[key].items())
                 uncom2 = set(com.items()) ^ s2
                 
                 newuncom = dict()
@@ -446,13 +439,13 @@ class Analysis(object):
                     
             for item in uncom:
                 vals = list()
-                for m in self.measurements:
-                    if m.config[key].has_key(item[0]):
-                        vals.append(m.config[key][item[0]])
+                for mm in self.measurements:
+                    if mm.config[key].has_key(item[0]):
+                        vals.append(mm.config[key][item[0]])
                     else:
                         vals.append(None)
                         warnings.warn(
-                          "Measurement {} might be corrupt!".format(m.name))
+                          "Measurement {} might be corrupt!".format(mm.title))
                 retdict[item[0]] = vals
         return retdict        
 
