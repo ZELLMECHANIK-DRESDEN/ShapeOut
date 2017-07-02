@@ -18,7 +18,7 @@ sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from shapeout.__main__ import prepare_app
 
-from helper_methods import retreive_tdms, example_data_sets
+from helper_methods import retreive_tdms, example_data_sets, cleanup
 
 
 class TestSimple(unittest.TestCase):
@@ -60,6 +60,8 @@ class TestSimple(unittest.TestCase):
         for key in soll:
             idx = header.index(key)
             assert np.allclose(float(values[idx]), soll[key])
+        
+        cleanup()
 
 
 if __name__ == "__main__":

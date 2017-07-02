@@ -20,8 +20,8 @@ import dclab.definitions as dfn
 
 from .tlabwrap import IGNORE_AXES
 from shapeout import tlabwrap
-from .gui import session
 from ._version import version
+from . import session
 
 
 class Analysis(object):
@@ -54,6 +54,7 @@ class Analysis(object):
             the configuration must be applied beforehand to make
             sure that parameters such as "emodulus" are computed.
         """
+        # Start importing measurements
         self.measurements = []
         if isinstance(data, list):
             # New analysis
@@ -76,8 +77,6 @@ class Analysis(object):
             self.SetParameters(config)
         # Complete missing configuration parameters
         self._complete_config()
-        # Reset contour accuracies
-        self.init_plot_accuracies()
         
 
     def _clear(self):
@@ -103,6 +102,8 @@ class Analysis(object):
                     r.delplot()
                 del r
             del mm
+        # Reset contour accuracies
+        self.reset_plot_accuracies()
         gc.collect()
 
 
@@ -122,22 +123,21 @@ class Analysis(object):
             mm.config.update(tlabwrap.cfg)
             mm.config.update(cfgold)
             ## Sensible values for default contour accuracies
-            keys = []
-            for prop in self.GetPlotAxes():
-                if dfn.cfgmaprev[prop] in mm:
-                    # There are values for this uid
-                    keys.append(dfn.cfgmaprev[prop])
             # This lambda function seems to do a good job
             accl = lambda a: (remove_nan_inf(a).max()-remove_nan_inf(a).min())/10
             defs = [["contour accuracy {}", accl],
                     ["kde accuracy {}", accl],
                    ]
             pltng = mm.config["plotting"]
-            for kk in keys:
+            for kk in self.GetPlotAxes():
                 for d, l in defs:
-                    var = d.format(dfn.cfgmap[kk])
+                    var = d.format(kk)
                     if var not in pltng:
-                        pltng[var] = l(mm[kk])
+                        try:
+                            pltng[var] = l(mm[kk])
+                        except:
+                            import IPython
+                            IPython.embed()
             ## Check for missing min/max values and set them to zero
             for item in dfn.uid:
                 appends = [" min", " max"]
@@ -165,50 +165,50 @@ class Analysis(object):
         if os.path.exists(polygonfile):
             PolygonFilter.import_all(polygonfile)
         # import configurations
-        datadict = session.index_load(indexname)
-        keys = list(datadict.keys())
+        index_dict = session.index.index_load(indexname)
+        keys = list(index_dict.keys())
         # The identifier (in brackets []) contains a number before the first
         # underscore "_" which determines the order of the plots:
         #keys.sort(key=lambda x: int(x.split("_")[0]))
         measmts = [None]*len(keys)
         while measmts.count(None):
             for key in keys:
+                # The order in keys is not important to correctly reproduce
+                # a session. Important is the integer number before the
+                # underscore.
                 kidx = int(key.split("_")[0])-1
                 if measmts[kidx] is not None:
                     # we have already imported that measurement
                     continue
                 
-                data = datadict[key]
+                item = index_dict[key]
                 # os.path.normpath replaces forward slash with
                 # backslash on Windows
                 config_file = os.path.normpath(os.path.join(thedir,
-                                                            data["config"]))
+                                                            item["config"]))
                 cfg = Configuration(files=[config_file])
 
                 # Start importing data
-                if ("special type" in data and
-                    data["special type"] == "hierarchy child"):
-                    # Check if the parent exists
-                    idhp = cfg["filtering"]["hierarchy parent"]
-                    ids = [mm.identifier for mm in measmts if mm is not None]
-                    mms = [mm for mm in measmts if mm is not None]
-                    if idhp in ids:
-                        # parent exists
-                        hparent = mms[ids.index(idhp)]  
+                if ("special type" in item and
+                    item["special type"] == "hierarchy child"):
+                    # check if parent is already here
+                    pidx = int(item["parent id"].split("_")[0])-1
+                    hparent = measmts[pidx]
+                    if hparent is not None:
                         mm = dclab.new_dataset(hparent)
                     else:
                         # parent doesn't exist - try again in next loop
                         continue
                 else:
-                    tloc = session.get_measurement_file(data, search_path)
+                    tloc = session.index.find_data_path(item, search_path)
                     mm = dclab.new_dataset(tloc)
-                    if hash(mm) != data["hash"]:
+                    if mm.hash != item["hash"]:
                         msg = "File hashes don't match for: {}".format(tloc)
                         warnings.warn(msg, HashComparisonWarning)
 
-                if "title" in data:
+                if "title" in item:
                     # title saved starting version 0.5.6.dev6
-                    mm.title = data["title"]
+                    mm.title = item["title"]
                 
                 # Load manually excluded events
                 filter_manual_file = os.path.join(os.path.dirname(config_file),
@@ -216,7 +216,7 @@ class Analysis(object):
                 
                 if os.path.exists(filter_manual_file):
                     mm._filter_manual = np.load(os.path.join(filter_manual_file))
-                
+
                 mm.config.update(cfg)
                 mm.apply_filter()
                 measmts[kidx] = mm
@@ -256,8 +256,9 @@ class Analysis(object):
                     break
             os.mkdir(mmdir)
             out.append("[{}]".format(ident))
-            if mm.format == "tdms":
-                out.append("hash = {}".format(hash(mm)))
+            out.append("title = "+mm.title)            
+            out.append("hash = {}".format(mm.hash))
+            if mm.format in ["tdms", "hdf5"]:
                 out.append("name = {}".format(os.path.basename(mm.path)))
                 out.append("fdir = {}".format(os.path.dirname(mm.path)))
                 try:
@@ -269,18 +270,19 @@ class Analysis(object):
                     rdir = "."
                 out.append("rdir = {}".format(rdir))
             elif mm.format == "hierarchy":
+                pidx = self.measurements.index(mm.hparent) + 1
+                p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
                 out.append("special type = hierarchy child")
-            out.append("title = "+mm.title)
+                out.append("parent hash = {}".format(mm.hparent.hash))
+                out.append("parent id = {}".format(p_ident))
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
             mm.config.save(cfgfile)
             # Use forward slash such that sessions saved on Windows
             # can be opened on *nix as well.
             out.append("config = {}/config.txt".format(ident))
-            
             # save manual filters
             np.save(os.path.join(mmdir, "_filter_manual.npy"), mm._filter_manual)
-
             out.append("")
             
         for i in range(len(out)):
@@ -490,7 +492,7 @@ class Analysis(object):
         return conf
 
 
-    def init_plot_accuracies(self):
+    def reset_plot_accuracies(self):
         """ Set initial (heuristic) accuracies for all plots.
         
         It is not always easy to determine the correct accuracy for
@@ -507,7 +509,8 @@ class Analysis(object):
         first measurement of the analysis.
         """
         # check if updating is disabled:
-        if self.measurements[0].config["plotting"]["contour fix scale"]:
+        if (len(self.measurements) == 0 or
+            self.measurements[0].config["plotting"]["contour fix scale"]):
             return
         
         # Remove contour accuracies for the current plots

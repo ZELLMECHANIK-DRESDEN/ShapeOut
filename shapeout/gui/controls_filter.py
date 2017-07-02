@@ -316,7 +316,6 @@ class SubPanelFilter(SubPanel):
         self.analysis.measurements.append(ds)
         self.funcparent.OnChangePlot()
 
-
     def OnHierarchySelParent(self, e=None):
         """
         Called when an RT-DC dataset is selected in the combobox.
