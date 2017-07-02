@@ -5,9 +5,9 @@ from __future__ import division, unicode_literals
 
 import chaco.api as ca
 from chaco.color_mapper import ColorMapper
-import codecs
 import copy
 import gc
+import io
 import numpy as np
 import os
 import warnings
@@ -288,7 +288,7 @@ class Analysis(object):
         for i in range(len(out)):
             out[i] += "\r\n"
         
-        with codecs.open(indexname, "w", "utf-8") as index:
+        with io.open(indexname, "w") as index:
             index.writelines(out)
         
         # Dump polygons

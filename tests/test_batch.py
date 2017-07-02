@@ -7,11 +7,14 @@ from __future__ import print_function
 from os.path import abspath, dirname
 import sys
 
-import codecs
-import dclab
-import numpy as np
+import io
 import tempfile
+
+import numpy as np
 import unittest
+
+import dclab
+
 
 # Add parent directory to beginning of path variable
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
@@ -47,7 +50,7 @@ class TestSimple(unittest.TestCase):
         batch.tdms_files=[tdms_path]
         batch.OnBatch()
         
-        with codecs.open(batch.out_tsv_file, encoding="utf-8") as fd:
+        with io.open(batch.out_tsv_file) as fd:
             data = fd.readlines()
         
         header = [d.strip().lower() for d in data[0].strip("# ").split("\t")]

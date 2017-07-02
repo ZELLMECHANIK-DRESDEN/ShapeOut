@@ -5,7 +5,7 @@
 """
 from __future__ import division, print_function, unicode_literals
 
-import codecs
+import io
 import os
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
@@ -211,7 +211,7 @@ class BatchFilterFolder(wx.Frame):
 
         head = ["TDMS file", "Title"] + head
         
-        with codecs.open(self.out_tsv_file, "w", encoding="utf-8") as fd:
+        with io.open(self.out_tsv_file, "w") as fd:
             header = u"\t".join([ h for h in head ])
             fd.write("# "+header+"\n")
         

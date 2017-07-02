@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import codecs
+import io
 import dclab
 import tempfile
 import webbrowser
@@ -146,7 +146,7 @@ class SubPanelAnalyze(SubPanel):
         # write to temporary file and display with webbrowser
         outf = tempfile.mktemp(prefix="regression_analysis_{}_".format(axprop),
                                suffix=".txt")
-        with codecs.open(outf, "w", encoding="utf-8") as fd:
+        with io.open(outf, "w") as fd:
             fd.writelines(result["Full Summary"].replace("\n", "\r\n"))
 
         webbrowser.open(fd.name)

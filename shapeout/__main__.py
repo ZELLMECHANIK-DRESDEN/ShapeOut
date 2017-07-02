@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-import codecs
+import io
 ## Language support:
 # Go to ../lang and execute
 # python mki18n.py -m
@@ -25,7 +25,7 @@ def prepare_app():
    
     ## initialise language settings:
     try:
-        langIni = codecs.open(findfile("language.ini"), 'r', 'utf-8')
+        langIni = io.open(findfile("language.ini"), 'r')
     except IOError:
         language = u'en' #defaults to english
     else:
