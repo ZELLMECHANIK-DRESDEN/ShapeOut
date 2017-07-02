@@ -160,6 +160,7 @@ _________
 
        git checkout develop  
        git pull origin master  
+       git fetch --tags origin master
        git push     
 
 
