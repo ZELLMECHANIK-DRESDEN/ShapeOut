@@ -538,6 +538,7 @@ class Frame(gaugeframe.GaugeFrame):
                 'Do you want to save the current Session?', 
                 'Save Session?', 
                  wx.ICON_QUESTION | wx.CANCEL | wx.YES_NO | wx.NO_DEFAULT )
+            self._quit_dialog = dial
             result = dial.ShowModal()
             dial.Destroy()
             if result == wx.ID_CANCEL:

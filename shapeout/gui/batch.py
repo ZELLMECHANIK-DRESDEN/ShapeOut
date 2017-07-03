@@ -29,10 +29,8 @@ class BatchFilterFolder(wx.Frame):
         self.toggled_stat_parms = False
 
         # Get the window positioning correctly
-        pos = self.parent.GetPosition()
-        pos = (pos[0]+100, pos[1]+100)
         wx.Frame.__init__(self, parent=self.parent, title=_("Batch filtering"),
-                          pos=pos, style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
+                          style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
         ## panel
         panel = self.panel = wx.Panel(self)
         self.topSizer = wx.BoxSizer(wx.VERTICAL)

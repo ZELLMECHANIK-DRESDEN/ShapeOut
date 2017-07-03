@@ -23,6 +23,22 @@ def prepare_app():
     # which is checking some wx runtime variables beforehand.
     app = wx.App(False)
    
+    # setup trnaslations
+    setup_lang()
+    
+    # get version
+    try:
+        from ._version import version
+    except:
+        warnings.warn(_("Could not determine ShapeOut version."))
+        version = None
+    
+    app.frame = frontend.Frame(version)
+    
+    return app
+
+
+def setup_lang():
     ## initialise language settings:
     try:
         langIni = io.open(findfile("language.ini"), 'r')
@@ -51,16 +67,6 @@ def prepare_app():
         except (ValueError, KeyError):
             pass
 
-    # get version
-    try:
-        from ._version import version
-    except:
-        warnings.warn(_("Could not determine ShapeOut version."))
-        version = None
-    
-    app.frame = frontend.Frame(version)
-    
-    return app
 
 if __name__ == "__main__":
     # get session file
