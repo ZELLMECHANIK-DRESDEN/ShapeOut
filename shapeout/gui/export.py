@@ -5,7 +5,7 @@
 """
 from __future__ import division, print_function, unicode_literals
 
-import codecs
+import io
 import numpy as np
 import os
 import wx
@@ -222,6 +222,6 @@ def export_statistics_tsv(parent):
         if path.lower().endswith(".tsv") is not True:
             path = path+".tsv"
         parent.config.set_dir(os.path.dirname(path), "TSV")
-        with codecs.open(path, 'w', encoding="utf-8") as fd:
+        with io.open(path, 'w') as fd:
             fd.writelines(exp)
 
