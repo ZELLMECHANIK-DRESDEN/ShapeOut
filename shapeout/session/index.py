@@ -73,13 +73,14 @@ def find_data_path(index_item,
         else:
             raise IOError("Could not find file: {}".format(mfile1))
 
-
     return found
 
 
 
 def index_check(index_file, search_path="./"):
     """Check a session file index for existence of all measurement files"""
+    if isdir(index_file):
+        index_file = join(index_file, "index.txt")
     missing_files = []
     
     index_dict = index_load(index_file)

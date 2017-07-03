@@ -9,7 +9,6 @@ import sys
 
 import io
 import tempfile
-import wx
 
 import numpy as np
 import unittest
@@ -20,9 +19,7 @@ import dclab
 # Add parent directory to beginning of path variable
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
-from shapeout.__main__ import setup_lang
-from shapeout.gui import frontend
-
+from shapeout.__main__ import prepare_app
 
 from helper_methods import retreive_tdms, example_data_sets, cleanup
 
@@ -31,14 +28,14 @@ class TestSimple(unittest.TestCase):
     '''Test ShapeOut batch'''
     def setUp(self):
         '''Create the GUI'''
-        setup_lang()
-        self.frame = frontend.Frame("test")
+        self.app = prepare_app()
+        self.frame = self.app.frame
+        #self.frame.InitRun()
 
     def tearDown(self):
         cleanup()
-        self.frame.Destroy()
 
-
+    
     def test_batch(self):
         # load data
         tdms_path = retreive_tdms(example_data_sets[0])
@@ -70,8 +67,7 @@ class TestSimple(unittest.TestCase):
         for key in soll:
             idx = header.index(key)
             assert np.allclose(float(values[idx]), soll[key])
-
-        batch.Destroy()
+        batch.Close()
 
 
 if __name__ == "__main__":

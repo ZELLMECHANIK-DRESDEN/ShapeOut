@@ -33,7 +33,7 @@ def open_session(path, parent):
             del item.analysis
     
     Arc = zipfile.ZipFile(path, mode='r')
-    tempdir = tempfile.mkdtemp(prefix="ShapeOut-tdms_")
+    tempdir = tempfile.mkdtemp(prefix="ShapeOut-session_")
     Arc.extractall(tempdir)
     Arc.close()
     
