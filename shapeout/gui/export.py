@@ -45,10 +45,10 @@ class ExportAnalysisEvents(wx.Frame):
         ## Add checkboxes
         checks = []
         # find out which are actually used in the analysis
-        for cc in dclab.dfn.rdv:
+        for cc in dclab.dfn.column_names:
             for mm in self.analysis.measurements:
                 if cc in mm:
-                    checks.append(dclab.dfn.cfgmap[cc])
+                    checks.append(cc)
         checks = list(set(checks))
         checks.sort()
         self.box = wx.StaticBox(self.panel, label=_("Axes"))
@@ -61,7 +61,7 @@ class ExportAnalysisEvents(wx.Frame):
         for c in checks:
             # label id (b/c of sorting)
             lid = c+":"+" "*((tl-dc.GetTextExtent(c)[0])//sp)+"\t"
-            label = dclab.dfn.axlabels[c]
+            label = dclab.dfn.name2label[c]
             cb = wx.CheckBox(self.panel, label=lid + _(label), name=c)
             self.sizerin.Add(cb)
             if c in self.analysis.GetPlotAxes():
@@ -110,13 +110,13 @@ class ExportAnalysisEvents(wx.Frame):
             filtered = self.WXCheckFilter.IsChecked()
 
             # search all children for checkboxes that have
-            # the names in tlabwrap.dfn.uid
+            # the names in tlabwrap.dfn.column_names
             columns = []
             for ch in self.panel.GetChildren():
                 if (isinstance(ch, wx._controls.CheckBox) and 
                     ch.IsChecked()):
                     name = ch.GetName()
-                    if name in dclab.dfn.uid:
+                    if name in dclab.dfn.column_names:
                         columns.append(name)
             
             # Call the export function of dclab.rtdc_dataset
@@ -145,7 +145,7 @@ class ExportAnalysisEvents(wx.Frame):
         panel = self.panel
         for ch in panel.GetChildren():
             if (isinstance(ch, wx._controls.CheckBox) and 
-                ch.GetName() in dclab.dfn.uid):
+                ch.GetName() in dclab.dfn.column_names):
                 ch.SetValue(self.toggled_event_columns)
             
         # Invert for next execution

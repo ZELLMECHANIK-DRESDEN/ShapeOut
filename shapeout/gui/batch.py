@@ -151,7 +151,7 @@ class BatchFilterFolder(wx.Frame):
             if (isinstance(ch, wx._controls.CheckBox) and 
                 ch.IsChecked()):
                 name = ch.GetName()
-                if name in dclab.dfn.uid:
+                if name in dclab.dfn.column_names:
                     axes.append(name)
         # Get selected columns
         col_dict = dclab.statistics.Statistics.available_methods
@@ -330,15 +330,15 @@ class BatchFilterFolder(wx.Frame):
         if self.rbtnhere.Value:
             sel = self.dropdown.GetSelection()
             mm = self.analysis.measurements[sel]
-            for c in dclab.dfn.rdv:
+            for c in dclab.dfn.column_names:
                 if c in mm:
-                    checks.append(dclab.dfn.cfgmap[c])
+                    checks.append(c)
         else:
-            for c in dclab.dfn.rdv:
-                checks.append(dclab.dfn.cfgmap[c])
+            for c in dclab.dfn.column_names:
+                checks.append(c)
 
         checks = list(set(checks))
-        labels = [ dclab.dfn.axlabels[c] for c in checks ]
+        labels = [ dclab.dfn.name2label[c] for c in checks ]
 
         # Sort checks according to labels
         checks = [x for (_y,x) in sorted(zip(labels,checks))]

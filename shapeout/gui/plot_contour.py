@@ -88,11 +88,11 @@ def contour_plot(measurements, levels=[0.5,0.95],
 
     # Axes
     left_axis = ca.PlotAxis(contour_plot, orientation='left',
-                            title=dfn.axlabels[yax],
+                            title=dfn.name2label[yax],
                             tick_generator=plot_common.MyTickGenerator())
     
     bottom_axis = ca.PlotAxis(contour_plot, orientation='bottom',
-                              title=dfn.axlabels[xax],
+                              title=dfn.name2label[xax],
                               tick_generator=plot_common.MyTickGenerator())
     # Show log scale only with 10** values (#56)
     contour_plot.index_axis.tick_generator=plot_common.MyTickGenerator()
@@ -135,12 +135,12 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
     yax = mm.config["plotting"]["axis y"].lower()
 
     if mm.config["filtering"]["enable filters"]:
-        x0 = mm[dfn.cfgmaprev[xax]][mm._filter]
-        y0 = mm[dfn.cfgmaprev[yax]][mm._filter]
+        x0 = mm[xax][mm._filter]
+        y0 = mm[yax][mm._filter]
     else:
         # filtering disabled
-        x0 = mm[dfn.cfgmaprev[xax]]
-        y0 = mm[dfn.cfgmaprev[yax]]
+        x0 = mm[xax]
+        y0 = mm[yax]
 
     for ii, mm in enumerate(measurements):
         cname = "con_{}_{}_{}".format(mm.name, mm.identifier, ii)

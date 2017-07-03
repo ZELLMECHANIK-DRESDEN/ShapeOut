@@ -89,7 +89,7 @@ class Analysis(object):
         for _i in range(len(self.measurements)):
             mm = self.measurements.pop(0)
             # Deleting all the data in measurements!
-            attrs = copy.copy(dclab.definitions.rdv)
+            attrs = copy.copy(dclab.definitions.column_names)
             attrs += ["_filter_"+a for a in attrs]
             attrs += ["_filter"]
             for a in attrs:
@@ -139,7 +139,7 @@ class Analysis(object):
                             import IPython
                             IPython.embed()
             ## Check for missing min/max values and set them to zero
-            for item in dfn.uid:
+            for item in dfn.column_names:
                 appends = [" min", " max"]
                 for a in appends:
                     if not item+a in mm.config["plotting"]:
@@ -442,11 +442,10 @@ class Analysis(object):
         GetUsableAxes
         """
         unusable = []
-        for ax in dfn.uid:
+        for ax in dfn.column_names:
             for mm in self.measurements:
                 # Get the attribute name for the axis
-                atname = dfn.cfgmaprev[ax]
-                if atname not in mm:
+                if ax not in mm:
                     unusable.append(ax.lower())
                     break
         return unusable
@@ -464,7 +463,7 @@ class Analysis(object):
         """
         unusable = self.GetUnusableAxes()
         usable = []
-        for ax in dfn.uid:
+        for ax in dfn.column_names:
             if not ax in unusable:
                 usable.append(ax)
         return usable
@@ -514,7 +513,7 @@ class Analysis(object):
             return
         
         # Remove contour accuracies for the current plots
-        for key in dfn.uid:
+        for key in dfn.column_names:
             for mm in self.measurements:
                 for var in ["contour accuracy {}".format(key),
                             "kde accuracy {}".format(key)]:
