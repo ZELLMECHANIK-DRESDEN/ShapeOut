@@ -1,6 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - session conversion"""
+"""ShapeOut - session conversion
+
+Due to changes in naming conventions and refactoring in dclab,
+the data stored in ShapeOut sessions depends on the the version
+of dclab that was used at the time the session was saved.
+ShapeOut releases come as Windows installers that contain a
+specific version of dclab. Starting version 0.7.6, this
+version is stored along with the session and it is used to
+decide which parts of the session data needs conversion to
+work with the current version of ShapeOut.
+"""
 from __future__ import division, print_function, unicode_literals
 
 from distutils.version import LooseVersion
@@ -23,6 +33,9 @@ from dclab.rtdc_dataset.config import Configuration
 
 from . import index
 
+# Column name replacements, see
+# https://github.com/ZELLMECHANIK-DRESDEN/dclab/issues/16
+# https://github.com/ZELLMECHANIK-DRESDEN/rtdc_hdf5/issues/5
 compat_replace = [
                   ["area ratio", "area_ratio"],
                   ["area", "area_um"],
@@ -76,7 +89,7 @@ def ci_rm_row(data, ident):
 
 
 def hashfile_sha(fname, blocksize=65536):
-    """Compute md5 hex-hash of a file
+    """Compute sha256 hex-hash of a file
     
     Parameters
     ----------
@@ -97,6 +110,7 @@ def hashfile_sha(fname, blocksize=65536):
 
 
 def old_tdms_saved_hash(index_item):
+    """Compute md5 hash from data stored in old session index"""
     fd = index_item["fdir"]
     ff = index_item["name"]
 
@@ -123,12 +137,21 @@ def compatibilitize_session(tempdir):
     """Update extracted files to latest format
     
     ShapeOut 0.7.1
-    - change names of KDE accuracies
-      (kde multivariate -> kde accuracy)
+      - change names of KDE accuracies
+        (kde multivariate -> kde accuracy)
+    
+    ShapeOut 0.7.4
+      - rewrite config.txt path to always use slash
+    
     ShapeOut 0.7.5
-    - remove emodulus computation parameters if accuracy not present
+      - remove emodulus computation parameters if accuracy not present
+    
     ShapeOut 0.7.6
-    - introduction of new column names in dclab 0.2.5
+      - introduction of new column names in dclab 0.2.5
+    
+    See Also
+    --------
+    update_session_hashes: Update hashes for RT-DC datasets/hierarchies
     """
     version = index.index_version(tempdir)
     
@@ -231,11 +254,15 @@ def obj2str(obj):
 def update_session_hashes(tempdir, search_path="."):
     """Find all hierarchy children and compute correct hash
     
+    - Replace old hashes with new hashes
+    - Fix some (not all) hierarchy problems
+    
     New hashing methods were introduced in ShapeOut 0.7.6.
     Do not call this method for later sessions.
 
     This method assumes that the paths to the measurement files
-    are correct.
+    are correct. It is therefore not included in the
+    `compatibilitize_session` method.
     """
     index_dict = index.index_load(tempdir)
     parents = []
@@ -339,7 +366,31 @@ def update_session_hashes(tempdir, search_path="."):
 
 
 def search_hashed_measurement(mfile, index_item, directories, version):
-    """Search `directories` for `mfile` with matching `data`"""
+    """Search for a data set using hashes
+    
+    Parameters
+    ----------
+    mfile: str
+        The original path of the measurement file.
+    index_item: dict
+        Dictionary of this measurement file obtained from the
+        index.txt file of a session (see `index` submodule).
+    directories: list of str
+        A list of directories to search recursively.
+    version: distutils.version.LooseVersion
+        The version of ShapeOut used to save the session
+        (for backwards compatibility).
+    
+    Returns
+    -------
+    ffile: str or None
+        Path to the found measurement file.
+    
+    Notes
+    -----
+    This method only searches for filenames that match the basename
+    of the given `mfile`. 
+    """
     mname = os.path.basename(mfile)
     for adir in directories:
         for root, _ds, fs in os.walk(adir):
