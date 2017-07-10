@@ -1,4 +1,5 @@
 0.7.6
+- Add offline computation of average and SD of brightness 
 - Bugfixes:
   - Save sessions with deep (>1) hierarchies correctly
   - Better backwards compatibility for old session files
