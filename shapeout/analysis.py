@@ -215,7 +215,7 @@ class Analysis(object):
                                                   "_filter_manual.npy")
                 
                 if os.path.exists(filter_manual_file):
-                    mm._filter_manual = np.load(os.path.join(filter_manual_file))
+                    mm.filter.manual[:] = np.load(os.path.join(filter_manual_file))
 
                 mm.config.update(cfg)
                 mm.apply_filter()
