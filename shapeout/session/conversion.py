@@ -17,7 +17,7 @@ from distutils.version import LooseVersion
 import io
 import hashlib
 import os
-from os.path import dirname, join
+from os.path import dirname, exists, join
 import re
 import sys
 
@@ -148,6 +148,8 @@ def compatibilitize_session(tempdir):
     
     ShapeOut 0.7.6
       - introduction of new column names in dclab 0.2.5
+      - all previous version did not support manual filters in
+        hierarchy children (remove the _filter_manual.npy file)
     
     See Also
     --------
@@ -223,7 +225,18 @@ def compatibilitize_session(tempdir):
                                                      "/config.txt")
             index_dict[key]["config"] = repl
         index.index_save(tempdir, index_dict)
-        
+
+
+    # Remove _filter_manual.npy of hierarchy children
+    # These were actually not supported but stored anyway and sometimes
+    # with a wrong size.
+    if version < LooseVersion("0.7.6"):
+        index_dict = index.index_load(tempdir)
+        for key in index_dict:
+            if "special type" in index_dict[key]:
+                filtman = join(join(tempdir, key), "_filter_manual.npy")
+                if exists(filtman):
+                    os.remove(filtman)
 
     return version
 

@@ -5,7 +5,6 @@ from __future__ import division, unicode_literals
 
 import chaco.api as ca
 from chaco.color_mapper import ColorMapper
-import copy
 import gc
 import io
 import numpy as np
@@ -271,7 +270,7 @@ class Analysis(object):
             # can be opened on *nix as well.
             out.append("config = {}/config.txt".format(ident))
             # save manual filters
-            np.save(os.path.join(mmdir, "_filter_manual.npy"), mm._filter_manual)
+            np.save(os.path.join(mmdir, "_filter_manual.npy"), mm.filter.manual)
             out.append("")
             
         for i in range(len(out)):
