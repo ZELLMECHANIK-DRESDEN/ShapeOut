@@ -89,13 +89,6 @@ class Analysis(object):
         for _i in range(len(self.measurements)):
             mm = self.measurements.pop(0)
             # Deleting all the data in measurements!
-            attrs = copy.copy(dclab.definitions.column_names)
-            attrs += ["_filter_"+a for a in attrs]
-            attrs += ["_filter"]
-            for a in attrs:
-                if hasattr(mm, a):
-                    b = mm[a]
-                    del b
             refs = gc.get_referrers(mm)
             for r in refs:
                 if hasattr(r, "delplot"):
@@ -133,11 +126,7 @@ class Analysis(object):
                 for d, l in defs:
                     var = d.format(kk)
                     if var not in pltng:
-                        try:
-                            pltng[var] = l(mm[kk])
-                        except:
-                            import IPython
-                            IPython.embed()
+                        pltng[var] = l(mm[kk])
             ## Check for missing min/max values and set them to zero
             for item in dfn.column_names:
                 appends = [" min", " max"]
@@ -446,7 +435,7 @@ class Analysis(object):
             for mm in self.measurements:
                 # Get the attribute name for the axis
                 if ax not in mm:
-                    unusable.append(ax.lower())
+                    unusable.append(ax)
                     break
         return unusable
 
