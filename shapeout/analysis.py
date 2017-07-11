@@ -257,6 +257,9 @@ class Analysis(object):
                 except ValueError:
                     rdir = "."
                 out.append("rdir = {}".format(rdir))
+                # save manual filters only for real data
+                # (see https://github.com/ZELLMECHANIK-DRESDEN/dclab/issues/22)
+                np.save(os.path.join(mmdir, "_filter_manual.npy"), mm.filter.manual)
             elif mm.format == "hierarchy":
                 pidx = self.measurements.index(mm.hparent) + 1
                 p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
@@ -269,8 +272,6 @@ class Analysis(object):
             # Use forward slash such that sessions saved on Windows
             # can be opened on *nix as well.
             out.append("config = {}/config.txt".format(ident))
-            # save manual filters
-            np.save(os.path.join(mmdir, "_filter_manual.npy"), mm.filter.manual)
             out.append("")
             
         for i in range(len(out)):
