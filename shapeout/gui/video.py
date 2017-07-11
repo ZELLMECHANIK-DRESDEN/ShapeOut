@@ -96,10 +96,12 @@ class ImagePanel(ScrolledPanel):
         exclsizer.Add(updbutton, 0, wx.ALIGN_RIGHT)
         
         ## Add traces plot
+        # TODO:
+        # - write method in dclab that gets all traces across file formats
         x = np.linspace(-np.pi, np.pi, 50)
         y = np.cos(x)+1
         plotkwargs = {}
-        for key in dclab.dfn.tr_data:
+        for key in dclab.rtdc_dataset.fmt_tdms.naming.tr_data:
             plotkwargs[key[1]] = y
         
         self.trace_data = ca.ArrayPlotData(x=x, **plotkwargs)
@@ -145,7 +147,7 @@ class ImagePanel(ScrolledPanel):
         mm_id = self.WXCB_plot.GetSelection()
         evt_id = self.WXSP_plot.GetValue() - 1
         mm = self.analysis.measurements[mm_id]
-        mm._filter_manual[evt_id] = not self.WXChB_exclude.GetValue()
+        mm.filter.manual[evt_id] = not self.WXChB_exclude.GetValue()
 
 
     def OnUpdatePlot(self, e=None):
@@ -210,7 +212,7 @@ class ImagePanel(ScrolledPanel):
             self.PlotImage(None)
 
         # Update exclude check-box
-        self.WXChB_exclude.SetValue(not mm._filter_manual[evt_id])
+        self.WXChB_exclude.SetValue(not mm.filter.manual[evt_id])
 
         # Set max value for spin control
         max_evt = len(self.analysis.measurements[mm_id])

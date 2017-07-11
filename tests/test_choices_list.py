@@ -20,11 +20,11 @@ def test_config_choices():
     
     c3 = get_config_entry_choices("Plotting", "Axis X")
     assert len(c3) != 0
-    assert "defo" in c3
+    assert "deform" in c3
 
-    c3 = get_config_entry_choices("Plotting", "Axis Y", ignore_axes=["Defo"])
+    c3 = get_config_entry_choices("Plotting", "Axis Y", ignore_axes=["deform"])
     assert len(c3) != 0
-    assert not "defo" in c3
+    assert not "deform" in c3
     
     c4 = get_config_entry_choices("Plotting", "Rows")
     assert "1" in c4

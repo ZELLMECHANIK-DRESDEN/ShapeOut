@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import codecs
+import io
 import dclab
 import tempfile
 import webbrowser
@@ -44,7 +44,7 @@ class SubPanelAnalyze(SubPanel):
             # Axis to analyze
             sizer_bag.Add(wx.StaticText(self, label=_("Axis to analyze:")), (1,0), span=wx.GBSpan(1,1))
             self.axes = analysis.GetUsableAxes()
-            axeslist = [dclab.dfn.axlabels[a] for a in self.axes]
+            axeslist = [dclab.dfn.name2label[a] for a in self.axes]
             self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
                                          style=wx.CB_DROPDOWN|wx.CB_READONLY)
             self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_axes)
@@ -110,8 +110,6 @@ class SubPanelAnalyze(SubPanel):
         """
         # Get axis name
         axname = self.axes[self.WXCB_axes.GetSelection()]
-        # Get axis property
-        axprop = dclab.dfn.cfgmaprev[axname]
         
         # loop through analysis
         treatment = []
@@ -126,7 +124,7 @@ class SubPanelAnalyze(SubPanel):
             if self.WXCB_treatment[ii].GetSelection() == 0:
                 # The user selected _("None")
                 continue
-            xs.append(mm[axprop][mm._filter])
+            xs.append(mm[axname][mm._filter])
             mmtreat = self.WXCB_treatment[ii].GetValue()
             treatment.append(mmtreat)
             # get repetition
@@ -144,9 +142,9 @@ class SubPanelAnalyze(SubPanel):
                                        model=model)
         # display results
         # write to temporary file and display with webbrowser
-        outf = tempfile.mktemp(prefix="regression_analysis_{}_".format(axprop),
+        outf = tempfile.mktemp(prefix="regression_analysis_{}_".format(axname),
                                suffix=".txt")
-        with codecs.open(outf, "w", encoding="utf-8") as fd:
+        with io.open(outf, "w") as fd:
             fd.writelines(result["Full Summary"].replace("\n", "\r\n"))
 
         webbrowser.open(fd.name)

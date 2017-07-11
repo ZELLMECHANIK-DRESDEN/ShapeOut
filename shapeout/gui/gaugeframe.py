@@ -126,7 +126,7 @@ class GaugeFrame(wx.Frame):
         ther keyworkd argument `worker_id` in `GaugeIndefiniteStart`.
         
         """
-        wx.Frame.__init__(self, *args, **kwargs)
+        super(GaugeFrame, self).__init__(*args, **kwargs)
         self._verbose=False
 
         # Set up event handler for any worker thread results

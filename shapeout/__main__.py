@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-import codecs
+import io
 ## Language support:
 # Go to ../lang and execute
 # python mki18n.py -m
@@ -23,9 +23,25 @@ def prepare_app():
     # which is checking some wx runtime variables beforehand.
     app = wx.App(False)
    
+    # setup trnaslations
+    setup_lang()
+    
+    # get version
+    try:
+        from ._version import version
+    except:
+        warnings.warn(_("Could not determine ShapeOut version."))
+        version = None
+    
+    app.frame = frontend.Frame(version)
+    
+    return app
+
+
+def setup_lang():
     ## initialise language settings:
     try:
-        langIni = codecs.open(findfile("language.ini"), 'r', 'utf-8')
+        langIni = io.open(findfile("language.ini"), 'r')
     except IOError:
         language = u'en' #defaults to english
     else:
@@ -51,16 +67,6 @@ def prepare_app():
         except (ValueError, KeyError):
             pass
 
-    # get version
-    try:
-        from ._version import version
-    except:
-        warnings.warn(_("Could not determine ShapeOut version."))
-        version = None
-    
-    app.frame = frontend.Frame(version)
-    
-    return app
 
 if __name__ == "__main__":
     # get session file

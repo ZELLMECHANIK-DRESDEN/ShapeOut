@@ -5,19 +5,21 @@
 """
 from __future__ import division, unicode_literals
 
-import codecs
 import copy
+import io
+import os
+import warnings
+
 
 import imageio
 import numpy as np
 from nptdms import TdmsFile
-import os
-import warnings
 
 import dclab
 from dclab.rtdc_dataset.fmt_tdms import get_project_name_from_path, get_tdms_files
 from dclab.rtdc_dataset import config as rt_config
-from util import findfile
+
+from .util import findfile
 
 
 def crop_linear_data(data, xmin, xmax, ymin, ymax):
@@ -190,7 +192,7 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
         if subkey == "kde":
             choices = list(dclab.kde_methods.methods.keys())
         elif subkey in ["axis x", "axis y"]:
-            choices = copy.copy(dclab.dfn.uid)
+            choices = copy.copy(dclab.dfn.column_names)
             # remove unwanted axes
             for choice in ignore_axes:
                 if choice in choices:
@@ -384,7 +386,7 @@ def GetConfigurationKeys(cfgfilename, capitalize=True):
     Load the configuration file and return the list of variables
     in the order they appear.
     """
-    with codecs.open(cfgfilename, 'r', "utf-8") as f:
+    with io.open(cfgfilename, 'r') as f:
         code = f.readlines()
     
     cfglist = list()
@@ -456,4 +458,4 @@ isoeldir = findfile("isoelastics")
 isoelastics = LoadIsoelastics(os.path.join(thispath, isoeldir))
 
 # Axes that should not be displayed  by Shape Out
-IGNORE_AXES = ["areapix", "frame", "arearaw"]
+IGNORE_AXES = ["area_cvx", "area_msd", "frame"]

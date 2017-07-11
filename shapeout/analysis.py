@@ -5,21 +5,22 @@ from __future__ import division, unicode_literals
 
 import chaco.api as ca
 from chaco.color_mapper import ColorMapper
-import codecs
-import copy
+import gc
+import io
 import numpy as np
 import os
 import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import Configuration, fmt_tdms, fmt_hierarchy
+from dclab.rtdc_dataset import Configuration
 from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
 
 from .tlabwrap import IGNORE_AXES
 from shapeout import tlabwrap
-from .gui import session
+from ._version import version
+from . import session
 
 
 class Analysis(object):
@@ -39,10 +40,11 @@ class Analysis(object):
             The data to load. The nature of `data` is inferred
             from its type:
             - str: A session 'index.txt' file
-            - list: A list of paths of tdms files or RTDCBase
+            - list: A list of paths of measurement files or instances
+                    of RTDCBase
         search_path: str
             In case `data` is a string, `search_path` is used to
-            find missing tdms files on disk.
+            find missing files on disk.
         config: dict
             A configuration dictionary that will be applied to
             each RT-DC dataset before completing the configuration
@@ -51,6 +53,7 @@ class Analysis(object):
             the configuration must be applied beforehand to make
             sure that parameters such as "emodulus" are computed.
         """
+        # Start importing measurements
         self.measurements = []
         if isinstance(data, list):
             # New analysis
@@ -66,15 +69,14 @@ class Analysis(object):
             self._ImportDumped(data, search_path=search_path)
         else:
             raise ValueError("Argument not an index file or list of"+\
-                             " .tdms files: {}".format(data))
+                             " measurement files: {}".format(data))
+        
         # Set configuration (e.g. from previous analysis)
         if config:
             self.SetParameters(config)
         # Complete missing configuration parameters
         self._complete_config()
-        # Reset contour accuracies
-        self.init_plot_accuracies()
-
+        
 
     def _clear(self):
         """Remove all attributes from this instance, making it unusable
@@ -83,23 +85,17 @@ class Analysis(object):
         object.
         
         """
-        import gc
         for _i in range(len(self.measurements)):
             mm = self.measurements.pop(0)
             # Deleting all the data in measurements!
-            attrs = copy.copy(dclab.definitions.rdv)
-            attrs += ["_filter_"+a for a in attrs]
-            attrs += ["_filter"]
-            for a in attrs:
-                if hasattr(mm, a):
-                    b = mm[a]
-                    del b
             refs = gc.get_referrers(mm)
             for r in refs:
                 if hasattr(r, "delplot"):
                     r.delplot()
                 del r
             del mm
+        # Reset contour accuracies
+        self.reset_plot_accuracies()
         gc.collect()
 
 
@@ -119,24 +115,19 @@ class Analysis(object):
             mm.config.update(tlabwrap.cfg)
             mm.config.update(cfgold)
             ## Sensible values for default contour accuracies
-            keys = []
-            for prop in self.GetPlotAxes():
-                if dfn.cfgmaprev[prop] in mm:
-                    # There are values for this uid
-                    keys.append(dfn.cfgmaprev[prop])
             # This lambda function seems to do a good job
             accl = lambda a: (remove_nan_inf(a).max()-remove_nan_inf(a).min())/10
             defs = [["contour accuracy {}", accl],
                     ["kde accuracy {}", accl],
                    ]
             pltng = mm.config["plotting"]
-            for kk in keys:
+            for kk in self.GetPlotAxes():
                 for d, l in defs:
-                    var = d.format(dfn.cfgmap[kk])
+                    var = d.format(kk)
                     if var not in pltng:
                         pltng[var] = l(mm[kk])
             ## Check for missing min/max values and set them to zero
-            for item in dfn.uid:
+            for item in dfn.column_names:
                 appends = [" min", " max"]
                 for a in appends:
                     if not item+a in mm.config["plotting"]:
@@ -151,10 +142,10 @@ class Analysis(object):
         indexname : str
             Path to index.txt file
         search_path : str
-            Relative search path where to look for tdms files if
+            Relative search path where to look for measurement files if
             the absolute path stored in index.txt cannot be found.
         """
-        ## Read index file and locate tdms file.
+        ## Read index file and locate measurement file.
         thedir = os.path.dirname(indexname)
         # Load polygons before importing any data
         polygonfile = os.path.join(thedir, "PolygonFilters.poly")
@@ -162,88 +153,65 @@ class Analysis(object):
         if os.path.exists(polygonfile):
             PolygonFilter.import_all(polygonfile)
         # import configurations
-        datadict = session.index_load(indexname)
-        keys = list(datadict.keys())
+        index_dict = session.index.index_load(indexname)
+        keys = list(index_dict.keys())
         # The identifier (in brackets []) contains a number before the first
         # underscore "_" which determines the order of the plots:
         #keys.sort(key=lambda x: int(x.split("_")[0]))
         measmts = [None]*len(keys)
         while measmts.count(None):
             for key in keys:
+                # The order in keys is not important to correctly reproduce
+                # a session. Important is the integer number before the
+                # underscore.
                 kidx = int(key.split("_")[0])-1
                 if measmts[kidx] is not None:
                     # we have already imported that measurement
                     continue
                 
-                data = datadict[key]
+                item = index_dict[key]
                 # os.path.normpath replaces forward slash with
                 # backslash on Windows
                 config_file = os.path.normpath(os.path.join(thedir,
-                                                            data["config"]))
+                                                            item["config"]))
                 cfg = Configuration(files=[config_file])
-                
-                # backwards compatibility:
-                # - 0.7.1: replace "kde multivariate" with "kde accuracy"
-                for kk in list(cfg["plotting"].keys()):
-                    if kk.startswith("kde multivariate "):
-                        ax = kk.split()[2]
-                        cfg["plotting"]["kde accuracy "+ax] = cfg["plotting"][kk]
-                        cfg["plotting"].pop(kk)
-                # - 0.7.5: remove unused computation of emodulus from config
-                if "kde accuracy emodulus" not in cfg["plotting"]:
-                    # user did not compute emodulus
-                    if "calculation" in cfg:
-                        for kk in ["emodulus medium", 
-                                   "emodulus model",
-                                   "emodulus temperature",
-                                   "emodulus viscosity"]:
-                            if kk in cfg["calculation"]:
-                                cfg["calculation"].pop(kk)
+
                 # Start importing data
-                if ("special type" in data and
-                    data["special type"] == "hierarchy child"):
-                    # Check if the parent exists
-                    idhp = cfg["Filtering"]["Hierarchy Parent"]
-                    ids = [mm.identifier for mm in measmts if mm is not None]
-                    mms = [mm for mm in measmts if mm is not None]
-                    if idhp in ids:
-                        # parent exists
-                        hparent = mms[ids.index(idhp)]  
+                if ("special type" in item and
+                    item["special type"] == "hierarchy child"):
+                    # check if parent is already here
+                    pidx = int(item["parent id"].split("_")[0])-1
+                    hparent = measmts[pidx]
+                    if hparent is not None:
                         mm = dclab.new_dataset(hparent)
                     else:
                         # parent doesn't exist - try again in next loop
                         continue
                 else:
-                    tloc = session.get_tdms_file(data, search_path)
+                    tloc = session.index.find_data_path(item, search_path)
                     mm = dclab.new_dataset(tloc)
-                    mmhashes = [h[1] for h in mm.file_hashes]
-                    newhashes = [ data["tdms hash"], data["camera.ini hash"],
-                                  data["para.ini hash"]
-                                ]
-                    if mmhashes != newhashes:
+                    if mm.hash != item["hash"]:
                         msg = "File hashes don't match for: {}".format(tloc)
                         warnings.warn(msg, HashComparisonWarning)
 
-
-                if "title" in data:
+                if "title" in item:
                     # title saved starting version 0.5.6.dev6
-                    mm.title = data["title"]
+                    mm.title = item["title"]
                 
                 # Load manually excluded events
                 filter_manual_file = os.path.join(os.path.dirname(config_file),
                                                   "_filter_manual.npy")
                 
                 if os.path.exists(filter_manual_file):
-                    mm._filter_manual = np.load(os.path.join(filter_manual_file))
-                
-                mm.config.update(cfg)
-                mm.ApplyFilter()
-                measmts[kidx] = mm
+                    mm.filter.manual[:] = np.load(os.path.join(filter_manual_file))
 
+                mm.config.update(cfg)
+                mm.apply_filter()
+                measmts[kidx] = mm
         self.measurements = measmts
 
 
-    def DumpData(self, directory, fullout=False, rel_path="./"):
+    def DumpData(self, directory, rel_path="./"):
         """ Dumps all the data from the analysis to a `directory`
         
         Returns a list of filenames that are required to restore this
@@ -252,16 +220,15 @@ class Analysis(object):
         """
         indexname = os.path.join(directory, "index.txt")
         # Create Index file
-        out = ["# ShapeOut Measurement Index"]
+        out = ["# ShapeOut measurement index",
+               "# Software version {}".format(version)]
         
         i = 0
         for mm in self.measurements:
-            has_tdms = isinstance(mm, fmt_tdms.RTDC_TDMS)
-            is_hchild = isinstance(mm, fmt_hierarchy.RTDC_Hierarchy)
             amsg = "RT-DC dataset must be from tdms file or hierarchy child!"
-            assert has_tdms+is_hchild, amsg
+            assert mm.format in ["tdms", "hierarchy"], amsg
             i += 1
-            ident = "{}_{}".format(i, mm.name)
+            ident = "{}_{}".format(i, mm.identifier)
             # the directory in the session zip file where all information
             # will be stored:
             mmdir = os.path.join(directory, ident)
@@ -277,45 +244,40 @@ class Analysis(object):
                     break
             os.mkdir(mmdir)
             out.append("[{}]".format(ident))
-            if has_tdms:
-                out.append("tdms hash = "+mm.file_hashes[0][1])
-                out.append("camera.ini hash = "+mm.file_hashes[1][1])
-                out.append("para.ini hash = "+mm.file_hashes[2][1])
-                out.append("name = "+mm.name+".tdms")
-                out.append("fdir = "+mm.fdir)
+            out.append("title = "+mm.title)            
+            out.append("hash = {}".format(mm.hash))
+            if mm.format in ["tdms", "hdf5"]:
+                out.append("name = {}".format(os.path.basename(mm.path)))
+                out.append("fdir = {}".format(os.path.dirname(mm.path)))
                 try:
                     # On Windows we have multiple drive letters and
-                    # relpath will complain about that if mm.fdir and
-                    # rel_path are not on the same drive.
-                    rdir = os.path.relpath(mm.fdir, rel_path)
+                    # relpath will complain about that if dirname(mm.path)
+                    # and rel_path are not on the same drive.
+                    rdir = os.path.relpath(os.path.dirname(mm.path), rel_path)
                 except ValueError:
                     rdir = "."
-                out.append("rdir = "+rdir)
-            elif is_hchild:
+                out.append("rdir = {}".format(rdir))
+                # save manual filters only for real data
+                # (see https://github.com/ZELLMECHANIK-DRESDEN/dclab/issues/22)
+                np.save(os.path.join(mmdir, "_filter_manual.npy"), mm.filter.manual)
+            elif mm.format == "hierarchy":
+                pidx = self.measurements.index(mm.hparent) + 1
+                p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
                 out.append("special type = hierarchy child")
-            out.append("title = "+mm.title)
+                out.append("parent hash = {}".format(mm.hparent.hash))
+                out.append("parent id = {}".format(p_ident))
             # Save configurations
             cfgfile = os.path.join(mmdir, "config.txt")
             mm.config.save(cfgfile)
             # Use forward slash such that sessions saved on Windows
             # can be opened on *nix as well.
             out.append("config = {}/config.txt".format(ident))
-            
-            # save manual filters
-            np.save(os.path.join(mmdir, "_filter_manual.npy"), mm._filter_manual)
-            
-            if fullout:
-                # create directory that contains tdms and ini files
-                
-                ## create copy function that works on all oses!
-                raise NotImplementedError("Unable to copy files!")
-
             out.append("")
             
         for i in range(len(out)):
             out[i] += "\r\n"
         
-        with codecs.open(indexname, "w", "utf-8") as index:
+        with io.open(indexname, "w") as index:
             index.writelines(out)
         
         # Dump polygons
@@ -334,7 +296,7 @@ class Analysis(object):
         # Reset limit filtering to get the correct number of events
         # This value will be overridden in the end.
         cfgreset = {"filtering":{"limit events":0}}
-        # This also calls ApplyFilter and comutes clean filters
+        # This also calls apply_filter and comutes clean filters
         self.SetParameters(cfgreset)
         
         # Get minimum size
@@ -371,10 +333,10 @@ class Analysis(object):
 
 
     def GetNames(self):
-        """ Returns the names of all measurements """
+        """ Returns the titles of all measurements """
         names = list()
         for mm in self.measurements:
-            names.append(mm.name)
+            names.append(mm.title)
         return names
 
 
@@ -411,10 +373,11 @@ class Analysis(object):
         return head, datalist
 
 
-    def GetTDMSFilenames(self):
+    def GetFilenames(self):
+        """Returns paths of measurements"""
         names = list()
         for mm in self.measurements:
-            names.append(mm.tdms_filename)
+            names.append(mm.path)
         return names
 
 
@@ -433,8 +396,8 @@ class Analysis(object):
         if key in self.measurements[0].config:
             s = set(self.measurements[0].config[key].items())
             uncom = set(com.items()) ^ s
-            for m in self.measurements[1:]:
-                s2 = set(m.config[key].items())
+            for nn in self.measurements[1:]:
+                s2 = set(nn.config[key].items())
                 uncom2 = set(com.items()) ^ s2
                 
                 newuncom = dict()
@@ -446,13 +409,13 @@ class Analysis(object):
                     
             for item in uncom:
                 vals = list()
-                for m in self.measurements:
-                    if m.config[key].has_key(item[0]):
-                        vals.append(m.config[key][item[0]])
+                for mm in self.measurements:
+                    if mm.config[key].has_key(item[0]):
+                        vals.append(mm.config[key][item[0]])
                     else:
                         vals.append(None)
                         warnings.warn(
-                          "Measurement {} might be corrupt!".format(m.name))
+                          "Measurement {} might be corrupt!".format(mm.title))
                 retdict[item[0]] = vals
         return retdict        
 
@@ -468,12 +431,11 @@ class Analysis(object):
         GetUsableAxes
         """
         unusable = []
-        for ax in dfn.uid:
+        for ax in dfn.column_names:
             for mm in self.measurements:
                 # Get the attribute name for the axis
-                atname = dfn.cfgmaprev[ax]
-                if atname not in mm:
-                    unusable.append(ax.lower())
+                if ax not in mm:
+                    unusable.append(ax)
                     break
         return unusable
 
@@ -490,7 +452,7 @@ class Analysis(object):
         """
         unusable = self.GetUnusableAxes()
         usable = []
-        for ax in dfn.uid:
+        for ax in dfn.column_names:
             if not ax in unusable:
                 usable.append(ax)
         return usable
@@ -518,7 +480,7 @@ class Analysis(object):
         return conf
 
 
-    def init_plot_accuracies(self):
+    def reset_plot_accuracies(self):
         """ Set initial (heuristic) accuracies for all plots.
         
         It is not always easy to determine the correct accuracy for
@@ -535,11 +497,12 @@ class Analysis(object):
         first measurement of the analysis.
         """
         # check if updating is disabled:
-        if self.measurements[0].config["plotting"]["contour fix scale"]:
+        if (len(self.measurements) == 0 or
+            self.measurements[0].config["plotting"]["contour fix scale"]):
             return
         
         # Remove contour accuracies for the current plots
-        for key in dfn.uid:
+        for key in dfn.column_names:
             for mm in self.measurements:
                 for var in ["contour accuracy {}".format(key),
                             "kde accuracy {}".format(key)]:
@@ -625,7 +588,7 @@ class Analysis(object):
             mm.config.update(upcfg)
         for mm in self.measurements:
             # apply filter in separate loop (safer for hierarchies)
-            mm.ApplyFilter()
+            mm.apply_filter()
         
         # Trigger computation of kde/contour accuracies for ancillary columns
         self._complete_config()

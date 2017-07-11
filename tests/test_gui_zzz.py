@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Scripted tests for the user interface.
-"""
+"""This must be the last test executed for some unknown reason"""
 from __future__ import division, print_function
 import sys
 from os.path import abspath, dirname
@@ -16,7 +15,7 @@ sys.path.insert(0, dirname(dirname(abspath(__file__))))
 import shapeout
 
 
-def test_prepare():
+def test_final():
     from shapeout.__main__ import prepare_app
     prepare_app()
 

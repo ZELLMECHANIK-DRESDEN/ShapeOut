@@ -146,11 +146,11 @@ def scatter_plot(measurement,
 
     # Axes
     left_axis = ca.PlotAxis(sc_plot, orientation='left',
-                            title=dfn.axlabels[yax],
+                            title=dfn.name2label[yax],
                             tick_generator=plot_common.MyTickGenerator())
     
     bottom_axis = ca.PlotAxis(sc_plot, orientation='bottom',
-                              title=dfn.axlabels[xax],
+                              title=dfn.name2label[xax],
                               tick_generator=plot_common.MyTickGenerator())
     # Show log scale only with 10** values (#56)
     sc_plot.index_axis.tick_generator=plot_common.MyTickGenerator()
@@ -218,10 +218,10 @@ def set_scatter_data(plot, mm):
     yax = mm.config["plotting"]["axis y"].lower()
     
     if mm.config["filtering"]["enable filters"]:
-        x0 = mm[dfn.cfgmaprev[xax]][mm._filter]
+        x0 = mm[xax][mm._filter]
     else:
         # filtering disabled
-        x0 = mm[dfn.cfgmaprev[xax]]
+        x0 = mm[xax]
 
     downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
@@ -253,7 +253,7 @@ def set_scatter_data(plot, mm):
     # Plot filtered data in grey
     if (plotfilters["Scatter Plot Excluded Events"] and
         mm._filter.sum() != len(mm)):
-        mm.ApplyFilter()
+        mm.apply_filter()
         # determine the number of points we are allowed to add
         if downsample:
             # respect the maximum limit of plotted events
@@ -263,8 +263,8 @@ def set_scatter_data(plot, mm):
             # plot all excluded events
             excl_num = np.sum(~mm._filter)
     
-        excl_x = mm[dfn.cfgmaprev[xax]][~mm._filter][:excl_num]
-        excl_y = mm[dfn.cfgmaprev[yax]][~mm._filter][:excl_num]
+        excl_x = mm[xax][~mm._filter][:excl_num]
+        excl_y = mm[yax][~mm._filter][:excl_num]
 
         pd.set_data("excl_index", excl_x)
         pd.set_data("excl_value", excl_y)

@@ -5,7 +5,7 @@
 """
 from __future__ import division, print_function, unicode_literals
 
-import codecs
+import io
 import os
 from os.path import join
 
@@ -35,7 +35,7 @@ class ConfigurationFile(object):
 
     def get_dir(self, name=""):
         """ Returns the current working directory """
-        with codecs.open(self.cfgfile, 'r', "utf-8") as fop:
+        with io.open(self.cfgfile, 'r') as fop:
             fc = fop.readlines()
         for line in fc:
             line = line.strip()
@@ -52,7 +52,7 @@ class ConfigurationFile(object):
     def set_dir(self, wd, name=""):
         if os.path.exists(wd):
             assert self.cfgfile != "", "Configuration not found: "+self.cfgfile
-            with codecs.open(self.cfgfile, 'r', "utf-8") as fop:
+            with io.open(self.cfgfile, 'r') as fop:
                 fc = fop.readlines()
             # Check if we have already saved it there.
             wdirin = False
@@ -62,7 +62,7 @@ class ConfigurationFile(object):
                     wdirin = True
             if not wdirin:
                 fc.append(u"Working Directory {} = {}".format(name, wd))
-            with codecs.open(self.cfgfile, 'w', "utf-8") as fop:
+            with io.open(self.cfgfile, 'w') as fop:
             
                 for i in range(len(fc)):
                     fc[i] = fc[i].strip()+"\n"

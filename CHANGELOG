@@ -1,3 +1,8 @@
+0.7.6
+- Add offline computation of average and SD of brightness 
+- Bugfixes:
+  - Save sessions with deep (>1) hierarchies correctly
+  - Better backwards compatibility for old session files
 0.7.5
 - Move from OpenCV to imageio (#129)
 - Allow to select region and flow rate in batch processing (#132)

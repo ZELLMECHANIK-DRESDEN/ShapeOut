@@ -5,7 +5,7 @@
 """
 from __future__ import division, print_function, unicode_literals
 
-import codecs
+import io
 import os
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
@@ -29,10 +29,8 @@ class BatchFilterFolder(wx.Frame):
         self.toggled_stat_parms = False
 
         # Get the window positioning correctly
-        pos = self.parent.GetPosition()
-        pos = (pos[0]+100, pos[1]+100)
         wx.Frame.__init__(self, parent=self.parent, title=_("Batch filtering"),
-                          pos=pos, style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
+                          style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
         ## panel
         panel = self.panel = wx.Panel(self)
         self.topSizer = wx.BoxSizer(wx.VERTICAL)
@@ -153,7 +151,7 @@ class BatchFilterFolder(wx.Frame):
             if (isinstance(ch, wx._controls.CheckBox) and 
                 ch.IsChecked()):
                 name = ch.GetName()
-                if name in dclab.dfn.uid:
+                if name in dclab.dfn.column_names:
                     axes.append(name)
         # Get selected columns
         col_dict = dclab.statistics.Statistics.available_methods
@@ -197,7 +195,7 @@ class BatchFilterFolder(wx.Frame):
             anal = analysis.Analysis([tdms], config=f_config)
             mm = anal.measurements[0]
             # Apply filters
-            mm.ApplyFilter()
+            mm.apply_filter()
             # Get statistics
             h, v = dclab.statistics.get_statistics(rtdc_ds=mm,
                                                    columns=columns,
@@ -207,11 +205,11 @@ class BatchFilterFolder(wx.Frame):
             else:
                 assert h==head, "Problem with available columns/axes!"
             
-            rows.append([mm.tdms_filename, mm.title]+v)
+            rows.append([mm.path, mm.title]+v)
 
         head = ["TDMS file", "Title"] + head
         
-        with codecs.open(self.out_tsv_file, "w", encoding="utf-8") as fd:
+        with io.open(self.out_tsv_file, "w") as fd:
             header = u"\t".join([ h for h in head ])
             fd.write("# "+header+"\n")
         
@@ -299,7 +297,6 @@ class BatchFilterFolder(wx.Frame):
         
 
     def OnRadioThere(self, e=None):
-        print("there")
         self.OnUpdateAxes()
         self.filter_config = None
         
@@ -333,15 +330,15 @@ class BatchFilterFolder(wx.Frame):
         if self.rbtnhere.Value:
             sel = self.dropdown.GetSelection()
             mm = self.analysis.measurements[sel]
-            for c in dclab.dfn.rdv:
+            for c in dclab.dfn.column_names:
                 if c in mm:
-                    checks.append(dclab.dfn.cfgmap[c])
+                    checks.append(c)
         else:
-            for c in dclab.dfn.rdv:
-                checks.append(dclab.dfn.cfgmap[c])
+            for c in dclab.dfn.column_names:
+                checks.append(c)
 
         checks = list(set(checks))
-        labels = [ dclab.dfn.axlabels[c] for c in checks ]
+        labels = [ dclab.dfn.name2label[c] for c in checks ]
 
         # Sort checks according to labels
         checks = [x for (_y,x) in sorted(zip(labels,checks))]

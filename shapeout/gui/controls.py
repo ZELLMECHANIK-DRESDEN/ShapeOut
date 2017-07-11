@@ -165,6 +165,7 @@ class ControlPanel(ScrolledPanel):
                 plot_contour.set_contour_data(plot, self.analysis.measurements)
 
 
+        self.frame.PlotArea.Plot(self.analysis)
         self.UpdatePages()
         wx.EndBusyCursor()
     
