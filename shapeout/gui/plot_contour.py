@@ -143,7 +143,7 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         y0 = mm[yax]
 
     for ii, mm in enumerate(measurements):
-        cname = "con_{}_{}_{}".format(mm.name, mm.identifier, ii)
+        cname = "con_{}_{}".format(ii, mm.identifier)
         if cname in plot.plots:
             plot.delplot(cname)
 
