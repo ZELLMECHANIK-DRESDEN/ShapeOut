@@ -222,6 +222,10 @@ class ImagePanel(ScrolledPanel):
         if "trace" in mm:
             self.plot_window.control.Show(True)
             empty_traces = []
+            # Default shape needed for zerodata
+            # (will be overridden by this loop if there
+            # is trace data for this event.
+            dshape=(10,1)
             for ch in mm["trace"]:
                 data = mm["trace"][ch][evt_id]
                 if data.size == 0:
@@ -230,8 +234,6 @@ class ImagePanel(ScrolledPanel):
                     # Set y values for present traces
                     self.trace_data.set_data(ch, data)
                     dshape = data.shape
-            else:
-                dshape=(10,1)
             # Set x-values for all plots
             self.trace_data.set_data("x", np.arange(dshape[0]))
             # Set other trace data to zero if event does not have it
