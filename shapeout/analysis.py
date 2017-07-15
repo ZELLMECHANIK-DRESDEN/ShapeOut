@@ -421,9 +421,8 @@ class Analysis(object):
 
     def GetUnusableAxes(self):
         """ 
-        Unusable axes are axes that are not shared by all
-        measurements. A measurement does not have an axis, if all
-        values along that axis are zero.
+        Unusable axes are axes that are not shared by all measurements
+        or that are ignored by default.
 
         See Also
         --------
@@ -431,6 +430,9 @@ class Analysis(object):
         """
         unusable = []
         for ax in dfn.column_names:
+            if ax in IGNORE_AXES:
+                unusable.append(ax)
+                continue
             for mm in self.measurements:
                 # Get the attribute name for the axis
                 if ax not in mm:
@@ -458,23 +460,22 @@ class Analysis(object):
 
 
     def GetParameters(self, key, mid=0, filter_for_humans=True):
-        """ Get parameters that all measurements share.
-        """
+        """Get parameters that all measurements share."""
         conf = self.measurements[mid].config.copy()[key]
         unusable_axes = self.GetUnusableAxes()
         pops = []
         for k in conf:
-            # remove generally ignored items from config
-            for ax in IGNORE_AXES:
-                if k.startswith(ax) or k.endswith(ax):
-                    pops.append(k)
             # remove axes that are not owned by all measurements
-            if k.endswith("max"):
+            if k.endswith(" max"):
                 ax = k[:-4]
                 if ax in unusable_axes:
-                    pops.append(k)
+                    pops.append("kde accuracy {}".format(ax))
+                    pops.append("contour accuracy {}".format(ax))
+                    pops.append("{} min".format(ax))
+                    pops.append("{} max".format(ax))
         for k in list(set(pops)):
-            conf.pop(k)
+            if k in conf:
+                conf.pop(k)
             
         return conf
 

@@ -4,6 +4,7 @@
   - Allow to (dis/en)able checking for updates
   - Allow to (dis/en)able expert mode (#157)
 - Bugfixes:
+  - Hidden axes ("area_cvx", "area_msd", "frame") visible in analysis tab
   - Display of fluorescence traces broken (#159)
   - Display of contour plots broken (#160)
 0.7.6
