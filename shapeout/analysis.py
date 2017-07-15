@@ -22,7 +22,6 @@ from shapeout import tlabwrap
 from ._version import version
 from . import session
 
-
 class Analysis(object):
     """ An object that stores several RTDC data sets and useful methods
     

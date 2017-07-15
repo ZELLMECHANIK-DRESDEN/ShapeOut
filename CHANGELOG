@@ -1,6 +1,10 @@
 0.7.7
+- Add "Preferences" menu:
+  - Allow to (dis/en)able session autosaving
+  - Allow to (dis/en)able checking for updates
+  - Allow to (dis/en)able expert mode (#157)
 - Bugfixes:
-  - Display of Fluorescence Traces broken (#159)
+  - Display of fluorescence traces broken (#159)
   - Display of contour plots broken (#160)
 0.7.6
 - Add on-the-fly computation of average and SD for brightness
