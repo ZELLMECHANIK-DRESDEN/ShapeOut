@@ -165,9 +165,9 @@ def index_save(index_file, index_dict):
             out.append("{} = {}".format(ikey,section[ikey]))
         out.append("")
     
+    for i in range(len(out)):
+        out[i] = out[i]+"\n"
     with io.open(index_file, "w") as f:
-        for i in range(len(out)):
-            out[i] = out[i]+"\r\n"
         f.writelines(out)
 
 
@@ -204,9 +204,11 @@ def index_version(index_file):
     with io.open(index_file, "r") as fd:
         data = fd.readlines()
     
-    vline = data[1].lower().strip()
-    if vline.count("software version"):
-        vers = LooseVersion(vline.split()[-1])
+    for line in data:
+        line = data[1].lower().strip()
+        if line.count("software version"):
+            vers = LooseVersion(line.split()[-1])
+            break
     else:
         vers = LooseVersion("0.0.1")
     return vers

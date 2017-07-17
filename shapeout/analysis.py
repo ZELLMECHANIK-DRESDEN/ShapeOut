@@ -274,7 +274,7 @@ class Analysis(object):
             out.append("")
             
         for i in range(len(out)):
-            out[i] += "\r\n"
+            out[i] += "\n"
         
         with io.open(indexname, "w") as index:
             index.writelines(out)
