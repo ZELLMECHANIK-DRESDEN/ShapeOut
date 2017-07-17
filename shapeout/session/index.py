@@ -205,8 +205,9 @@ def index_version(index_file):
         data = fd.readlines()
     
     for line in data:
-        line = data[1].lower().strip()
-        if line.count("software version"):
+        line = line.lower().strip()
+        if (line.startswith("#") and 
+            line.count("software version")):
             vers = LooseVersion(line.split()[-1])
             break
     else:
