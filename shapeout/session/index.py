@@ -165,9 +165,9 @@ def index_save(index_file, index_dict):
             out.append("{} = {}".format(ikey,section[ikey]))
         out.append("")
     
+    for i in range(len(out)):
+        out[i] = out[i]+"\n"
     with io.open(index_file, "w") as f:
-        for i in range(len(out)):
-            out[i] = out[i]+"\r\n"
         f.writelines(out)
 
 
