@@ -7,6 +7,7 @@
   - Hidden axes ("area_cvx", "area_msd", "frame") visible in analysis tab
   - Display of fluorescence traces broken (#159)
   - Display of contour plots broken (#160)
+  - dclab 0.2.5dev1: Automatically fix ancillary column sizes
 0.7.6
 - Add on-the-fly computation of average and SD for brightness
 - Bugfixes:
