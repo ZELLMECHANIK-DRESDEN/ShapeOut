@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" configuration - configuration file of ShapeOut
-
-"""
+"""Configuration file handling for ShapeOut"""
 from __future__ import division, print_function, unicode_literals
 
 import io
@@ -12,59 +10,94 @@ from os.path import join
 import appdirs
 
 CFGNAME = "shapeout.cfg"
+DEFAULTS = {"autosave session": True,
+            "check update": True,
+            "expert mode": False,
+            }
+
 
 class ConfigurationFile(object):
-    """ A fixed configuration file that will be created upon startup.
-    
-    """
-    def __init__(self, path=None):
-        """
-        """
+    """Manages a configuration file in the user's config dir"""
+    def __init__(self):
+        """Initialize configuration file (create if it does not exist)"""
         # get default path of configuration
         udir = appdirs.user_config_dir()
         fname = join(udir, CFGNAME)
-
+        # create file if not existent
         if not os.path.exists(fname):
             # Create the file
             open(fname, "w").close()
         
         self.cfgfile = fname
         self.working_directories = {}
-        self.get_dir()
 
 
-    def get_dir(self, name=""):
-        """ Returns the current working directory """
+    def load(self):
+        """Loads the configuration file returning a dictionary"""
         with io.open(self.cfgfile, 'r') as fop:
             fc = fop.readlines()
+        cdict = {}
         for line in fc:
             line = line.strip()
-            if line.split("=")[0].strip() == "Working Directory "+name:
-                wd = line.split("=")[1].strip()
-                if not os.path.exists(wd):
-                    wd = "./"
-                break
+            var, val = line.split("=", 1)
+            cdict[var.lower().strip()] = val.strip()
+        return cdict
+    
+
+    def get_bool(self, key):
+        """Returns boolean configuration key"""
+        key = key.lower()
+        cdict = self.load()
+        if key in cdict:
+            val = cdict[key]
+            msg = "Config key '{}' is not binary (neither 'True' nor 'False')!"
+            assert val in ["True", "False"], msg
+    
+            if val == "True":
+                ret = True
+            else:
+                ret = False
+        else:
+            ret = DEFAULTS[key]
+        return ret
+        
+
+    def get_dir(self, name=""):
+        """Returns the working directory for label `name`"""
+        cdict = self.load()
+        wdkey = "working directory {}".format(name.lower())
+        
+        if wdkey in cdict:
+            wd = cdict[wdkey]
         else:
             wd = "./"
+
         return wd
 
 
-    def set_dir(self, wd, name=""):
-        if os.path.exists(wd):
-            assert self.cfgfile != "", "Configuration not found: "+self.cfgfile
-            with io.open(self.cfgfile, 'r') as fop:
-                fc = fop.readlines()
-            # Check if we have already saved it there.
-            wdirin = False
-            for i in range(len(fc)):
-                if fc[i].split("=")[0].strip() == "Working Directory "+name:
-                    fc[i] = u"Working Directory {} = {}".format(name, wd)
-                    wdirin = True
-            if not wdirin:
-                fc.append(u"Working Directory {} = {}".format(name, wd))
-            with io.open(self.cfgfile, 'w') as fop:
-            
-                for i in range(len(fc)):
-                    fc[i] = fc[i].strip()+"\n"
+    def save(self, cdict):
+        """Save a configuration dictionary into a file"""
+        assert self.cfgfile != "", "Configuration not found: "+self.cfgfile
+        skeys = list(cdict.keys())
+        skeys.sort()
+        outlist = []
+        for sk in skeys:
+            outlist.append("{} = {}\n".format(sk, cdict[sk]))
+
+        with io.open(self.cfgfile, 'w') as fop:
+            fop.writelines(outlist)
+
     
-                fop.writelines(fc)
+    def set_bool(self, key, value):
+        """Sets boolean key in the configuration file"""
+        cdict = self.load()
+        cdict[key.lower()] = bool(value)
+        self.save(cdict)
+
+
+    def set_dir(self, wd, name=""):
+        """Set the working directory in the configuration file"""
+        cdict = self.load()
+        wdkey = "working directory {}".format(name.lower())
+        cdict[wdkey] = wd
+        self.save(cdict)

@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - wx frontend components
-
-"""
+"""ShapeOut - wx frontend components"""
 from __future__ import division, print_function, unicode_literals
 
 import os
@@ -52,7 +50,7 @@ class Frame(gaugeframe.GaugeFrame):
     """"""
     def __init__(self, version):
         """Constructor"""
-        self.config = ConfigurationFile(findfile("shapeout.cfg"))
+        self.config = ConfigurationFile()
         self.version = version
         #size = (1300,900)
         size = (1200,700)
@@ -148,12 +146,14 @@ class Frame(gaugeframe.GaugeFrame):
         # Load session file if provided
         if session_file is not None and not recover:
             self.OnMenuLoad(session_file=session_file)
-            
-        # Search for updates
-        update.Update(self)
 
-        # Start autosaving
-        autosave.autosave_run(self)
+        if self.config.get_bool("check update"):
+            # Search for updates
+            update.Update(self)
+
+        if self.config.get_bool("autosave session"):
+            # Start autosaving
+            autosave.autosave_run(self)
 
         # download ffmpeg for imageio
         try:
@@ -253,6 +253,24 @@ class Frame(gaugeframe.GaugeFrame):
         b_filter = batchMenu.Append(wx.ID_ANY, _('&Statistical analysis'), 
                     _('Apply one filter setting to multiple measurements.'))
         self.Bind(wx.EVT_MENU, self.OnMenuBatchFolder, b_filter)
+
+        ## Preferences menu
+        prefMenu = wx.Menu()
+        self.menubar.Append(prefMenu, _('&Preferences'))
+        self.menuAutosave = prefMenu.AppendCheckItem(wx.ID_ANY,
+                                                     _("&Autosave session"),
+                                    _("Autosave session in the background"))
+        self.menuAutosave.Check(self.config.get_bool("autosave session"))
+        self.menuSearchUpdate = prefMenu.AppendCheckItem(wx.ID_ANY,
+                                                    _("&Check for updates"),
+                                      _("Check for new version on startup"))
+        self.menuSearchUpdate.Check(self.config.get_bool("check update"))
+        self.menuExpert = prefMenu.AppendCheckItem(wx.ID_ANY,
+                                                   _("&Expert mode"),
+                                _("Enable advanced functionalities"))
+        self.menuExpert.Check(self.config.get_bool("expert mode"))
+        for item in prefMenu.GetMenuItems():
+            self.Bind(wx.EVT_MENU, self.OnMenuPreferences, item)
         
         ## Help menu
         helpmenu = wx.Menu()
@@ -488,6 +506,35 @@ class Frame(gaugeframe.GaugeFrame):
 
         session.open_session(fname, self)
         
+
+    def OnMenuPreferences(self, event):
+        """Update configuration file and display restart messages"""
+        val = event.Checked()
+        eid = event.Id
+        display_name = ""
+        if eid == self.menuAutosave.Id:
+            self.config.set_bool("autosave session", val)
+            display_name = _("Session autosaving")
+        elif eid == self.menuExpert.Id:
+            self.config.set_bool("expert mode", val)
+            display_name = _("Expert mode")
+        elif eid == self.menuSearchUpdate.Id:
+            self.config.set_bool("check update", val)
+        else:
+            raise ValueError("Unknown preferences event!")
+
+        if display_name:
+            if val:
+                disen = _("enabled")
+            else:
+                disen = _("disabled")
+            msg = _("{} will be {} on next run.").format(display_name, disen)
+            caption = _("{} {}.").format(display_name, disen)
+            dlg = wx.MessageDialog(self, msg, caption,
+                                   wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+
 
     def OnMenuSearchPath(self, e=None):
         """ Set path of working directory

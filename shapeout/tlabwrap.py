@@ -20,6 +20,7 @@ from dclab.rtdc_dataset.fmt_tdms import get_project_name_from_path, get_tdms_fil
 from dclab.rtdc_dataset import config as rt_config
 
 from .util import findfile
+from . import configuration
 
 
 def crop_linear_data(data, xmin, xmax, ymin, ymax):
@@ -457,5 +458,8 @@ thispath = os.path.dirname(os.path.realpath(__file__))
 isoeldir = findfile("isoelastics")
 isoelastics = LoadIsoelastics(os.path.join(thispath, isoeldir))
 
-# Axes that should not be displayed  by Shape Out
-IGNORE_AXES = ["area_cvx", "area_msd", "frame"]
+if configuration.ConfigurationFile().get_bool("expert mode"):
+    IGNORE_AXES = []
+else:
+    # Axes that should not be displayed  by ShapeOut
+    IGNORE_AXES = ["area_cvx", "area_msd", "frame"]
