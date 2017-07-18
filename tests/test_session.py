@@ -16,20 +16,11 @@ sys.path.insert(0, dirname(dirname(abspath(__file__))))
 from shapeout.session import conversion, index, rw
 from shapeout.analysis import Analysis
 
-from helper_methods import retreive_session, cleanup
-
-
-def setup_session_task(name):
-    path = retreive_session(name)
-    Arc = zipfile.ZipFile(path, mode='r')
-    tempdir = tempfile.mkdtemp(prefix="ShapeOut-test_")
-    Arc.extractall(tempdir)
-    Arc.close()
-    return tempdir, dirname(path)
+from helper_methods import cleanup, extract_session, retreive_session
 
 
 def compatibility_task(name):
-    tempdir, search_path = setup_session_task(name)
+    tempdir, search_path = extract_session(name)
     rtdc_list = rw.load(tempdir, search_path=search_path)
     idout = index.index_check(tempdir, search_path=search_path)
     assert len(idout["missing files"]) == 0
@@ -50,6 +41,7 @@ def test_065():
     mm = analysis.measurements[0]
     assert len(mm) == 44
     assert np.sum(mm._filter) == 22
+    cleanup()
 
 
 def test_070():
@@ -57,6 +49,7 @@ def test_070():
     mm = analysis.measurements[0]
     assert len(mm) == 44
     assert np.sum(mm._filter) == 12
+    cleanup()
 
 
 def test_070hierarchy2():
@@ -66,6 +59,7 @@ def test_070hierarchy2():
     assert np.sum(mms[1]._filter) == len(mms[2])
     assert np.sum(mms[2]._filter) == len(mms[2])
     assert np.sum(mms[1]._filter) == 13
+    cleanup()
 
 
 def test_074ierarchy2():
@@ -75,6 +69,7 @@ def test_074ierarchy2():
     assert np.sum(mms[0]._filter) == len(mms[1])
     assert np.sum(mms[1]._filter) == len(mms[2])
     assert np.sum(mms[1]._filter) == 0
+    cleanup()
 
 
 def test_075ierarchy1():
@@ -82,6 +77,7 @@ def test_075ierarchy1():
     mms = analysis.measurements
     assert np.sum(mms[0]._filter) == len(mms[1])
     assert np.sum(mms[1]._filter) == 19
+    cleanup()
 
 
 def test_075ierarchy2():
@@ -91,6 +87,7 @@ def test_075ierarchy2():
     assert np.sum(mms[1]._filter) == len(mms[2])
     assert np.sum(mms[0]._filter) == 17
     assert np.sum(mms[2]._filter) == 4
+    cleanup()
 
 
 def test_076ierarchy2():
@@ -101,6 +98,7 @@ def test_076ierarchy2():
     assert len(mms[1]) == 32
     assert len(mms[2]) == 12
     assert len(mms[3]) == 9
+    cleanup()
 
 
 def test_077ierarchy2():
@@ -116,6 +114,15 @@ def test_077ierarchy2():
     assert len(mms[2]) == 14
     assert len(mms[3]) == 37
     assert len(mms[4]) == 19
+    # Backwards compatibility: identifiers are saved in session and not anymore
+    # computed from session hashes in 0.7.8. Using the `key` of the measurement
+    # allows to assign new unique identifiers.
+    assert mms[0].identifier == "1_mm-tdms_92601489292dc9bf9fc040f87d9169c0"
+    assert mms[1].identifier == "2_mm-hierarchy_033dc4bc9d581bcfcdb9f153105f3b15"
+    assert mms[2].identifier == "3_mm-hierarchy_119eb293afc12ad63c4b8f8db962d0e3"
+    assert mms[3].identifier == "4_mm-hierarchy_c30bc68d7339267d61c2e0382ae8ba26"
+    assert mms[4].identifier == "5_mm-hierarchy_3bed98d737cd70f1c46d5ab44cb627a8"
+    cleanup()
 
 
 
