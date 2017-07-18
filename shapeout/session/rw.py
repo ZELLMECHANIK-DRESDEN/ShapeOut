@@ -80,28 +80,29 @@ def load(path, search_path="."):
                 # we have already imported that measurement
                 continue
             
-            item = index_dict[key]
+            mm_dict = index_dict[key]
             # os.path.normpath replaces forward slash with
             # backslash on Windows
             config_file = os.path.normpath(os.path.join(tempdir,
-                                                        item["config"]))
+                                                        mm_dict["config"]))
             cfg = Configuration(files=[config_file])
 
             # Start importing data
-            if ("special type" in item and
-                item["special type"] == "hierarchy child"):
+            if ("special type" in mm_dict and
+                mm_dict["special type"] == "hierarchy child"):
                 # check if parent is already here
-                pidx = int(item["parent id"].split("_")[0])-1
+                pidx = int(mm_dict["parent key"].split("_")[0])-1
                 hparent = rtdc_list[pidx]
                 if hparent is not None:
-                    mm = new_dataset(hparent)
+                    mm = new_dataset(hparent, identifier=mm_dict["identifier"])
                 else:
                     # parent doesn't exist - try again in next loop
                     continue
             else:
-                tloc = index.find_data_path(item, search_path)
-                mm = new_dataset(tloc)
-                if mm.hash != item["hash"]:
+                tloc = index.find_data_path(mm_dict, search_path)
+                mm = new_dataset(tloc, identifier=mm_dict["identifier"])
+                # Only check for hashes when there is an experimental file
+                if mm.hash != mm_dict["hash"]:
                     msg = "File hashes don't match for: {}".format(tloc)
                     warnings.warn(msg, HashComparisonWarning)
             
@@ -111,7 +112,7 @@ def load(path, search_path="."):
             if os.path.exists(filter_manual_file):
                 mm.filter.manual[:] = np.load(os.path.join(filter_manual_file))
 
-            mm.title = item["title"]
+            mm.title = mm_dict["title"]
             mm.config.update(cfg)
             mm.apply_filter()
             rtdc_list[kidx] = mm
@@ -164,7 +165,8 @@ def save(path, rtdc_list):
         os.mkdir(mmdir)
         mm_dict = {}
         mm_dict["title"] = mm.title
-        mm_dict["hash"] = mm.hash            
+        mm_dict["hash"] = mm.hash
+        mm_dict["identifier"] = mm.identifier
         if mm.format in ["tdms", "hdf5"]:
             mm_dict["name"] = os.path.basename(mm.path)
             mm_dict["fdir"] = os.path.dirname(mm.path)
@@ -185,7 +187,7 @@ def save(path, rtdc_list):
             p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
             mm_dict["special type"] = "hierarchy child"
             mm_dict["parent hash"] = mm.hparent.hash
-            mm_dict["parent id"] = p_ident
+            mm_dict["parent key"] = p_ident
         # Use forward slash such that sessions saved on Windows
         # can be opened on *nix as well.
         mm_dict["config"] = "{}/config.txt".format(ident)

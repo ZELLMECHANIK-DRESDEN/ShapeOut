@@ -155,6 +155,11 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
         hierarchy children (remove the _filter_manual.npy file)
       - update session hashes (if `hash_update` is set to `True`)
 
+    ShapeOut 0.7.8
+      - introduction of new key "identifier" in mm_dict
+      - replace "parent id" key with "parent key" in hierarchy children
+
+
     Parameters
     ----------
     tempdir: str
@@ -259,10 +264,23 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
                 if exists(filtman):
                     os.remove(filtman)
 
+    # Update file hashes
+    # This only works if the absolute or relative paths in the index
+    # are correct.
     if hash_update:
         if version < LooseVersion("0.7.6"):
             update_session_hashes(tempdir, search_path=search_path)
 
+
+    # Add "identifier" and replace "parent id" with "parent key"
+    if version < LooseVersion("0.7.8"):
+        index_dict = index.index_load(tempdir)
+        for key in index_dict:
+            index_dict[key]["identifier"] = key
+            if "parent id" in index_dict[key]:
+                pkey = index_dict[key].pop("parent id")
+                index_dict[key]["parent key"] = pkey
+        index.index_save(tempdir, index_dict)
 
     return version
 
