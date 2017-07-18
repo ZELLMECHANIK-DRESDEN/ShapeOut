@@ -7,7 +7,7 @@
   - Hidden axes ("area_cvx", "area_msd", "frame") visible in analysis tab
   - Display of fluorescence traces broken (#159)
   - Display of contour plots broken (#160)
-  - Error when loading sessions created with version 0.7.6
+  - Error when loading sessions created with version 0.7.6 on Windows
   - dclab 0.2.5dev1: Automatically fix ancillary column sizes
   - dclab 0.2.5dev2: Correctly distinguish b/w hierarchy children of same parent
 0.7.6
