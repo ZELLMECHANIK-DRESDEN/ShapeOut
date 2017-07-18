@@ -25,19 +25,6 @@ def test_basic():
     assert len(anal.measurements) == 1
 
 
-def test_dump():
-    dicts = [ example_data_dict(s) for s in [10, 100, 12, 382] ]
-    anal = analysis.Analysis([dclab.new_dataset(d) for d in dicts])
-    
-    odir = tempfile.mkdtemp()
-    try:
-        anal.DumpData(odir)
-    except AssertionError:
-        pass
-    else:
-        raise ValueError("Dumping non-tdms data should not work")
-    
-
 def test_data_size():
     dicts = [ example_data_dict(s) for s in [10, 100, 12, 382] ]
     anal = analysis.Analysis([dclab.new_dataset(d) for d in dicts])

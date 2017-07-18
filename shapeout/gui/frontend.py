@@ -339,7 +339,7 @@ class Frame(gaugeframe.GaugeFrame):
         self.Bind(wx.EVT_CLOSE, self.OnMenuQuit)
 
 
-    def NewAnalysis(self, data, search_path="./"):
+    def NewAnalysis(self, data):
         """ Create new analysis object and show data """
         wx.BeginBusyCursor()
         # Get Plotting and Filtering parameters from previous analysis
@@ -353,25 +353,11 @@ class Frame(gaugeframe.GaugeFrame):
         else:
             newcfg = {}
             contour_colors = None
-        
-        # Catch hash comparison warnings and display warning to the user
-        with warnings.catch_warnings(record=True) as ww:
-            warnings.simplefilter("always",
-                                  category=analysis.HashComparisonWarning)
-            anal = analysis.Analysis(data, search_path=search_path, config=newcfg)
-            if len(ww):
-                msg = "One or more files referred to in the chosen session "+\
-                      "did not pass the hash check. Nevertheless, ShapeOut "+\
-                      "loaded the data. The following warnings were issued:\n"
-                msg += "".join([ "\n - "+w.message.message for w in ww ])
-                dlg = wx.MessageDialog(None,
-                                       _(msg),
-                                       _('Hash mismatch warning'),
-                                       wx.OK | wx.ICON_WARNING)
-                dlg.ShowModal()
 
-            # Set previous contour colors
-            anal.SetContourColors(contour_colors)
+        # Set Analysis        
+        anal = analysis.Analysis(data, config=newcfg)
+        # Set previous contour colors
+        anal.SetContourColors(contour_colors)
 
         self.analysis = anal
         self.PanelTop.NewAnalysis(anal)

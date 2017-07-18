@@ -133,9 +133,8 @@ def old_tdms_saved_hash(index_item):
     return ihasher.hexdigest()
 
 
-def compatibilitize_session(tempdir):
+def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     """Update extracted files to latest format
-    
     
     ShapeOut 0.5.7
       - title saved in index.txt
@@ -154,7 +153,18 @@ def compatibilitize_session(tempdir):
       - introduction of new column names in dclab 0.2.5
       - all previous version did not support manual filters in
         hierarchy children (remove the _filter_manual.npy file)
-    
+      - update session hashes (if `hash_update` is set to `True`)
+
+    Parameters
+    ----------
+    tempdir: str
+        Path to the directory containing the extracted session
+    hash_update: bool
+        Update the session hashes for sessions from version <0.7.6
+    search_path: str
+        Search path for measurement files used when `hash_update`
+        is `True`.
+
     See Also
     --------
     update_session_hashes: Update hashes for RT-DC datasets/hierarchies
@@ -174,7 +184,7 @@ def compatibilitize_session(tempdir):
         for key in index_dict:
             if "title" not in index_dict[key]:
                 index_dict[key]["title"] = "no title"
-        index.index_save(tempdir, index_dict, save_version="modified")
+        index.index_save(tempdir, index_dict)
 
     for cc in change_configs:
         with io.open(cc) as fd:
@@ -235,7 +245,7 @@ def compatibilitize_session(tempdir):
             repl = index_dict[key]["config"].replace("\\config.txt",
                                                      "/config.txt")
             index_dict[key]["config"] = repl
-        index.index_save(tempdir, index_dict, save_version="modified")
+        index.index_save(tempdir, index_dict)
 
 
     # Remove _filter_manual.npy of hierarchy children
@@ -248,6 +258,11 @@ def compatibilitize_session(tempdir):
                 filtman = join(join(tempdir, key), "_filter_manual.npy")
                 if exists(filtman):
                     os.remove(filtman)
+
+    if hash_update:
+        if version < LooseVersion("0.7.6"):
+            update_session_hashes(tempdir, search_path=search_path)
+
 
     return version
 
