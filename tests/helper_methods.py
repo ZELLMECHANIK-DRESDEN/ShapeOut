@@ -99,4 +99,6 @@ example_sessions = ["session_v0.6.0.zmso",
                     "session_v0.7.4_hierarchy2.zmso",
                     "session_v0.7.5_hierarchy1.zmso",
                     "session_v0.7.5_hierarchy2.zmso",
+                    "session_v0.7.6_hierarchy2.zmso",
+                    "session_v0.7.7_hierarchy2.zmso",
                     ]

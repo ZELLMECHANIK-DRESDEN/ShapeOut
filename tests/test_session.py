@@ -93,6 +93,32 @@ def test_075ierarchy2():
     assert np.sum(mms[2]._filter) == 4
 
 
+def test_076ierarchy2():
+    analysis = compatibility_task("session_v0.7.6_hierarchy2.zmso")
+    mms = analysis.measurements
+    assert mms[3].title == "rtdc_data_traces_video - M1_child_child_child"
+    assert len(mms[0]) == 44
+    assert len(mms[1]) == 32
+    assert len(mms[2]) == 12
+    assert len(mms[3]) == 9
+
+
+def test_077ierarchy2():
+    analysis = compatibility_task("session_v0.7.7_hierarchy2.zmso")
+    mms = analysis.measurements
+    assert mms[0].title == "original data"
+    assert mms[1].title == "child1"
+    assert mms[2].title == "grandchild1a"
+    assert mms[3].title == "child2"
+    assert mms[4].title == "grandchild2a"
+    assert len(mms[0]) == 44
+    assert len(mms[1]) == 37
+    assert len(mms[2]) == 14
+    assert len(mms[3]) == 37
+    assert len(mms[4]) == 19
+
+
+
 if __name__ == "__main__":
     # Run all tests
     loc = locals()
