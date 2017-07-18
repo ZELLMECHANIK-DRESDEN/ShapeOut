@@ -381,7 +381,7 @@ def update_session_hashes(tempdir, search_path="."):
                 # Update index dictionary
                 index_dict[ch]["parent hash"] = hashes[key][1]
                 index_dict[ch]["hash"] = mm.hash
-                index_dict[ch]["parent id"] = key
+                index_dict[ch]["parent key"] = key
                 break
 
     # Remove found children from list
@@ -411,7 +411,7 @@ def update_session_hashes(tempdir, search_path="."):
             # Update index dictionary
             index_dict[ch]["parent hash"] = mm_p.hash
             index_dict[ch]["hash"] = mm.hash
-            index_dict[ch]["parent id"] = pp
+            index_dict[ch]["parent key"] = pp
         else:
             # Note: If the user did not rename the titles of the hierarchy
             # children, then one might be able to infer the parents
