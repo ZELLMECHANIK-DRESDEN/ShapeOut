@@ -104,7 +104,6 @@ def open_session(path, parent):
         # Update the extracted index file.
         index.index_update(indexfile, updict)
     
-    
     # Update hash values of tdms and hierarchy children
     if version < LooseVersion("0.7.6"):
         update_session_hashes(tempdir, search_path=dirname)

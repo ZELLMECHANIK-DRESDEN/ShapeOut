@@ -136,6 +136,10 @@ def old_tdms_saved_hash(index_item):
 def compatibilitize_session(tempdir):
     """Update extracted files to latest format
     
+    
+    ShapeOut 0.5.7
+      - title saved in index.txt
+    
     ShapeOut 0.7.1
       - change names of KDE accuracies
         (kde multivariate -> kde accuracy)
@@ -164,6 +168,13 @@ def compatibilitize_session(tempdir):
             if f == "config.txt":
                 change_configs.append(os.path.join(root, f))
 
+    # Add title to index
+    if version < LooseVersion("0.5.7"):
+        index_dict = index.index_load(tempdir)
+        for key in index_dict:
+            if "title" not in index_dict[key]:
+                index_dict[key]["title"] = "no title"
+        index.index_save(tempdir, index_dict, save_version="modified")
 
     for cc in change_configs:
         with io.open(cc) as fd:
@@ -224,7 +235,7 @@ def compatibilitize_session(tempdir):
             repl = index_dict[key]["config"].replace("\\config.txt",
                                                      "/config.txt")
             index_dict[key]["config"] = repl
-        index.index_save(tempdir, index_dict)
+        index.index_save(tempdir, index_dict, save_version="modified")
 
 
     # Remove _filter_manual.npy of hierarchy children
@@ -375,7 +386,7 @@ def update_session_hashes(tempdir, search_path="."):
             msg = "Opening old sessions with deep hierarchy not possible!"
             raise NotImplementedError(msg)
 
-    index.index_save(tempdir, index_dict)
+    index.index_save(tempdir, index_dict, save_version="modified")
 
 
 def search_hashed_measurement(mfile, index_item, directories, version):

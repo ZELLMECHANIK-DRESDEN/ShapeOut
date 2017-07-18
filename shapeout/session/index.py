@@ -136,7 +136,7 @@ def index_load(index_file):
     return cfg
 
 
-def index_save(index_file, index_dict):
+def index_save(index_file, index_dict, save_version=version):
     """Save index dictionary to a file
 
     Parameters
@@ -149,7 +149,7 @@ def index_save(index_file, index_dict):
     if isdir(index_file):
         index_file = join(index_file, "index.txt")
     out = ["# ShapeOut measurement index",
-           "# Software version {}".format(version)
+           "# Software version {}".format(save_version)
            ]
     keys = list(index_dict.keys())
     keys.sort()

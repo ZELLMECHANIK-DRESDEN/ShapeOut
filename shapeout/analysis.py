@@ -192,10 +192,6 @@ class Analysis(object):
                     if mm.hash != item["hash"]:
                         msg = "File hashes don't match for: {}".format(tloc)
                         warnings.warn(msg, HashComparisonWarning)
-
-                if "title" in item:
-                    # title saved starting version 0.5.6.dev6
-                    mm.title = item["title"]
                 
                 # Load manually excluded events
                 filter_manual_file = os.path.join(os.path.dirname(config_file),
