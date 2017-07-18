@@ -6,21 +6,17 @@ from __future__ import division, unicode_literals
 import chaco.api as ca
 from chaco.color_mapper import ColorMapper
 import gc
-import io
 import numpy as np
 import os
 import warnings
 
 # dclab imports
 import dclab
-from dclab.rtdc_dataset import Configuration
-from dclab.polygon_filter import PolygonFilter
 import dclab.definitions as dfn
 
 from .tlabwrap import IGNORE_AXES
 from shapeout import tlabwrap
-from ._version import version
-from . import session
+
 
 class Analysis(object):
     """ An object that stores several RTDC data sets and useful methods
@@ -30,7 +26,7 @@ class Analysis(object):
      - common configuration parameters of the data sets
      - Plotting parameters
     """
-    def __init__(self, data, search_path="./", config={}):
+    def __init__(self, data, config={}):
         """ Analysis data object.
         
         Parameters
@@ -38,7 +34,6 @@ class Analysis(object):
         data: str or list of (str, dclab.rtdc_dataset.RTDCBase)
             The data to load. The nature of `data` is inferred
             from its type:
-            - str: A session 'index.txt' file
             - list: A list of paths of measurement files or instances
                     of RTDCBase
         search_path: str
@@ -63,12 +58,9 @@ class Analysis(object):
                     # RTDC data set
                     rtdc_ds = f
                 self.measurements.append(rtdc_ds)
-        elif isinstance(data, (unicode, str)) and os.path.exists(data):
-            # We are opening a session "index.txt" file
-            self._ImportDumped(data, search_path=search_path)
         else:
-            raise ValueError("Argument not an index file or list of"+\
-                             " measurement files: {}".format(data))
+            raise ValueError("Argument not a list of files or "+\
+                             "measuremens: {}".format(data))
         
         # Set configuration (e.g. from previous analysis)
         if config:
@@ -132,154 +124,6 @@ class Analysis(object):
                     if not item+a in mm.config["plotting"]:
                         mm.config["plotting"][item+a] = 0
 
-
-    def _ImportDumped(self, indexname, search_path="./"):
-        """ Loads data from index file as saved using `self.DumpData`.
-        
-        Parameters
-        ----------
-        indexname : str
-            Path to index.txt file
-        search_path : str
-            Relative search path where to look for measurement files if
-            the absolute path stored in index.txt cannot be found.
-        """
-        ## Read index file and locate measurement file.
-        thedir = os.path.dirname(indexname)
-        # Load polygons before importing any data
-        polygonfile = os.path.join(thedir, "PolygonFilters.poly")
-        PolygonFilter.clear_all_filters()
-        if os.path.exists(polygonfile):
-            PolygonFilter.import_all(polygonfile)
-        # import configurations
-        index_dict = session.index.index_load(indexname)
-        keys = list(index_dict.keys())
-        # The identifier (in brackets []) contains a number before the first
-        # underscore "_" which determines the order of the plots:
-        #keys.sort(key=lambda x: int(x.split("_")[0]))
-        measmts = [None]*len(keys)
-        while measmts.count(None):
-            for key in keys:
-                # The order in keys is not important to correctly reproduce
-                # a session. Important is the integer number before the
-                # underscore.
-                kidx = int(key.split("_")[0])-1
-                if measmts[kidx] is not None:
-                    # we have already imported that measurement
-                    continue
-                
-                item = index_dict[key]
-                # os.path.normpath replaces forward slash with
-                # backslash on Windows
-                config_file = os.path.normpath(os.path.join(thedir,
-                                                            item["config"]))
-                cfg = Configuration(files=[config_file])
-
-                # Start importing data
-                if ("special type" in item and
-                    item["special type"] == "hierarchy child"):
-                    # check if parent is already here
-                    pidx = int(item["parent id"].split("_")[0])-1
-                    hparent = measmts[pidx]
-                    if hparent is not None:
-                        mm = dclab.new_dataset(hparent)
-                    else:
-                        # parent doesn't exist - try again in next loop
-                        continue
-                else:
-                    tloc = session.index.find_data_path(item, search_path)
-                    mm = dclab.new_dataset(tloc)
-                    if mm.hash != item["hash"]:
-                        msg = "File hashes don't match for: {}".format(tloc)
-                        warnings.warn(msg, HashComparisonWarning)
-                
-                # Load manually excluded events
-                filter_manual_file = os.path.join(os.path.dirname(config_file),
-                                                  "_filter_manual.npy")
-                
-                if os.path.exists(filter_manual_file):
-                    mm.filter.manual[:] = np.load(os.path.join(filter_manual_file))
-
-                mm.config.update(cfg)
-                mm.apply_filter()
-                measmts[kidx] = mm
-        self.measurements = measmts
-
-
-    def DumpData(self, directory, rel_path="./"):
-        """ Dumps all the data from the analysis to a `directory`
-        
-        Returns a list of filenames that are required to restore this
-        analysis. The "index.txt" contains the relative paths to all
-        configuration files.
-        """
-        indexname = os.path.join(directory, "index.txt")
-        # Create Index file
-        out = ["# ShapeOut measurement index",
-               "# Software version {}".format(version)]
-        
-        i = 0
-        for mm in self.measurements:
-            amsg = "RT-DC dataset must be from tdms file or hierarchy child!"
-            assert mm.format in ["tdms", "hierarchy"], amsg
-            i += 1
-            ident = "{}_{}".format(i, mm.identifier)
-            # the directory in the session zip file where all information
-            # will be stored:
-            mmdir = os.path.join(directory, ident)
-            while True:
-                # If the directory already exists, append a number to that
-                # directory to distinguish different measurements.
-                g=0
-                if os.path.exists(mmdir):
-                    mmdir = mmdir+str(g)
-                    ident = os.path.split(mmdir)[1]
-                    g += 1
-                else:
-                    break
-            os.mkdir(mmdir)
-            out.append("[{}]".format(ident))
-            out.append("title = "+mm.title)            
-            out.append("hash = {}".format(mm.hash))
-            if mm.format in ["tdms", "hdf5"]:
-                out.append("name = {}".format(os.path.basename(mm.path)))
-                out.append("fdir = {}".format(os.path.dirname(mm.path)))
-                try:
-                    # On Windows we have multiple drive letters and
-                    # relpath will complain about that if dirname(mm.path)
-                    # and rel_path are not on the same drive.
-                    rdir = os.path.relpath(os.path.dirname(mm.path), rel_path)
-                except ValueError:
-                    rdir = "."
-                out.append("rdir = {}".format(rdir))
-                # save manual filters only for real data
-                # (see https://github.com/ZELLMECHANIK-DRESDEN/dclab/issues/22)
-                np.save(os.path.join(mmdir, "_filter_manual.npy"), mm.filter.manual)
-            elif mm.format == "hierarchy":
-                pidx = self.measurements.index(mm.hparent) + 1
-                p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
-                out.append("special type = hierarchy child")
-                out.append("parent hash = {}".format(mm.hparent.hash))
-                out.append("parent id = {}".format(p_ident))
-            # Save configurations
-            cfgfile = os.path.join(mmdir, "config.txt")
-            mm.config.save(cfgfile)
-            # Use forward slash such that sessions saved on Windows
-            # can be opened on *nix as well.
-            out.append("config = {}/config.txt".format(ident))
-            out.append("")
-            
-        for i in range(len(out)):
-            out[i] += "\n"
-        
-        with io.open(indexname, "w") as index:
-            index.writelines(out)
-        
-        # Dump polygons
-        if len(PolygonFilter.instances) > 0:
-            PolygonFilter.save_all(os.path.join(directory,
-                                            "PolygonFilters.poly"))
-        return indexname
 
 
     def ForceSameDataSize(self):
@@ -589,9 +433,6 @@ class Analysis(object):
         # Trigger computation of kde/contour accuracies for ancillary columns
         self._complete_config()
 
-
-class HashComparisonWarning(UserWarning):
-    pass
 
 
 def darkjet(myrange, **traits):

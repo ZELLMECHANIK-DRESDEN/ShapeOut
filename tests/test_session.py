@@ -13,7 +13,7 @@ import numpy as np
 # Add parent directory to beginning of path variable
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
-from shapeout.session import conversion, index
+from shapeout.session import conversion, index, rw
 from shapeout.analysis import Analysis
 
 from helper_methods import retreive_session, cleanup
@@ -30,10 +30,10 @@ def setup_session_task(name):
 
 def compatibility_task(name):
     tempdir, search_path = setup_session_task(name)
-    conversion.compatibilitize_session(tempdir)
-    index.index_check(tempdir, search_path)
-    conversion.update_session_hashes(tempdir, search_path)
-    analysis = Analysis(data=join(tempdir, "index.txt"))
+    rtdc_list = rw.load(tempdir, search_path=search_path)
+    idout = index.index_check(tempdir, search_path=search_path)
+    assert len(idout["missing files"]) == 0
+    analysis = Analysis(rtdc_list)
     return analysis
     
 
