@@ -419,7 +419,7 @@ def update_session_hashes(tempdir, search_path="."):
             msg = "Opening old sessions with deep hierarchy not possible!"
             raise NotImplementedError(msg)
 
-    index.index_save(tempdir, index_dict, save_version="modified")
+    index.index_save(tempdir, index_dict)
 
 
 def search_hashed_measurement(mfile, index_item, directories, version):
