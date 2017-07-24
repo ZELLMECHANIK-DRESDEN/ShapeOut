@@ -83,7 +83,7 @@ install:
   - "pip install appdirs"
   #- "pip install imageio"
   # Try installing with patched version
-  - "pip install git+https://github.com/paulmueller/imageio.git"
+  - "pip install git+git://github.com/imageio/imageio.git"
   - "pip install nptdms"
   # install pyper (R)
   - "pip install pyper"
