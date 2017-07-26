@@ -1,7 +1,7 @@
 0.7.8
 - Introduce unique identifiers for measurements (dclab 0.2.5dev4)
 - Bugfixes:
-  - dclab 0.2.5dev6: Problem while identifying contour frames (#166)
+  - dclab 0.2.5dev8: Correctly identify contour files (#166)
 0.7.7
 - Add "Preferences" menu:
   - Allow to (dis/en)able session autosaving
