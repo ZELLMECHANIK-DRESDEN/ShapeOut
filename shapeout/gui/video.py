@@ -186,26 +186,26 @@ class ImagePanel(ScrolledPanel):
         mm = self.analysis.measurements[mm_id]
 
         if "image" in mm:
-            # Get the RGB cell image
-            try:
-                cellimg = mm["image"][evt_id]
-            except OSError:
-                cellimg = mm["image"].dummy
+            # Get the gray scale cell image
+            cellimg = mm["image"][evt_id]
+            if np.all(np.isnan(cellimg)):
+                # No image available - return white image
+                cellimg = 255*np.ones_like(cellimg, dtype=np.uint8)
+            # Convert to RGB
+            cellimg = cellimg.reshape(cellimg.shape[0], cellimg.shape[1], 1)
+            cellimg = np.repeat(cellimg, 3, axis=2)
             # Only load contour data if there is an image file.
             # We don't know how big the images should be so we
             # might run into trouble displaying random contours.
             if "contour" in mm:
-                r = cellimg[:,:,0]
-                b = cellimg[:,:,1]
-                g = cellimg[:,:,2]
                 try:
                     cont = mm["contour"][evt_id]
                 except IndexError:
                     pass
                 else:
-                    r[cont[:,1], cont[:,0]] = 255
-                    b[cont[:,1], cont[:,0]] = 0
-                    g[cont[:,1], cont[:,0]] = 0
+                    cellimg[cont[:,1], cont[:,0], 0] = 255
+                    cellimg[cont[:,1], cont[:,0], 1] = 0
+                    cellimg[cont[:,1], cont[:,0], 2] = 0
             self.PlotImage(cellimg)
         else:
             # Reset plot if there is not image data
