@@ -133,8 +133,11 @@ def old_tdms_saved_hash(index_item):
     return ihasher.hexdigest()
 
 
-def compatibilitize_session(tempdir):
+def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     """Update extracted files to latest format
+    
+    ShapeOut 0.5.7
+      - title saved in index.txt
     
     ShapeOut 0.7.1
       - change names of KDE accuracies
@@ -150,7 +153,23 @@ def compatibilitize_session(tempdir):
       - introduction of new column names in dclab 0.2.5
       - all previous version did not support manual filters in
         hierarchy children (remove the _filter_manual.npy file)
-    
+      - update session hashes (if `hash_update` is set to `True`)
+
+    ShapeOut 0.7.8
+      - introduction of new key "identifier" in mm_dict
+      - replace "parent id" key with "parent key" in hierarchy children
+
+
+    Parameters
+    ----------
+    tempdir: str
+        Path to the directory containing the extracted session
+    hash_update: bool
+        Update the session hashes for sessions from version <0.7.6
+    search_path: str
+        Search path for measurement files used when `hash_update`
+        is `True`.
+
     See Also
     --------
     update_session_hashes: Update hashes for RT-DC datasets/hierarchies
@@ -164,6 +183,13 @@ def compatibilitize_session(tempdir):
             if f == "config.txt":
                 change_configs.append(os.path.join(root, f))
 
+    # Add title to index
+    if version < LooseVersion("0.5.7"):
+        index_dict = index.index_load(tempdir)
+        for key in index_dict:
+            if "title" not in index_dict[key]:
+                index_dict[key]["title"] = "no title"
+        index.index_save(tempdir, index_dict)
 
     for cc in change_configs:
         with io.open(cc) as fd:
@@ -237,6 +263,24 @@ def compatibilitize_session(tempdir):
                 filtman = join(join(tempdir, key), "_filter_manual.npy")
                 if exists(filtman):
                     os.remove(filtman)
+
+    # Update file hashes
+    # This only works if the absolute or relative paths in the index
+    # are correct.
+    if hash_update:
+        if version < LooseVersion("0.7.6"):
+            update_session_hashes(tempdir, search_path=search_path)
+
+
+    # Add "identifier" and replace "parent id" with "parent key"
+    if version < LooseVersion("0.7.8"):
+        index_dict = index.index_load(tempdir)
+        for key in index_dict:
+            index_dict[key]["identifier"] = key
+            if "parent id" in index_dict[key]:
+                pkey = index_dict[key].pop("parent id")
+                index_dict[key]["parent key"] = pkey
+        index.index_save(tempdir, index_dict)
 
     return version
 
@@ -337,7 +381,7 @@ def update_session_hashes(tempdir, search_path="."):
                 # Update index dictionary
                 index_dict[ch]["parent hash"] = hashes[key][1]
                 index_dict[ch]["hash"] = mm.hash
-                index_dict[ch]["parent id"] = key
+                index_dict[ch]["parent key"] = key
                 break
 
     # Remove found children from list
@@ -367,7 +411,7 @@ def update_session_hashes(tempdir, search_path="."):
             # Update index dictionary
             index_dict[ch]["parent hash"] = mm_p.hash
             index_dict[ch]["hash"] = mm.hash
-            index_dict[ch]["parent id"] = pp
+            index_dict[ch]["parent key"] = pp
         else:
             # Note: If the user did not rename the titles of the hierarchy
             # children, then one might be able to infer the parents

@@ -38,6 +38,17 @@ def example_data_dict(size=100, keys=["area_um", "deform"]):
     return ddict
 
 
+def extract_session(name):
+    global _tempdirs
+    path = retreive_session(name)
+    Arc = zipfile.ZipFile(path, mode='r')
+    tempdir = tempfile.mkdtemp(prefix="ShapeOut-test_")
+    Arc.extractall(tempdir)
+    Arc.close()
+    _tempdirs.append(tempdir)
+    return tempdir, dirname(path)
+
+
 def retreive_tdms(zip_file):
     """ Retrieve a zip file that is reachable via the location
     `webloc`, extract it, and return the paths to extracted
@@ -99,4 +110,6 @@ example_sessions = ["session_v0.6.0.zmso",
                     "session_v0.7.4_hierarchy2.zmso",
                     "session_v0.7.5_hierarchy1.zmso",
                     "session_v0.7.5_hierarchy2.zmso",
+                    "session_v0.7.6_hierarchy2.zmso",
+                    "session_v0.7.7_hierarchy2.zmso",
                     ]

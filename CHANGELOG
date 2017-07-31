@@ -1,3 +1,11 @@
+0.7.8
+- Introduce unique identifiers for measurements (dclab 0.2.5dev4)
+- Include ffmpeg in the Windows installer (#165)
+- Bugfixes:
+  - dclab 0.2.5dev8: Correctly identify contour files (#166)
+  - dclab 0.2.5dev11: Allow contour data indices larger than uint8 (#167)
+- Refactoring:
+  - dclab 0.2.5dev10: Event images are returned as 2D ndarray
 0.7.7
 - Add "Preferences" menu:
   - Allow to (dis/en)able session autosaving
@@ -7,7 +15,7 @@
   - Hidden axes ("area_cvx", "area_msd", "frame") visible in analysis tab
   - Display of fluorescence traces broken (#159)
   - Display of contour plots broken (#160)
-  - Error when loading sessions created with version 0.7.6
+  - Error when loading sessions created with version 0.7.6 on Windows
   - dclab 0.2.5dev1: Automatically fix ancillary column sizes
   - dclab 0.2.5dev2: Correctly distinguish b/w hierarchy children of same parent
 0.7.6

@@ -8,6 +8,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+import warnings
 
 import wx
 
@@ -16,7 +17,7 @@ from ..session.conversion import compatibilitize_session, \
                                  search_hashed_measurement, \
                                  update_session_hashes
 
-from ..session import index
+from ..session import index, rw
 
 
 def open_session(path, parent):
@@ -38,7 +39,9 @@ def open_session(path, parent):
     Arc.close()
     
     # The ShapeOut version used to create the session is returned:
-    version = compatibilitize_session(tempdir)
+    # Do not perform hash update, because we do not know if all
+    # measurement files are where they're supposed to be. 
+    version = compatibilitize_session(tempdir, hash_update=False)
     
     indexfile = os.path.join(tempdir, "index.txt")
 
@@ -104,12 +107,26 @@ def open_session(path, parent):
         # Update the extracted index file.
         index.index_update(indexfile, updict)
     
-    
     # Update hash values of tdms and hierarchy children
     if version < LooseVersion("0.7.6"):
         update_session_hashes(tempdir, search_path=dirname)
     
-    parent.NewAnalysis(indexfile, search_path=dirname)
+    # Catch hash comparison warnings and display warning to the user
+    with warnings.catch_warnings(record=True) as ww:
+        warnings.simplefilter("always", category=rw.HashComparisonWarning)
+        rtdc_list = rw.load(tempdir, search_path=dirname)
+        if len(ww):
+            msg = "One or more files referred to in the chosen session "+\
+                  "did not pass the hash check. Nevertheless, ShapeOut "+\
+                  "loaded the data. The following warnings were issued:\n"
+            msg += "".join([ "\n - "+w.message.message for w in ww ])
+            dlg = wx.MessageDialog(None,
+                                   _(msg),
+                                   _('Hash mismatch warning'),
+                                   wx.OK | wx.ICON_WARNING)
+            dlg.ShowModal()
+
+    parent.NewAnalysis(rtdc_list)
 
     directories = []
     for mm in parent.analysis.measurements:
@@ -128,15 +145,4 @@ def open_session(path, parent):
 
 def save_session(path, analysis):
     # Begin saving
-    returnWD = os.getcwd()
-    tempdir = tempfile.mkdtemp()
-    os.chdir(tempdir)
-    with zipfile.ZipFile(path, mode='w') as arc:
-        ## Dump data into directory
-        analysis.DumpData(tempdir, rel_path=os.path.dirname(path))
-        for root, _dirs, files in os.walk(tempdir):
-            for f in files:
-                fw = os.path.join(root,f)
-                arc.write(os.path.relpath(fw,tempdir))
-                os.remove(fw)
-    os.chdir(returnWD)
+    rw.save(path, analysis.measurements)

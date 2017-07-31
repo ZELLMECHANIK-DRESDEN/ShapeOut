@@ -37,41 +37,38 @@ def find_data_path(index_item,
     item = copy.copy(index_item)
     found = False
     
-    mfile1 = join(item["fdir"], item["name"])
-    
-    if os.path.exists(mfile1):
-        found = mfile1
+    # file candidates
+    mfiles = []
+    # absolute path
+    mfiles.append(join(item["fdir"], item["name"]))
+    # relative paths
+    if "rdir" not in item:
+        item["rdir"] = "."    
+    # Use basename of "fdir" for search, too
+    if item["fdir"].count("\\"):
+        # Workaround to get basename for files saved
+        # with Windows.
+        fbase = item["fdir"].rsplit("\\", 1)[1]
     else:
-        if "rdir" not in item:
-            item["rdir"] = "."
-        search_paths = [search_path, item["rdir"]]
-        # Also search in base directory of "fdir"
-        if item["fdir"].count("\\"):
-            # Workaround to get basename for files saved
-            # with Windows.
-            fbase = item["fdir"].rsplit("\\", 1)[1]
-        else:
-            fbase = basename(item["fdir"])
-        for sp in search_paths:
-            # try to find relative path
-            dira = abspath(join(abspath(sp), item["rdir"]))
-            dirb = abspath(join(dira, fbase))
-            mfile2a = join(dira, item["name"])
-            mfile2b = join(dirb, item["name"])
-
-            if os.path.exists(mfile2a):
-                found = mfile2a
-                break
-            elif os.path.exists(mfile2b):
-                found = mfile2b
-                break
+        fbase = basename(item["fdir"])
+    dir1 = abspath(join(abspath(search_path), item["rdir"]))
+    dir2 = join(dir1, fbase)
+    # relative path to zip file
+    mfiles.append(join(dir1, item["name"]))
+    # relative path tp zip file in subfolder fbase
+    mfiles.append(join(dir2, item["name"]))
+    
+    for mf in mfiles:
+        if os.path.exists(mf):
+            found = mf
+            break
 
     if not found:
         if errors == "ignore":
-            warnings.warn("Could not find file: {}".format(mfile1))
-            found = mfile1
+            warnings.warn("Could not find file: {}".format(mfiles[0]))
+            found = mfiles[0]
         else:
-            raise IOError("Could not find file: {}".format(mfile1))
+            raise IOError("Could not find file: {}".format(mfiles[0]))
 
     return found
 
@@ -139,7 +136,7 @@ def index_load(index_file):
     return cfg
 
 
-def index_save(index_file, index_dict):
+def index_save(index_file, index_dict, save_version=version):
     """Save index dictionary to a file
 
     Parameters
@@ -152,7 +149,7 @@ def index_save(index_file, index_dict):
     if isdir(index_file):
         index_file = join(index_file, "index.txt")
     out = ["# ShapeOut measurement index",
-           "# Software version {}".format(version)
+           "# Software version {}".format(save_version)
            ]
     keys = list(index_dict.keys())
     keys.sort()

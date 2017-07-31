@@ -84,6 +84,8 @@ install:
   #- "pip install imageio"
   # Try installing with patched version
   - "pip install git+https://github.com/paulmueller/imageio.git"
+  # Download ffmpeg binary
+  - imageio_download_bin --package-dir ffmpeg 
   - "pip install nptdms"
   # install pyper (R)
   - "pip install pyper"
