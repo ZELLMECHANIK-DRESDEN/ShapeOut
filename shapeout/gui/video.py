@@ -6,7 +6,7 @@
 from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca
-import dclab
+import dclab.rtdc_dataset
 from enable.api import Window
 import numpy as np
 from PIL import Image

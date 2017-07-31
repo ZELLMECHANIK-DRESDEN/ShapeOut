@@ -2,7 +2,7 @@
 - Introduce unique identifiers for measurements (dclab 0.2.5dev4)
 - Include ffmpeg in the Windows installer (#165)
 - Bugfixes:
-  - dclab 0.2.5dev8: Correctly identify contour files (#166)
+  - dclab 0.2.6dev2: Correctly identify contour files (#166, #169)
   - dclab 0.2.5dev11: Allow contour data indices larger than uint8 (#167)
 - Refactoring:
   - dclab 0.2.5dev10: Event images are returned as 2D ndarray
