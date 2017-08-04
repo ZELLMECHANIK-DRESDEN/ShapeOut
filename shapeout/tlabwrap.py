@@ -356,10 +356,10 @@ def LoadIsoelastics(isoeldir, isoels={}):
             # Load Matplab-generated AreaVsCircularity Plot
             # It is actually Deformation vs. Area
             isoels[key] = curvedict = dict()
-            Plot1 = "defo area"
-            Plot2 = "circ area"
-            Plot3 = "area defo"
-            Plot4 = "area circ"
+            Plot1 = "deform area_um"
+            Plot2 = "circ area_um"
+            Plot3 = "area_um deform"
+            Plot4 = "area_um circ"
             list1 = list()
             list2 = list()
             list3 = list()

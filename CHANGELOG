@@ -1,3 +1,7 @@
+0.7.9
+- Add on-the-fly computation of inertia ratio for raw contour
+- Bugfixes:
+  - Isoelastics are not shown (#145)
 0.7.8
 - Introduce unique identifiers for measurements (dclab 0.2.5dev4)
 - Include ffmpeg in the Windows installer (#165)
