@@ -26,15 +26,15 @@ Please cite ShapeOut either in-line
 ::
 
   (...) using the analysis software ShapeOut version X.X.X (available at
-  https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut)```
+  https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut).
 
 or in a bibliography
 
 ::
   
-  Paul Müller and others (2015) ShapeOut version X.X.X: Analysis software
+  Paul Müller and others (2015), ShapeOut version X.X.X: Analysis software
   for real-time deformability cytometry [Software]. Available at
-  https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut.```
+  https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut.
 
 and replace ``X.X.X`` with the version of ShapeOut that you used.
 
