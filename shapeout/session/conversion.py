@@ -159,6 +159,9 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
       - introduction of new key "identifier" in mm_dict
       - replace "parent id" key with "parent key" in hierarchy children
 
+    ShapeOut 0.7.9
+      - renamed column "inert_ratio" to "inert_ratio_cvx"
+
 
     Parameters
     ----------
@@ -219,6 +222,21 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
                     data = ci_replace(data,
                                       pattern.format(old),
                                       pattern.format(new))
+
+        if version < LooseVersion("0.7.9"):
+            old = "inert_ratio"
+            new = "inert_ratio_cvx"
+            for pattern in ["\n{} min = ",
+                            "\n{} max = ",
+                            "\naxis x = {}\n",
+                            "\naxis y = {}\n",
+                            "\ncontour accuracy {} = ",
+                            "\nkde accuracy {} = ",
+                            ]:
+
+                data = ci_replace(data,
+                                  pattern.format(old),
+                                  pattern.format(new))
 
         
         with io.open(cc, "w") as fd:

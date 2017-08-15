@@ -189,9 +189,24 @@ def export_event_images_avi(parent, analysis):
                style=wx.DD_DEFAULT_STYLE)
     if dlg.ShowModal() == wx.ID_OK:
         out_dir=dlg.GetPath()
+        parent.config.set_dir(out_dir, "ExportAVI")
         for m in analysis.measurements:
             m.export.avi(os.path.join(out_dir, m.title+".avi"),
                          override=True)
+
+
+def export_event_image_png(parent, image):
+    dlg = wx.FileDialog(parent, "Choose file to save",
+                        parent.config.get_dir("ExportEventPNG"),
+                        "",
+                        "Portable Network Graphics (*.png)|*.png;*.PNG",
+                        wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+    if dlg.ShowModal() == wx.ID_OK:
+        path = dlg.GetPath()
+        parent.config.set_dir(os.path.dirname(path), "ExportEventPNG")
+        if not path.lower().endswith(".png"):
+            path += ".png"
+        image.save(path)
 
 
 def export_statistics_tsv(parent):

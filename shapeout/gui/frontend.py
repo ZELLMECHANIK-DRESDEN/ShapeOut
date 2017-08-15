@@ -7,7 +7,6 @@ import os
 import platform
 import sys
 import traceback
-import warnings
 
 import imageio.plugins.ffmpeg as imioff
 import numpy as np
@@ -229,12 +228,31 @@ class Frame(gaugeframe.GaugeFrame):
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsAVI, e2avi)
         
         ## Export Plot menu
-        exportPlotMenu = wx.Menu()
-        self.menubar.Append(exportPlotMenu, _('Export &Plot'))
+        exportImgMenu = wx.Menu()
+        self.menubar.Append(exportImgMenu, _('Export &Image'))
 
-        e2pdf = exportPlotMenu.Append(wx.ID_ANY, _('Graphical &plot (*.pdf)'), 
-                       _('Export the plot as a portable document file'))
-        self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, e2pdf)
+        graph2pdf = exportImgMenu.Append(
+                        wx.ID_ANY,
+                        _('Graphical &plot (*.pdf)'), 
+                        _('Export the plot as a portable document file'))
+        self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, graph2pdf)
+        
+        event2imgc = exportImgMenu.Append(
+                        wx.ID_ANY,
+                        _('Event image &with contour (*.png)'), 
+                        _('Export current event image including contour'))
+        self.Bind(wx.EVT_MENU,
+                  lambda event: self.OnMenuExportEventImagePNG(event, contour=True),
+                  event2imgc)
+
+        event2imgnc = exportImgMenu.Append(
+                        wx.ID_ANY,
+                        _('Event image with&out contour (*.png)'), 
+                        _('Export current event image excluding contour'))
+        self.Bind(wx.EVT_MENU,
+                  lambda event: self.OnMenuExportEventImagePNG(event, contour=False),
+                  event2imgnc)
+        
         # export SVG disabled:
         # The resulting graphic is not better than the PDF and axes are missing
         #e2svg = exportPlotMenu.Append(wx.ID_ANY, _('Graphical &plot (*.svg)'), 
@@ -390,6 +408,16 @@ class Frame(gaugeframe.GaugeFrame):
                 dellist.append(c)
         for ch in dellist:
             tree.Delete(ch)
+
+    def OnMenuExportEventImagePNG(self, e=None, contour=False):
+        """Export the currently visible event image
+        
+        The `contour` parameter allows to dis/en-able plotting
+        the contour as well.
+        """
+        # Get image
+        image = self.ImageArea.GetImage(contour=contour)
+        export.export_event_image_png(self, image)
 
 
     def OnMenuExportEventsAVI(self, e=None):

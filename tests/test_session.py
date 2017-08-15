@@ -125,6 +125,51 @@ def test_077ierarchy2():
     cleanup()
 
 
+def test_078ierarchy2():
+    """
+    In 0.7.8, each dataset gets a unique identifier that is independent
+    of the data it holds. Therefore, two identical datasets (same filters,
+    same hierarchy parents) will always have a different identifier. 
+    """
+    analysis = compatibility_task("session_v0.7.8_hierarchy2.zmso")
+    mms = analysis.measurements
+    assert mms[0].title == "parent"
+    assert mms[1].title == "child1"
+    assert mms[2].title == "child2"
+    assert mms[3].title == "grandchild1a"
+    assert mms[4].title == "grandchild1b"
+    assert mms[5].title == "grandchild2a"
+    assert len(mms[0]) == 44
+    assert len(mms[1]) == 37
+    assert len(mms[2]) == 37
+    assert len(mms[3]) == 22
+    assert len(mms[4]) == 22
+    assert len(mms[5]) == 15
+    assert mms[0].identifier == "mm-tdms_8a43345"
+    assert mms[1].identifier == "mm-hierarchy_b7a2c21"
+    assert mms[2].identifier == "mm-hierarchy_bbcb5a8"
+    assert mms[3].identifier == "mm-hierarchy_4c7d883"
+    assert mms[4].identifier == "mm-hierarchy_91b0b96"
+    assert mms[5].identifier == "mm-hierarchy_38d374e"
+    cleanup()
+
+
+def test_078inertratio():
+    """
+    In dclab commit 41bf38e74e4d7dbf25c7d4c37214674b7ea242d6, the column
+    "inert_ratio" was renamed to "inert_ratio_cvx". The conversion of the
+    corresponding session config values is done starting ShapeOut 0.7.9.
+    """
+    analysis = compatibility_task("session_v0.7.8_hierarchy2.zmso")
+    mms = analysis.measurements
+    assert "inert_ratio_cvx min" in mms[0].config["filtering"]
+    assert "inert_ratio_cvx max" in mms[0].config["filtering"]
+    assert "inert_ratio_raw min" in mms[0].config["filtering"]
+    assert "inert_ratio_raw max" in mms[0].config["filtering"]
+    assert "inert_ratio min" not in mms[0].config["filtering"]
+    assert "inert_ratio max" not in mms[0].config["filtering"]
+    cleanup()
+
 
 if __name__ == "__main__":
     # Run all tests
