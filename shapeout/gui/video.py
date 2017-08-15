@@ -141,6 +141,60 @@ class ImagePanel(ScrolledPanel):
         self.sizer = sizer
 
 
+    def GetImage(self, contour=True):
+        """Returns the currently selected image
+        
+        Parameters
+        ----------
+        contour: bool
+            Draws the contour (red) ontop of the image, if
+            it is available.
+        
+        Returns
+        -------
+        image: PIL.Image
+            The image of the event.
+        """
+        # Get the event id
+        mm_id = self.WXCB_plot.GetSelection()
+        
+        if (mm_id != -1 and
+            "image" in self.analysis.measurements[mm_id]):
+            # Get event id
+            evt_id = self.WXSP_plot.GetValue() - 1
+            if evt_id == -1:
+                evt_id = 0
+            # Get measurement
+            mm = self.analysis.measurements[mm_id]
+            # Get the gray scale cell image
+            cellimg = mm["image"][evt_id]
+            if np.all(np.isnan(cellimg)):
+                # No image data - return white image
+                cellimg = 255*np.ones_like(cellimg, dtype=np.uint8)
+            # Convert to RGB
+            cellimg = cellimg.reshape(cellimg.shape[0], cellimg.shape[1], 1)
+            cellimg = np.repeat(cellimg, 3, axis=2)
+            # Only load contour data if there is an image column.
+            # We don't know how big the images should be so we
+            # might run into trouble displaying random contours.
+            if "contour" in mm and contour:
+                try:
+                    cont = mm["contour"][evt_id]
+                except IndexError:
+                    pass
+                else:
+                    cellimg[cont[:,1], cont[:,0], 0] = 255
+                    cellimg[cont[:,1], cont[:,0], 1] = 0
+                    cellimg[cont[:,1], cont[:,0], 2] = 0
+        else:
+            x = np.linspace(0, 255, self.startSizeX*self.startSizeY)
+            cellimg = np.array(x.reshape(self.startSizeY,self.startSizeX),
+                               dtype=np.uint8)
+        
+        image = Image.fromarray(cellimg)
+        return image
+
+
     def OnChBoxExclude(self, e=None):
         """ If the exclude-check box is triggered, change the
         corresponding value in the measurement."""
@@ -182,34 +236,11 @@ class ImagePanel(ScrolledPanel):
         
         """
         wx.BeginBusyCursor()
+        
         self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
 
-        if "image" in mm:
-            # Get the gray scale cell image
-            cellimg = mm["image"][evt_id]
-            if np.all(np.isnan(cellimg)):
-                # No image available - return white image
-                cellimg = 255*np.ones_like(cellimg, dtype=np.uint8)
-            # Convert to RGB
-            cellimg = cellimg.reshape(cellimg.shape[0], cellimg.shape[1], 1)
-            cellimg = np.repeat(cellimg, 3, axis=2)
-            # Only load contour data if there is an image file.
-            # We don't know how big the images should be so we
-            # might run into trouble displaying random contours.
-            if "contour" in mm:
-                try:
-                    cont = mm["contour"][evt_id]
-                except IndexError:
-                    pass
-                else:
-                    cellimg[cont[:,1], cont[:,0], 0] = 255
-                    cellimg[cont[:,1], cont[:,0], 1] = 0
-                    cellimg[cont[:,1], cont[:,0], 2] = 0
-            self.PlotImage(cellimg)
-        else:
-            # Reset plot if there is not image data
-            self.PlotImage(None)
+        self.PlotImage()
 
         # Update exclude check-box
         self.WXChB_exclude.SetValue(not mm.filter.manual[evt_id])
@@ -249,38 +280,18 @@ class ImagePanel(ScrolledPanel):
        
 
     def PlotImage(self, image=None):
-        def pil_to_wx_bmp(image):
-            width, height = image.size
-            mybuffer = image.convert('RGB').tobytes()
-            bitmap = wx.BitmapFromBuffer(width, height, mybuffer)
-            return bitmap
-        
-        def pil_to_wx_img(image):
-            width, height = image.size
-            mybuffer = image.convert('RGB').tobytes()
-            bitmap = wx.ImageFromBuffer(width, height, mybuffer)
-            return bitmap
-
         if image is None:
-            x = np.linspace(0, 255, self.startSizeX*self.startSizeY)
-            image = np.array(x.reshape(self.startSizeY,self.startSizeX),
-                             dtype=np.uint8)
-        
-        os = image.shape
-        newx = os[1] * 2
-        newy = os[0] * 2
-        image = Image.fromarray(image)
-        
-        #wxbmp = pil_to_wx_bmp(image)
-        wximg = pil_to_wx_img(image)
-        
+            image = self.GetImage()
+
+        width, height = image.size
+        mybuffer = image.convert('RGB').tobytes()
+        wximg = wx.ImageFromBuffer(width, height, mybuffer)
+
         # Image scaling
-        wximg = wximg.Scale(newx, newy)
+        wximg = wximg.Scale(width*2, height*2)
         self.img.Destroy()
         self.img = wx.BitmapFromImage(wximg)
         self.imageCtrl.SetBitmap(self.img)
-        # Redraw the panel to prevent artifact images on Windows
-        #self.Layout()
 
 
     def UpdateAnalysis(self, analysis):
