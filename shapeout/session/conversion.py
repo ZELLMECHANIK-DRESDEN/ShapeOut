@@ -111,7 +111,12 @@ def hashfile_sha(fname, blocksize=65536):
 
 def old_tdms_saved_hash(index_item):
     """Compute md5 hash from data stored in old session index"""
-    fd = index_item["fdir"]
+    if "fdir_orig" in index_item:
+        # Use the original directory name for hashing
+        fd = index_item["fdir_orig"]
+    else:
+        fd = index_item["fdir"]
+
     ff = index_item["name"]
 
     if fd.count(":\\"):
@@ -120,7 +125,6 @@ def old_tdms_saved_hash(index_item):
     else:
         tdms_path = join(fd, ff)
         mx = join(fd, ff.split("_")[0])
-
     
     file_hashes = [(tdms_path, index_item["tdms hash"]),
                    (mx+"_camera.ini", index_item["camera.ini hash"]),
@@ -347,7 +351,6 @@ def update_session_hashes(tempdir, search_path="."):
             children.append(key)
         else:
             parents.append(key)
-
 
     datasets = {}
     hashes = {}

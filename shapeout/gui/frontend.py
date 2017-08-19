@@ -500,26 +500,8 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuLoad(self, e=None, session_file=None):
         """ Load entire analysis """
-        # Determine which session file to open
-        if session_file is None:
-            # User dialog
-            dlg = wx.FileDialog(self, "Open session file",
-                    self.config.get_dir(name="Session"), "",
-                            "ShapeOut session (*.zmso)|*.zmso", wx.FD_OPEN)
-            
-            if dlg.ShowModal() == wx.ID_OK:
-                self.config.set_dir(dlg.GetDirectory(), name="Session")
-                fname = dlg.GetPath()
-                dlg.Destroy()
-            else:
-                self.config.set_dir(dlg.GetDirectory(), name="Session")
-                dlg.Destroy()
-                return # nothing more to do here
-        else:
-            fname = session_file 
+        session.open_session(self, session_file=session_file)
 
-        session.open_session(fname, self)
-        
 
     def OnMenuPreferences(self, event):
         """Update configuration file and display restart messages"""
@@ -621,24 +603,7 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuSave(self, e=None):
         """ Save configuration without measurement data """
-        dlg = wx.FileDialog(self, "Save ShapeOut session", 
-                    self.config.get_dir(name="Session"), "",
-                    "ShapeOut session (*.zmso)|*.zmso",
-                    wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
-        if dlg.ShowModal() == wx.ID_OK:
-            # Save everything
-            path = dlg.GetPath()
-            if not path.endswith(".zmso"):
-                path += ".zmso"
-            dirname = os.path.dirname(path)
-            self.config.set_dir(dirname, name="Session")
-            session.save_session(path, self.analysis)
-            return path
-        else:
-            dirname = dlg.GetDirectory()
-            self.config.set_dir(dirname, name="Session")
-            dlg.Destroy()
-
+        session.save_session(self)
 
 
 def MyExceptionHook(etype, value, trace):
