@@ -72,6 +72,6 @@ def check_recover(parent):
         mod = dlg.ShowModal()
         dlg.Destroy()
         if mod == wx.ID_YES:
-            session.open_session(autosave_file, parent)
+            session.open_session_worker(autosave_file, parent)
             return True
     return False
