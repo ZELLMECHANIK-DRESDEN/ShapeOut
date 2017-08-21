@@ -87,56 +87,6 @@ def ci_rm_row(data, ident):
     return "\n".join(newdata)
 
 
-
-def hashfile_sha(fname, blocksize=65536):
-    """Compute sha256 hex-hash of a file
-    
-    Parameters
-    ----------
-    fname: str
-        path to the file
-    blocksize: int
-        block size read from the file
-    count: int
-        number of blocks read from the file
-    """
-    hasher = hashlib.sha256()
-    with io.open(fname, 'rb') as fd:
-        buf = fd.read(blocksize)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = fd.read(blocksize)
-    return hasher.hexdigest()
-
-
-def old_tdms_saved_hash(index_item):
-    """Compute md5 hash from data stored in old session index"""
-    if "fdir_orig" in index_item:
-        # Use the original directory name for hashing
-        fd = index_item["fdir_orig"]
-    else:
-        fd = index_item["fdir"]
-
-    ff = index_item["name"]
-
-    if fd.count(":\\"):
-        tdms_path = fd + "\\" + ff
-        mx = fd + "\\" +  ff.split("_")[0]
-    else:
-        tdms_path = join(fd, ff)
-        mx = join(fd, ff.split("_")[0])
-    
-    file_hashes = [(tdms_path, index_item["tdms hash"]),
-                   (mx+"_camera.ini", index_item["camera.ini hash"]),
-                   (mx+"_para.ini", index_item["para.ini hash"])
-                   ]
-
-    ihasher = hashlib.md5()
-    ihasher.update(obj2str(tdms_path))
-    ihasher.update(obj2str(file_hashes))
-    return ihasher.hexdigest()
-
-
 def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     """Update extracted files to latest format
     
@@ -307,6 +257,27 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     return version
 
 
+def hashfile_sha(fname, blocksize=65536):
+    """Compute sha256 hex-hash of a file
+    
+    Parameters
+    ----------
+    fname: str
+        path to the file
+    blocksize: int
+        block size read from the file
+    count: int
+        number of blocks read from the file
+    """
+    hasher = hashlib.sha256()
+    with io.open(fname, 'rb') as fd:
+        buf = fd.read(blocksize)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = fd.read(blocksize)
+    return hasher.hexdigest()
+
+
 def obj2str(obj):
     """String representation of an object for hashing"""
     if isinstance(obj, str_classes):
@@ -328,6 +299,76 @@ def obj2str(obj):
     else:
         raise ValueError("No rule to convert object '{}' to string.".
                          format(obj.__class__))
+
+
+def old_tdms_saved_hash(index_item):
+    """Compute md5 hash from data stored in old session index"""
+    if "fdir_orig" in index_item:
+        # Use the original directory name for hashing
+        fd = index_item["fdir_orig"]
+    else:
+        fd = index_item["fdir"]
+
+    ff = index_item["name"]
+
+    if fd.count(":\\"):
+        tdms_path = fd + "\\" + ff
+        mx = fd + "\\" +  ff.split("_")[0]
+    else:
+        tdms_path = join(fd, ff)
+        mx = join(fd, ff.split("_")[0])
+    
+    file_hashes = [(tdms_path, index_item["tdms hash"]),
+                   (mx+"_camera.ini", index_item["camera.ini hash"]),
+                   (mx+"_para.ini", index_item["para.ini hash"])
+                   ]
+
+    ihasher = hashlib.md5()
+    ihasher.update(obj2str(tdms_path))
+    ihasher.update(obj2str(file_hashes))
+    return ihasher.hexdigest()
+
+
+def search_hashed_measurement(mfile, index_item, directories, version):
+    """Search for a data set using hashes
+    
+    Parameters
+    ----------
+    mfile: str
+        The original path of the measurement file.
+    index_item: dict
+        Dictionary of this measurement file obtained from the
+        index.txt file of a session (see `index` submodule).
+    directories: list of str
+        A list of directories to search recursively.
+    version: distutils.version.LooseVersion
+        The version of ShapeOut used to save the session
+        (for backwards compatibility).
+    
+    Returns
+    -------
+    ffile: str or None
+        Path to the found measurement file.
+    
+    Notes
+    -----
+    This method only searches for filenames that match the basename
+    of the given `mfile`. 
+    """
+    mname = os.path.basename(mfile)
+    for adir in directories:
+        for root, _ds, fs in os.walk(adir):
+            if mname in fs:
+                this_file = os.path.join(root, mname)
+                if version < LooseVersion("0.7.6"):
+                    saved_hash = index_item["tdms hash"]
+                    check_hash = hashfile_sha(this_file)
+                    if saved_hash == check_hash:
+                        return this_file
+                else:
+                    datahash = dclab.new_dataset(this_file).hash
+                    if datahash == index_item["hash"]:
+                        return this_file
 
 
 def update_session_hashes(tempdir, search_path="."):
@@ -441,45 +482,3 @@ def update_session_hashes(tempdir, search_path="."):
             raise NotImplementedError(msg)
 
     index.index_save(tempdir, index_dict)
-
-
-def search_hashed_measurement(mfile, index_item, directories, version):
-    """Search for a data set using hashes
-    
-    Parameters
-    ----------
-    mfile: str
-        The original path of the measurement file.
-    index_item: dict
-        Dictionary of this measurement file obtained from the
-        index.txt file of a session (see `index` submodule).
-    directories: list of str
-        A list of directories to search recursively.
-    version: distutils.version.LooseVersion
-        The version of ShapeOut used to save the session
-        (for backwards compatibility).
-    
-    Returns
-    -------
-    ffile: str or None
-        Path to the found measurement file.
-    
-    Notes
-    -----
-    This method only searches for filenames that match the basename
-    of the given `mfile`. 
-    """
-    mname = os.path.basename(mfile)
-    for adir in directories:
-        for root, _ds, fs in os.walk(adir):
-            if mname in fs:
-                this_file = os.path.join(root, mname)
-                if version < LooseVersion("0.7.6"):
-                    saved_hash = index_item["tdms hash"]
-                    check_hash = hashfile_sha(this_file)
-                    if saved_hash == check_hash:
-                        return this_file
-                else:
-                    datahash = dclab.new_dataset(this_file).hash
-                    if datahash == index_item["hash"]:
-                        return this_file
