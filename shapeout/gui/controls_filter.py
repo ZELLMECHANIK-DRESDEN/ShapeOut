@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+
 import dclab
 import wx
 import wx.lib.agw.hypertreelist as HT
 
-from .polygonselect import LineDrawerWindow
 from ..configuration import ConfigurationFile
-
+from ..session import conversion
+from .polygonselect import LineDrawerWindow
 from .controls_subpanel import SubPanel
 
 class SubPanelFilter(SubPanel):
@@ -462,8 +464,12 @@ class SubPanelFilter(SubPanel):
             return # nothing more to do here
         if not fname.endswith(".poly"):
             fname += ".poly"
-        dclab.PolygonFilter.import_all(fname)
+        # Convert polygon filters from old exports
+        newfname = conversion.convert_polygon(infile=fname)
+        dclab.PolygonFilter.import_all(newfname)
         self.UpdatePanel()
+        # cleanup
+        os.remove(newfname)
 
 
     def OnPolygonInvert(self, e=None):

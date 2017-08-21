@@ -20,6 +20,7 @@ import os
 from os.path import dirname, exists, join
 import re
 import sys
+import tempfile
 
 if sys.version_info[0] == 2:
     str_classes = (str, unicode)
@@ -85,6 +86,49 @@ def ci_rm_row(data, ident):
         if data[ii].lower().count(ident.lower()) == 0:
             newdata.append(data[ii])
     return "\n".join(newdata)
+
+
+def compatibilitize_polygon(pdata, version=None):
+    """Update polygon filters to latest format
+    
+    Parameters
+    ----------
+    pdata: list of str
+        Data returned by `io.open(...).read()`
+    version: None or `LooseVersion`
+        The version string. If set to `None`, the version
+        is inferred from the column names in "x axis" and
+        "y axis".
+
+    Returns
+    -------
+    pdata_conv: list of str
+        Corrected input data.
+    """
+    if version is None:
+        # Try to guess version
+        pre_076 = 0
+        newc = [c[1] for c in compat_replace]
+        for line in pdata.split("\n"):
+            line = line.lower()
+            if line.count("x axis =") or line.count("y axis ="):
+                ax = line.split("=")[1].strip()
+                if ax not in newc:
+                    pre_076 += 1
+        if pre_076:
+            version = LooseVersion("0.0.1")
+        else:
+            version = LooseVersion("0.7.6")
+
+    if version < LooseVersion("0.7.6"):
+        for old, new in compat_replace:
+            for pattern in ["\nx axis = {}\n",
+                            "\ny axis = {}\n",
+                            ]:
+                pdata = ci_replace(pdata,
+                                   pattern.format(old),
+                                   pattern.format(new))    
+    return pdata
 
 
 def compatibilitize_session(tempdir, hash_update=True, search_path="."):
@@ -203,13 +247,8 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
             datap = fd.read()
             
         if version < LooseVersion("0.7.6"):
-            for old, new in compat_replace:
-                for pattern in ["\nx axis = {}\n",
-                                "\ny axis = {}\n",
-                                ]:
-                    datap = ci_replace(datap,
-                                       pattern.format(old),
-                                       pattern.format(new))
+            datap = compatibilitize_polygon(pdata=datap,
+                                            version=version)
         
         with io.open(pfile, "w") as fd:
             fd.write(datap)
@@ -255,6 +294,39 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
         index.index_save(tempdir, index_dict)
 
     return version
+
+
+def convert_polygon(infile, outfile=None, version=None):
+    """Convert a polygon filter file
+    
+    Parameters
+    ----------
+    infile: path to .poly file
+        The input filename.
+    outfile: path to .poly file or `None`
+        The ouptut filename. If set to `None`, a temporary
+        file will be created.
+    version: None or `LooseVersion`
+        The version string. If set to `None`, the version
+        is inferred from the column names in "x axis" and
+        "y axis".
+    
+    Returns
+    -------
+    outfile: path to output .poly file
+    """
+    if outfile is None:
+        _fd, outfile = tempfile.mkstemp(prefix="converted_filter_",
+                                       suffix=".poly")
+        
+    with io.open(infile) as fd:
+        pdata = fd.read()
+    pdata = compatibilitize_polygon(pdata=pdata, version=version)
+    
+    with io.open(outfile, "w") as fd:
+        fd.write(pdata)
+    
+    return outfile
 
 
 def hashfile_sha(fname, blocksize=65536):
