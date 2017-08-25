@@ -189,5 +189,5 @@ _________
    :target: https://pypi.python.org/pypi/dclab
 .. |Build Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/ShapeOut/master.svg?label=build_win
    :target: https://ci.appveyor.com/project/paulmueller/ShapeOut
-.. |Coverage Status| image:: https://img.shields.io/coveralls/ZELLMECHANIK-DRESDEN/ShapeOut.svg
-   :target: https://coveralls.io/github/ZELLMECHANIK-DRESDEN/ShapeOut
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/ShapeOut/master.svg
+   :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/ShapeOut
