@@ -5,6 +5,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import platform
+import pkg_resources
 import sys
 import traceback
 
@@ -320,15 +321,18 @@ class Frame(gaugeframe.GaugeFrame):
                                                                   iconsize))
         
         def add_image(name, height=-1, width=-1):
-            png = wx.Image(findfile(name), wx.BITMAP_TYPE_ANY)
+            png = wx.Image(name, wx.BITMAP_TYPE_ANY)
             image = wx.StaticBitmap(self.toolbar, -1, png.ConvertToBitmap(), size=(width,height))
             self.toolbar.AddControl(image)
         
         for name in names:
             add_icon(name)
-        
-        add_image("transparent_h50.png", width=75, height=iconsize[0])
-        add_image("zm_logo_h36.png")        
+
+        imdir = pkg_resources.resource_filename("shapeout", "img")
+        add_image(os.path.join(imdir, "transparent_h50.png"),
+                  width=75,
+                  height=iconsize[0])
+        add_image(os.path.join(imdir, "zm_logo_h36.png"))        
 
         try:
             # This only works with wxPython3
@@ -336,7 +340,7 @@ class Frame(gaugeframe.GaugeFrame):
         except:
             pass
 
-        add_image("shapeout_logotype_h36.png")
+        add_image(os.path.join(imdir, "shapeout_logotype_h36.png"))
 
         try:
             # This only works with wxPython3
@@ -344,7 +348,8 @@ class Frame(gaugeframe.GaugeFrame):
         except:
             pass
         
-        add_image("transparent_h50.png", height=iconsize[0])
+        add_image(os.path.join(imdir, "transparent_h50.png"),
+                  height=iconsize[0])
         add_icon(['Quit', wx.ID_EXIT, wx.ART_QUIT])
         self.toolbar.Realize()
         self.SetToolBar(self.toolbar)

@@ -8,6 +8,7 @@ from __future__ import division, unicode_literals
 import copy
 import io
 import os
+import pkg_resources
 import warnings
 
 
@@ -449,8 +450,9 @@ def SortConfigurationKeys(cfgkeys):
 
     return sorted(cfgkeys, cmp=compare)
 
-## Overwrite the tlab configuration with our own.
-cfg_file = findfile("dclab.cfg")
+## Overwrite the dclab configuration with our own.
+cfg_dir = pkg_resources.resource_filename("shapeout", "cfg")
+cfg_file = os.path.join(cfg_dir, "default.cfg")
 cfg = rt_config.load_from_file(cfg_file)
 cfg_ordered_list = GetConfigurationKeys(cfg_file)
 
