@@ -8,7 +8,6 @@ import sys
 import tempfile
 import zipfile
 
-import dclab
 import numpy as np
 
 # Add parent directory to beginning of path variable
@@ -170,23 +169,6 @@ def test_078inertratio():
     assert "inert_ratio min" not in mms[0].config["filtering"]
     assert "inert_ratio max" not in mms[0].config["filtering"]
     cleanup()
-
-
-def test_polygon():
-    """
-    In versions before 0.7.6, polygons in dclab were exported with
-    other column names.
-    """
-    sdir, _path = extract_session("session_v0.6.0.zmso")
-    pfile = join(sdir, "PolygonFilters.poly")
-    # conversion
-    outfile = conversion.convert_polygon(pfile,
-                                         # pretend we don't know the version
-                                         version=None,
-                                         )
-    # load polygon file
-    pf = dclab.PolygonFilter(filename=outfile)
-    assert pf.axes == (u'area_um', u'deform')
 
 
 if __name__ == "__main__":
