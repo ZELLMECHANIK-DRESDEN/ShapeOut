@@ -11,6 +11,7 @@ import warnings
 from PyInstaller.utils.hooks import collect_data_files
 
 dir = abspath(".")
+sys.path.insert(0, dir)
 
 if not exists(join(dir, "shapeout")):
 	warnings.warn("Cannot find 'shapeout'! Please run pyinstaller "+
@@ -21,7 +22,6 @@ MEIrtdc="shapeout-data"
 name = "ShapeOut"
 appdir = os.path.realpath(dir+"/shapeout/")
 datadir = os.path.realpath(dir+"/data/")
-distdir = os.path.realpath(dir+"/dist/")
 langdir = os.path.realpath(dir+"/lang/")
 pyinstdir = os.path.realpath(dir+"/freeze_appveyor/")
 script = os.path.join(appdir, name+".py")
@@ -70,10 +70,7 @@ hiddenimports += ["dclab", "six"]
 appdir = relpath(appdir,dir)
 langdir = relpath(langdir,dir)
 
-datas = collect_data_files("pyjibe")
-datas += collect_data_files("pyjibe", subdir="cfg")
-datas += collect_data_files("pyjibe", subdir="img")
-
+datas = []
 
 ## Data files
 # recursively add isoelastics
