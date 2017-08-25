@@ -317,7 +317,7 @@ def convert_polygon(infile, outfile=None, version=None):
     """
     if outfile is None:
         _fd, outfile = tempfile.mkstemp(prefix="converted_filter_",
-                                       suffix=".poly")
+                                        suffix=".poly")
         
     with io.open(infile) as fd:
         pdata = fd.read()
