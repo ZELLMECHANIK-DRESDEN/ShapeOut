@@ -66,7 +66,7 @@ def retreive_tdms(zip_file):
     
     _tempdirs.append(edest)
     
-    ## Load RTDC Data set
+    ## Load RT-DC Data set
     # find tdms files
     tdmsfiles = get_tdms_files(edest)
     

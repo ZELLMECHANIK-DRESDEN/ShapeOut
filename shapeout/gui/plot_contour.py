@@ -19,11 +19,11 @@ from . import plot_common
 def contour_plot(measurements, levels=[0.5,0.95],
                  axContour=None, isoel=None,
                  wxtext=False, square=True):
-    """ Plot contour for two axes of an RTDC measurement
+    """Plot contour for two axes of an RT-DC measurement
     
     Parameters
     ----------
-    measurement : instance of RTDS_DataSet
+    measurement : RTDCBase
         Contains measurement data.
     levels : float or list of floats in interval (0,1)
         Plot the contour at that particular level from the maximum (1).

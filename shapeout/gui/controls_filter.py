@@ -421,7 +421,7 @@ class SubPanelFilter(SubPanel):
         """
         This function is called when an item in the htreectrl is checked
         or unchecked. We apply the corresponding filters to the underlying
-        RTDC data set live.
+        RT-DC data set live.
         ComboBox:: self._polygon_filter_combo_box
         HTreeCtrl: self._polygon_filter_selection_htree
         """

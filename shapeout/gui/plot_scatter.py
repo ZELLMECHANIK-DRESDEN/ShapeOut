@@ -27,11 +27,11 @@ def scatter_plot(measurement,
                  axScatter=None, isoel=None, 
                  square=True, 
                  panzoom=True, select=True):
-    """ Plot scatter plot for two axes of an RTDC measurement
+    """Plot scatter plot for two axes of an RT-DC measurement
     
     Parameters
     ----------
-    measurement : instance of RTDS_DataSet
+    measurement : RTDCBase
         Contains measurement data.
     axScatter : instance of matplotlib `Axis`
         Plotting axis for the scatter data.

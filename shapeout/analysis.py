@@ -19,10 +19,10 @@ from shapeout import tlabwrap
 
 
 class Analysis(object):
-    """ An object that stores several RTDC data sets and useful methods
+    """Stores several RT-DC data sets and useful methods
     
     This object contains
-     - RTDC data sets
+     - RT-DC data sets
      - common configuration parameters of the data sets
      - Plotting parameters
     """
@@ -55,7 +55,7 @@ class Analysis(object):
                 if os.path.exists(unicode(f)):
                     rtdc_ds = dclab.new_dataset(f)
                 else:
-                    # RTDC data set
+                    # RT-DC data set
                     rtdc_ds = f
                 self.measurements.append(rtdc_ds)
         else:

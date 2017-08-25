@@ -408,13 +408,13 @@ def GetConfigurationKeys(cfgfilename, capitalize=True):
 def SortConfigurationKeys(cfgkeys):
     """
     Sort a list of configuration keys according to the appearance in the
-    ShapeOut dclab.cfg configuration file.
+    ShapeOut default.cfg configuration file.
     
     If items are not present in this file, then the will be sorted according to
     the string value.
     
     This function is used to determine the displayed order of parameters in
-    ShapeOut using the configuration file `dclab.cfg`.
+    ShapeOut using the configuration file `default.cfg`.
     
     `cfgkeys` may be a list of tuples where the first element is the key
     or a list of keys.

@@ -13,11 +13,11 @@ import numpy as np
 
 def legend_plot(measurements, title_font="modern 12",
                 title="Legend", legend_font="modern 9"):
-    """ Plot contour for two axes of an RTDC measurement
+    """Plot legend for an RT-DC data set
     
     Parameters
     ----------
-    measurements : list of instances of RTDS_DataSet
+    measurements : list of RTDCBase
         Contains color information and titel.
         - mm.config["plotting"]["contour color"]
         - mm.title
