@@ -23,7 +23,7 @@ name = "ShapeOut"
 appdir = os.path.realpath(dir+"/shapeout/")
 datadir = os.path.realpath(dir+"/data/")
 langdir = os.path.realpath(dir+"/lang/")
-pyinstdir = os.path.realpath(dir+"/freeze_appveyor/")
+pyinstdir = os.path.realpath(dir+"/.appveyor/")
 script = os.path.join(appdir, name+".py")
 
 # Icon

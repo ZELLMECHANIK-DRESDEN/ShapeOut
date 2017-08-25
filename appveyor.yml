@@ -22,7 +22,7 @@ environment:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
-    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\freeze_appveyor\\run_with_compiler.cmd"
+    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\.appveyor\\run_with_compiler.cmd"
 
   # https://github.com/appveyor/ci/issues/359
   matrix:
@@ -70,8 +70,8 @@ install:
 
   # Install package-specific libraries
   # CONDA installs
-  # Pinned versions are defined in freeze_appveyor\pinned
-  - xcopy freeze_appveyor\pinned %PYTHON%\conda-meta\ /Y
+  # Pinned versions are defined in .appveyor\pinned
+  - xcopy .appveyor\pinned %PYTHON%\conda-meta\ /Y
   #- "conda update -f conda"
   # Anaconda client for searching packages?
   #- "conda install anaconda-client"
@@ -102,7 +102,7 @@ install:
   - "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git --no-deps"
  
   # Patch libraries
-  - '%WITH_COMPILER% %PYTHON%/python freeze_appveyor/patch_libraries.py'
+  - '%WITH_COMPILER% %PYTHON%/python .appveyor/patch_libraries.py'
   
   # Install pyinstaller (includes dependency for pywin32)
   #- pip install pypiwin32"
@@ -132,7 +132,7 @@ after_test:
   #- ps: "ls dist"
   # Run pyinstaller
   # This will create the "win7_innosetup.iss" file
-  - "%WITH_COMPILER% pyinstaller -y --log-level=WARN freeze_appveyor\\win_shapeout.spec"
+  - "%WITH_COMPILER% pyinstaller -y --log-level=WARN .appveyor\\win_shapeout.spec"
   # Create InnoSetup installers
   # Set InnoSetup path here, because Cython complained about it.
   - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
