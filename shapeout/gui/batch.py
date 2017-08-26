@@ -29,7 +29,7 @@ class BatchFilterFolder(wx.Frame):
         self.toggled_stat_parms = False
 
         # Get the window positioning correctly
-        wx.Frame.__init__(self, parent=self.parent, title=_("Batch filtering"),
+        wx.Frame.__init__(self, parent=self.parent, title="Batch filtering",
                           style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
         ## panel
         panel = self.panel = wx.Panel(self)
@@ -37,13 +37,13 @@ class BatchFilterFolder(wx.Frame):
         # init
         self.topSizer.Add(
             wx.StaticText(panel,
-            label=_("Apply the filter setting of one measurement\n"+\
-                    "to all measurements within a folder and\n"+\
-                    "save selected statistical parameters."))
+            label="Apply the filter setting of one measurement\n"+\
+                  "to all measurements within a folder and\n"+\
+                  "save selected statistical parameters.")
             )
         self.topSizer.AddSpacer(10)
         ## Filter source selection
-        boxleft = wx.StaticBox(panel, label=_("Filter settings"))
+        boxleft = wx.StaticBox(panel, label="Filter settings")
         self.rbtnhere = wx.RadioButton(panel, -1, 'Current session', 
                                         style = wx.RB_GROUP)
         self.rbtnhere.SetValue(True)
@@ -65,21 +65,21 @@ class BatchFilterFolder(wx.Frame):
         self.topSizer.AddSpacer(10)
 
         ## Folder selection
-        boxfold = wx.StaticBox(panel, label=_("Input folder"))
+        boxfold = wx.StaticBox(panel, label="Input folder")
         foldSizer = wx.StaticBoxSizer(boxfold, wx.VERTICAL)
-        btnbrws = wx.Button(panel, wx.ID_ANY, _("Browse"))
+        btnbrws = wx.Button(panel, wx.ID_ANY, "Browse")
         # Binds the button to the function - close the tool
         self.Bind(wx.EVT_BUTTON, self.OnBrowse, btnbrws)
         self.WXfold_text1 = wx.StaticText(panel,
-                            label=_("Folder containing RT-DC measurements"))
-        self.WXdropdown_flowrate = wx.ComboBox(panel, -1, _("All measurements"), (15, 30),
-                                               wx.DefaultSize, [_("All measurements")],
+                            label="Folder containing RT-DC measurements")
+        self.WXdropdown_flowrate = wx.ComboBox(panel, -1, "All measurements", (15, 30),
+                                               wx.DefaultSize, ["All measurements"],
                                                wx.CB_DROPDOWN|wx.CB_READONLY)
         self.WXdropdown_flowrate.Disable()
-        self.WXdropdown_region = wx.ComboBox(panel, -1, _("Channel and Reservoir"), (15, 30),
-                                               wx.DefaultSize, [_("Channel and Reservoir"),
-                                                                _("Channel only"),
-                                                                _("Reservoir only")],
+        self.WXdropdown_region = wx.ComboBox(panel, -1, "Channel and Reservoir", (15, 30),
+                                               wx.DefaultSize, ["Channel and Reservoir",
+                                                                "Channel only",
+                                                                "Reservoir only"],
                                                wx.CB_DROPDOWN|wx.CB_READONLY)
         fold2sizer = wx.BoxSizer(wx.HORIZONTAL)
         fold2sizer.Add(btnbrws)
@@ -108,13 +108,13 @@ class BatchFilterFolder(wx.Frame):
         self.SetupStatisticalParameters()
 
         ## Output selection
-        boxtsv = wx.StaticBox(panel, label=_("Output file"))
+        boxtsv = wx.StaticBox(panel, label="Output file")
         tsvSizer = wx.StaticBoxSizer(boxtsv, wx.VERTICAL)
-        btnbrwstsv = wx.Button(panel, wx.ID_ANY, _("Browse"))
+        btnbrwstsv = wx.Button(panel, wx.ID_ANY, "Browse")
         # Binds the button to the function - close the tool
         self.Bind(wx.EVT_BUTTON, self.OnBrowseTSV, btnbrwstsv)
         self.WXtsv_text1 = wx.StaticText(panel,
-                               label=_("Results of statistical analysis"))
+                               label="Results of statistical analysis")
         tsv2sizer = wx.BoxSizer(wx.HORIZONTAL)
         tsv2sizer.Add(btnbrwstsv)
         tsv2sizer.Add(self.WXtsv_text1, 0,
@@ -125,7 +125,7 @@ class BatchFilterFolder(wx.Frame):
         self.topSizer.Add(tsvSizer, 0, wx.EXPAND)
 
         ## Batch button
-        btnbatch = wx.Button(self.panel, wx.ID_ANY, _("Perform batch filtering"))
+        btnbatch = wx.Button(self.panel, wx.ID_ANY, "Perform batch filtering")
         # Binds the button to the function - close the tool
         self.Bind(wx.EVT_BUTTON, self.OnBatch, btnbatch)
         self.topSizer.Add(btnbatch, 0, wx.EXPAND)
@@ -227,7 +227,7 @@ class BatchFilterFolder(wx.Frame):
         """
         # make directory dialog
         dlg2 = wx.DirDialog(self,
-                message=_("Please select directory containing measurements"),
+                message="Please select directory containing measurements",
                 defaultPath=self.parent.config.get_dir("BatchFD"),
                 style=wx.DD_DEFAULT_STYLE)
         
@@ -257,12 +257,12 @@ class BatchFilterFolder(wx.Frame):
             if fr not in flow_dict:
                 flow_dict[fr] = []
             flow_dict[fr].append(tt)
-        selections = [_("All measurements ({})").format(len(self.tdms_files))]
+        selections = ["All measurements ({})".format(len(self.tdms_files))]
         self.flow_rates = list(flow_dict.keys())
         self.flow_rates.sort()
         for fr in self.flow_rates:
             num = len(flow_dict[fr])
-            selections += [_("Flow rate {} µl/s ({})").format(fr, num)] 
+            selections += ["Flow rate {} µl/s ({})".format(fr, num)] 
         self.WXdropdown_flowrate.SetItems(selections)
         self.WXdropdown_flowrate.SetSelection(0)
         self.WXdropdown_flowrate.Enable()
@@ -271,10 +271,10 @@ class BatchFilterFolder(wx.Frame):
 
     def OnBrowseTSV(self, e=None):
         dlg2 = wx.FileDialog(self,
-                message=_("Please select an output file."),
+                message="Please select an output file.",
                 defaultDir=self.parent.config.get_dir("BatchOut"),
                 style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT,
-                wildcard=_("TSV files")+" (*.tsv)|*.tsv")
+                wildcard="TSV files"+" (*.tsv)|*.tsv")
         
         if dlg2.ShowModal() == wx.ID_OK:
             thepath = dlg2.GetPath()
@@ -313,12 +313,12 @@ class BatchFilterFolder(wx.Frame):
                 window.Destroy()
             sizerin = sizer
         else:
-            box = wx.StaticBox(self.axes_panel, label=_("Event columns"))
+            box = wx.StaticBox(self.axes_panel, label="Event columns")
             sizerbox = wx.StaticBoxSizer(box, wx.HORIZONTAL)
             sizerin = wx.BoxSizer(orient=wx.VERTICAL)
             sizerbox.Add(sizerin)
             sizersel = wx.BoxSizer(orient=wx.VERTICAL)
-            btnselect = wx.Button(self.axes_panel, wx.ID_ANY, _("(De-)select all"))
+            btnselect = wx.Button(self.axes_panel, wx.ID_ANY, "(De-)select all")
             sizersel.Add(btnselect, 0, wx.ALIGN_RIGHT)
             sizerbox.Add(sizersel, 1, wx.EXPAND|wx.ALIGN_RIGHT)
             self.Bind(wx.EVT_BUTTON, self.OnToggleAllEventColumns, btnselect)
@@ -347,7 +347,7 @@ class BatchFilterFolder(wx.Frame):
         for c,l in zip(checks, labels):
             # label id (b/c of sorting)
             label = l
-            cb = wx.CheckBox(self.axes_panel, label=_(label), name=c)
+            cb = wx.CheckBox(self.axes_panel, label=label, name=c)
             sizerin.Add(cb)
             if c in self.analysis.GetPlotAxes():
                 cb.SetValue(True)
@@ -391,12 +391,12 @@ class BatchFilterFolder(wx.Frame):
 
     def SetupStatisticalParameters(self, e=None):
         ## Remove initial stuff
-        box = wx.StaticBox(self.stat_panel, label=_("Statistical parameters"))
+        box = wx.StaticBox(self.stat_panel, label="Statistical parameters")
         sizerbox = wx.StaticBoxSizer(box, wx.HORIZONTAL)
         sizerin = wx.BoxSizer(orient=wx.VERTICAL)
         sizerbox.Add(sizerin)
         sizersel = wx.BoxSizer(orient=wx.VERTICAL)
-        btnselect = wx.Button(self.stat_panel, wx.ID_ANY, _("(De-)select all"))
+        btnselect = wx.Button(self.stat_panel, wx.ID_ANY, "(De-)select all")
         sizersel.Add(btnselect, 0, wx.ALIGN_RIGHT)
         sizerbox.Add(sizersel, 1, wx.EXPAND|wx.ALIGN_RIGHT)
         self.Bind(wx.EVT_BUTTON, self.OnToggleAllStatParms, btnselect)

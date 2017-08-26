@@ -65,7 +65,7 @@ def check_recover(parent):
     if os.path.exists(autosave_file):
         message="Autosaved session found. Restore?"
         dlg = wx.MessageDialog(parent,
-                               caption=_("Missing tdms files for session"),
+                               caption="Missing tdms files for session",
                                message=message,
                                style=wx.YES|wx.NO,
                                )

@@ -17,7 +17,7 @@ class SubPanelCalculate(SubPanel):
 
     
     def make_emodulus_choices(self, analysis):
-        gen = wx.StaticBox(self, label=_("Elastic modulus"))
+        gen = wx.StaticBox(self, label="Elastic modulus")
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
         
         # default variables
@@ -44,7 +44,7 @@ class SubPanelCalculate(SubPanel):
                     viscosity = calc["emodulus viscosity"]
 
             # Model to apply
-            sizer_bag.Add(wx.StaticText(self, label=_("Model:")), (0,0))
+            sizer_bag.Add(wx.StaticText(self, label="Model:"), (0,0))
             choices = tlabwrap.get_config_entry_choices("calculation",
                                                         "emodulus model")
             self.WXCB_model = wx.ComboBox(self, -1, choices=choices,
@@ -53,7 +53,7 @@ class SubPanelCalculate(SubPanel):
             sizer_bag.Add(self.WXCB_model, (0,1), flag=wx.EXPAND|wx.ALL)
             
             # Medium to use
-            sizer_bag.Add(wx.StaticText(self, label=_("Medium:")), (1,0))
+            sizer_bag.Add(wx.StaticText(self, label="Medium:"), (1,0))
             self.axes = analysis.GetUsableAxes()
             mediumlist = tlabwrap.get_config_entry_choices("calculation",
                                                            "emodulus medium")
@@ -63,20 +63,20 @@ class SubPanelCalculate(SubPanel):
             sizer_bag.Add(self.WXCB_medium, (1,1), flag=wx.EXPAND|wx.ALL)
             
             # Viscosity to use
-            sizer_bag.Add(wx.StaticText(self, label=_("Viscosity [mPa·s]:")), (2,0))
+            sizer_bag.Add(wx.StaticText(self, label="Viscosity [mPa·s]:"), (2,0))
             self.WXSC_visc = wx.SpinCtrlDouble(self, -1, name="viscosity",
                                                min=0.5, max=10000, inc=0.0001)
             self.WXSC_visc.SetValue(viscosity)
             sizer_bag.Add(self.WXSC_visc, (2,1), flag=wx.EXPAND|wx.ALL)
 
             # Temperature to use
-            sizer_bag.Add(wx.StaticText(self, label=_("Temperature [°C]:")), (3,0))
+            sizer_bag.Add(wx.StaticText(self, label="Temperature [°C]:"), (3,0))
             self.WXSC_temp = wx.SpinCtrlDouble(self, -1, name="temperature",
                                                min=0.0, max=100, inc=0.01)
             self.WXSC_temp.SetValue(temperature)
             sizer_bag.Add(self.WXSC_temp, (3,1), flag=wx.EXPAND|wx.ALL)
             
-            compute_btn = wx.Button(self, label=_("Compute elastic modulus"))
+            compute_btn = wx.Button(self, label="Compute elastic modulus")
             sizer_bag.Add(compute_btn, (4,0), span=(1,2), flag=wx.EXPAND|wx.ALL)
             self.Bind(wx.EVT_BUTTON, self.OnComputeEmodulus, compute_btn)
             

@@ -22,7 +22,6 @@ MEIrtdc="shapeout-data"
 name = "ShapeOut"
 appdir = os.path.realpath(dir+"/shapeout/")
 datadir = os.path.realpath(dir+"/data/")
-langdir = os.path.realpath(dir+"/lang/")
 pyinstdir = os.path.realpath(dir+"/.appveyor/")
 script = os.path.join(appdir, name+".py")
 
@@ -84,19 +83,6 @@ for root, _, files in os.walk(isoeldir):
                   join(join(isoeldir, reldir), f),
                   'DATA'),
                  ]
-
-
-## Language files
-for root,dirs,files in os.walk(langdir):
-    for f in files:
-        if os.path.splitext(f)[1] in [".ini", ".mo"]:
-            datas += [(
-                       os.path.join(MEIrtdc+"/lang",
-                        os.path.relpath(os.path.join(root,f), langdir)),
-                       os.path.relpath(os.path.join(root,f), dir),
-                       "DATA"
-                      )]
-
 
 a = Analysis([script],
              pathex=[dir],

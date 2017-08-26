@@ -20,7 +20,6 @@ class SubPanelStatistics(SubPanel):
         Returns a wxBoxSizer with statistics information about
         each element in analysis.
         """
-        #gen = wx.StaticBox(self, label=_("Filtered data sets"))
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         if analysis is not None:

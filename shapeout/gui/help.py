@@ -77,7 +77,7 @@ def software():
            
     if hasattr(sys, 'frozen'):
         pyinst = "\n\n"
-        pyinst += _("This executable has been created using PyInstaller.")
+        pyinst += "This executable has been created using PyInstaller."
         text += pyinst
         if 'Anaconda' in sys.version or "Continuum Analytics" in sys.version:
             conda = "\n\nPowered by Anaconda"

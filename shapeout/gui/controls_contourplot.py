@@ -28,7 +28,7 @@ class SubPanelPlotContour(SubPanel):
         
         mastersizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        contour = wx.StaticBox(self, label=_("Parameters"))
+        contour = wx.StaticBox(self, label="Parameters")
         contourbox = wx.StaticBoxSizer(contour, wx.VERTICAL)
         contoursizer = wx.BoxSizer(wx.VERTICAL)
         contourbox.Add(contoursizer)
@@ -67,7 +67,7 @@ class SubPanelPlotContour(SubPanel):
         ## Color and name selection
         # ["Plotting"]["Contour Color"] and
         # mm.title
-        titlecol = wx.StaticBox(self, label=_("Titles and Colors"))
+        titlecol = wx.StaticBox(self, label="Titles and Colors")
         titlecolbox = wx.StaticBoxSizer(titlecol, wx.VERTICAL)
         titlecolsizer = wx.BoxSizer(wx.VERTICAL)
         titlecolbox.Add(titlecolsizer)
@@ -107,11 +107,11 @@ class SubPanelPlotContour(SubPanel):
 
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
 
-        btn_apply = wx.Button(self, label=_("Apply"))
+        btn_apply = wx.Button(self, label="Apply")
         self.Bind(wx.EVT_BUTTON, self.funcparent.OnChangePlot, btn_apply)
         vertsizer.Add(btn_apply)
         
-        btn_reset = wx.Button(self, label=_("Reset"))
+        btn_reset = wx.Button(self, label="Reset")
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)
 

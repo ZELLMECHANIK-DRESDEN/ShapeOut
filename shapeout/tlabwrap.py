@@ -123,7 +123,6 @@ def GetTDMSTreeGUI(directories):
     for directory in directories:
         files = get_tdms_files(directory)
 
-        #cols = [_("Measurement"), _("Creation Date")]
         #to = os.path.getctime(f)
         #t = time.strftime("%Y-%m-%d %H:%M", time.gmtime(to))
         cols = ["Measurement"]

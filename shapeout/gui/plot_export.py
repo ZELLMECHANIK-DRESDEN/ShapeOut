@@ -15,9 +15,9 @@ import wx
 
 
 def export_plot_pdf(parent):
-    dlg = wx.FileDialog(parent, _("Export plot as PDF"), 
+    dlg = wx.FileDialog(parent, "Export plot as PDF", 
                         parent.config.get_dir("PDF"), "",
-                        _("PDF file")+" (*.pdf)|*.pdf",
+                        "PDF file"+" (*.pdf)|*.pdf",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         path = dlg.GetPath()
@@ -164,9 +164,9 @@ def export_plot_png(parent):
         
 
 def export_plot_svg(parent):
-    dlg = wx.FileDialog(parent, _("Export plot as SVG"), 
+    dlg = wx.FileDialog(parent, "Export plot as SVG", 
                         parent.config.get_dir("SVG"), "",
-                        _("SVG file")+" (*.svg)|*.svg",
+                        "SVG file"+" (*.svg)|*.svg",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         path = dlg.GetPath()

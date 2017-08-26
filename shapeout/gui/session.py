@@ -86,12 +86,12 @@ def open_session_worker(path, parent):
         # Ask user for directory
         miss = os.path.basename(missing[0][1])
         
-        message = _("ShapeOut could not find the following measurements:")+\
+        message = "ShapeOut could not find the following measurements:"+\
                   "\n\n".join([""]+[m[1] for m in missing]) +"\n\n"+\
-                  _("Please select a directory that contains these.")
+                  "Please select a directory that contains these."
         
         dlg = wx.MessageDialog(parent,
-                               caption=_("Missing files for session"),
+                               caption="Missing files for session",
                                message=message,
                                style=wx.CANCEL|wx.OK,
                                )
@@ -101,11 +101,10 @@ def open_session_worker(path, parent):
             break
         
         sd = "SessionMissingDirSearch"
+        msg = "Please select directory containing {}".format(miss)
         dlg = wx.DirDialog(parent,
-                           message=_(
-                                    "Please select directory containing {}"
-                                    ).format(miss),
-                                    defaultPath=parent.config.get_dir(name=sd)
+                           message=msg,
+                           defaultPath=parent.config.get_dir(name=sd)
                            )
         mod = dlg.ShowModal()
         path = dlg.GetPath()
@@ -158,8 +157,8 @@ def open_session_worker(path, parent):
                   "loaded the data. The following warnings were issued:\n"
             msg += "".join([ "\n - "+w.message.message for w in ww ])
             dlg = wx.MessageDialog(None,
-                                   _(msg),
-                                   _('Hash mismatch warning'),
+                                   msg,
+                                   'Hash mismatch warning',
                                    wx.OK | wx.ICON_WARNING)
             dlg.ShowModal()
 
