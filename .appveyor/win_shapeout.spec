@@ -67,7 +67,6 @@ hiddenimports += ["dclab", "six"]
 #hiddenimports += collect_submodules('pkg_resources._vendor')
 
 appdir = relpath(appdir,dir)
-langdir = relpath(langdir,dir)
 
 datas = []
 
