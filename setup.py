@@ -40,7 +40,11 @@ if __name__ == "__main__":
             # If you need the GUI of this project in your project, add
             # "thisproject[GUI]" to your install_requires
             # Graphical User Interface
-            'GUI':  ["wxPython", "chaco", "imageio"],
+            'GUI':  ["wxPython",
+                     "chaco",
+                     "imageio",
+                     "simplejson", # for updates
+                     ],
             # kiwisolver?
         },
         install_requires=["appdirs",

@@ -34,8 +34,10 @@ def test_rw_basic():
     assert mload[1].identifier == msave[1].identifier
     
     cleanup()
-    os.remove(fsave)
-
+    try:
+        os.remove(fsave)
+    except:
+        pass
 
 
 if __name__ == "__main__":

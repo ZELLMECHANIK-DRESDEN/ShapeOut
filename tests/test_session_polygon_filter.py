@@ -5,6 +5,7 @@ from __future__ import division, print_function
 
 import os
 from os.path import abspath, dirname, join
+import shutil
 import sys
 
 import dclab
@@ -33,7 +34,10 @@ def test_polygon():
     pf = dclab.PolygonFilter(filename=outfile)
     assert pf.axes == (u'area_um', u'deform')
     cleanup()
-    os.remove(outfile)
+    try:
+        os.remove(outfile)
+    except:
+        pass
     
 
 if __name__ == "__main__":

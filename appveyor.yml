@@ -121,7 +121,7 @@ test_script:
   - 'python -c "import shapeout; print shapeout.__version__"'
   - "pip install coverage"
   - "pip install codecov"
-  - "coverage run --source=shapeout ./setup.py test || exit 0" #ignore any errors here
+  - "coverage run --source=shapeout ./setup.py test"
   - "coverage report -m"
   # Allow codecov to fail
   - "codecov || exit 0"
