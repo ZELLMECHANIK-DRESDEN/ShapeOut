@@ -4,7 +4,7 @@
 |PyPI Version| |Build Status Win| |Coverage Status|
 
 
-This repository contains a graphical user interface for the analysis
+ShapeOut is a graphical user interface for the analysis
 and visualization of RT-DC data sets. For more informaion please visit
 http://zellmechanik.com/.
 
