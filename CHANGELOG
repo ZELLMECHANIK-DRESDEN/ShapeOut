@@ -4,6 +4,10 @@
   - Cannot open old session files with hierarchies when the measurement
     data location has changed (#174)
   - Cannot open polygon filters exported with ShapeOut versions < 0.7.6 (#174)
+- Code cleanup:
+  - Move program-relevant data to "shapeout" directory
+  - Create separate directory for appveyor recipe
+  - Remove unused/incomplete support for internationalization
 0.7.9
 - Add on-the-fly computation of contour inertia ratios
 - Add menu options to save current event image (#164)
