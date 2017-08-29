@@ -19,7 +19,6 @@ except:
     version = "unknown"
 
 
-
 if __name__ == "__main__":
     setup(
         name=name,
@@ -32,28 +31,28 @@ if __name__ == "__main__":
         license="GPL v2",
         description=description,
         long_description=open('README.rst').read() if exists('README.rst') else '',
-        extras_require = {
-            # Graphical User Interface
-            # If you need the GUI for your project, add
-            # "shapeout[GUI]" to your install_requires.
-            'GUI':  ["wxPython",
-                     "chaco",
-                     "imageio",
-                     "simplejson", # for updates
-                     ],
-        },
+        extras_require = {# Graphical User Interface
+                          # If you need the GUI for your project, add
+                          # "shapeout[GUI]" to your install_requires.
+                          'GUI':  ["chaco",
+                                   "imageio",
+                                   "simplejson", # for updates
+                                   "wxPython",
+                                   ],
+                          },
         install_requires=["appdirs",
                           "dclab",
+                          "nptdms",
                           "NumPy>=1.7.0",
+                          "pyper"
                           "SciPy>=0.13.0",
-                          "pyper"],
+                          ],
         setup_requires=['pytest-runner'],
         tests_require=["pytest", "urllib3"],
-        keywords=["RT-DC", "cytometry"],
-        classifiers= [
-            'Operating System :: OS Independent',
-            'Programming Language :: Python :: 2.7',
-            'Intended Audience :: Science/Research'
-                     ],
+        keywords=["RT-DC", "deformability", "cytometry"],
+        classifiers= ['Operating System :: OS Independent',
+                      'Programming Language :: Python :: 2.7',
+                      'Intended Audience :: Science/Research'
+                      ],
         platforms=['ALL']
         )
