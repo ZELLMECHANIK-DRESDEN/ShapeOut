@@ -11,10 +11,6 @@ name = 'shapeout'
 description = 'Data analysis for real-time deformability cytometry (RTDC)'
 year = "2015"
 
-long_description = """
-A graphical user interface for the offline analysis of
-real-time deformability cytometry (RT-DC) data.
-"""
 
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
 try:
