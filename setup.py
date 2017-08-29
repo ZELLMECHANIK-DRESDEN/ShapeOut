@@ -8,7 +8,7 @@ import sys
 author = u"Paul Müller"
 authors = [author, u"Philipp Rosendahl", u"Maik Herbig"]
 name = 'shapeout'
-description = 'Data analysis for real-time deformability cytometry (RTDC)'
+description = 'User interface for real-time deformability cytometry (RT-DC)'
 year = "2015"
 
 
