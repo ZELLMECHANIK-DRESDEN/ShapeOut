@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from os.path import dirname, realpath, exists
-from setuptools import setup
+from setuptools import setup, find_packages
 import sys
 
 
@@ -31,26 +31,25 @@ if __name__ == "__main__":
         author_email='paul.mueller@biotec.tu-dresden.de',
         url='https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut',
         version=version,
-        packages=[name],
+        packages=find_packages(include=(name+"*",)),
         package_dir={name: name},
         license="GPL v2",
         description=description,
         long_description=open('README.rst').read() if exists('README.rst') else '',
         extras_require = {
-            # If you need the GUI of this project in your project, add
-            # "thisproject[GUI]" to your install_requires
             # Graphical User Interface
+            # If you need the GUI for your project, add
+            # "shapeout[GUI]" to your install_requires.
             'GUI':  ["wxPython",
                      "chaco",
                      "imageio",
                      "simplejson", # for updates
                      ],
-            # kiwisolver?
         },
         install_requires=["appdirs",
                           "dclab",
                           "NumPy>=1.7.0",
-                          "SciPy>=0.10.0",
+                          "SciPy>=0.13.0",
                           "pyper"],
         setup_requires=['pytest-runner'],
         tests_require=["pytest", "urllib3"],
