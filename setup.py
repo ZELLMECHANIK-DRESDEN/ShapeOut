@@ -14,7 +14,7 @@ year = "2015"
 
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
 try:
-    from _version import version
+    from _version import version # @UnresolvedImport
 except:
     version = "unknown"
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
                           ],
         setup_requires=['pytest-runner'],
         tests_require=["pytest", "urllib3"],
-        keywords=["RT-DC", "deformability", "cytometry"],
+        keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
         classifiers= ['Operating System :: OS Independent',
                       'Programming Language :: Python :: 2.7',
                       'Intended Audience :: Science/Research'
