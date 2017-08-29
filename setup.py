@@ -44,7 +44,7 @@ if __name__ == "__main__":
                           "dclab",
                           "nptdms",
                           "NumPy>=1.7.0",
-                          "pyper"
+                          "pyper",
                           "SciPy>=0.13.0",
                           ],
         setup_requires=['pytest-runner'],
