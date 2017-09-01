@@ -8,8 +8,6 @@ import platform
 import sys
 import warnings
 
-from PyInstaller.utils.hooks import collect_data_files
-
 dir = abspath(".")
 sys.path.insert(0, dir)
 
@@ -58,14 +56,6 @@ with codecs.open("win_shapeout.iss", 'wb', "utf-8") as fd:
 	fd.write(u"\ufeff")
 	fd.writelines(iss)
 
-## Hidden imports
-# nptdms
-hiddenimports = ["nptdms", "nptdms.version", "nptdms.tdms", "nptdms.tdmsinfo"]
-# scipy stats
-hiddenimports += ["scipy.stats", "scipy.special", "scipy.special._ufuncs_cxx"]
-hiddenimports += ["dclab", "six"]
-#hiddenimports += collect_submodules('pkg_resources._vendor')
-
 appdir = relpath(appdir,dir)
 
 datas = []
@@ -85,7 +75,6 @@ for root, _, files in os.walk(isoeldir):
 
 a = Analysis([script],
              pathex=[dir],
-             hiddenimports=hiddenimports,
              hookspath=[pyinstdir],
              runtime_hooks=None)
 

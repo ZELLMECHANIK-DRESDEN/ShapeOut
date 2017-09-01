@@ -52,7 +52,7 @@ if __name__ == "__main__":
         keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
         classifiers= ['Operating System :: OS Independent',
                       'Programming Language :: Python :: 2.7',
-                      'Intended Audience :: Science/Research'
+                      'Intended Audience :: Science/Research',
                       ],
         platforms=['ALL']
         )

@@ -11,7 +11,14 @@
 
 from PyInstaller.utils.hooks import collect_data_files
 
+# Data files
 datas = collect_data_files("shapeout")
 datas += collect_data_files("shapeout", subdir="cfg")
 datas += collect_data_files("shapeout", subdir="img")
 
+## Hidden imports
+# nptdms
+hiddenimports = ["nptdms", "nptdms.version", "nptdms.tdms", "nptdms.tdmsinfo"]
+# scipy stats
+hiddenimports += ["scipy.stats", "scipy.special", "scipy.special._ufuncs_cxx"]
+hiddenimports += ["dclab", "six"]
