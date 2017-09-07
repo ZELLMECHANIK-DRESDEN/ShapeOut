@@ -16,10 +16,8 @@ if not exists(join(dir, "shapeout")):
                   "from git root folder.")
 
 
-MEIrtdc="shapeout-data"
 name = "ShapeOut"
 appdir = os.path.realpath(dir+"/shapeout/")
-datadir = os.path.realpath(dir+"/data/")
 pyinstdir = os.path.realpath(dir+"/.appveyor/")
 script = os.path.join(appdir, name+".py")
 
@@ -58,29 +56,12 @@ with codecs.open("win_shapeout.iss", 'wb', "utf-8") as fd:
 
 appdir = relpath(appdir,dir)
 
-datas = []
-
-## Data files
-# recursively add isoelastics
-isoeldir = join(datadir, "isoelastics")
-MEIrtdcisoel = join(MEIrtdc, "isoelastics")
-for root, _, files in os.walk(isoeldir):
-    for f in files:
-        reldir = os.path.relpath(root, isoeldir)
-        datas += [
-                  (join(join(MEIrtdcisoel, reldir), f),
-                  join(join(isoeldir, reldir), f),
-                  'DATA'),
-                 ]
-
 a = Analysis([script],
              pathex=[dir],
              hookspath=[pyinstdir],
              runtime_hooks=None)
 
              
-a.datas += datas
-
 options = [ ('u', None, 'OPTION'), ('W ignore', None, 'OPTION') ]
 
 pyz = PYZ(a.pure)
