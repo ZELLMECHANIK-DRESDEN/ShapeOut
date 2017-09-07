@@ -5,20 +5,21 @@
 """
 from __future__ import division, unicode_literals
 
-import chaco.api as ca
-import chaco.tools.api as cta
-from dclab import definitions as dfn
-import numpy as np
 import time
 import warnings
 
-from ..tlabwrap import isoelastics
+
+import chaco.api as ca
+import chaco.tools.api as cta
+from dclab import definitions as dfn
+from dclab import isoelastics
+import numpy as np
+
 from . import plot_common
 
 
 def contour_plot(measurements, levels=[0.5,0.95],
-                 axContour=None, isoel=None,
-                 wxtext=False, square=True):
+                 axContour=None, wxtext=False, square=True):
     """Plot contour for two axes of an RT-DC measurement
     
     Parameters
@@ -29,9 +30,6 @@ def contour_plot(measurements, levels=[0.5,0.95],
         Plot the contour at that particular level from the maximum (1).
     axContour : instance of matplotlib `Axis`
         Plotting axis for the contour.
-    isoel : list for line plot
-        Manually selected isoelastics to plot. Defaults to None.
-        If no isoelastics are found, then a warning is raised.
     square : bool
         The plot has square shape.
     """
@@ -52,28 +50,24 @@ def contour_plot(measurements, levels=[0.5,0.95],
 
     ## Add isoelastics
     if mm.config["plotting"]["isoelastics"]:
-        if isoel is None:
-            chansize = mm.config["general"]["channel width"]
-            #plotdata = list()
-            # look for isoelastics:
-            for key in list(isoelastics.keys()):
-                if float(key.split("um")[0]) == chansize > 0:
-                    plotdict = isoelastics[key]
-                    for key2 in list(plotdict.keys()):
-                        if key2 == "{} {}".format(xax, yax):
-                            isoel = plotdict[key2]
-        if isoel is None:
+        kwargs = dict(method="analytical",
+                      channel_width=mm.config["general"]["channel width"],
+                      flow_rate=None,
+                      viscosity=None,
+                      col1=xax,
+                      col2=yax,
+                      )
+        try:
+            isoel = isoelastics.default.get(**kwargs)
+        except KeyError:
+            raise
             warnings.warn("Could not find matching isoelastics for"+
-                          " Setting: x={} y={}, Channel width: {}".
-                          format(xax, yax, chansize))
+                          " Setting: x={}, y={}, method: {}".
+                          format(xax, yax, kwargs["method"]))
         else:
             for ii, data in enumerate(isoel):
                 x_key = 'isoel_x'+str(ii)
                 y_key = 'isoel_y'+str(ii)
-                #
-                # # Crop data events outside of the plotting area
-                # #data = crop_linear_data(data, areamin, areamax, circmin, circmax)
-                #
                 pd.set_data(x_key, data[:,0])
                 pd.set_data(y_key, data[:,1])
                 contour_plot.plot((x_key, y_key), color="gray",
@@ -183,10 +177,10 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         plot.contour_plot(cname,
                           name=cname,
                           type="line",
-                          xbounds = (X[0][0], X[0][-1]),
-                          ybounds = (Y[0][0], Y[-1][0]),
-                          levels = plev,
-                          colors = mm.config["plotting"]["contour color"],
-                          styles = styles,
-                          widths = widths,
+                          xbounds=(X[0][0], X[0][-1]),
+                          ybounds=(Y[0][0], Y[-1][0]),
+                          levels=plev,
+                          colors=mm.config["plotting"]["contour color"],
+                          styles=styles,
+                          widths=widths,
                           )

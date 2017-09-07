@@ -1,18 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - scatter plot methods
-
-"""
+"""ShapeOut - scatter plot methods"""
 from __future__ import division, unicode_literals
+
+import time
+import warnings
 
 import chaco.api as ca
 import chaco.tools.api as cta
 from dclab import definitions as dfn
+from dclab import isoelastics
 import numpy as np
-import time
-import warnings
 
-from ..tlabwrap import isoelastics
 from . import plot_common
 
 
@@ -24,7 +23,7 @@ def reset_inspector(plot):
 
 
 def scatter_plot(measurement,
-                 axScatter=None, isoel=None, 
+                 axScatter=None,
                  square=True, 
                  panzoom=True, select=True):
     """Plot scatter plot for two axes of an RT-DC measurement
@@ -35,9 +34,6 @@ def scatter_plot(measurement,
         Contains measurement data.
     axScatter : instance of matplotlib `Axis`
         Plotting axis for the scatter data.
-    isoel : list for line plot
-        Manually selected isoelastics to plot. Defaults to None.
-        If no isoelastics are found, then a warning is raised.
     square : bool
         The plot has square shape.
     panzoom : bool
@@ -68,28 +64,24 @@ def scatter_plot(measurement,
 
     ## Add isoelastics
     if mm.config["plotting"]["isoelastics"]:
-        if isoel is None:
-            chansize = mm.config["general"]["channel width"]
-            #plotdata = list()
-            # look for isoelastics:
-            for key in list(isoelastics.keys()):
-                if float(key.split("um")[0]) == chansize > 0:
-                    plotdict = isoelastics[key]
-                    for key2 in list(plotdict.keys()):
-                        if key2 == "{} {}".format(xax, yax):
-                            isoel = plotdict[key2]
-        if isoel is None:
+        kwargs = dict(method="analytical",
+                      channel_width=mm.config["general"]["channel width"],
+                      flow_rate=None,
+                      viscosity=None,
+                      col1=xax,
+                      col2=yax,
+                      )
+        try:
+            isoel = isoelastics.default.get(**kwargs)
+        except KeyError:
+            raise
             warnings.warn("Could not find matching isoelastics for"+
-                          " Setting: x={} y={}, Channel width: {}".
-                          format(xax, yax, chansize))
+                          " Setting: x={}, y={}, method: {}".
+                          format(xax, yax, kwargs["method"]))
         else:
             for ii, data in enumerate(isoel):
                 x_key = 'isoel_x'+str(ii)
                 y_key = 'isoel_y'+str(ii)
-                #
-                # # Crop data points outside of the plotting area
-                # #data = crop_linear_data(data, areamin, areamax, circmin, circmax)
-                #
                 pd.set_data(x_key, data[:,0])
                 pd.set_data(y_key, data[:,1])
                 sc_plot.plot((x_key, y_key), color="gray",
@@ -107,8 +99,7 @@ def scatter_plot(measurement,
     # Set content of scatter plot
     set_scatter_data(sc_plot, mm)
 
-    plot_kwargs = {
-                   "name": "scatter_events",
+    plot_kwargs = {"name": "scatter_events",
                    "marker": "square",
                    #"fill_alpha": 1.0,
                    "marker_size": int(marker_size),
@@ -170,15 +161,15 @@ def scatter_plot(measurement,
     # zoom tool
     if panzoom:
         zoom = cta.ZoomTool(sc_plot,
-                        tool_mode="box",
-                        color="beige",
-                        minimum_screen_delta=50,
-                        border_color="black",
-                        border_size=1,
-                        always_on=True,
-                        drag_button="right",
-                        enable_wheel=True,
-                        zoom_factor=1.1)
+                            tool_mode="box",
+                            color="beige",
+                            minimum_screen_delta=50,
+                            border_color="black",
+                            border_size=1,
+                            always_on=True,
+                            drag_button="right",
+                            enable_wheel=True,
+                            zoom_factor=1.1)
         sc_plot.tools.append(zoom)
         sc_plot.aspect_ratio = 1
         sc_plot.use_downsampling = True
@@ -194,7 +185,9 @@ def scatter_plot(measurement,
             cta.ScatterInspector(
                 my_plot,
                 selection_mode="single",
-                persistent_hover=False))
+                persistent_hover=False
+                )
+            )
         my_plot.overlays.append(
             ca.ScatterInspectorOverlay(
                 my_plot,
@@ -205,7 +198,8 @@ def scatter_plot(measurement,
                 selection_marker_size = int(marker_size*1.5),
                 selection_outline_color = "black",
                 selection_line_width = 1,
-                selection_color = "purple")
+                selection_color = "purple"
+                )
             )
 
 

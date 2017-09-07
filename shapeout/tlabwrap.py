@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - more functionalities for dclab
-
-"""
+"""ShapeOut - more functionalities for dclab"""
 from __future__ import division, unicode_literals
 
 import copy
@@ -20,91 +18,7 @@ import dclab
 from dclab.rtdc_dataset.fmt_tdms import get_project_name_from_path, get_tdms_files
 from dclab.rtdc_dataset import config as rt_config
 
-from .util import findfile
 from . import configuration
-
-
-def crop_linear_data(data, xmin, xmax, ymin, ymax):
-    """Crop plotting data.
-    
-    Crops plotting data of monotonous function and linearly interpolates
-    values at end of interval.
-    
-    Paramters
-    ---------
-    data : ndarray of shape (N,2)
-        The data to be filtered in x and y.
-    xmin : float
-        minimum value for data[:,0]
-    xmax : float
-        maximum value for data[:,0]
-    ymin : float
-        minimum value for data[:,1]
-    ymax : float
-        maximum value for data[:,1]    
-    
-    
-    Returns
-    -------
-    ndarray of shape (M,2), M<=N
-    
-    Notes
-    -----
-    `data` must be monotonically increasing in x and y.
-    
-    """
-    # TODO:
-    # Detect re-entering of curves into plotting area
-    x = data[:,0].copy()
-    y = data[:,1].copy()
-    
-    # Filter xmin
-    if np.sum(x<xmin) > 0:
-        idxmin = np.sum(x<xmin)-1
-        xnew = x[idxmin:].copy()
-        ynew = y[idxmin:].copy()
-        xnew[0] = xmin
-        ynew[0] = np.interp(xmin, x, y)
-        x = xnew
-        y = ynew
-
-
-    # Filter ymax
-    if np.sum(y>ymax) > 0:
-        idymax = len(y)-np.sum(y>ymax)+1
-        xnew = x[:idymax].copy()
-        ynew = y[:idymax].copy()
-        ynew[-1] = ymax
-        xnew[-1] = np.interp(ymax, y, x)
-        x = xnew
-        y = ynew
-        
-
-    # Filter xmax
-    if np.sum(x>xmax) > 0:
-        idxmax = len(y)-np.sum(x>xmax)+1
-        xnew = x[:idxmax].copy()
-        ynew = y[:idxmax].copy()
-        xnew[-1] = xmax
-        ynew[-1] = np.interp(xmax, x, y)
-        x = xnew
-        y = ynew
-        
-    # Filter ymin
-    if np.sum(y<ymin) > 0:
-        idymin = np.sum(y<ymin)-1
-        xnew = x[idymin:].copy()
-        ynew = y[idymin:].copy()
-        ynew[0] = ymin
-        xnew[0] = np.interp(ymin, y, x)
-        x = xnew
-        y = ynew
-    
-    newdata = np.zeros((len(x),2))
-    newdata[:,0] = x
-    newdata[:,1] = y
-
-    return newdata
 
         
 def GetTDMSTreeGUI(directories):
@@ -307,81 +221,6 @@ def GetRegion(fname):
         return ""
 
 
-def LoadIsoelastics(isoeldir, isoels={}):
-    """Load isoelastics from directories
-    
-    
-    Parameters
-    ----------
-    isoeldir : absolute path
-        Directory containing isoelastics.
-    isoels : dict
-        Dictionary to update with isoelastics. If not given, a new
-        isoelastics dictionary in librtdc format will be created.
-
-
-    Returns
-    -------
-    isoels : dict
-        New isoelastics dictionary.
-    """
-    newcurves = dict()
-    # First get a list of all possible files
-    for root, dirs, files in os.walk(isoeldir):
-        for d in dirs:
-            if d.startswith("isoel") or d.startswith("isomech"):
-                txtfiles = list()
-                curdir = os.path.join(root,d)
-                filed = os.listdir(curdir)
-                for f in filed:
-                    if f.endswith(".txt"):
-                        txtfiles.append(os.path.join(curdir, f))
-                key = (d.replace("isoelastics","").replace("isoel","")
-                        .replace("isomechanics","")
-                        .replace("isomech","").replace("_"," ").strip())
-                counter = 1
-                key2 = key
-                while True:
-                    if isoels.has_key(key2):
-                        key2 = key + " "+str(counter)
-                        counter += 1
-                    else:
-                        break
-                newcurves[key2] = txtfiles
-    
-    # Iterate through the files and import curves
-    for key in list(newcurves.keys()):
-        files = newcurves[key]
-        if os.path.split(files[0])[1].startswith("Defo-Area"):
-            # Load Matplab-generated AreaVsCircularity Plot
-            # It is actually Deformation vs. Area
-            isoels[key] = curvedict = dict()
-            Plot1 = "deform area_um"
-            Plot2 = "circ area_um"
-            Plot3 = "area_um deform"
-            Plot4 = "area_um circ"
-            list1 = list()
-            list2 = list()
-            list3 = list()
-            list4 = list()
-            for f in files:
-                xy1 = np.loadtxt(f)
-                xy2 = 1*xy1
-                xy2[:,0] = 1 - xy1[:,0]
-                list1.append(xy1)
-                list2.append(xy2)
-                list3.append(xy1[:,::-1])
-                list4.append(xy2[:,::-1])
-            curvedict[Plot1] = list1
-            curvedict[Plot2] = list2
-            curvedict[Plot3] = list3
-            curvedict[Plot4] = list4
-        else:
-            warnings.warn("Unknown isoelastics: {}".format(files[0]))
-    
-    return isoels
-
-
 def GetConfigurationKeys(cfgfilename, capitalize=True):
     """
     Load the configuration file and return the list of variables
@@ -454,10 +293,6 @@ cfg_dir = pkg_resources.resource_filename("shapeout", "cfg")
 cfg_file = os.path.join(cfg_dir, "default.cfg")
 cfg = rt_config.load_from_file(cfg_file)
 cfg_ordered_list = GetConfigurationKeys(cfg_file)
-
-thispath = os.path.dirname(os.path.realpath(__file__))
-isoeldir = findfile("isoelastics")
-isoelastics = LoadIsoelastics(os.path.join(thispath, isoeldir))
 
 if configuration.ConfigurationFile().get_bool("expert mode"):
     IGNORE_AXES = []
