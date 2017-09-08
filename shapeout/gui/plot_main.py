@@ -51,7 +51,7 @@ class PlotPanel(wx.Panel):
         self.SetSizer(sizer)
     
     def AddPanel(self, panel, name):
-        self.notebook.AddPage(panel, _(name))
+        self.notebook.AddPage(panel, name)
 
     def Plot(self, anal=None):
         """

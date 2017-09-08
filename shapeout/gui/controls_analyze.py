@@ -21,7 +21,7 @@ class SubPanelAnalyze(SubPanel):
 
     
     def make_analysis_choices(self, analysis):
-        gen = wx.StaticBox(self, label=_("Regression analysis"))
+        gen = wx.StaticBox(self, label="Regression analysis")
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
 
         if analysis is not None:
@@ -29,7 +29,7 @@ class SubPanelAnalyze(SubPanel):
             sizer_bag = wx.GridBagSizer(hgap=20, vgap=5)
 
             # Model to apply
-            sizer_bag.Add(wx.StaticText(self, label=_("Mixed effects model:")),
+            sizer_bag.Add(wx.StaticText(self, label="Mixed effects model:"),
                           (0,0), span=wx.GBSpan(1,1))
             choices = tlabwrap.get_config_entry_choices("analysis",
                                                         "regression model")
@@ -42,7 +42,7 @@ class SubPanelAnalyze(SubPanel):
             self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_model)
             
             # Axis to analyze
-            sizer_bag.Add(wx.StaticText(self, label=_("Axis to analyze:")), (1,0), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label="Axis to analyze:"), (1,0), span=wx.GBSpan(1,1))
             self.axes = analysis.GetUsableAxes()
             axeslist = [dclab.dfn.name2label[a] for a in self.axes]
             self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
@@ -60,9 +60,9 @@ class SubPanelAnalyze(SubPanel):
                           flag=wx.EXPAND|wx.ALL)
             
             # Header for table
-            sizer_bag.Add(wx.StaticText(self, label=_("Data set")), (2,0), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label=_("Interpretation")), (2,1), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label=_("Repetition")), (2,2), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label="Data set"), (2,0), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label="Interpretation"), (2,1), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label="Repetition"), (2,2), span=wx.GBSpan(1,1))
             
             treatments = ["None", "Control", "Treatment",
                           "Reservoir Control", "Reservoir Treatment"]
@@ -122,7 +122,7 @@ class SubPanelAnalyze(SubPanel):
         for ii, mm in enumerate(self.analysis.measurements):
             # get treatment (ignore 0)
             if self.WXCB_treatment[ii].GetSelection() == 0:
-                # The user selected _("None")
+                # The user selected "None"
                 continue
             xs.append(mm[axname][mm._filter])
             mmtreat = self.WXCB_treatment[ii].GetValue()
@@ -165,22 +165,22 @@ class SubPanelAnalyze(SubPanel):
         # treatments
         trt = [ t.GetValue() for t in self.WXCB_treatment]
         # user selected reservoir somewhere
-        resc = len([t for t in trt if t.count(_("Reservoir Control"))])
-        rest = len([t for t in trt if t.count(_("Reservoir Treatment"))])
+        resc = len([t for t in trt if t.count("Reservoir Control")])
+        rest = len([t for t in trt if t.count("Reservoir Treatment")])
         if self.WXCB_model.GetSelection() == 0:
-            text_mode = _("Will compute linear mixed-effects model for {}.\n")
+            text_mode = "Will compute linear mixed-effects model for {}.\n"
         elif self.WXCB_model.GetSelection() == 1:
-            text_mode = _("Will compute generalized linear mixed-effects model for {}.\n")
+            text_mode = "Will compute generalized linear mixed-effects model for {}.\n"
         else:
             raise ValueError("Unsupported model selection")
         
         if not rest*resc and rest+resc:
-            text += _("Please select reservoir for treatment and control.")
+            text += "Please select reservoir for treatment and control."
         elif resc+rest:
-            text += text_mode.format("{} {}".format(_("differential"), axis))
-            text += _(" - Will bootstrap channel/reservoir data.\n")
-            text += _(" - Will perform {} bootstrapping iterations.\n".format(
-                                                    lin_mix_mod.DEFAULT_BS_ITER))
+            text += text_mode.format("{} {}".format("differential", axis))
+            text += " - Will bootstrap channel/reservoir data.\n"
+            text += " - Will perform {} bootstrapping iterations.\n".format(
+                                                    lin_mix_mod.DEFAULT_BS_ITER)
         else:
             text += text_mode.format(axis)
         self.info_text.SetLabel(text)
@@ -203,14 +203,14 @@ class SubPanelAnalyze(SubPanel):
         sizer.Add(sizerv)
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
 
-        btn_apply = wx.Button(self, label=_("Apply"))
+        btn_apply = wx.Button(self, label="Apply")
         ## TODO:
         # write function in this class that gives ControlPanel a new
         # analysis, such that OnChangeFilter becomes shorter.
         self.Bind(wx.EVT_BUTTON, self.OnApply, btn_apply)
         vertsizer.Add(btn_apply)
 
-        btn_reset = wx.Button(self, label=_("Reset"))
+        btn_reset = wx.Button(self, label="Reset")
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)
 

@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+
 import dclab
 import wx
 import wx.lib.agw.hypertreelist as HT
 
-from .polygonselect import LineDrawerWindow
 from ..configuration import ConfigurationFile
-
+from ..session import conversion
+from .polygonselect import LineDrawerWindow
 from .controls_subpanel import SubPanel
 
 class SubPanelFilter(SubPanel):
@@ -21,7 +23,7 @@ class SubPanelFilter(SubPanel):
         """
         Display rest like data event limit
         """
-        gen = wx.StaticBox(self, label=_("Other filters"))
+        gen = wx.StaticBox(self, label="Other filters")
 
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
         
@@ -65,7 +67,7 @@ class SubPanelFilter(SubPanel):
         """
         Display hierarchy filtering elements
         """
-        gen = wx.StaticBox(self, label=_("Filter Hierarchy"))
+        gen = wx.StaticBox(self, label="Filter Hierarchy")
 
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
         
@@ -73,19 +75,19 @@ class SubPanelFilter(SubPanel):
         explanation = "Filter hierarchies can be used to apply\n"+\
         "multiple filters in sequence or to\n"+\
         "compare subpopulations in a data set."
-        sgen.Add(wx.StaticText(self, label=_(explanation)), (0,0), span=(1,2))
-        sgen.Add(wx.StaticText(self, label=_("Select data set")+": "), (1,0),
+        sgen.Add(wx.StaticText(self, label=explanation), (0,0), span=(1,2))
+        sgen.Add(wx.StaticText(self, label="Select data set"+": "), (1,0),
                  flag=wx.ALIGN_CENTER_VERTICAL)
         items = [ mm.title for mm in self.analysis.measurements ]
         self.WXCOMBO_hparent = wx.ComboBox(self, choices=items)
         sgen.Add(self.WXCOMBO_hparent, (1,1)) 
         self.WXCOMBO_hparent.Bind(wx.EVT_COMBOBOX, self.OnHierarchySelParent)
         
-        sgen.Add(wx.StaticText(self, label=_("Hierarchy parent")+": "), (2,0))
+        sgen.Add(wx.StaticText(self, label="Hierarchy parent"+": "), (2,0))
         self.WXTextHParent = wx.StaticText(self, label="")
         sgen.Add(self.WXTextHParent, (2,1), flag=wx.EXPAND)
 
-        self.WXbtnnew = wx.Button(self, wx.ID_ANY, label=_("Create hierarchy child"))
+        self.WXbtnnew = wx.Button(self, wx.ID_ANY, label="Create hierarchy child")
         sgen.Add(self.WXbtnnew, (3,0), span=(1,2), flag=wx.EXPAND)
         self.WXbtnnew.Bind(wx.EVT_BUTTON, self.OnHierarchyCreateChild)
 
@@ -102,7 +104,7 @@ class SubPanelFilter(SubPanel):
         """
         Display everything with Min/Max
         """
-        gen = wx.StaticBox(self, label=_("Box Filters"))
+        gen = wx.StaticBox(self, label="Box Filters")
 
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
         
@@ -122,7 +124,7 @@ class SubPanelFilter(SubPanel):
                 # find item with max
                 idmax = [ii[0] for ii in items].index(item[0][:-3]+"max")
                 itemmax = items[idmax]
-                a = wx.StaticText(self, label=_("Range "+item[0][:-4]))
+                a = wx.StaticText(self, label="Range "+item[0][:-4])
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
                 c = wx.TextCtrl(self, value=str(itemmax[1]), name=itemmax[0])
                 stemp = wx.BoxSizer(wx.HORIZONTAL)
@@ -153,7 +155,7 @@ class SubPanelFilter(SubPanel):
         #  export       preview plot
         #  export all   (own axis w/ label)
         polybox = wx.StaticBox(self, name="",
-                               label=_("Polygon Filters"))
+                               label="Polygon Filters")
         # sizers
         polysizer = wx.StaticBoxSizer(polybox, wx.HORIZONTAL)
         horsizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -165,24 +167,24 @@ class SubPanelFilter(SubPanel):
 
         ## left column
         # new
-        new = wx.Button(self, label=_("New"))
+        new = wx.Button(self, label="New")
         new.Bind(wx.EVT_BUTTON, self.OnPolygonWindow)
         optsizer.Add(new)
         # duplicate
-        duplicate = wx.Button(self, label=_("Duplicate"))
+        duplicate = wx.Button(self, label="Duplicate")
         duplicate.Bind(wx.EVT_BUTTON, self.OnPolygonDuplicate)
         optsizer.Add(duplicate)
         # edit
-        invert = wx.Button(self, label=_("Invert"))
+        invert = wx.Button(self, label="Invert")
         invert.Bind(wx.EVT_BUTTON, self.OnPolygonInvert)
         optsizer.Add(invert)
 
         # remove
-        remove = wx.Button(self, label=_("Remove"))
+        remove = wx.Button(self, label="Remove")
         remove.Bind(wx.EVT_BUTTON, self.OnPolygonRemove)
         optsizer.Add(remove)
         # import
-        imp = wx.Button(self, label=_("Import"))
+        imp = wx.Button(self, label="Import")
         imp.Bind(wx.EVT_BUTTON, self.OnPolygonImport)
         optsizer.Add(imp)
         
@@ -190,7 +192,7 @@ class SubPanelFilter(SubPanel):
         # dropdown (plot selection)
         choice_be = analysis.GetTitles()
         cbg = wx.ComboBox(self, -1, choices=choice_be,
-                                value=_("None"), name="None",
+                                value="None", name="None",
                                 style=wx.CB_DROPDOWN|wx.CB_READONLY)
         cbg.SetSelection(min(0, len(choice_be)-1))
         cbg.SetValue(choice_be[-1])
@@ -228,11 +230,11 @@ class SubPanelFilter(SubPanel):
         plotsizer.Add(htreectrl, 1, wx.EXPAND, 3)
         # export
         horsizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        export = wx.Button(self, label=_("Export"))
+        export = wx.Button(self, label="Export")
         export.Bind(wx.EVT_BUTTON, self.OnPolygonExport)
         horsizer2.Add(export)
         # export_all
-        export_all = wx.Button(self, label=_("Export All"))
+        export_all = wx.Button(self, label="Export All")
         export_all.Bind(wx.EVT_BUTTON, self.OnPolygonExportAll)
         horsizer2.Add(export_all)
         plotsizer.Add(horsizer2)
@@ -419,7 +421,7 @@ class SubPanelFilter(SubPanel):
         """
         This function is called when an item in the htreectrl is checked
         or unchecked. We apply the corresponding filters to the underlying
-        RTDC data set live.
+        RT-DC data set live.
         ComboBox:: self._polygon_filter_combo_box
         HTreeCtrl: self._polygon_filter_selection_htree
         """
@@ -462,8 +464,12 @@ class SubPanelFilter(SubPanel):
             return # nothing more to do here
         if not fname.endswith(".poly"):
             fname += ".poly"
-        dclab.PolygonFilter.import_all(fname)
+        # Convert polygon filters from old exports
+        newfname = conversion.convert_polygon(infile=fname)
+        dclab.PolygonFilter.import_all(newfname)
         self.UpdatePanel()
+        # cleanup
+        os.remove(newfname)
 
 
     def OnPolygonInvert(self, e=None):
@@ -514,7 +520,7 @@ class SubPanelFilter(SubPanel):
         if analysis is None:
             # previous analysis is used
             analysis = self.analysis
-        if hasattr(self, "_polygon_filter_combo_box") :
+        if hasattr(self, "_polygon_filter_combo_box"):
             old_meas_selection = self._polygon_filter_combo_box.GetSelection()
         else:
             old_meas_selection = 0
@@ -564,14 +570,14 @@ class SubPanelFilter(SubPanel):
                                            "Filtering",
                                            ["enable filters", filten],)
         vertsizer.Add(cb)
-        btn_apply = wx.Button(self, label=_("Apply"))
+        btn_apply = wx.Button(self, label="Apply")
         ## TODO:
         # write function in this class that gives ControlPanel a new
         # analysis, such that OnChangeFilter becomes shorter.
         self.Bind(wx.EVT_BUTTON, self.funcparent.OnChangeFilter, btn_apply)
         vertsizer.Add(btn_apply)
 
-        btn_reset = wx.Button(self, label=_("Reset"))
+        btn_reset = wx.Button(self, label="Reset")
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)
         # Set the previously selected measurement

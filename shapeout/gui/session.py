@@ -20,7 +20,35 @@ from ..session.conversion import compatibilitize_session, \
 from ..session import index, rw
 
 
-def open_session(path, parent):
+def open_session(parent, session_file=None):
+    """Open a session file into shapeout
+    
+    This is a dialog wrapper for `open_session_worker`. 
+    """
+    # Determine which session file to open
+    if session_file is None:
+        # User dialog
+        dlg = wx.FileDialog(parent,
+                            "Open session file",
+                            parent.config.get_dir(name="Session"),
+                            "",
+                            "ShapeOut session (*.zmso)|*.zmso", wx.FD_OPEN)
+        
+        if dlg.ShowModal() == wx.ID_OK:
+            parent.config.set_dir(dlg.GetDirectory(), name="Session")
+            fname = dlg.GetPath()
+            dlg.Destroy()
+        else:
+            parent.config.set_dir(dlg.GetDirectory(), name="Session")
+            dlg.Destroy()
+            return # nothing more to do here
+    else:
+        fname = session_file 
+
+    open_session_worker(fname, parent)
+
+
+def open_session_worker(path, parent):
     """Open a session file into shapeout
     
     This method performs a lot of logic on `parent`, the
@@ -43,11 +71,12 @@ def open_session(path, parent):
     # measurement files are where they're supposed to be. 
     version = compatibilitize_session(tempdir, hash_update=False)
     
-    indexfile = os.path.join(tempdir, "index.txt")
+    index_file = os.path.join(tempdir, "index.txt")
+    index_dict = index.index_load(index_file)
 
     # check session integrity
     dirname = os.path.dirname(path)
-    messages = index.index_check(indexfile, search_path=dirname)
+    messages = index.index_check(index_file, search_path=dirname)
     while messages["missing files"]:
         # There are missing files. We need to modify the extracted
         # index file with a folder.
@@ -57,12 +86,12 @@ def open_session(path, parent):
         # Ask user for directory
         miss = os.path.basename(missing[0][1])
         
-        message = _("ShapeOut could not find the following measurements:")+\
+        message = "ShapeOut could not find the following measurements:"+\
                   "\n\n".join([""]+[m[1] for m in missing]) +"\n\n"+\
-                  _("Please select a directory that contains these.")
+                  "Please select a directory that contains these."
         
         dlg = wx.MessageDialog(parent,
-                               caption=_("Missing files for session"),
+                               caption="Missing files for session",
                                message=message,
                                style=wx.CANCEL|wx.OK,
                                )
@@ -71,13 +100,15 @@ def open_session(path, parent):
         if mod != wx.ID_OK:
             break
         
+        sd = "SessionMissingDirSearch"
+        msg = "Please select directory containing {}".format(miss)
         dlg = wx.DirDialog(parent,
-                           message=_(
-                                    "Please select directory containing {}"
-                                    ).format(miss),
+                           message=msg,
+                           defaultPath=parent.config.get_dir(name=sd)
                            )
         mod = dlg.ShowModal()
         path = dlg.GetPath()
+        parent.config.set_dir(wd=path, name=sd)
         dlg.Destroy()
         if mod != wx.ID_OK:
             break
@@ -96,7 +127,12 @@ def open_session(path, parent):
                                                 version=version)
             if newfile is not None:
                 newdir = os.path.dirname(newfile)
-                updict[key] = {"fdir": newdir}
+                # Store the original directory name. This is important
+                # for sessions stored with ShapeOut version <0.7.6 to
+                # correctly compute tdms file hashes.
+                updict[key] = {"fdir": newdir,
+                               "fdir_orig":index_dict[key]["fdir"],
+                               }
                 directories.insert(0, os.path.dirname(newdir))
                 directories.insert(0, os.path.dirname(os.path.dirname(newdir)))
                 remlist.append(m)
@@ -105,7 +141,7 @@ def open_session(path, parent):
         wx.EndBusyCursor()
 
         # Update the extracted index file.
-        index.index_update(indexfile, updict)
+        index.index_update(index_file, updict)
     
     # Update hash values of tdms and hierarchy children
     if version < LooseVersion("0.7.6"):
@@ -121,8 +157,8 @@ def open_session(path, parent):
                   "loaded the data. The following warnings were issued:\n"
             msg += "".join([ "\n - "+w.message.message for w in ww ])
             dlg = wx.MessageDialog(None,
-                                   _(msg),
-                                   _('Hash mismatch warning'),
+                                   msg,
+                                   'Hash mismatch warning',
                                    wx.OK | wx.ICON_WARNING)
             dlg.ShowModal()
 
@@ -143,6 +179,21 @@ def open_session(path, parent):
     shutil.rmtree(tempdir, ignore_errors=True)
 
 
-def save_session(path, analysis):
-    # Begin saving
-    rw.save(path, analysis.measurements)
+def save_session(parent):
+    dlg = wx.FileDialog(parent, "Save ShapeOut session", 
+                parent.config.get_dir(name="Session"), "",
+                "ShapeOut session (*.zmso)|*.zmso",
+                wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+    if dlg.ShowModal() == wx.ID_OK:
+        # Save everything
+        path = dlg.GetPath()
+        if not path.endswith(".zmso"):
+            path += ".zmso"
+        dirname = os.path.dirname(path)
+        parent.config.set_dir(dirname, name="Session")
+        rw.save(path, parent.analysis.measurements)
+        return path
+    else:
+        dirname = dlg.GetDirectory()
+        parent.config.set_dir(dirname, name="Session")
+        dlg.Destroy()

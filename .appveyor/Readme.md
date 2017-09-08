@@ -1,10 +1,10 @@
-freeze_appveyor
+Appveyor recipe
 ---------------
 
-files that are used by ../appveyor.yaml and pyinstaller.
+Files that are used by ../appveyor.yaml to build a Windows installer
 
-- `hook-*.py` : pyinstaller hooks   
-  specify packages that must be included in binary distribution.
+- `hook-*.py` : PyInstaller hooks   
+  Packages not found by PyInstaller automatically and data files
 
 - `patch_libraries` : patches existing Python libraries      
   For example `pyface` raised unneccessary `NotImplementedError`s
@@ -20,7 +20,6 @@ files that are used by ../appveyor.yaml and pyinstaller.
 - `win_shapeout.iss` : InnoSetup file   
   Configuration for building the installer
   
-
 - `win_shapeout.spec` : PyInstaller spec file      
-  The configuration for building the binaries with PyInstaller.
+  The configuration for building the binaries with PyInstaller
       

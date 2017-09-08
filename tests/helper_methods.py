@@ -50,9 +50,7 @@ def extract_session(name):
 
 
 def retreive_tdms(zip_file):
-    """ Retrieve a zip file that is reachable via the location
-    `webloc`, extract it, and return the paths to extracted
-    tdms files.
+    """Eytract contents of data zip file and return dir
     """
     global _tempdirs
     thisdir = dirname(abspath(__file__))
@@ -66,7 +64,7 @@ def retreive_tdms(zip_file):
     
     _tempdirs.append(edest)
     
-    ## Load RTDC Data set
+    ## Load RT-DC Data set
     # find tdms files
     tdmsfiles = get_tdms_files(edest)
     

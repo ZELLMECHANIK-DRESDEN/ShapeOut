@@ -61,6 +61,7 @@ def software():
              ["NumPy", "numpy", "__version__"],
              ["pyper", "pyper", "__version__"],
              ["SciPy", "scipy", "__version__"],
+             ["simplejson", "simplejson", "__version__"],
              ["statsmodels", "statsmodels", "__version__"],
              ["wxPython", "wx", "__version__"],
              ]
@@ -77,7 +78,7 @@ def software():
            
     if hasattr(sys, 'frozen'):
         pyinst = "\n\n"
-        pyinst += _("This executable has been created using PyInstaller.")
+        pyinst += "This executable has been created using PyInstaller."
         text += pyinst
         if 'Anaconda' in sys.version or "Continuum Analytics" in sys.version:
             conda = "\n\nPowered by Anaconda"

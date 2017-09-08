@@ -37,7 +37,7 @@ class ExplorerPanel(ScrolledPanel):
         self.treelist = []
         
         # Set up box
-        box = wx.StaticBox(self, label=_("Measurement browser"))
+        box = wx.StaticBox(self, label="Measurement browser")
         sizer = wx.StaticBoxSizer(box, wx.VERTICAL)
         # Load tree control
         self.htreectrl = HT.HyperTreeList(self, 
@@ -47,15 +47,15 @@ class ExplorerPanel(ScrolledPanel):
 
         sizer.Add(self.htreectrl, 1, wx.EXPAND, 3)
         
-        self.btn_selall = wx.Button(self, label=_("Select all"))
-        self.btn_selnon = wx.Button(self, label=_("Deselect all"))
+        self.btn_selall = wx.Button(self, label="Select all")
+        self.btn_selnon = wx.Button(self, label="Deselect all")
         # to add more butons, use 
         # wx.NewId and give it to the buttons as second argument
         # -> buttons can be identified with this id from the event
-        self.btn_selflow1 = wx.Button(self, label=_("-"))
-        self.btn_selflow2 = wx.Button(self, label=_("-"))
-        self.btn_selflow3 = wx.Button(self, label=_("-"))
-        self.btn_add = wx.Button(self, label=_("Analyze"))
+        self.btn_selflow1 = wx.Button(self, label="-")
+        self.btn_selflow2 = wx.Button(self, label="-")
+        self.btn_selflow3 = wx.Button(self, label="-")
+        self.btn_add = wx.Button(self, label="Analyze")
         
         self.sizer_bag = wx.GridBagSizer()
         # Set size of buttons
@@ -267,7 +267,7 @@ class ExplorerPanel(ScrolledPanel):
         
         # Add warning message
         if len(treelist) == 0:
-            msg = _("No measurements found.")
+            msg = "No measurements found."
             root = self.htreectrl.AppendItem(rroot, msg, ct_type=0)
             col_width = max(len(msg), col_width)
 

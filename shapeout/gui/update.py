@@ -78,10 +78,10 @@ def _UpdateConsumer(delayedresult, parent):
     parent.StatusBar.SetStatusText("Update: "+results[1])
     if results[0]:
         updatemenu = wx.Menu()
-        parent.menubar.Append(updatemenu, _('&Update available!'))
+        parent.menubar.Append(updatemenu, "&Update available!")
         menudl = updatemenu.Append(
                                 wx.ID_ANY,
-                                _("Download version {}").format(results[0]),
+                                "Download version {}".format(results[0]),
                                 results[1])
         def get_update(e=None, url=results[1]):
             webbrowser.open(url)

@@ -1,16 +1,27 @@
+0.8.0
+- Remember directory for searching missing measurement data
+- Bugfixes:
+  - Cannot open old session files with hierarchies when the measurement
+    data location has changed (#174)
+  - Cannot open polygon filters exported with ShapeOut versions < 0.7.6 (#174)
+- Code cleanup:
+  - Move program-relevant data to "shapeout" directory
+  - Move computation of isoelastics to dclab (dclab 0.2.6.dev23)
+  - Create separate directory for appveyor recipe
+  - Remove unused/incomplete support for internationalization
 0.7.9
 - Add on-the-fly computation of contour inertia ratios
-- Add menu options to save current event image
+- Add menu options to save current event image (#164)
 - Bugfixes:
   - Isoelastics are not shown (#145)
 0.7.8
-- Introduce unique identifiers for measurements (dclab 0.2.5dev4)
+- Introduce unique identifiers for measurements (dclab 0.2.5.dev4)
 - Include ffmpeg in the Windows installer (#165)
 - Bugfixes:
-  - dclab 0.2.6dev2: Correctly identify contour files (#166, #169)
-  - dclab 0.2.5dev11: Allow contour data indices larger than uint8 (#167)
+  - dclab 0.2.6.dev2: Correctly identify contour files (#166, #169)
+  - dclab 0.2.5.dev11: Allow contour data indices larger than uint8 (#167)
 - Refactoring:
-  - dclab 0.2.5dev10: Event images are returned as 2D ndarray
+  - dclab 0.2.5.dev10: Event images are returned as 2D ndarray
 0.7.7
 - Add "Preferences" menu:
   - Allow to (dis/en)able session autosaving
@@ -21,8 +32,8 @@
   - Display of fluorescence traces broken (#159)
   - Display of contour plots broken (#160)
   - Error when loading sessions created with version 0.7.6 on Windows
-  - dclab 0.2.5dev1: Automatically fix ancillary column sizes
-  - dclab 0.2.5dev2: Correctly distinguish b/w hierarchy children of same parent
+  - dclab 0.2.5.dev1: Automatically fix ancillary column sizes
+  - dclab 0.2.5.dev2: Correctly distinguish b/w hierarchy children of same parent
 0.7.6
 - Add on-the-fly computation of average and SD for brightness
 - Bugfixes:
@@ -37,7 +48,7 @@
 - Allow to select region and flow rate in batch processing (#132)
 - Allow to create an inverted copy of a polygon filter (#127)
 - Define new configuration file path with appdirs
-- Add on-the-fly computation of volume (dclab 0.2.3dev23)
+- Add on-the-fly computation of volume (dclab 0.2.3.dev23)
 - Change: Disable "remove invalid events" in filtering to
   avoid computation of ancillary columns (performance)
 0.7.4
@@ -59,7 +70,7 @@
 - dclab 0.2.3:
   - Add filtering option "remove invalid events" to remove nan/inf
   - Add methods to compute elastic modulus
-- fcswrite 0.1.3dev6
+- fcswrite 0.1.3.dev6
   - Range for fluorescence data is always 2**15
   - Range for Deformation/Circularity is 100 or 1.0
 0.7.2
@@ -102,12 +113,12 @@
 0.6.8
 - Speed-ups:
   - search for measurements (#113)
-  - dclab 0.1.9dev10: contour handling
+  - dclab 0.1.9.dev10: contour handling
 0.6.7
 - Minimize memory usage for batch processing (#108)
 - Allow export to flow cytometry standard file format (#54)
-- dclab 0.1.9dev2: add support for "User Defined" column in tdms files
-- dclab 0.1.9dev7: compute default parameters for contours (#55, #110)
+- dclab 0.1.9.dev2: add support for "User Defined" column in tdms files
+- dclab 0.1.9.dev7: compute default parameters for contours (#55, #110)
 0.6.6
 - Hide unimportant data in Info tab (#102)
 - Disable/Enable controls dependent on values of other controls (#103)
@@ -136,14 +147,14 @@
   analysis with bootstrapping (#88)
 0.6.2
 - Add batch filter processing
-- Move statistics computation to dclab (0.1.7dev12):
+- Move statistics computation to dclab (0.1.7.dev12):
   - New columns: "Flow rate", "%-gated"
 - Bugfixes:
   - Windows: Saving session on different drive than data causes ValueError
   - Memory leak: Re-plotting scatter plots (`ControlPanel.OnChangeFilter`)
   - Handle plots where all events are filtered correctly
   - Scatter plots: False filtered events shown in gray
-  - dclab (0.1.7dev9): Faulty hashing strategy in
+  - dclab (0.1.7.dev9): Faulty hashing strategy in
     `RTDC_DataSet.GetDownSampledScatter`
   - dclab:
     - Corrections/additions in definitions (fRT-DC)

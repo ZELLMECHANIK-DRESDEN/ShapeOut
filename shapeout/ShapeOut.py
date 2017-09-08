@@ -6,14 +6,15 @@ ShapeOut launcher with splash screen
 from __future__ import print_function
 
 import multiprocessing as mp
-from os.path import abspath, dirname
+from os.path import abspath, dirname, join
+import pkg_resources
 import sys
+
 import wx
 import wx.lib.agw.advancedsplash as AS
 
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
-from shapeout.util import findfile
 
 def main():
     # Note: The order in which the splash screen is initiated and the
@@ -26,8 +27,6 @@ def main():
     splash = mp.Process(target=splash_show)
     splash.start()
 
-    # initiate app
-    from os.path import abspath, dirname
     sys.path.insert(0, dirname(dirname(abspath(__file__))))
     from shapeout.__main__ import prepare_app
     app = prepare_app()
@@ -45,11 +44,12 @@ def splash_show():
     # setup splash app
     app = wx.App(False)
     # Show the splash screen as early as possible
-    img = wx.Image(findfile('zm_logo_small_bgwhite.png'))
+    imdir = pkg_resources.resource_filename("shapeout", "img")
+    img = wx.Image(join(imdir, 'zm_logo_small_bgwhite.png'))
     # alpha mask is only binary - don't use it, looks ugly.
     #img.ConvertAlphaToMask()
     bitmap = wx.BitmapFromImage(img)
-    frame = wx.Frame(None, -1, "AdvancedSplash Test")
+    frame = wx.Frame(None, -1, "ShapeOut Splash Screen")
     AS.AdvancedSplash(frame, bitmap=bitmap, 
                       agwStyle=AS.AS_NOTIMEOUT|AS.AS_CENTER_ON_SCREEN
                       )

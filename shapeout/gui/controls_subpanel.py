@@ -35,7 +35,7 @@ class SubPanel(ScrolledPanel):
             Lower case list of subkeys to not include in the
             interface
         """
-        gen = wx.StaticBox(self, label=_(key))
+        gen = wx.StaticBox(self, label=key)
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
 
         if analysis is not None:
@@ -46,7 +46,7 @@ class SubPanel(ScrolledPanel):
             items = [it for it in items if not it[0].lower() in ignore]
             items2 = [it for it in items2 if not it[0].lower() in ignore]
 
-            multiplestr = _("(multiple)")
+            multiplestr = "(multiple)"
             for item in items2:
                 items.append((item[0], multiplestr))
             items.sort()
@@ -77,12 +77,11 @@ class SubPanel(ScrolledPanel):
                                            ignore_axes=ignore_axes)
         if choices:
             if choices[0] in dclab.dfn.column_names:
-                human_choices = [ _(dclab.dfn.name2label[c]) for c in choices]
+                human_choices = [ dclab.dfn.name2label[c] for c in choices]
             else:
                 human_choices = choices
 
-            a = wx.StaticText(self, label=_(item[0]))
-            # sort choices with _()?
+            a = wx.StaticText(self, label=item[0])
             c = wx.ComboBox(self, -1, choices=human_choices,
                             value=unicode(item[1]), name=item[0],
                             style=wx.CB_DROPDOWN|wx.CB_READONLY)
@@ -101,11 +100,11 @@ class SubPanel(ScrolledPanel):
 
         elif (tlabwrap.get_config_entry_dtype(key, item[0]) == bool or
               str(item[1]).capitalize() in ["True", "False"]):
-            a = wx.CheckBox(self, label=_(item[0]), name=item[0])
+            a = wx.CheckBox(self, label=item[0], name=item[0])
             a.SetValue(item[1])
             stemp.Add(a)
         else:
-            a = wx.StaticText(self, label=_(item[0]))
+            a = wx.StaticText(self, label=item[0])
             b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
             stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(b)

@@ -32,7 +32,7 @@ class ImagePanel(ScrolledPanel):
         self.WXSP_plot = wx.SpinCtrl(self, min=1, max=10000000)
         
         ctrlsizer = wx.BoxSizer(wx.HORIZONTAL)
-        ctrlsizer.Add(wx.StaticText(self, label=_("Event:")),0, wx.ALIGN_CENTER)
+        ctrlsizer.Add(wx.StaticText(self, label="Event:"),0, wx.ALIGN_CENTER)
         ctrlsizer.Add(self.WXCB_plot)
         ctrlsizer.Add(self.WXSP_plot)
 
@@ -83,13 +83,13 @@ class ImagePanel(ScrolledPanel):
         self.PlotImage()
 
         ## draw manual filtering options
-        self.WXChB_exclude = wx.CheckBox(self, label=_("Exclude event"))
+        self.WXChB_exclude = wx.CheckBox(self, label="Exclude event")
         exclsizer = wx.BoxSizer(wx.HORIZONTAL)
         exclsizer.Add(self.WXChB_exclude, 0, wx.ALIGN_CENTER_VERTICAL)
         self.Bind(wx.EVT_CHECKBOX, self.OnChBoxExclude, self.WXChB_exclude)
 
         # Update Plot button
-        updbutton = wx.Button(self, label=_("Update plot"))
+        updbutton = wx.Button(self, label="Update plot")
         self.Bind(wx.EVT_BUTTON, self.OnUpdatePlot, updbutton)
 
         #exclsizer.AddSpacer(self.imageCtrl.GetSize()[0]-updbutton.GetSize()[0]-self.WXChB_exclude.GetSize()[0])        

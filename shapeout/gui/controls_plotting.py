@@ -152,13 +152,13 @@ class SubPanelPlotting(SubPanel):
         
         mastersizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        axes = wx.StaticBox(self, label=_("Axes"))
+        axes = wx.StaticBox(self, label="Axes")
         axesbox = wx.StaticBoxSizer(axes, wx.VERTICAL)
         axessizer = wx.BoxSizer(wx.VERTICAL)
         axesbox.Add(axessizer)
         mastersizer.Add(axesbox)
         
-        misc = wx.StaticBox(self, label=_("Miscellaneous"))
+        misc = wx.StaticBox(self, label="Miscellaneous")
         miscbox = wx.StaticBoxSizer(misc, wx.VERTICAL)
         miscsizer = wx.BoxSizer(wx.VERTICAL)
         miscbox.Add(miscsizer)
@@ -224,7 +224,7 @@ class SubPanelPlotting(SubPanel):
                 # find item with max
                 idmax = [ii[0] for ii in items].index(item[0][:-3]+"max")
                 itemmax = items[idmax]
-                a = wx.StaticText(self, label=_("Range "+item[0][:-4]))
+                a = wx.StaticText(self, label="Range "+item[0][:-4])
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
                 c = wx.TextCtrl(self, value=str(itemmax[1]), name=itemmax[0])
                 stemp = wx.BoxSizer(wx.HORIZONTAL)
@@ -266,7 +266,7 @@ class SubPanelPlotting(SubPanel):
         """
         meas_names = [mm.title for mm in analysis.measurements]
 
-        box = wx.StaticBox(self, label=_("Plot order"))
+        box = wx.StaticBox(self, label="Plot order")
         statboxsizer = wx.StaticBoxSizer(box, wx.HORIZONTAL)
         
         dls = DragListStriped(box,
@@ -321,11 +321,11 @@ class SubPanelPlotting(SubPanel):
 
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
 
-        btn_apply = wx.Button(self, label=_("Apply"))
+        btn_apply = wx.Button(self, label="Apply")
         self.Bind(wx.EVT_BUTTON, self.OnApply, btn_apply)
         vertsizer.Add(btn_apply)
 
-        btn_reset = wx.Button(self, label=_("Reset"))
+        btn_reset = wx.Button(self, label="Reset")
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)
 

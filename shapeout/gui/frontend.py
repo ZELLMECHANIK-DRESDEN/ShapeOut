@@ -5,6 +5,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import platform
+import pkg_resources
 import sys
 import traceback
 
@@ -18,7 +19,6 @@ import dclab
 from .. import analysis
 from ..configuration import ConfigurationFile
 from .. import tlabwrap
-from ..util import findfile
 
 from . import autosave
 from . import batch
@@ -40,8 +40,7 @@ class ExceptionDialog(wx.MessageDialog):
     """"""
     def __init__(self, msg):
         """Constructor"""
-        wx.MessageDialog.__init__(self, None, msg, _("Error"),
-                                          wx.OK|wx.ICON_ERROR)   
+        wx.MessageDialog.__init__(self, None, msg, "Error", wx.OK|wx.ICON_ERROR)
 
 
 
@@ -55,8 +54,7 @@ class Frame(gaugeframe.GaugeFrame):
         size = (1200,700)
         minsize = (900, 700)
         gaugeframe.GaugeFrame.__init__(self, None, -1,
-                title = _("%(progname)s - version %(version)s") % {
-                        "progname": "ShapeOut", "version": version},
+                title = "ShapeOut - version {}".format(version),
                 size = size)
         self.SetMinSize(minsize)
         
@@ -184,120 +182,120 @@ class Frame(gaugeframe.GaugeFrame):
         
         ## File menu
         fileMenu = wx.Menu()
-        self.menubar.Append(fileMenu, _('&File'))
+        self.menubar.Append(fileMenu, "&File")
         # data
-        fpath = fileMenu.Append(wx.ID_REPLACE, _('Find Measurements'), 
-                                _('Select .tdms file location'))
+        fpath = fileMenu.Append(wx.ID_REPLACE, "Find Measurements", 
+                                "Select .tdms file location")
         self.Bind(wx.EVT_MENU, self.OnMenuSearchPath, fpath)
-        fpathadd = fileMenu.Append(wx.ID_FIND, _('Add Measurements'), 
-                                _('Select .tdms file location'))
+        fpathadd = fileMenu.Append(wx.ID_FIND, "Add Measurements", 
+                                "Select .tdms file location")
         self.Bind(wx.EVT_MENU, self.OnMenuSearchPathAdd, fpathadd)
         # clear measurements
-        fpathclear = fileMenu.Append(wx.ID_CLEAR, _('Clear Measurements'), 
-                             _('Clear unchecked items in project list'))
+        fpathclear = fileMenu.Append(wx.ID_CLEAR, "Clear Measurements", 
+                             "Clear unchecked items in project list")
         self.Bind(wx.EVT_MENU, self.OnMenuClearMeasurements, fpathclear)
         fileMenu.AppendSeparator()
         # save
-        fsave = fileMenu.Append(wx.ID_SAVE, _('Save Session'), 
-                                _('Select .zmso file'))
+        fsave = fileMenu.Append(wx.ID_SAVE, "Save Session", 
+                                "Select .zmso file")
         self.Bind(wx.EVT_MENU, self.OnMenuSave, fsave)
         # load
-        fload = fileMenu.Append(wx.ID_OPEN, _('Open Session'), 
-                                _('Select .zmso file'))
+        fload = fileMenu.Append(wx.ID_OPEN, "Open Session", 
+                                "Select .zmso file")
         self.Bind(wx.EVT_MENU, self.OnMenuLoad, fload)
         fileMenu.AppendSeparator()
         # quit
-        fquit = fileMenu.Append(wx.ID_EXIT, _('Quit'), 
-                                _('Quit ShapeOut'))
+        fquit = fileMenu.Append(wx.ID_EXIT, "Quit", 
+                                "Quit ShapeOut")
         self.Bind(wx.EVT_MENU, self.OnMenuQuit, fquit)
         
         ## Export Data menu
         exportDataMenu = wx.Menu()
-        self.menubar.Append(exportDataMenu, _('Export &Data'))
-        e2tsv = exportDataMenu.Append(wx.ID_ANY, _('All &event data (*.tsv)'), 
-                _('Export the plotted event data as tab-separated values'))
+        self.menubar.Append(exportDataMenu, "Export &Data")
+        e2tsv = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.tsv)", 
+                "Export the plotted event data as tab-separated values")
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
-        e2fcs = exportDataMenu.Append(wx.ID_ANY, _('All &event data (*.fcs)'), 
-                _('Export the plotted event data as flow cytometry standard files'))
+        e2fcs = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.fcs)", 
+                "Export the plotted event data as flow cytometry standard files")
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsFCS, e2fcs)
-        e2stat = exportDataMenu.Append(wx.ID_ANY, _('Computed &statistics (*.tsv)'), 
-                       _('Export the statistics data as tab-separated values'))
+        e2stat = exportDataMenu.Append(wx.ID_ANY, "Computed &statistics (*.tsv)", 
+                       "Export the statistics data as tab-separated values")
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
-        e2avi = exportDataMenu.Append(wx.ID_ANY, _('All &event images (*.avi)'), 
-                _('Export the event images as video files'))
+        e2avi = exportDataMenu.Append(wx.ID_ANY, "All &event images (*.avi)", 
+                "Export the event images as video files")
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsAVI, e2avi)
         
         ## Export Plot menu
         exportImgMenu = wx.Menu()
-        self.menubar.Append(exportImgMenu, _('Export &Image'))
+        self.menubar.Append(exportImgMenu, "Export &Image")
 
         graph2pdf = exportImgMenu.Append(
                         wx.ID_ANY,
-                        _('Graphical &plot (*.pdf)'), 
-                        _('Export the plot as a portable document file'))
+                        "Graphical &plot (*.pdf)", 
+                        "Export the plot as a portable document file")
         self.Bind(wx.EVT_MENU, self.OnMenuExportPDF, graph2pdf)
         
         event2imgc = exportImgMenu.Append(
                         wx.ID_ANY,
-                        _('Event image &with contour (*.png)'), 
-                        _('Export current event image including contour'))
+                        "Event image &with contour (*.png)", 
+                        "Export current event image including contour")
         self.Bind(wx.EVT_MENU,
                   lambda event: self.OnMenuExportEventImagePNG(event, contour=True),
                   event2imgc)
 
         event2imgnc = exportImgMenu.Append(
                         wx.ID_ANY,
-                        _('Event image with&out contour (*.png)'), 
-                        _('Export current event image excluding contour'))
+                        "Event image with&out contour (*.png)", 
+                        "Export current event image excluding contour")
         self.Bind(wx.EVT_MENU,
                   lambda event: self.OnMenuExportEventImagePNG(event, contour=False),
                   event2imgnc)
         
         # export SVG disabled:
         # The resulting graphic is not better than the PDF and axes are missing
-        #e2svg = exportPlotMenu.Append(wx.ID_ANY, _('Graphical &plot (*.svg)'), 
-        #               _('Export the plot as a scalable vector graphics file'))
+        #e2svg = exportPlotMenu.Append(wx.ID_ANY, "Graphical &plot (*.svg)", 
+        #               "Export the plot as a scalable vector graphics file")
         #self.Bind(wx.EVT_MENU, self.OnMenuExportSVG, e2svg)
         # export PNG disabled:
         # https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/issues/62
-        #e2png = exportMenu.Append(wx.ID_ANY, _('Graphical &plot (*.png)'), 
-        #               _('Export the plot as a portable network graphic'))
+        #e2png = exportMenu.Append(wx.ID_ANY, "Graphical &plot (*.png)", 
+        #               "Export the plot as a portable network graphic")
         #self.Bind(wx.EVT_MENU, self.OnMenuExportPNG, e2png)
 
 
         ## Batch menu
         batchMenu = wx.Menu()
-        self.menubar.Append(batchMenu, _('&Batch'))
-        b_filter = batchMenu.Append(wx.ID_ANY, _('&Statistical analysis'), 
-                    _('Apply one filter setting to multiple measurements.'))
+        self.menubar.Append(batchMenu, "&Batch")
+        b_filter = batchMenu.Append(wx.ID_ANY, "&Statistical analysis", 
+                    "Apply one filter setting to multiple measurements.")
         self.Bind(wx.EVT_MENU, self.OnMenuBatchFolder, b_filter)
 
         ## Preferences menu
         prefMenu = wx.Menu()
-        self.menubar.Append(prefMenu, _('&Preferences'))
+        self.menubar.Append(prefMenu, "&Preferences")
         self.menuAutosave = prefMenu.AppendCheckItem(wx.ID_ANY,
-                                                     _("&Autosave session"),
-                                    _("Autosave session in the background"))
+                                                     "&Autosave session",
+                                    "Autosave session in the background")
         self.menuAutosave.Check(self.config.get_bool("autosave session"))
         self.menuSearchUpdate = prefMenu.AppendCheckItem(wx.ID_ANY,
-                                                    _("&Check for updates"),
-                                      _("Check for new version on startup"))
+                                                    "&Check for updates",
+                                      "Check for new version on startup")
         self.menuSearchUpdate.Check(self.config.get_bool("check update"))
         self.menuExpert = prefMenu.AppendCheckItem(wx.ID_ANY,
-                                                   _("&Expert mode"),
-                                _("Enable advanced functionalities"))
+                                                   "&Expert mode",
+                                "Enable advanced functionalities")
         self.menuExpert.Check(self.config.get_bool("expert mode"))
         for item in prefMenu.GetMenuItems():
             self.Bind(wx.EVT_MENU, self.OnMenuPreferences, item)
         
         ## Help menu
         helpmenu = wx.Menu()
-        self.menubar.Append(helpmenu, _('&Help'))
-        menuSoftw = helpmenu.Append(wx.ID_ANY, _("&Software"),
-                                    _("Information about the software used"))
+        self.menubar.Append(helpmenu, "&Help")
+        menuSoftw = helpmenu.Append(wx.ID_ANY, "&Software",
+                                    "Information about the software used")
         self.Bind(wx.EVT_MENU, self.OnMenuHelpSoftware, menuSoftw)
-        menuAbout = helpmenu.Append(wx.ID_ABOUT, _("&About"),
-                                    _("Information about this program"))
+        menuAbout = helpmenu.Append(wx.ID_ABOUT, "&About",
+                                    "Information about this program")
         self.Bind(wx.EVT_MENU, self.OnMenuHelpAbout, menuAbout)
         
         ## Toolbar
@@ -313,22 +311,25 @@ class Frame(gaugeframe.GaugeFrame):
         
         def add_icon(name):
             self.toolbar.AddLabelTool(name[1],
-                                      _(name[0]),
+                                      name[0],
                                       bitmap=wx.ArtProvider.GetBitmap(
                                                                   name[2],
                                                                   wx.ART_TOOLBAR,
                                                                   iconsize))
         
         def add_image(name, height=-1, width=-1):
-            png = wx.Image(findfile(name), wx.BITMAP_TYPE_ANY)
+            png = wx.Image(name, wx.BITMAP_TYPE_ANY)
             image = wx.StaticBitmap(self.toolbar, -1, png.ConvertToBitmap(), size=(width,height))
             self.toolbar.AddControl(image)
         
         for name in names:
             add_icon(name)
-        
-        add_image("transparent_h50.png", width=75, height=iconsize[0])
-        add_image("zm_logo_h36.png")        
+
+        imdir = pkg_resources.resource_filename("shapeout", "img")
+        add_image(os.path.join(imdir, "transparent_h50.png"),
+                  width=75,
+                  height=iconsize[0])
+        add_image(os.path.join(imdir, "zm_logo_h36.png"))        
 
         try:
             # This only works with wxPython3
@@ -336,7 +337,7 @@ class Frame(gaugeframe.GaugeFrame):
         except:
             pass
 
-        add_image("shapeout_logotype_h36.png")
+        add_image(os.path.join(imdir, "shapeout_logotype_h36.png"))
 
         try:
             # This only works with wxPython3
@@ -344,7 +345,8 @@ class Frame(gaugeframe.GaugeFrame):
         except:
             pass
         
-        add_image("transparent_h50.png", height=iconsize[0])
+        add_image(os.path.join(imdir, "transparent_h50.png"),
+                  height=iconsize[0])
         add_icon(['Quit', wx.ID_EXIT, wx.ART_QUIT])
         self.toolbar.Realize()
         self.SetToolBar(self.toolbar)
@@ -500,26 +502,8 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuLoad(self, e=None, session_file=None):
         """ Load entire analysis """
-        # Determine which session file to open
-        if session_file is None:
-            # User dialog
-            dlg = wx.FileDialog(self, "Open session file",
-                    self.config.get_dir(name="Session"), "",
-                            "ShapeOut session (*.zmso)|*.zmso", wx.FD_OPEN)
-            
-            if dlg.ShowModal() == wx.ID_OK:
-                self.config.set_dir(dlg.GetDirectory(), name="Session")
-                fname = dlg.GetPath()
-                dlg.Destroy()
-            else:
-                self.config.set_dir(dlg.GetDirectory(), name="Session")
-                dlg.Destroy()
-                return # nothing more to do here
-        else:
-            fname = session_file 
+        session.open_session(self, session_file=session_file)
 
-        session.open_session(fname, self)
-        
 
     def OnMenuPreferences(self, event):
         """Update configuration file and display restart messages"""
@@ -528,10 +512,10 @@ class Frame(gaugeframe.GaugeFrame):
         display_name = ""
         if eid == self.menuAutosave.Id:
             self.config.set_bool("autosave session", val)
-            display_name = _("Session autosaving")
+            display_name = "Session autosaving"
         elif eid == self.menuExpert.Id:
             self.config.set_bool("expert mode", val)
-            display_name = _("Expert mode")
+            display_name = "Expert mode"
         elif eid == self.menuSearchUpdate.Id:
             self.config.set_bool("check update", val)
         else:
@@ -539,11 +523,11 @@ class Frame(gaugeframe.GaugeFrame):
 
         if display_name:
             if val:
-                disen = _("enabled")
+                disen = "enabled"
             else:
-                disen = _("disabled")
-            msg = _("{} will be {} on next run.").format(display_name, disen)
-            caption = _("{} {}.").format(display_name, disen)
+                disen = "disabled"
+            msg = "{} will be {} on next run.".format(display_name, disen)
+            caption = "{} {}.".format(display_name, disen)
             dlg = wx.MessageDialog(self, msg, caption,
                                    wx.OK|wx.ICON_INFORMATION)
             dlg.ShowModal()
@@ -556,7 +540,7 @@ class Frame(gaugeframe.GaugeFrame):
         Display Dialog to select folder and update Content of PanelLeft.
         This calls `PanelLeft.SetProjectTree`.
         """
-        dlg = wx.DirDialog(self, _("Please select a directory"),
+        dlg = wx.DirDialog(self, "Please select a directory",
                defaultPath=self.config.get_dir(name="MeasurementList"))
         answer = dlg.ShowModal()
         if answer == wx.ID_OK:
@@ -567,15 +551,15 @@ class Frame(gaugeframe.GaugeFrame):
                                 func=tlabwrap.GetTDMSTreeGUI,
                                 func_args=(path,),
                                 post_call=self.PanelLeft.SetProjectTree,
-                                msg=_("Searching for .tdms files")
-                                     )
+                                msg="Searching for .tdms files"
+                                )
 
 
     def OnMenuSearchPathAdd(self, e=None, add=True, path=None,
                             marked=[]):
         """ Convenience wrapper around OnMenuSearchPath"""
         if path is None:
-            dlg = wx.DirDialog(self, _("Please select a directory"),
+            dlg = wx.DirDialog(self, "Please select a directory",
                    defaultPath=self.config.get_dir(name="MeasurementList"))
             answer = dlg.ShowModal()
             path = dlg.GetPath()
@@ -589,8 +573,8 @@ class Frame(gaugeframe.GaugeFrame):
                         func_args=(path,),
                         post_call=self.PanelLeft.SetProjectTree,
                         post_call_kwargs = {"add":add, "marked":marked},
-                        msg=_("Searching for .tdms files")
-                                 )
+                        msg="Searching for .tdms files"
+                        )
 
     def OnMenuQuit(self, e=None):
         if hasattr(self, "analysis") and self.analysis is not None:
@@ -621,24 +605,7 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuSave(self, e=None):
         """ Save configuration without measurement data """
-        dlg = wx.FileDialog(self, "Save ShapeOut session", 
-                    self.config.get_dir(name="Session"), "",
-                    "ShapeOut session (*.zmso)|*.zmso",
-                    wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
-        if dlg.ShowModal() == wx.ID_OK:
-            # Save everything
-            path = dlg.GetPath()
-            if not path.endswith(".zmso"):
-                path += ".zmso"
-            dirname = os.path.dirname(path)
-            self.config.set_dir(dirname, name="Session")
-            session.save_session(path, self.analysis)
-            return path
-        else:
-            dirname = dlg.GetDirectory()
-            self.config.set_dir(dirname, name="Session")
-            dlg.Destroy()
-
+        session.save_session(self)
 
 
 def MyExceptionHook(etype, value, trace):

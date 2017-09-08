@@ -4,7 +4,7 @@
 |PyPI Version| |Build Status Win| |Coverage Status|
 
 
-This repository contains a graphical user interface for the analysis
+ShapeOut is a graphical user interface for the analysis
 and visualization of RT-DC data sets. For more informaion please visit
 http://zellmechanik.com/.
 
@@ -184,10 +184,10 @@ _________
        git push     
 
 
-.. |ShapeOut| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/ShapeOut/master/art/shapeout_logotype_h50.png
+.. |ShapeOut| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/ShapeOut/master/shapeout/img/shapeout_logotype_h50.png
 .. |PyPI Version| image:: http://img.shields.io/pypi/v/ShapeOut.svg
    :target: https://pypi.python.org/pypi/dclab
 .. |Build Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/ShapeOut/master.svg?label=build_win
    :target: https://ci.appveyor.com/project/paulmueller/ShapeOut
-.. |Coverage Status| image:: https://img.shields.io/coveralls/ZELLMECHANIK-DRESDEN/ShapeOut.svg
-   :target: https://coveralls.io/github/ZELLMECHANIK-DRESDEN/ShapeOut
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/ShapeOut/master.svg
+   :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/ShapeOut

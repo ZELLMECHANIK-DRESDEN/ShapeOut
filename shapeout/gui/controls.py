@@ -68,36 +68,36 @@ class ControlPanel(ScrolledPanel):
     def AddSubpanels(self):
         notebook=self.notebook
         page_info = SubPanelInfo(notebook)
-        notebook.AddPage(page_info, _("Information"))
+        notebook.AddPage(page_info, "Information")
         self.subpanels.append(page_info)
         self.page_info = page_info
 
         self.page_filter = SubPanelCalculate(notebook, funcparent=self)
-        notebook.AddPage(self.page_filter, _("Calculate"))
+        notebook.AddPage(self.page_filter, "Calculate")
         self.subpanels.append(self.page_filter)
         
         self.page_filter = SubPanelFilter(notebook, funcparent=self)
-        notebook.AddPage(self.page_filter, _("Filter"))
+        notebook.AddPage(self.page_filter, "Filter")
         self.subpanels.append(self.page_filter)
         
         self.page_stat = SubPanelStatistics(notebook)
-        notebook.AddPage(self.page_stat, _("Statistics"))
+        notebook.AddPage(self.page_stat, "Statistics")
         self.subpanels.append(self.page_stat)
         
         self.page_cont = SubPanelAnalyze(notebook, funcparent=self)
-        notebook.AddPage(self.page_cont, _("Analyze"))
+        notebook.AddPage(self.page_cont, "Analyze")
         self.subpanels.append(self.page_cont)
 
         self.page_plot = SubPanelPlotting(notebook, funcparent=self)
-        notebook.AddPage(self.page_plot, _("Plotting"))
+        notebook.AddPage(self.page_plot, "Plotting")
         self.subpanels.append(self.page_plot)
         
         self.page_scat = SubPanelPlotScatter(notebook, funcparent=self)
-        notebook.AddPage(self.page_scat, _("Scatter Plot"))
+        notebook.AddPage(self.page_scat, "Scatter Plot")
         self.subpanels.append(self.page_scat)
 
         self.page_cont = SubPanelPlotContour(notebook, funcparent=self)
-        notebook.AddPage(self.page_cont, _("Contour Plot"))
+        notebook.AddPage(self.page_cont, "Contour Plot")
         self.subpanels.append(self.page_cont)
 
 

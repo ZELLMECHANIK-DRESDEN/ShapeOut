@@ -21,24 +21,24 @@ class ExportAnalysisEvents(wx.Frame):
         # Get the window positioning correctly
         pos = self.parent.GetPosition()
         pos = (pos[0]+100, pos[1]+100)
-        wx.Frame.__init__(self, parent=self.parent, title=_("Export all event data"),
+        wx.Frame.__init__(self, parent=self.parent, title="Export all event data",
             pos=pos, style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
         ## panel
         self.panel = wx.Panel(self)
         self.topSizer = wx.BoxSizer(wx.VERTICAL)
         # init
         textinit = wx.StaticText(self.panel,
-                    label=_("Export all event data as *.{} files.".format(ext)))
+                    label="Export all event data as *.{} files.".format(ext))
         self.topSizer.Add(textinit)
         # Chechbox asking for Mono-Model
         horsizer = wx.BoxSizer(wx.HORIZONTAL)
         self.WXCheckFilter = wx.CheckBox(self.panel,
-         label=_("export filtered data only"))
+         label="export filtered data only")
         self.WXCheckFilter.SetValue(True)
         horsizer.Add(self.WXCheckFilter, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL)
         horsizer.AddStretchSpacer()
         # Button to (de)select all variables
-        btnselect = wx.Button(self.panel, wx.ID_ANY, _("(De-)select all"))
+        btnselect = wx.Button(self.panel, wx.ID_ANY, "(De-)select all")
         self.Bind(wx.EVT_BUTTON, self.OnToggleAllEventColumns, btnselect)
         horsizer.Add(btnselect, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
         self.topSizer.Add(horsizer, 0, wx.EXPAND)
@@ -51,7 +51,7 @@ class ExportAnalysisEvents(wx.Frame):
                     checks.append(cc)
         checks = list(set(checks))
         checks.sort()
-        self.box = wx.StaticBox(self.panel, label=_("Axes"))
+        self.box = wx.StaticBox(self.panel, label="Axes")
         self.sizerin = wx.StaticBoxSizer(self.box, wx.VERTICAL)
         # get longest text of checks
         dc = wx.ScreenDC()
@@ -62,12 +62,12 @@ class ExportAnalysisEvents(wx.Frame):
             # label id (b/c of sorting)
             lid = c+":"+" "*((tl-dc.GetTextExtent(c)[0])//sp)+"\t"
             label = dclab.dfn.name2label[c]
-            cb = wx.CheckBox(self.panel, label=lid + _(label), name=c)
+            cb = wx.CheckBox(self.panel, label=lid + label, name=c)
             self.sizerin.Add(cb)
             if c in self.analysis.GetPlotAxes():
                 cb.SetValue(True)
         self.topSizer.Add(self.sizerin)
-        btnbrws = wx.Button(self.panel, wx.ID_ANY, _("Save to directory"))
+        btnbrws = wx.Button(self.panel, wx.ID_ANY, "Save to directory")
         # Binds the button to the function - close the tool
         self.Bind(wx.EVT_BUTTON, self.OnBrowse, btnbrws)
         self.topSizer.Add(btnbrws, 0, wx.EXPAND)
@@ -89,16 +89,16 @@ class ExportAnalysisEvents(wx.Frame):
         dupl = list(set([n for n in names if names.count(n) > 1]))
         if len(dupl) != 0:
             dlg1 = wx.MessageDialog(self,
-                message=_("Cannot export plots with duplicate titles: {}"
-                          ).format(", ".join(dupl))+"\n"+_(
-                          "Plot titles can be edited in the 'Contour Plot' tab."),
+                message="Cannot export plots with duplicate titles: {}".format(
+                            ", ".join(dupl))\
+                        +"\nPlot titles can be edited in the 'Contour Plot' tab.",
                 style=wx.OK|wx.ICON_ERROR)
             if dlg1.ShowModal() == wx.ID_OK:
                 return
         
         # make directory dialog
         dlg2 = wx.DirDialog(self,
-                           message=_("Select directory for data export"),
+                           message="Select directory for data export",
                            defaultPath=self.parent.config.get_dir("ExportTSV"),
                            style=wx.DD_DEFAULT_STYLE)
         
@@ -123,7 +123,7 @@ class ExportAnalysisEvents(wx.Frame):
             # Check if the files already exist
             for m in self.analysis.measurements:
                 if os.path.exists(os.path.join(outdir, m.title+"."+self.ext)):
-                    msg = _("Override existing .{} files in '{}'?").format(
+                    msg = "Override existing .{} files in '{}'?".format(
                                                            self.ext, outdir)
                     dlg3 = wx.MessageDialog(self,
                                 message=msg,
@@ -184,7 +184,7 @@ class ExportAnalysisEventsTSV(ExportAnalysisEvents):
 
 def export_event_images_avi(parent, analysis):
     dlg = wx.DirDialog(parent,
-               message=_("Select directory for video export"),
+               message="Select directory for video export",
                defaultPath=parent.config.get_dir("ExportAVI"),
                style=wx.DD_DEFAULT_STYLE)
     if dlg.ShowModal() == wx.ID_OK:

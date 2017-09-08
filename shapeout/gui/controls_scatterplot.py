@@ -26,7 +26,7 @@ class SubPanelPlotScatter(SubPanel):
         
         mastersizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        scatter = wx.StaticBox(self, label=_("Parameters"))
+        scatter = wx.StaticBox(self, label="Parameters")
         scatterbox = wx.StaticBoxSizer(scatter, wx.VERTICAL)
         scattersizer = wx.BoxSizer(wx.VERTICAL)
         scatterbox.Add(scattersizer)
@@ -62,11 +62,11 @@ class SubPanelPlotScatter(SubPanel):
 
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
 
-        btn_apply = wx.Button(self, label=_("Apply"))
+        btn_apply = wx.Button(self, label="Apply")
         self.Bind(wx.EVT_BUTTON, self.funcparent.OnChangePlot, btn_apply)
         vertsizer.Add(btn_apply)
 
-        btn_reset = wx.Button(self, label=_("Reset"))
+        btn_reset = wx.Button(self, label="Reset")
         self.Bind(wx.EVT_BUTTON, self.OnReset, btn_reset)
         vertsizer.Add(btn_reset)
 
