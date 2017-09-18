@@ -60,7 +60,6 @@ def contour_plot(measurements, levels=[0.5,0.95],
         try:
             isoel = isoelastics.default.get(**kwargs)
         except KeyError:
-            raise
             warnings.warn("Could not find matching isoelastics for"+
                           " Setting: x={}, y={}, method: {}".
                           format(xax, yax, kwargs["method"]))

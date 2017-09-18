@@ -138,6 +138,7 @@ def save(path, rtdc_list):
     RTDCBase instances. 
     """
     tempdir = tempfile.mkdtemp()
+    returnWD = os.getcwd()
     os.chdir(tempdir)
     # Dump data into the temporary directory
     index_file = os.path.join(tempdir, "index.txt")
@@ -204,7 +205,6 @@ def save(path, rtdc_list):
         PolygonFilter.save_all(os.path.join(tempdir,
                                "PolygonFilters.poly"))
 
-    returnWD = os.getcwd()
     # Zip everything    
     with zipfile.ZipFile(path, mode='w') as arc:
         for root, _dirs, files in os.walk(tempdir):
