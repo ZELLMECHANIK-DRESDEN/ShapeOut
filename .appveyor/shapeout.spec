@@ -8,59 +8,25 @@ import platform
 import sys
 import warnings
 
-dir = abspath(".")
-sys.path.insert(0, dir)
+cdir = abspath(".")
+sys.path.insert(0, cdir)
 
-if not exists(join(dir, "shapeout")):
+if not exists(join(cdir, "shapeout")):
 	warnings.warn("Cannot find 'shapeout'! Please run pyinstaller "+
                   "from git root folder.")
 
-
 name = "ShapeOut"
-appdir = os.path.realpath(dir+"/shapeout/")
-pyinstdir = os.path.realpath(dir+"/.appveyor/")
+appdir = os.path.realpath(cdir+"/shapeout/")
+pyinstdir = os.path.realpath(cdir+"/.appveyor/")
 script = os.path.join(appdir, name+".py")
 
 # Icon
 icofile = os.path.join(pyinstdir,"ShapeOut.ico")
 
-# Add tag
-# write repo tag name if possible (used by update)
-tag_version = None
-for var in ["APPVEYOR_REPO_TAG_NAME"]:
-	val = os.getenv(var)
-	if val is not None:
-		tag_version = val
-	break
-if tag_version is not None:
-	with open(join(appdir, "_version.py"), "a") as vfile:
-		vfile.write('\nrepo_tag = "{}"\n'.format(tag_version))
-
-## Create inno setup .iss file
-sys.path.insert(0, appdir)
-from _version import version
-# read
-with codecs.open(os.path.join(pyinstdir,"win_shapeout.iss"), 'r', "utf-8") as fd:
-	iss = fd.readlines()
-# set version and platform
-for i in range(len(iss)):
-    if iss[i].strip().startswith("#define MyAppVersion"):
-        iss[i] = '#define MyAppVersion "{:s}"\n'.format(version)
-    if iss[i].strip().startswith("#define MyAppPlatform"):
-        # sys.maxint returns the same for windows 64bit verions
-        iss[i] = '#define MyAppPlatform "win_{}"\n'.format(platform.architecture()[0])
-# write
-with codecs.open("win_shapeout.iss", 'wb', "utf-8") as fd:
-	fd.write(u"\ufeff")
-	fd.writelines(iss)
-
-appdir = relpath(appdir,dir)
-
 a = Analysis([script],
-             pathex=[dir],
+             pathex=[cdir],
              hookspath=[pyinstdir],
              runtime_hooks=None)
-
              
 options = [ ('u', None, 'OPTION'), ('W ignore', None, 'OPTION') ]
 

@@ -63,10 +63,7 @@ def Update(parent):
     """ This is a thread for _Update """
     ghrepo="ZELLMECHANIK-DRESDEN/ShapeOut"
     parent.StatusBar.SetStatusText("Checking for updates...")
-    if hasattr(so_version, "repo_tag"):
-        version = so_version.repo_tag  # @UndefinedVariable
-    else:
-        version = so_version.version
+    version = so_version.version
         
     delayedresult.startWorker(_UpdateConsumer, _UpdateWorker,
                               wargs=(ghrepo, version),
