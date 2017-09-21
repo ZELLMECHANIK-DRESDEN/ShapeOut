@@ -145,7 +145,7 @@ artifacts:
   # Archive the generated wheel package in the ci.appveyor.com build report.
   #- path: dist\*
   # InnoSetup files
-  - path: Output\*
+  - path: .appveyor\Output\*
 
 deploy:
   provider: GitHub
