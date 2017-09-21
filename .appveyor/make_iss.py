@@ -1,7 +1,6 @@
 # Create inno setup .iss file
 from __future__ import unicode_literals
 import io
-import os
 import os.path as op
 import platform
 import sys
