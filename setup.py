@@ -23,7 +23,7 @@ if __name__ == "__main__":
     setup(
         name=name,
         author=author,
-        author_email='paul.mueller@biotec.tu-dresden.de',
+        author_email='dev@craban.de',
         url='https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut',
         version=version,
         packages=find_packages(include=(name+"*",)),
