@@ -1,4 +1,5 @@
 0.8.1
+- Cache event counts of tdms-based data sets on disk (#179)
 - Bugfixes:
   - KeyError when isoelastics not defined for combination of axes (#177)
 0.8.0

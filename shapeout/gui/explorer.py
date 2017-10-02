@@ -13,7 +13,7 @@ import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
 
-from .. import tlabwrap
+from .. import meta_tool
 
 class ExplorerPanel(ScrolledPanel):
     """"""
@@ -150,8 +150,8 @@ class ExplorerPanel(ScrolledPanel):
         for c in r.GetChildren():
             for k in c.GetChildren():
                 f = k.GetData()
-                if ( not tlabwrap.GetRegion(f).lower() == "reservoir"
-                     and frate == tlabwrap.GetFlowRate(f) ):
+                if ( not meta_tool.get_chip_region(f).lower() == "reservoir"
+                     and frate == meta_tool.get_flow_rate(f) ):
 
                     self.htreectrl.CheckItem(k)
 
@@ -163,8 +163,8 @@ class ExplorerPanel(ScrolledPanel):
         for c in r.GetChildren():
             for k in c.GetChildren():
                 f = k.GetData()
-                if ( not tlabwrap.GetRegion(f).lower() == "reservoir"
-                     and frate == tlabwrap.GetFlowRate(f) ):
+                if ( not meta_tool.get_chip_region(f).lower() == "reservoir"
+                     and frate == meta_tool.get_flow_rate(f) ):
                     self.htreectrl.CheckItem(k)        
 
 
@@ -175,8 +175,8 @@ class ExplorerPanel(ScrolledPanel):
         for c in r.GetChildren():
             for k in c.GetChildren():
                 f = k.GetData()
-                if ( not tlabwrap.GetRegion(f).lower() == "reservoir"
-                     and frate == tlabwrap.GetFlowRate(f) ):
+                if ( not meta_tool.get_chip_region(f).lower() == "reservoir"
+                     and frate == meta_tool.get_flow_rate(f) ):
                     self.htreectrl.CheckItem(k)  
 
 
@@ -312,7 +312,7 @@ class ExplorerPanel(ScrolledPanel):
             for item in self.treelist:
                 # First tree item contains path to measurements
                 for meas in item[1:]:
-                    flr.append(tlabwrap.GetFlowRate(meas[1]))
+                    flr.append(meta_tool.get_flow_rate(meas[1]))
             flr = np.unique(flr)
             flr.sort()
 

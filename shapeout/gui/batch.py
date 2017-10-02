@@ -254,7 +254,7 @@ class BatchFilterFolder(wx.Frame):
         # Determine flow rates
         flow_dict = {}
         for tt in self.tdms_files:
-            fr = tlabwrap.GetFlowRate(tt)
+            fr = tlabwrap.get_flow_rate(tt)
             if fr not in flow_dict:
                 flow_dict[fr] = []
             flow_dict[fr].append(tt)
