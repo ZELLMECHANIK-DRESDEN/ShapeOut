@@ -171,6 +171,19 @@ def test_078inertratio():
     cleanup()
 
 
+def test_080():
+    """Major version test
+    """
+    analysis = compatibility_task("session_v0.8.0.zmso")
+    mms = analysis.measurements
+    assert mms[0].title == 'rtdc_data_traces_video - M1'
+    assert mms[-1].title == 'rtdc_data_traces_video - M1_child_child'
+    assert len(mms[-1]) == 3
+    assert len(mms) == 5
+    assert mms[0].config["plotting"]["axis y"] == "volume"
+    cleanup()
+
+
 if __name__ == "__main__":
     # Run all tests
     loc = locals()
