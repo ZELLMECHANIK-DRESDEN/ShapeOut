@@ -55,7 +55,9 @@ def load(path, search_path="."):
 
     # load index
     index_file = join(tempdir, "index.txt")
-    assert exists(index_file), "Index file must be in {}!".format(tempdir)
+    if not exists(index_file):
+        raise OSError("Index file must be in {}!".format(tempdir))
+    
     index_dict = index.index_load(index_file)
 
     # Load polygons before importing any data
@@ -146,8 +148,9 @@ def save(path, rtdc_list):
     
     i = 0
     for mm in rtdc_list:
-        amsg = "RT-DC dataset must be from tdms file or hierarchy child!"
-        assert mm.format in ["tdms", "hierarchy"], amsg
+        if mm.format not in ["tdms", "hierarchy"]:
+            msg = "RT-DC dataset must be from tdms file or hierarchy child!"
+            raise ValueError(msg)
         i += 1
         ident = "{}_{}".format(i, mm.identifier)
         # the directory in the session zip file where all information

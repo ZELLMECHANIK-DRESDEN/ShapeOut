@@ -187,7 +187,8 @@ class BatchFilterFolder(wx.Frame):
                 if tlabwrap.GetRegion(tt) == reg:
                     newfiles.append(tt)
             files = newfiles
-        assert files, "No valid measurements with current selection!"
+        if not files:
+            raise ValueError("No valid measurements with current selection!")
         
         # Process each tdms file separately to reduce memory usage
         for tdms in files:

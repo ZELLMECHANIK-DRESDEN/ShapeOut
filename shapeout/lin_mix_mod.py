@@ -20,7 +20,7 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     """
     Computes bootstrapped median distributions of same size
     for two distributions of different size.
-    
+
     Parameters
     ----------
     y: 1d ndarray of length N
@@ -31,7 +31,7 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
         Number of bootstrapping iterations to perform
     rs: int
         Random state seed for random number generator
-    
+
     Returns
     -------
     median: nd array of shape (bs_iter, 1)
@@ -42,8 +42,8 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     # Convert to arrays
     y = np.array(y)
     yR = np.array(yR)
-    #Seed random numbers that are reproducible on different machines
-    prng_object=np.random.RandomState(rs)
+    # Seed random numbers that are reproducible on different machines
+    prng_object = np.random.RandomState(rs)
     # Initialize median arrays
     Median = np.zeros([bs_iter, 1])
     MedianR = np.zeros([bs_iter, 1])
@@ -54,15 +54,15 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     for q in range(bs_iter):
         # Channel data:
         # Compute random indices and draw from y
-        draw_y_idx = prng_object.random_integers(0, len(y)-1, len(y))
+        draw_y_idx = prng_object.random_integers(0, len(y) - 1, len(y))
         y_resample = y[draw_y_idx]
-        Median[q,0] = np.median(y_resample)
+        Median[q, 0] = np.median(y_resample)
         # Reservoir data
         # Compute random indices and draw from yR
-        draw_yR_idx = prng_object.random_integers(0, len(yR)-1, len(yR))
+        draw_yR_idx = prng_object.random_integers(0, len(yR) - 1, len(yR))
         yR_resample = yR[draw_yR_idx]
-        MedianR[q,0] = np.median(yR_resample)
-    return [Median,MedianR]
+        MedianR[q, 0] = np.median(yR_resample)
+    return [Median, MedianR]
 
 
 def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
@@ -70,21 +70,21 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     Linear Mixed-Effects Model computation for one fixed effect and one 
     random effect.
     This function uses the R packages "lme4" and "stats".
-    
+
     The response variable is modeled using two linear mixed effect models 
     (Model and Nullmodel) of the form:
     - xs~treatment+(1+treatment|timeunit)
       (Random intercept + random slope model)
     - xs~(1+treatment|timeunit)
       (Nullmodel without the fixed effect "treatment")
-    
+
     Both models are compared in R using "anova" (from the R-package "stats")
     which performs a likelihood ratio test to obtain the p-Value for the
     significance of the fixed effect (treatment).
-    
+
     Optionally differential deformations are computed which are then used in the
     Linear Mixed Model
-    
+
     Parameters
     ----------
     xs: list of multiple 1D ndarrays
@@ -116,25 +116,25 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     -Std Error for the Estimate
     -Std Error for the Fixed Effect
     -p-Value
-    
+
     References
     ----------
     .. [1] R package "lme4":
            Bates D, Maechler M, Bolker B and Walker S (2015). lme4: Linear mixed-
            effects models using Eigen and S4. R package version 1.1-9, 
            https://CRAN.R-project.org/package=lme4.    
-    
+
     .. [2] R function "anova" from package "stats":
            Chambers, J. M. and Hastie, T. J. (1992) Statistical Models in S, 
            Wadsworth & Brooks/Cole
-    
+
     Examples
     -------
     import numpy as np
     import pyper
     from nptdms import TdmsFile
     import os
-    
+
     xs = [
     [100,99,80,120,140,150,100,100,110,111,140,145], #Larger values (Channel1)
     [20,10,5,16,14,22,27,26,5,10,11,8,15,17,20,9], #Smaller values (Reservoir1)
@@ -147,7 +147,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     treatment1 = ['Control', 'Reservoir Control', 'Control', 'Reservoir Control',\
     'Treatment', 'Reservoir Treatment','Treatment', 'Reservoir Treatment']
     timeunit1 = [1, 1, 2, 2, 1, 1, 2, 2]
-    
+
     #Example 1: linear mixed models on differential deformations
     Result_1 = linmixmod(xs=xs,treatment=treatment1,timeunit=timeunit1,model='lmm')
 
@@ -163,146 +163,159 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     'Treatment', 'Control','Treatment', 'Control']
     timeunit2 = [1, 1, 2, 2, 3, 3, 4, 4]
     Result_2 = linmixmod(xs=xs,treatment=treatment2,timeunit=timeunit2,model='lmm')
-    
+
     #Result_2:Estimate=17.17 (i.e. the average Control value is 17.17 )
     #         FixedEffect=120.257 (i.e. The treatment leads to an increase)         
     #         p-Value(Likelihood Ratio Test)=0.00033 (i.e. the deformation
     #         increases significantly)
-    
+
     #Example 3: Generalized Linear mixed models
     treatment3 = ['Treatment', 'Control', 'Treatment', 'Control',\
     'Treatment', 'Control','Treatment', 'Control']
     timeunit3 = [1, 1, 2, 2, 3, 3, 4, 4]    
     Result_3 = linmixmod(xs=xs,treatment=treatment3,timeunit=timeunit3,model='glmm')
-    
+
     #Result_3:Estimate=2.71 (i.e. the average Control value is exp(2.71)=15.08)
     #         FixedEffect=2.19 (i.e. The treatment leads to an increase)         
     #         p-Value(Likelihood Ratio Test)=0.00366 (i.e. the deformation
     #         increases significantly)     
     '''
-    
-    modelfunc="xs~treatment+(1+treatment|timeunit)"
+
+    modelfunc = "xs~treatment+(1+treatment|timeunit)"
     nullmodelfunc = "xs~(1+treatment|timeunit)"
-    
-    #Check if all input lists have the same length
-    msg = "Please define treatment and Time indicator for all Experiments"
-    assert len(xs)==len(treatment)==len(timeunit),msg
-    msg = "Linear Mixed Models require repeated measurements. "+\
-          "Please select more treatment repetitions."
-    assert len(xs)>=3,msg
+
+    # Check if all input lists have the same length
+    if len(xs) != len(treatment) or len(xs) != len(timeunit):
+        msg = "`treatment` and `timeunit` not defined for all variables!"
+        raise ValueError(msg)
+        
+    if len(xs) < 3:
+        msg = "Linear Mixed Models require repeated measurements. " +\
+              "Please select more treatment repetitions."
+        raise ValueError(msg)
 
     ######################Differential Deformation#############################
-    #If the user selected 'Control-Reservoir' and/or 'Treatment-Reservoir'
+    # If the user selected 'Control-Reservoir' and/or 'Treatment-Reservoir'
     Median_DiffDef = []
-    TimeUnit,Treatment = [],[]
+    TimeUnit, Treatment = [], []
     if 'Reservoir Control' in treatment or 'Reservoir Treatment' in treatment:
-        if model=='glmm':
-            Head_string = "GENERALIZED LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n"  +\
-            "---Results are in log space (loglink was used)--- \n"
-        if model=='lmm':
+        if model == 'glmm':
+            Head_string = "GENERALIZED LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n" +\
+                "---Results are in log space (loglink was used)--- \n"
+        if model == 'lmm':
             Head_string = "LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: \n"
-        #Find the timeunits for Control 
-        where_contr_ch = np.where(np.array(treatment)=='Control')
+        # Find the timeunits for Control
+        where_contr_ch = np.where(np.array(treatment) == 'Control')
         timeunit_contr_ch = np.array(timeunit)[where_contr_ch]
-        #Find the timeunits for Treatment 
-        where_treat_ch = np.where(np.array(treatment)=='Treatment')
+        # Find the timeunits for Treatment
+        where_treat_ch = np.where(np.array(treatment) == 'Treatment')
         timeunit_treat_ch = np.array(timeunit)[where_treat_ch]
 
         for n in np.unique(timeunit_contr_ch):
-            where_time = np.where(np.array(timeunit)==n)
+            where_time = np.where(np.array(timeunit) == n)
             xs_n = np.array(xs)[where_time]
             treatment_n = np.array(treatment)[where_time]
-            where_contr_ch = np.where(np.array(treatment_n)=='Control')
+            where_contr_ch = np.where(np.array(treatment_n) == 'Control')
             xs_n_contr_ch = xs_n[where_contr_ch]
-            where_contr_res = np.where(np.array(treatment_n)=='Reservoir Control')
+            where_contr_res = np.where(
+                np.array(treatment_n) == 'Reservoir Control')
             xs_n_contr_res = xs_n[where_contr_res]
 
-            #check that corresponding Controls are selected
-            msg="Please select 1xCh and 1xRes for Control at Repetition "+str(n)
-            assert len(where_contr_ch[0])==len(where_contr_res[0])==1,msg
-           
-            #Apply the Bootstraping algorithm to Controls
+            # check that corresponding Controls are selected
+            if (len(where_contr_ch[0]) != 1 or
+                len(where_contr_res[0]) != 1):
+                msg = "Controls for channel and reservoir must be given" \
+                      +" exactly once (repetition {})!".format(n)
+                raise ValueError(msg)
+
+            # Apply the Bootstraping algorithm to Controls
             y = np.array(xs_n_contr_ch)[0]
             yR = np.array(xs_n_contr_res)[0]
-            [Median,MedianR] = diffdef(y,yR)   
+            [Median, MedianR] = diffdef(y, yR)
             Median_DiffDef.append(Median - MedianR)
-            TimeUnit.extend(np.array(n).repeat(len(Median)))    #TimeUnit is a number for the day or the number of the repeat
-            Treatment.extend(np.array(['Control']).repeat(len(Median)))            
-                
+            # TimeUnit is a number for the day or the number of the repeat
+            TimeUnit.extend(np.array(n).repeat(len(Median)))
+            Treatment.extend(np.array(['Control']).repeat(len(Median)))
+
         for n in np.unique(timeunit_treat_ch):
-            where_time = np.where(np.array(timeunit)==n)
+            where_time = np.where(np.array(timeunit) == n)
             xs_n = np.array(xs)[where_time]
             treatment_n = np.array(treatment)[where_time]
             xs_n_contr_res = xs_n[where_contr_res]
-            where_treat_ch = np.where(np.array(treatment_n)=='Treatment')    
+            where_treat_ch = np.where(np.array(treatment_n) == 'Treatment')
             xs_n_treat_ch = xs_n[where_treat_ch]
-            where_treat_res = np.where(np.array(treatment_n)=='Reservoir Treatment')
+            where_treat_res = np.where(
+                np.array(treatment_n) == 'Reservoir Treatment')
             xs_n_treat_res = xs_n[where_treat_res]
 
-            #check that corresponding Treatments are selected
-            msg="Please select 1xCh and 1xRes for Treatment at Repetition "+str(n)             
-            assert len(where_treat_ch[0])==len(where_treat_res[0])==1,msg
-      
-            #Apply the Bootstraping algorithm to Treatments
+            # check that corresponding Treatments are selected
+            if (len(where_treat_ch[0]) != 1 or
+                len(where_treat_res[0]) != 1):
+                msg = "Treatments for channel and reservoir must be given" \
+                      +" exactly once (repetition {})!".format(n)
+                raise ValueError(msg)
+
+            # Apply the Bootstraping algorithm to Treatments
             y = np.array(xs_n_treat_ch)[0]
             yR = np.array(xs_n_treat_res)[0]
-            [Median,MedianR] = diffdef(y,yR)               
+            [Median, MedianR] = diffdef(y, yR)
             Median_DiffDef.append(Median - MedianR)
-            TimeUnit.extend(np.array(n).repeat(len(Median)))    #TimeUnit is a number for the day or the number of the repeat
-            Treatment.extend(np.array(['Treatment']).repeat(len(Median)))   
+            # TimeUnit is a number for the day or the number of the repeat
+            TimeUnit.extend(np.array(n).repeat(len(Median)))
+            Treatment.extend(np.array(['Treatment']).repeat(len(Median)))
 
-        #Concat all elements in the lists    
+        # Concat all elements in the lists
         xs = np.concatenate(Median_DiffDef)
         xs = np.array(xs).ravel()
         treatment = np.array(Treatment)
-        timeunit = np.array(TimeUnit)          
+        timeunit = np.array(TimeUnit)
 
-    else: #If there is no 'Reservoir Channel' selected dont apply bootstrapping
-        if model=='glmm':
+    else:  # If there is no 'Reservoir Channel' selected dont apply bootstrapping
+        if model == 'glmm':
             Head_string = "GENERALIZED LINEAR MIXED MODEL: \n" +\
-            "---Results are in log space (loglink was used)--- \n"
-        if model=='lmm':
+                "---Results are in log space (loglink was used)--- \n"
+        if model == 'lmm':
             Head_string = "LINEAR MIXED MODEL: \n"
-            
-        for i in range(len(xs)): 
-            #Expand every unit in treatment and timeunit to the same length as the 
-            #xs[i] they are supposed to describe
-            #Using the "repeat" function also characters can be handled
-            treatment[i] = np.array([treatment[i]]).repeat(len(xs[i]), axis=0)  
+
+        for i in range(len(xs)):
+            # Expand every unit in treatment and timeunit to the same length as the
+            # xs[i] they are supposed to describe
+            # Using the "repeat" function also characters can be handled
+            treatment[i] = np.array([treatment[i]]).repeat(len(xs[i]), axis=0)
             timeunit[i] = np.array([timeunit[i]]).repeat(len(xs[i]), axis=0)
-    
-        #Concat all elements in the lists    
+
+        # Concat all elements in the lists
         xs = np.concatenate(xs)
         treatment = np.concatenate(treatment)
         timeunit = np.concatenate(timeunit)
-        
-    #Open a pyper instance
+
+    # Open a pyper instance
     r1 = pyper.R(RCMD=RCMD, use_pandas=True)
     # try to fix unicode decode errors by forcing english
     r1('Sys.setenv(LANG = "en")')
     r1.assign("xs", xs)
-    #Transfer the vectors to R
+    # Transfer the vectors to R
     r1.assign("treatment", treatment)
     r1.assign("timeunit", timeunit)
-    #Create a dataframe which contains all the data
+    # Create a dataframe which contains all the data
     r1("RTDC=data.frame(xs,treatment,timeunit)")
-    #Load the necessary library for Linear Mixed Models    
+    # Load the necessary library for Linear Mixed Models
     lme4resp = r1("library(lme4)")
     if lme4resp.count("Error"):
         # Tell the user that something went wrong
-        raise OSError("R installation at {}: {}\n".format(RCMD, lme4resp)+
-              """Please install 'lme4' via:
+        raise OSError("R installation at {}: {}\n".format(RCMD, lme4resp) +
+                      """Please install 'lme4' via:
               {} -e "install.packages('lme4', repos='http://cran.r-project.org')
               """.format(RCMD)
                       )
 
-    #Random intercept and random slope model
-    if model=='glmm':
-        r1("Model = glmer("+modelfunc+",RTDC,family=Gamma(link='log'))")
-        r1("NullModel = glmer("+nullmodelfunc+",RTDC,family=Gamma(link='log'))")
-    if model=='lmm':
-        r1("Model = lmer("+modelfunc+",RTDC)")
-        r1("NullModel = lmer("+nullmodelfunc+",RTDC)")
+    # Random intercept and random slope model
+    if model == 'glmm':
+        r1("Model = glmer(" + modelfunc + ",RTDC,family=Gamma(link='log'))")
+        r1("NullModel = glmer(" + nullmodelfunc + ",RTDC,family=Gamma(link='log'))")
+    if model == 'lmm':
+        r1("Model = lmer(" + modelfunc + ",RTDC)")
+        r1("NullModel = lmer(" + nullmodelfunc + ",RTDC)")
 
     r1("Anova = anova(Model,NullModel)")
     Model_string = r1("summary(Model)").decode("utf-8").split("\n", 1)[1]
@@ -311,47 +324,47 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     # Cleanup output
     Coef_string = Coef_string.replace('attr(,"class")\n', '')
     Coef_string = Coef_string.replace('[1] "coef.mer"\n', '')
-    #"anova" from R does a likelihood ratio test which gives a p-Value 
+    #"anova" from R does a likelihood ratio test which gives a p-Value
     p = np.array(r1.get("Anova$Pr[2]"))
 
-    #Obtain p-Value using a normal approximation
-    #Extract coefficients
-    r1("coefs <- data.frame(coef(summary(Model)))")   
+    # Obtain p-Value using a normal approximation
+    # Extract coefficients
+    r1("coefs <- data.frame(coef(summary(Model)))")
     r1("coefs$p.normal=2*(1-pnorm(abs(coefs$t.value)))")
-   
+
     # Convert to array, depending on platform or R version, this is a DataFrame
     # or a numpy array, so we convert it to an array. Because on Windows the
     # result is an array with subarrays of type np.void, we must access the
     # elements with Coeffs[0][0] instead of Coeffs[0,0].
     Coeffs = np.array(r1.get("coefs"))
-    #The Average value of treatment 1
+    # The Average value of treatment 1
     Estimate = Coeffs[0][0]
-    #The Std Error of the average value of treatment 1    
+    # The Std Error of the average value of treatment 1
     StdErrorEstimate = Coeffs[0][1]
-    #treatment 2 leads to a change of the Estimate by the value "FixedEffect"
-    FixedEffect = Coeffs[1][0]   
+    # treatment 2 leads to a change of the Estimate by the value "FixedEffect"
+    FixedEffect = Coeffs[1][0]
     StdErrorFixEffect = Coeffs[1][1]
 
-    #Before getting effect and error for y, transform back (there happened a log transformation in the glmer)
+    # Before getting effect and error for y, transform back (there happened a log transformation in the glmer)
     estim_y = np.exp(Estimate)
     #estim_y_error = abs(np.exp(Estimate+StdErrorEstimate)-np.exp(Estimate-StdErrorEstimate))
-    fixef_y = np.exp(Estimate+FixedEffect)-np.exp(Estimate)
-    #fixef_y_error = abs(np.exp(Estimate+StdErrorFixEffect)-np.exp(Estimate-StdErrorFixEffect))        
-    
+    fixef_y = np.exp(Estimate + FixedEffect) - np.exp(Estimate)
+    #fixef_y_error = abs(np.exp(Estimate+StdErrorFixEffect)-np.exp(Estimate-StdErrorFixEffect))
+
     full_summary = Head_string + Model_string +\
-                   "\nCOEFFICIENT TABLE:\n" + Coef_string +\
-                   "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" +\
-                   Anova_string
-    
-    if model=="glmm":
+        "\nCOEFFICIENT TABLE:\n" + Coef_string +\
+        "\nLIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): \n" +\
+        Anova_string
+
+    if model == "glmm":
         full_summary += "\nESTIMATE AND EFFECT TRANSFORMED BACK FROM LOGSPACE" +\
-                        "\nEstimate = \t"+str(estim_y)+\
-                        "\nFixed effect = \t"+str(fixef_y)
-        
+                        "\nEstimate = \t" + str(estim_y) +\
+                        "\nFixed effect = \t" + str(fixef_y)
+
     results = {"Full Summary": full_summary,
-               "p-Value (Likelihood Ratio Test)" : p,
-               "Estimate":Estimate,
-               "Std. Error (Estimate)":StdErrorEstimate,
-               "Fixed Effect":FixedEffect,
-               "Std. Error (Fixed Effect)":StdErrorFixEffect}
+               "p-Value (Likelihood Ratio Test)": p,
+               "Estimate": Estimate,
+               "Std. Error (Estimate)": StdErrorEstimate,
+               "Fixed Effect": FixedEffect,
+               "Std. Error (Fixed Effect)": StdErrorFixEffect}
     return results

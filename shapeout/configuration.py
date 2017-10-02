@@ -50,9 +50,8 @@ class ConfigurationFile(object):
         cdict = self.load()
         if key in cdict:
             val = cdict[key]
-            msg = "Config key '{}' is not binary (neither 'True' nor 'False')!"
-            assert val in ["True", "False"], msg
-    
+            if val.lower() not in ["true", "false"]:
+                raise ValueError("Config key '{}' not boolean!".format(key))
             if val == "True":
                 ret = True
             else:
@@ -77,7 +76,8 @@ class ConfigurationFile(object):
 
     def save(self, cdict):
         """Save a configuration dictionary into a file"""
-        assert self.cfgfile != "", "Configuration not found: "+self.cfgfile
+        if not self.cfgfile:
+            raise ConfigurationFileError("configuration path not set!")
         skeys = list(cdict.keys())
         skeys.sort()
         outlist = []
@@ -101,3 +101,7 @@ class ConfigurationFile(object):
         wdkey = "working directory {}".format(name.lower())
         cdict[wdkey] = wd
         self.save(cdict)
+
+
+class ConfigurationFileError(BaseException):
+    pass
