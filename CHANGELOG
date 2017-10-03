@@ -1,252 +1,252 @@
 0.8.1
-- Cache event counts of tdms-based data sets on disk (#179)
-- Bugfixes:
-  - KeyError when isoelastics not defined for combination of axes (#177)
+ - Cache event counts of tdms-based data sets on disk (#179)
+ - Bugfixes:
+   - KeyError when isoelastics not defined for combination of axes (#177)
 0.8.0
-- Remember directory for searching missing measurement data
-- Bugfixes:
-  - Cannot open old session files with hierarchies when the measurement
-    data location has changed (#174)
-  - Cannot open polygon filters exported with ShapeOut versions < 0.7.6 (#174)
-- Code cleanup:
-  - Move program-relevant data to "shapeout" directory
-  - Move computation of isoelastics to dclab (dclab 0.2.6.dev23)
-  - Create separate directory for appveyor recipe
-  - Remove unused/incomplete support for internationalization
+ - Remember directory for searching missing measurement data
+ - Bugfixes:
+   - Cannot open old session files with hierarchies when the measurement
+     data location has changed (#174)
+   - Cannot open polygon filters exported with ShapeOut versions < 0.7.6 (#174)
+ - Code cleanup:
+   - Move program-relevant data to "shapeout" directory
+   - Move computation of isoelastics to dclab (dclab 0.2.6.dev23)
+   - Create separate directory for appveyor recipe
+   - Remove unused/incomplete support for internationalization
 0.7.9
-- Add on-the-fly computation of contour inertia ratios
-- Add menu options to save current event image (#164)
-- Bugfixes:
-  - Isoelastics are not shown (#145)
+ - Add on-the-fly computation of contour inertia ratios
+ - Add menu options to save current event image (#164)
+ - Bugfixes:
+   - Isoelastics are not shown (#145)
 0.7.8
-- Introduce unique identifiers for measurements (dclab 0.2.5.dev4)
-- Include ffmpeg in the Windows installer (#165)
-- Bugfixes:
-  - dclab 0.2.6.dev2: Correctly identify contour files (#166, #169)
-  - dclab 0.2.5.dev11: Allow contour data indices larger than uint8 (#167)
-- Refactoring:
-  - dclab 0.2.5.dev10: Event images are returned as 2D ndarray
+ - Introduce unique identifiers for measurements (dclab 0.2.5.dev4)
+ - Include ffmpeg in the Windows installer (#165)
+ - Bugfixes:
+   - dclab 0.2.6.dev2: Correctly identify contour files (#166, #169)
+   - dclab 0.2.5.dev11: Allow contour data indices larger than uint8 (#167)
+ - Refactoring:
+   - dclab 0.2.5.dev10: Event images are returned as 2D ndarray
 0.7.7
-- Add "Preferences" menu:
-  - Allow to (dis/en)able session autosaving
-  - Allow to (dis/en)able checking for updates
-  - Allow to (dis/en)able expert mode (#157)
-- Bugfixes:
-  - Hidden axes ("area_cvx", "area_msd", "frame") visible in analysis tab
-  - Display of fluorescence traces broken (#159)
-  - Display of contour plots broken (#160)
-  - Error when loading sessions created with version 0.7.6 on Windows
-  - dclab 0.2.5.dev1: Automatically fix ancillary column sizes
-  - dclab 0.2.5.dev2: Correctly distinguish b/w hierarchy children of same parent
+ - Add "Preferences" menu:
+   - Allow to (dis/en)able session autosaving
+   - Allow to (dis/en)able checking for updates
+   - Allow to (dis/en)able expert mode (#157)
+ - Bugfixes:
+   - Hidden axes ("area_cvx", "area_msd", "frame") visible in analysis tab
+   - Display of fluorescence traces broken (#159)
+   - Display of contour plots broken (#160)
+   - Error when loading sessions created with version 0.7.6 on Windows
+   - dclab 0.2.5.dev1: Automatically fix ancillary column sizes
+   - dclab 0.2.5.dev2: Correctly distinguish b/w hierarchy children of same parent
 0.7.6
-- Add on-the-fly computation of average and SD for brightness
-- Bugfixes:
-  - Save sessions with deep (>1) hierarchies correctly
-  - Better backwards compatibility for old session files
-- Refactoring (dclab 0.2.5):
-  - New standard column names
-  - New class for handling filtering
-  - Minor speed-up when dealing with hierarchies 
+ - Add on-the-fly computation of average and SD for brightness
+ - Bugfixes:
+   - Save sessions with deep (>1) hierarchies correctly
+   - Better backwards compatibility for old session files
+ - Refactoring (dclab 0.2.5):
+   - New standard column names
+   - New class for handling filtering
+   - Minor speed-up when dealing with hierarchies 
 0.7.5
-- Move from OpenCV to imageio (#129)
-- Allow to select region and flow rate in batch processing (#132)
-- Allow to create an inverted copy of a polygon filter (#127)
-- Define new configuration file path with appdirs
-- Add on-the-fly computation of volume (dclab 0.2.3.dev23)
-- Change: Disable "remove invalid events" in filtering to
+ - Move from OpenCV to imageio (#129)
+ - Allow to select region and flow rate in batch processing (#132)
+ - Allow to create an inverted copy of a polygon filter (#127)
+ - Define new configuration file path with appdirs
+ - Add on-the-fly computation of volume (dclab 0.2.3.dev23)
+ - Change: Disable "remove invalid events" in filtering to
   avoid computation of ancillary columns (performance)
 0.7.4
-- Add de-/select all buttons to Batch | Statistical analysis
-- Add de-/select all buttons to export all events data (#148)
-- Bugfixes:
-  - Young's modulus not computed in batch analysis (#149)
-  - dclab 0.2.3.dev4: Loading old session files with polygon filters (#152)
-  - Sessions saved with Windows cannot be opened on Linux (#153)
-  - Regression: save button did not work
+ - Add de-/select all buttons to Batch | Statistical analysis
+ - Add de-/select all buttons to export all events data (#148)
+ - Bugfixes:
+   - Young's modulus not computed in batch analysis (#149)
+   - dclab 0.2.3.dev4: Loading old session files with polygon filters (#152)
+   - Sessions saved with Windows cannot be opened on Linux (#153)
+   - Regression: save button did not work
 0.7.3
-- Add interface to calculate elastic modulus
-- Bugfixes:
-  - Regression analysis not working for some Windows regional settings (#142)
-  - Filters not applied when loading a session
-  - Regression: Not possible to manually set plotting range
-  - Excluded events were plotted despite downsampling limit
-  - Support columns containing NaN and infinite values
-- dclab 0.2.3:
-  - Add filtering option "remove invalid events" to remove nan/inf
-  - Add methods to compute elastic modulus
-- fcswrite 0.1.3.dev6
-  - Range for fluorescence data is always 2**15
-  - Range for Deformation/Circularity is 100 or 1.0
+ - Add interface to calculate elastic modulus
+ - Bugfixes:
+   - Regression analysis not working for some Windows regional settings (#142)
+   - Filters not applied when loading a session
+   - Regression: Not possible to manually set plotting range
+   - Excluded events were plotted despite downsampling limit
+   - Support columns containing NaN and infinite values
+ - dclab 0.2.3:
+   - Add filtering option "remove invalid events" to remove nan/inf
+   - Add methods to compute elastic modulus
+ - fcswrite 0.1.3.dev6
+   - Range for fluorescence data is always 2**15
+   - Range for Deformation/Circularity is 100 or 1.0
 0.7.2
-- Set histogram-based kernel density estimator as default (#133)
-- Regression analysis:
-  - Added generalized linear mixed effects model (#126)
-  - Remember treatment and repetition for each measurement (#134)
-- Bugfixes:
-  - Same default location for find/add measurements dialogs (#139)
-  - Opening saved sessions with more than nine data sets failed (#141)
+ - Set histogram-based kernel density estimator as default (#133)
+ - Regression analysis:
+   - Added generalized linear mixed effects model (#126)
+   - Remember treatment and repetition for each measurement (#134)
+ - Bugfixes:
+   - Same default location for find/add measurements dialogs (#139)
+   - Opening saved sessions with more than nine data sets failed (#141)
 0.7.1
-- Improved speed by optimization of GUI functions 
-- Hash checks: Replace exception with a user-friendly warning (#128)
-- Change: Renamed config key "kde multivariate" to "kde accuracy"
-- Bugfixes:
-  - Contour plot displays unused contour accuracy parameters
-  - Persistent busy cursor when trace or video data is missing
-  - Directory selections not always remembered correctly
-- dclab:
-  - Add histogram-based kernel density estimator
-  - Refactoring to improve code quality
+ - Improved speed by optimization of GUI functions 
+ - Hash checks: Replace exception with a user-friendly warning (#128)
+ - Change: Renamed config key "kde multivariate" to "kde accuracy"
+ - Bugfixes:
+   - Contour plot displays unused contour accuracy parameters
+   - Persistent busy cursor when trace or video data is missing
+   - Directory selections not always remembered correctly
+ - dclab:
+   - Add histogram-based kernel density estimator
+   - Refactoring to improve code quality
 0.7.0
-- Allow to rename polygon filters (#119)
-- dclab:
-  - Traces are loaded lazily (on demand)
-  - Add "Event index" column (#124)
+ - Allow to rename polygon filters (#119)
+ - dclab:
+   - Traces are loaded lazily (on demand)
+   - Add "Event index" column (#124)
 0.6.9
-- Disable kernel density estimation and contour plot by default (#116) 
-- Add avi export option
-- Bugfixes:
-  - Fluorescence traces not shown for some data sets (#118)
-  - Prefer the R package that is shipped with the executable over a
-    system installation (#120)
-  - Image plot and fluorescence traces were not always updated correctly
-  - Regression: Contour plot offset by one frame in some cases (#121)
-- dclab:
-  - Add user defined data fields 0...9
-  - Add principal components 1 and 2
-  - Change Cell size to Area
+ - Disable kernel density estimation and contour plot by default (#116) 
+ - Add avi export option
+ - Bugfixes:
+   - Fluorescence traces not shown for some data sets (#118)
+   - Prefer the R package that is shipped with the executable over a
+     system installation (#120)
+   - Image plot and fluorescence traces were not always updated correctly
+   - Regression: Contour plot offset by one frame in some cases (#121)
+ - dclab:
+   - Add user defined data fields 0...9
+   - Add principal components 1 and 2
+   - Change Cell size to Area
 0.6.8
-- Speed-ups:
-  - search for measurements (#113)
-  - dclab 0.1.9.dev10: contour handling
+ - Speed-ups:
+   - search for measurements (#113)
+   - dclab 0.1.9.dev10: contour handling
 0.6.7
-- Minimize memory usage for batch processing (#108)
-- Allow export to flow cytometry standard file format (#54)
-- dclab 0.1.9.dev2: add support for "User Defined" column in tdms files
-- dclab 0.1.9.dev7: compute default parameters for contours (#55, #110)
+ - Minimize memory usage for batch processing (#108)
+ - Allow export to flow cytometry standard file format (#54)
+ - dclab 0.1.9.dev2: add support for "User Defined" column in tdms files
+ - dclab 0.1.9.dev7: compute default parameters for contours (#55, #110)
 0.6.6
-- Hide unimportant data in Info tab (#102)
-- Disable/Enable controls dependent on values of other controls (#103)
-- Bugfixes:
-  - Regression: Error when batch analysis started (#105, #106)
-  - Contour error when plot contains no events (#104)
+ - Hide unimportant data in Info tab (#102)
+ - Disable/Enable controls dependent on values of other controls (#103)
+ - Bugfixes:
+   - Regression: Error when batch analysis started (#105, #106)
+   - Contour error when plot contains no events (#104)
 0.6.5
-- Sessions are now autosaved every 60s (#97)
-- Bugfixes:
-  - Loading of sessions with hierarchy children failed (#99)
-  - Reduced a memory leak for new analyses that resulted in frequent
+ - Sessions are now autosaved every 60s (#97)
+ - Bugfixes:
+   - Loading of sessions with hierarchy children failed (#99)
+   - Reduced a memory leak for new analyses that resulted in frequent
     memory errors (should be less frequent now)
 0.6.4
-- Bugfixes:
-  - Batch analysis: Individual measurement parameters not preserved (#96)
-  - Legend plot: >9 measurements cannot be displayed in legend at
-    the same time. Introduced new config key "Legend Autoscaled" (#91) 
-- New filter hierarchy allows to investigate subpopulations (#87, #63)
-- dclab
-  - Add InertiaRatio and InertiaRatioRaw to tdms files (typo)
+ - Bugfixes:
+   - Batch analysis: Individual measurement parameters not preserved (#96)
+   - Legend plot: >9 measurements cannot be displayed in legend at
+     the same time. Introduced new config key "Legend Autoscaled" (#91) 
+ - New filter hierarchy allows to investigate subpopulations (#87, #63)
+ - dclab
+   - Add InertiaRatio and InertiaRatioRaw to tdms files (typo)
 0.6.3
-- Bugfixes:
-  - Regression: Excluded events plotted on top of filtered events (#86)
-  - PDF plot export: Scatter inspector event highlighted (#92)
-- Implement differential (w.r.t. reservoir) linear-mixed models
+ - Bugfixes:
+   - Regression: Excluded events plotted on top of filtered events (#86)
+   - PDF plot export: Scatter inspector event highlighted (#92)
+ - Implement differential (w.r.t. reservoir) linear-mixed models
   analysis with bootstrapping (#88)
 0.6.2
-- Add batch filter processing
-- Move statistics computation to dclab (0.1.7.dev12):
-  - New columns: "Flow rate", "%-gated"
-- Bugfixes:
-  - Windows: Saving session on different drive than data causes ValueError
-  - Memory leak: Re-plotting scatter plots (`ControlPanel.OnChangeFilter`)
-  - Handle plots where all events are filtered correctly
-  - Scatter plots: False filtered events shown in gray
-  - dclab (0.1.7.dev9): Faulty hashing strategy in
-    `RTDC_DataSet.GetDownSampledScatter`
-  - dclab:
-    - Corrections/additions in definitions (fRT-DC)
+ - Add batch filter processing
+ - Move statistics computation to dclab (0.1.7.dev12):
+   - New columns: "Flow rate", "%-gated"
+ - Bugfixes:
+   - Windows: Saving session on different drive than data causes ValueError
+   - Memory leak: Re-plotting scatter plots (`ControlPanel.OnChangeFilter`)
+   - Handle plots where all events are filtered correctly
+   - Scatter plots: False filtered events shown in gray
+   - dclab (0.1.7.dev9): Faulty hashing strategy in
+     `RTDC_DataSet.GetDownSampledScatter`
+   - dclab:
+     - Corrections/additions in definitions (fRT-DC)
 0.6.1
-- Load session: Allow user to select missing data files (#80)
-- Sessions: Store relative paths in index file for user convenience (#80)
-- Bugfixes:
-  - Setting order of plots not possible in Windows (#79)
-  - Inability to search measurements due to broken data files (#81)
+ - Load session: Allow user to select missing data files (#80)
+ - Sessions: Store relative paths in index file for user convenience (#80)
+ - Bugfixes:
+   - Setting order of plots not possible in Windows (#79)
+   - Inability to search measurements due to broken data files (#81)
 0.6.0
-- Compute mode in statistics tab using Freedman-Diaconis rule (#72)
-- Add channels: bounding box x- and y-size
-- Display number of events in measurement browser (#70)
-- Bugfixes:
-  - "KeyError: 'Plotting'" when filtering (#73)
-  - "AttributeError" when plotting 2col 1row without legend (#76)
+ - Compute mode in statistics tab using Freedman-Diaconis rule (#72)
+ - Add channels: bounding box x- and y-size
+ - Display number of events in measurement browser (#70)
+ - Bugfixes:
+   - "KeyError: 'Plotting'" when filtering (#73)
+   - "AttributeError" when plotting 2col 1row without legend (#76)
 0.5.9
-- dclab add channel: distance between two first peaks
-- Allow logarithmic plot axes (#56)
-- Display fluorescence curve of events (#65)
-- Bugfixes:
-  - OpenCV version 2 vs 3 variable name differences (CV_CAP_...)
-  - Gray dots in PDF export too large (#69)
+ - dclab add channel: distance between two first peaks
+ - Allow logarithmic plot axes (#56)
+ - Display fluorescence curve of events (#65)
+ - Bugfixes:
+   - OpenCV version 2 vs 3 variable name differences (CV_CAP_...)
+   - Gray dots in PDF export too large (#69)
 0.5.8
-- dclab add fluorescence channels: peak area, peak position, number of peaks
-- dclab add position along channel axis from img
-- dclab (0.1.6.dev2): Allow to disable KDE computation
-- Allow to change order of plots (#51)
-- Implement indexing of events (#49)
-- Allow to exclude single events (#47)
-- Allow to show excluded events in scatter plot (#52)
-- Display cell images in the polygon selection window (#64)
-- Bugfixes:
-  - Settings panel not redrawn in Ubuntu (#66)
-  - Order of plots not reproduced from session (#51)
-  - OpenCV version 2 vs 3 changes (#45)
+ - dclab add fluorescence channels: peak area, peak position, number of peaks
+ - dclab add position along channel axis from img
+ - dclab (0.1.6.dev2): Allow to disable KDE computation
+ - Allow to change order of plots (#51)
+ - Implement indexing of events (#49)
+ - Allow to exclude single events (#47)
+ - Allow to show excluded events in scatter plot (#52)
+ - Display cell images in the polygon selection window (#64)
+ - Bugfixes:
+   - Settings panel not redrawn in Ubuntu (#66)
+   - Order of plots not reproduced from session (#51)
+   - OpenCV version 2 vs 3 changes (#45)
 0.5.7
-- Bugfixes:
-  - Filtering: Plot selection resets to last item unexpectedly
-  - User-defined titles were not saved in session
-  - Remove ghost images of cells (#18)
-  - dclab (0.1.5.dev13): Correct determination of video file
-  - dclab (0.1.5.dev14): Multivariate KDE did not work
-  - dclab (0.1.5.dev15): "Contour Fix Scale" did not work for Defo
+ - Bugfixes:
+   - Filtering: Plot selection resets to last item unexpectedly
+   - User-defined titles were not saved in session
+   - Remove ghost images of cells (#18)
+   - dclab (0.1.5.dev13): Correct determination of video file
+   - dclab (0.1.5.dev14): Multivariate KDE did not work
+   - dclab (0.1.5.dev15): "Contour Fix Scale" did not work for Defo
 0.5.6
-- Add menu option for data export (#22)
-- Add shortcut SHIFT+ENTER for "Apply" controls (#48)
-- Bugfixes:
-  - Define "Video Frame Offset" parameter to correctly index frames (#46)
+ - Add menu option for data export (#22)
+ - Add shortcut SHIFT+ENTER for "Apply" controls (#48)
+ - Bugfixes:
+   - Define "Video Frame Offset" parameter to correctly index frames (#46)
 0.5.5
-- Bugfixes:
-  - String formatter did not work (#40)
-  - Regression in dclab<0.1.5 (#43)
+ - Bugfixes:
+   - String formatter did not work (#40)
+   - Regression in dclab<0.1.5 (#43)
 0.5.4
-- Changes in dclab:
-  - Support for 3-channel fluorescence data (add corrections 21:42)
-  - Fix behaviour with empty columns (#1 dclab)
+ - Changes in dclab:
+   - Support for 3-channel fluorescence data (add corrections 21:42)
+   - Fix behaviour with empty columns (#1 dclab)
 0.5.3
-- Fixes in dclab:
-  - Use correct lateral position (from channel walls) (#37) 
-  - Compute aspect ratio according to elongation along flow (#38)
-- Allow to change thickness of contour lines (#34)
-- Display number of events in statistics tab (#35)
-- Improve visual representation in statistics tab
+ - Fixes in dclab:
+   - Use correct lateral position (from channel walls) (#37) 
+   - Compute aspect ratio according to elongation along flow (#38)
+ - Allow to change thickness of contour lines (#34)
+ - Display number of events in statistics tab (#35)
+ - Improve visual representation in statistics tab
 0.5.2
-- Bugfix: PDF export did not work (#33)
-- Fix disappearance of scrollbars upon hitting apply in controls
+ - Bugfix: PDF export did not work (#33)
+ - Fix disappearance of scrollbars upon hitting apply in controls
 0.5.1
-- New logo (#25)
-- Bugfix: Analysis tab reset button (#30)
-- Display correct axis names in Plotting tab
-- Fix appveyor build script with pinning and downgrades
+ - New logo (#25)
+ - Bugfix: Analysis tab reset button (#30)
+ - Display correct axis names in Plotting tab
+ - Fix appveyor build script with pinning and downgrades
 0.5.0
-- Include full R installation with lme4 package in Windows installer
-- Added Analysis tab for application of linear mixed-effects models (#15)
-- Allow individual polygon filters for each scatter plot
-- Bugfix: Changing filters did not update statistics tab (#24)
+ - Include full R installation with lme4 package in Windows installer
+ - Added Analysis tab for application of linear mixed-effects models (#15)
+ - Allow individual polygon filters for each scatter plot
+ - Bugfix: Changing filters did not update statistics tab (#24)
 0.4.9
-- Bugfix: statistics panel head was in wrong order
-- Allow to fix contour plot scaling (#9)
-- Ordered parameters in control panels 
+ - Bugfix: statistics panel head was in wrong order
+ - Allow to fix contour plot scaling (#9)
+ - Ordered parameters in control panels 
 0.4.8
-- New statistics tab (#6)
-- Minor improvements of GUI
-- Update from dclab: errors when using MV KDE (#20)
+ - New statistics tab (#6)
+ - Minor improvements of GUI
+ - Update from dclab: errors when using MV KDE (#20)
 0.4.7
-- Fix loading of sessions (#17)
+ - Fix loading of sessions (#17)
 0.4.6
-- Limit number of events for data analysis (#11)
-- Automatically set number of events for multiple data sets (#11)
-- Display number of used events on plots (#10)
+ - Limit number of events for data analysis (#11)
+ - Automatically set number of events for multiple data sets (#11)
+ - Display number of used events on plots (#10)
