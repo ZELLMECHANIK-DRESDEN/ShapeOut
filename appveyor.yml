@@ -75,7 +75,7 @@ install:
   #- "conda update -f conda"
   # Anaconda client for searching packages?
   #- "conda install anaconda-client"
-  - "conda install --yes --quiet --channel menpo chaco cffi enable h5py kiwisolver numpy pillow pip pyqt pyface requests scipy pywin32 statsmodels wxpython"
+  - "conda install --yes --quiet --channel menpo chaco cffi enable kiwisolver numpy pillow pip pyqt pyface requests scipy pywin32 statsmodels wxpython"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
@@ -91,6 +91,7 @@ install:
   - "pip install pyper"
   - "pip install reportlab"
   - "pip install simplejson"
+  - "pip install h5py --only-binary=h5py"
   # build dependencies
   #- "pip install wheel"
   # dclab
