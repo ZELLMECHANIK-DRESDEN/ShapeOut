@@ -49,8 +49,8 @@ class TestSimple(unittest.TestCase):
         ds.apply_filter()
 
         batch = self.frame.OnMenuBatchFolder()
-        batch.out_tsv_file=tempfile.mkstemp(".tsv", "shapeout_batch")[1]
-        batch.tdms_files=[tdms_path]
+        batch.out_tsv_file = tempfile.mkstemp(".tsv", "shapeout_batch")[1]
+        batch.data_files = [tdms_path]
         batch.OnBatch()
         
         with io.open(batch.out_tsv_file) as fd:

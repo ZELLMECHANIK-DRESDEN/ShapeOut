@@ -21,7 +21,7 @@ class ExplorerPanel(ScrolledPanel):
         """Constructor
         
         You can also use the function `self.BindAnalyze` to determine
-        where the tdmsfile list goes.
+        where the data file list goes.
         
         Use the method `self.SetProjectTree` to display projects.
         
@@ -85,8 +85,6 @@ class ExplorerPanel(ScrolledPanel):
         # sets self.flowrates
         self.Update()
         
-        #self.SetProjectTree(tlabwrap.GetTDMSTreeGUI(".."))
-        
         self.Bind(wx.EVT_BUTTON, self.OnSelectAll, self.btn_selall)
         self.Bind(wx.EVT_BUTTON, self.OnSelectNone, self.btn_selnon)
         self.Bind(wx.EVT_BUTTON, self.OnSelectFlow1, self.btn_selflow1)
@@ -122,7 +120,7 @@ class ExplorerPanel(ScrolledPanel):
 
     def OnAnalyze(self, e=None):
         """  
-        - calls self.external_analyze with the list of tdms files
+        - calls self.external_analyze with the list of data files
         - Updates bold font faces on tree view
         """
         files = list()

@@ -95,7 +95,6 @@ def cleanup_old_config_sections(tempdir):
     "roi", and "image".
     """
     index_dict = index.index_load(tempdir)
-    # First compute old and new hashes of the parents
     for key in index_dict:
         cfgfile = join(tempdir, index_dict[key]["config"])
         cfg = Configuration(files=[cfgfile])
@@ -508,7 +507,7 @@ def update_session_hashes(tempdir, search_path="."):
         mm.apply_filter()
         datasets[pp] = mm
         # record parent hashes
-        hashes[pp]=[old, mm.hash]
+        hashes[pp] = [old, mm.hash]
 
         index_dict[pp].pop("tdms hash")
         index_dict[pp].pop("camera.ini hash")

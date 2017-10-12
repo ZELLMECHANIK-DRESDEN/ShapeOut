@@ -187,10 +187,10 @@ class Frame(gaugeframe.GaugeFrame):
         self.menubar.Append(fileMenu, "&File")
         # data
         fpath = fileMenu.Append(wx.ID_REPLACE, "Find Measurements", 
-                                "Select .tdms file location")
+                                "Select data file location")
         self.Bind(wx.EVT_MENU, self.OnMenuSearchPath, fpath)
         fpathadd = fileMenu.Append(wx.ID_FIND, "Add Measurements", 
-                                "Select .tdms file location")
+                                "Select data file location")
         self.Bind(wx.EVT_MENU, self.OnMenuSearchPathAdd, fpathadd)
         # clear measurements
         fpathclear = fileMenu.Append(wx.ID_CLEAR, "Clear Measurements", 
@@ -553,7 +553,7 @@ class Frame(gaugeframe.GaugeFrame):
                                 func=tlabwrap.GetTDMSTreeGUI,
                                 func_args=(path,),
                                 post_call=self.PanelLeft.SetProjectTree,
-                                msg="Searching for .tdms files"
+                                msg="Searching for data files"
                                 )
 
 
@@ -575,7 +575,7 @@ class Frame(gaugeframe.GaugeFrame):
                         func_args=(path,),
                         post_call=self.PanelLeft.SetProjectTree,
                         post_call_kwargs = {"add":add, "marked":marked},
-                        msg="Searching for .tdms files"
+                        msg="Searching for data files"
                         )
 
     def OnMenuQuit(self, e=None):

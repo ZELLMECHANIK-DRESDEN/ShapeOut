@@ -42,6 +42,7 @@ if __name__ == "__main__":
                           },
         install_requires=["appdirs",
                           "dclab",
+                          "h5py",
                           "nptdms",
                           "NumPy>=1.7.0",
                           "pyper",

@@ -148,8 +148,8 @@ def save(path, rtdc_list):
     
     i = 0
     for mm in rtdc_list:
-        if mm.format not in ["tdms", "hierarchy"]:
-            msg = "RT-DC dataset must be from tdms file or hierarchy child!"
+        if mm.format not in ["hdf5", "hierarchy", "tdms"]:
+            msg = "RT-DC dataset must be from data file or hierarchy child!"
             raise ValueError(msg)
         i += 1
         ident = "{}_{}".format(i, mm.identifier)
