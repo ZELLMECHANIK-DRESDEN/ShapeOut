@@ -65,7 +65,7 @@ def scatter_plot(measurement,
     ## Add isoelastics
     if mm.config["plotting"]["isoelastics"]:
         kwargs = dict(method="analytical",
-                      channel_width=mm.config["general"]["channel width"],
+                      channel_width=mm.config["setup"]["channel width"],
                       flow_rate=None,
                       viscosity=None,
                       col1=xax,

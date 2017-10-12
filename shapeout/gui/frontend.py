@@ -111,7 +111,9 @@ class Frame(gaugeframe.GaugeFrame):
         # Fake analysis
         ddict = {"area_um" : np.arange(10)*30,
                  "deform" : np.arange(10)*.02}
+        cfg = {"setup": {"channel width": 30}}
         rtdc_ds = dclab.new_dataset(ddict)
+        rtdc_ds.config.update(cfg)
         self.NewAnalysis([rtdc_ds])
 
         ## Go

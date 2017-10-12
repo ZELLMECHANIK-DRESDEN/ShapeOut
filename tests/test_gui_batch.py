@@ -34,7 +34,6 @@ class TestSimple(unittest.TestCase):
 
     def tearDown(self):
         cleanup()
-
     
     def test_batch(self):
         # load data

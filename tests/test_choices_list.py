@@ -41,10 +41,10 @@ def test_config_dtype():
     a = get_config_entry_dtype("Filtering", "Enable Filters")
     assert a == bool
 
-    a = get_config_entry_dtype("General", "Channel Width")
+    a = get_config_entry_dtype("setup", "channel width")
     assert a == float
 
-    a = get_config_entry_dtype("General", "Unknown Variable")
+    a = get_config_entry_dtype("setup", "unknown variable")
     assert a == float
 
 
