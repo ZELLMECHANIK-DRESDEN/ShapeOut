@@ -9,7 +9,7 @@ from os.path import join
 
 import appdirs
 
-CFGNAME = "shapeout.cfg"
+NAME = "shapeout.cfg"
 DEFAULTS = {"autosave session": True,
             "check update": True,
             "expert mode": False,
@@ -18,17 +18,22 @@ DEFAULTS = {"autosave session": True,
 
 class ConfigurationFile(object):
     """Manages a configuration file in the user's config dir"""
-    def __init__(self):
+    def __init__(self, name=NAME, defaults=DEFAULTS, datatype="config"):
         """Initialize configuration file (create if it does not exist)"""
-        # get default path of configuration
-        udir = appdirs.user_config_dir()
-        fname = join(udir, CFGNAME)
+        if datatype == "config":
+            udir = appdirs.user_config_dir()
+        elif datatype == "cache":
+            udir = appdirs.user_cache_dir()
+        else:
+            raise ValueError("`datatype` must be 'config' or 'cache'.")
+        fname = join(udir, name)
         # create file if not existent
         if not os.path.exists(fname):
             # Create the file
             open(fname, "w").close()
         
         self.cfgfile = fname
+        self.defaults = defaults
         self.working_directories = {}
 
 
@@ -50,15 +55,14 @@ class ConfigurationFile(object):
         cdict = self.load()
         if key in cdict:
             val = cdict[key]
-            msg = "Config key '{}' is not binary (neither 'True' nor 'False')!"
-            assert val in ["True", "False"], msg
-    
+            if val.lower() not in ["true", "false"]:
+                raise ValueError("Config key '{}' not boolean!".format(key))
             if val == "True":
                 ret = True
             else:
                 ret = False
         else:
-            ret = DEFAULTS[key]
+            ret = self.defaults[key]
         return ret
         
 
@@ -75,9 +79,24 @@ class ConfigurationFile(object):
         return wd
 
 
+    def get_int(self, key):
+        """Returns integer configuration key"""
+        key = key.lower()
+        cdict = self.load()
+        if key in cdict:
+            val = cdict[key]
+            if not val.isdigit():
+                raise ValueError("Config key '{}' is no integer!".format(key))
+            ret = int(val)
+        else:
+            raise KeyError("Config key `{}` not set!".format(key))
+        return ret
+
+
     def save(self, cdict):
         """Save a configuration dictionary into a file"""
-        assert self.cfgfile != "", "Configuration not found: "+self.cfgfile
+        if not self.cfgfile:
+            raise ConfigurationFileError("configuration path not set!")
         skeys = list(cdict.keys())
         skeys.sort()
         outlist = []
@@ -101,3 +120,15 @@ class ConfigurationFile(object):
         wdkey = "working directory {}".format(name.lower())
         cdict[wdkey] = wd
         self.save(cdict)
+
+
+    def set_int(self, key, value):
+        """Sets integer key in the configuration file"""
+        cdict = self.load()
+        cdict[key.lower()] = int(value)
+        self.save(cdict)
+
+
+
+class ConfigurationFileError(BaseException):
+    pass

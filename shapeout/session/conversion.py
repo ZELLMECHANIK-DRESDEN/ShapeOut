@@ -88,6 +88,26 @@ def ci_rm_row(data, ident):
     return "\n".join(newdata)
 
 
+def cleanup_old_config_sections(tempdir):
+    """Remove old read-only config sections
+    
+    Remove read-only config.txt sections "framerate", "general",
+    "roi", and "image".
+    """
+    index_dict = index.index_load(tempdir)
+    for key in index_dict:
+        cfgfile = join(tempdir, index_dict[key]["config"])
+        cfg = Configuration(files=[cfgfile])
+        for section in ["framerate",
+                        "general",
+                        "roi",
+                        "image"
+                        ]:
+            if section in cfg:
+                cfg._cfg.pop(section)
+        cfg.save(cfgfile)
+
+
 def compatibilitize_polygon(pdata, version=None):
     """Update polygon filters to latest format
     
@@ -160,6 +180,9 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     ShapeOut 0.7.9
       - renamed column "inert_ratio" to "inert_ratio_cvx"
 
+    ShapeOut 0.8.1
+      - removed read-only config.txt sections "framerate", "general",
+        "roi", and "image".
 
     Parameters
     ----------
@@ -282,7 +305,6 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
         if version < LooseVersion("0.7.6"):
             update_session_hashes(tempdir, search_path=search_path)
 
-
     # Add "identifier" and replace "parent id" with "parent key"
     if version < LooseVersion("0.7.8"):
         index_dict = index.index_load(tempdir)
@@ -292,6 +314,10 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
                 pkey = index_dict[key].pop("parent id")
                 index_dict[key]["parent key"] = pkey
         index.index_save(tempdir, index_dict)
+
+    # Cleanup redundant read-only configuration sections
+    if version < LooseVersion("0.8.1"):
+        cleanup_old_config_sections(tempdir)
 
     return version
 
@@ -481,7 +507,7 @@ def update_session_hashes(tempdir, search_path="."):
         mm.apply_filter()
         datasets[pp] = mm
         # record parent hashes
-        hashes[pp]=[old, mm.hash]
+        hashes[pp] = [old, mm.hash]
 
         index_dict[pp].pop("tdms hash")
         index_dict[pp].pop("camera.ini hash")

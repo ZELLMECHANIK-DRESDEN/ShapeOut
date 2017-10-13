@@ -7,18 +7,15 @@ import copy
 import io
 import os
 import pkg_resources
-import warnings
 
-
-import imageio
 import numpy as np
-from nptdms import TdmsFile
 
 import dclab
 from dclab.rtdc_dataset.fmt_tdms import get_project_name_from_path, get_tdms_files
 from dclab.rtdc_dataset import config as rt_config
 
 from . import configuration
+from .meta_tool import get_event_count, get_chip_region, get_flow_rate
 
         
 def GetTDMSTreeGUI(directories):
@@ -58,11 +55,12 @@ def GetTDMSTreeGUI(directories):
                 treelist[i].append((project, path))
             # Get data from filename
             mx = name.split("_")[0]
-            dn = u"{} {}".format(mx, GetRegion(f))
-            if not GetRegion(f).lower() in ["reservoir"]:
+            chip_region = get_chip_region(f)
+            dn = u"{} {}".format(mx, chip_region)
+            if not chip_region.lower() in ["reservoir"]:
                 # outlet (flow rate is not important)
-                dn += u"  {} µls⁻¹".format(GetFlowRate(f))
-            dn += "  ({} events)".format(GetEvents(f))
+                dn += u"  {} µls⁻¹".format(get_flow_rate(f))
+            dn += "  ({} events)".format(get_event_count(f))
                                    
             treelist[i].append((dn, f))
         
@@ -86,7 +84,7 @@ def IsFullMeasurement(fname):
         is_ok = False
     
     # Check if we can perform all standard file operations
-    for test in [GetRegion, GetFlowRate, GetEvents]:
+    for test in [get_chip_region, get_flow_rate, get_event_count]:
         try:
             test(fname)
         except:
@@ -159,66 +157,6 @@ def GetDefaultConfiguration(key=None):
         return cfg[key]
     else:
         return cfg
-
-
-def GetEvents(fname):
-    """Get the number of events for a tdms file
-    
-    There are multiple ways of determining the number of events,
-    which are used in the following order:
-    1. The MX_log.ini file "Events" tag
-    2. The number of frames in the avi file
-    3. The tdms file (very slow, because whole tdms file is loaded)
-    
-    """
-    mdir = os.path.dirname(fname)
-    mid = os.path.basename(fname).split("_")[0]
-    # 1. The MX_log.ini file "Events" tag
-    logf = os.path.join(mdir, mid+"_log.ini")
-    # 2. The number of frames in the avi file
-    avif = os.path.join(mdir, mid+"_imaq.avi")
-    if os.path.exists(logf):
-        with open(logf) as fd:
-            logd = fd.readlines()
-        for l in logd:
-            if l.strip().startswith("Events:"):
-                datalen = int(l.split(":")[1])
-                break
-    elif os.path.exists(avif):
-        video = imageio.get_reader(avif)
-        datalen = len(video)
-    else:
-        tdms_file = TdmsFile(fname)
-        datalen = len(tdms_file.object("Cell Track", "time").data)
-    return datalen
-
-
-def GetFlowRate(fname):
-    """Get the flow rate for a tdms file in [ul/s]"""
-    path, name = os.path.split(fname)
-    mx = name.split("_")[0]
-    stem = os.path.join(path, mx)
-    if os.path.exists(stem+"_para.ini"):
-        camcfg = rt_config.load_from_file(stem+"_para.ini")
-        return camcfg["General"]["Flow Rate [ul/s]"]
-    else:
-        # analyze the filename
-        warnings.warn("{}: trying to manually find flow rate.".
-                       format(fname))
-        flrate = float(fname.split("ul_s")[0].split("_")[-1])
-        return float(flrate)
-
-
-def GetRegion(fname):
-    """Get the region (inlet/outlet) for a measurement"""
-    path, name = os.path.split(fname)
-    mx = name.split("_")[0]
-    stem = os.path.join(path, mx)
-    if os.path.exists(stem+"_para.ini"):
-        camcfg = rt_config.load_from_file(stem+"_para.ini")
-        return camcfg["General"]["Region"].lower()
-    else:
-        return ""
 
 
 def GetConfigurationKeys(cfgfilename, capitalize=True):

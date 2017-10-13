@@ -23,7 +23,7 @@ if __name__ == "__main__":
     setup(
         name=name,
         author=author,
-        author_email='paul.mueller@biotec.tu-dresden.de',
+        author_email='dev@craban.de',
         url='https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut',
         version=version,
         packages=find_packages(include=(name+"*",)),
@@ -42,6 +42,7 @@ if __name__ == "__main__":
                           },
         install_requires=["appdirs",
                           "dclab",
+                          "h5py",
                           "nptdms",
                           "NumPy>=1.7.0",
                           "pyper",

@@ -51,7 +51,7 @@ def contour_plot(measurements, levels=[0.5,0.95],
     ## Add isoelastics
     if mm.config["plotting"]["isoelastics"]:
         kwargs = dict(method="analytical",
-                      channel_width=mm.config["general"]["channel width"],
+                      channel_width=mm.config["setup"]["channel width"],
                       flow_rate=None,
                       viscosity=None,
                       col1=xax,
@@ -60,7 +60,6 @@ def contour_plot(measurements, levels=[0.5,0.95],
         try:
             isoel = isoelastics.default.get(**kwargs)
         except KeyError:
-            raise
             warnings.warn("Could not find matching isoelastics for"+
                           " Setting: x={}, y={}, method: {}".
                           format(xax, yax, kwargs["method"]))

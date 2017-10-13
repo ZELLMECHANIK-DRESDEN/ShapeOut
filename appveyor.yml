@@ -91,6 +91,7 @@ install:
   - "pip install pyper"
   - "pip install reportlab"
   - "pip install simplejson"
+  - "pip install h5py --only-binary=h5py"
   # build dependencies
   #- "pip install wheel"
   # dclab
@@ -133,18 +134,19 @@ after_test:
   #- "%WITH_COMPILER% %PYTHON%/python setup.py bdist_wheel"
   #- ps: "ls dist"
   # Run pyinstaller
-  # This will create the "win7_innosetup.iss" file
-  - "%WITH_COMPILER% pyinstaller -y --log-level=WARN .appveyor\\win_shapeout.spec"
+  - "%WITH_COMPILER% pyinstaller -y --log-level=WARN .appveyor\\shapeout.spec"
   # Create InnoSetup installers
+  # Generate iss file
+  - "python .appveyor\\make_iss.py"
   # Set InnoSetup path here, because Cython complained about it.
   - set PATH=%PATH%;"C:\\Program Files (x86)\\Inno Setup 5"
-  - iscc /Q win_shapeout.iss
+  - iscc /Q .appveyor\\shapeout.iss
 
 artifacts:
   # Archive the generated wheel package in the ci.appveyor.com build report.
   #- path: dist\*
   # InnoSetup files
-  - path: Output\*
+  - path: .appveyor\Output\*
 
 deploy:
   provider: GitHub

@@ -13,7 +13,7 @@ import wx.lib.agw.hypertreelist as HT
 from wx.lib.scrolledpanel import ScrolledPanel
 
 
-from .. import tlabwrap
+from .. import meta_tool
 
 class ExplorerPanel(ScrolledPanel):
     """"""
@@ -21,7 +21,7 @@ class ExplorerPanel(ScrolledPanel):
         """Constructor
         
         You can also use the function `self.BindAnalyze` to determine
-        where the tdmsfile list goes.
+        where the data file list goes.
         
         Use the method `self.SetProjectTree` to display projects.
         
@@ -85,8 +85,6 @@ class ExplorerPanel(ScrolledPanel):
         # sets self.flowrates
         self.Update()
         
-        #self.SetProjectTree(tlabwrap.GetTDMSTreeGUI(".."))
-        
         self.Bind(wx.EVT_BUTTON, self.OnSelectAll, self.btn_selall)
         self.Bind(wx.EVT_BUTTON, self.OnSelectNone, self.btn_selnon)
         self.Bind(wx.EVT_BUTTON, self.OnSelectFlow1, self.btn_selflow1)
@@ -122,7 +120,7 @@ class ExplorerPanel(ScrolledPanel):
 
     def OnAnalyze(self, e=None):
         """  
-        - calls self.external_analyze with the list of tdms files
+        - calls self.external_analyze with the list of data files
         - Updates bold font faces on tree view
         """
         files = list()
@@ -150,8 +148,8 @@ class ExplorerPanel(ScrolledPanel):
         for c in r.GetChildren():
             for k in c.GetChildren():
                 f = k.GetData()
-                if ( not tlabwrap.GetRegion(f).lower() == "reservoir"
-                     and frate == tlabwrap.GetFlowRate(f) ):
+                if ( not meta_tool.get_chip_region(f).lower() == "reservoir"
+                     and frate == meta_tool.get_flow_rate(f) ):
 
                     self.htreectrl.CheckItem(k)
 
@@ -163,8 +161,8 @@ class ExplorerPanel(ScrolledPanel):
         for c in r.GetChildren():
             for k in c.GetChildren():
                 f = k.GetData()
-                if ( not tlabwrap.GetRegion(f).lower() == "reservoir"
-                     and frate == tlabwrap.GetFlowRate(f) ):
+                if ( not meta_tool.get_chip_region(f).lower() == "reservoir"
+                     and frate == meta_tool.get_flow_rate(f) ):
                     self.htreectrl.CheckItem(k)        
 
 
@@ -175,8 +173,8 @@ class ExplorerPanel(ScrolledPanel):
         for c in r.GetChildren():
             for k in c.GetChildren():
                 f = k.GetData()
-                if ( not tlabwrap.GetRegion(f).lower() == "reservoir"
-                     and frate == tlabwrap.GetFlowRate(f) ):
+                if ( not meta_tool.get_chip_region(f).lower() == "reservoir"
+                     and frate == meta_tool.get_flow_rate(f) ):
                     self.htreectrl.CheckItem(k)  
 
 
@@ -312,7 +310,7 @@ class ExplorerPanel(ScrolledPanel):
             for item in self.treelist:
                 # First tree item contains path to measurements
                 for meas in item[1:]:
-                    flr.append(tlabwrap.GetFlowRate(meas[1]))
+                    flr.append(meta_tool.get_flow_rate(meas[1]))
             flr = np.unique(flr)
             flr.sort()
 

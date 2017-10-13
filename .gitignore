@@ -61,12 +61,8 @@ target/
 *.iss
 *.txt~
 
-
-# local shapeout config
-shapeout/shapeout.cfg
-
 # local python environment
-develop/env_shapeout
+dev/.env_shapeout
 
 # version
 _version_save.py

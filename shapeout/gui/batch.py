@@ -21,7 +21,7 @@ class BatchFilterFolder(wx.Frame):
         self.parent = parent
         self.analysis = analysis
         self.out_tsv_file = None
-        self.tdms_files = None
+        self.data_files = None
         self.axes_panel_sizer = None
         # Columns checks
         self.toggled_event_columns = True
@@ -172,7 +172,7 @@ class BatchFilterFolder(wx.Frame):
         # Determine which flow rates to use
         idflow = self.WXdropdown_flowrate.GetSelection() - 1
         if idflow < 0:
-            files = self.tdms_files
+            files = self.data_files
         else:
             files = self.flow_dict[self.flow_rates[idflow]] 
         # Filter regions
@@ -184,15 +184,16 @@ class BatchFilterFolder(wx.Frame):
                 reg = "reservoir"
             newfiles = []
             for tt in files:
-                if tlabwrap.GetRegion(tt) == reg:
+                if tlabwrap.get_chip_region(tt) == reg:
                     newfiles.append(tt)
             files = newfiles
-        assert files, "No valid measurements with current selection!"
+        if not files:
+            raise ValueError("No valid measurements with current selection!")
         
-        # Process each tdms file separately to reduce memory usage
-        for tdms in files:
-            # Make analysis from tdms file
-            anal = analysis.Analysis([tdms], config=f_config)
+        # Process each data file separately to reduce memory usage
+        for data in files:
+            # Make analysis from data file
+            anal = analysis.Analysis([data], config=f_config)
             mm = anal.measurements[0]
             # Apply filters
             mm.apply_filter()
@@ -207,7 +208,7 @@ class BatchFilterFolder(wx.Frame):
             
             rows.append([mm.path, mm.title]+v)
 
-        head = ["TDMS file", "Title"] + head
+        head = ["data file", "Title"] + head
         
         with io.open(self.out_tsv_file, "w") as fd:
             header = u"\t".join([ h for h in head ])
@@ -243,7 +244,7 @@ class BatchFilterFolder(wx.Frame):
             self.parent.config.set_dir(thepath, "BatchFD")
             # Search directory
             tree, _cols = tlabwrap.GetTDMSTreeGUI(thepath)
-            self.tdms_files = [ t[1][1] for t in tree]
+            self.data_files = [ t[1][1] for t in tree ]
             
             if self.out_tsv_file is not None:
                 self.btnbatch.Enable()
@@ -252,12 +253,12 @@ class BatchFilterFolder(wx.Frame):
         # Update WXdropdown_flowrate and self.flow_rates
         # Determine flow rates
         flow_dict = {}
-        for tt in self.tdms_files:
-            fr = tlabwrap.GetFlowRate(tt)
+        for tt in self.data_files:
+            fr = tlabwrap.get_flow_rate(tt)
             if fr not in flow_dict:
                 flow_dict[fr] = []
             flow_dict[fr].append(tt)
-        selections = ["All measurements ({})".format(len(self.tdms_files))]
+        selections = ["All measurements ({})".format(len(self.data_files))]
         self.flow_rates = list(flow_dict.keys())
         self.flow_rates.sort()
         for fr in self.flow_rates:
@@ -285,7 +286,7 @@ class BatchFilterFolder(wx.Frame):
             self.parent.config.set_dir(thedir, "BatchOut")
             self.out_tsv_file = thepath
         
-        if self.tdms_files is not None:
+        if self.data_files is not None:
             self.btnbatch.Enable()
 
     
