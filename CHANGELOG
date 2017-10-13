@@ -3,7 +3,7 @@
  - Cache event counts of tdms-based data sets on disk (#179)
  - Bugfixes:
    - KeyError when isoelastics not defined for combination of axes (#177)
-   - Wrong channel width parameter when loading ShapeIn 2.0.1 tdms data
+   - Wrong channel width when loading ShapeIn 2.0.1 tdms data (dclab 0.2.9)
 0.8.0
  - Remember directory for searching missing measurement data
  - Bugfixes:
