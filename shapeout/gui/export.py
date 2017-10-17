@@ -17,7 +17,7 @@ class ExportAnalysisEvents(wx.Frame):
         self.parent = parent
         self.analysis = analysis
         self.ext = ext
-        self.toggled_event_columns = True
+        self.toggled_event_features = True
         # Get the window positioning correctly
         pos = self.parent.GetPosition()
         pos = (pos[0]+100, pos[1]+100)
@@ -39,13 +39,13 @@ class ExportAnalysisEvents(wx.Frame):
         horsizer.AddStretchSpacer()
         # Button to (de)select all variables
         btnselect = wx.Button(self.panel, wx.ID_ANY, "(De-)select all")
-        self.Bind(wx.EVT_BUTTON, self.OnToggleAllEventColumns, btnselect)
+        self.Bind(wx.EVT_BUTTON, self.OnToggleAllEventFeatures, btnselect)
         horsizer.Add(btnselect, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
         self.topSizer.Add(horsizer, 0, wx.EXPAND)
         ## Add checkboxes
         checks = []
         # find out which are actually used in the analysis
-        for cc in dclab.dfn.column_names:
+        for cc in dclab.dfn.feature_names:
             for mm in self.analysis.measurements:
                 if cc in mm:
                     checks.append(cc)
@@ -61,7 +61,7 @@ class ExportAnalysisEvents(wx.Frame):
         for c in checks:
             # label id (b/c of sorting)
             lid = c+":"+" "*((tl-dc.GetTextExtent(c)[0])//sp)+"\t"
-            label = dclab.dfn.name2label[c]
+            label = dclab.dfn.feature_name2label[c]
             cb = wx.CheckBox(self.panel, label=lid + label, name=c)
             self.sizerin.Add(cb)
             if c in self.analysis.GetPlotAxes():
@@ -110,14 +110,14 @@ class ExportAnalysisEvents(wx.Frame):
             filtered = self.WXCheckFilter.IsChecked()
 
             # search all children for checkboxes that have
-            # the names in tlabwrap.dfn.column_names
-            columns = []
+            # the names in tlabwrap.dfn.feature_names
+            features = []
             for ch in self.panel.GetChildren():
                 if (isinstance(ch, wx._controls.CheckBox) and 
                     ch.IsChecked()):
                     name = ch.GetName()
-                    if name in dclab.dfn.column_names:
-                        columns.append(name)
+                    if name in dclab.dfn.feature_names:
+                        features.append(name)
             
             # Call the export function of dclab.rtdc_dataset
             # Check if the files already exist
@@ -135,23 +135,23 @@ class ExportAnalysisEvents(wx.Frame):
                         # do not continue
                         return
             
-            self.export(out_dir=outdir, columns=columns, filtered=filtered)
+            self.export(out_dir=outdir, features=features, filtered=filtered)
             
-    def OnToggleAllEventColumns(self, e=None):
-        """Set all values of the event columns to 
-        `self.toggled_event_columns` and invert
-        `self.toggled_event_columns`.
+    def OnToggleAllEventFeatures(self, e=None):
+        """Set all values of the event features to 
+        `self.toggled_event_features` and invert
+        `self.toggled_event_features`.
         """
         panel = self.panel
         for ch in panel.GetChildren():
             if (isinstance(ch, wx._controls.CheckBox) and 
-                ch.GetName() in dclab.dfn.column_names):
-                ch.SetValue(self.toggled_event_columns)
+                ch.GetName() in dclab.dfn.feature_names):
+                ch.SetValue(self.toggled_event_features)
             
         # Invert for next execution
-        self.toggled_event_columns = not self.toggled_event_columns
+        self.toggled_event_features = not self.toggled_event_features
 
-    def export(self, out_dir, columns, filtered):
+    def export(self, out_dir, features, filtered):
         raise NotImplementedError("Please subclass and rewrite this function.")
 
 
@@ -160,10 +160,10 @@ class ExportAnalysisEventsFCS(ExportAnalysisEvents):
     def __init__(self, parent, analysis):
         super(ExportAnalysisEventsFCS, self).__init__(parent, analysis, ext="fcs")
 
-    def export(self, out_dir, columns, filtered):
+    def export(self, out_dir, features, filtered):
         for m in self.analysis.measurements:
             m.export.fcs(os.path.join(out_dir, m.title+".fcs"),
-                         columns,
+                         features,
                          filtered=filtered,
                          override=True)
 
@@ -173,10 +173,10 @@ class ExportAnalysisEventsTSV(ExportAnalysisEvents):
     def __init__(self, parent, analysis):
         super(ExportAnalysisEventsTSV, self).__init__(parent, analysis, ext="tsv")
 
-    def export(self, out_dir, columns, filtered):
+    def export(self, out_dir, features, filtered):
         for m in self.analysis.measurements:
             m.export.tsv(os.path.join(out_dir, m.title+".tsv"),
-                         columns,
+                         features,
                          filtered=filtered,
                          override=True)
 

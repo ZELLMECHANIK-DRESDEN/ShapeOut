@@ -118,7 +118,7 @@ class Analysis(object):
                     if var not in pltng:
                         pltng[var] = l(mm[kk])
             ## Check for missing min/max values and set them to zero
-            for item in dfn.column_names:
+            for item in dfn.feature_names:
                 appends = [" min", " max"]
                 for a in appends:
                     if not item+a in mm.config["plotting"]:
@@ -197,12 +197,12 @@ class Analysis(object):
         datalist = []
         head = None
         for mm in self.measurements:
-            axes= [mm.config["plotting"]["axis x"].lower(),
-                   mm.config["plotting"]["axis y"].lower()]
-            h, v = dclab.statistics.get_statistics(mm, axes=axes)
-            # Make sure all columns are equal
+            features = [mm.config["plotting"]["axis x"].lower(),
+                        mm.config["plotting"]["axis y"].lower()]
+            h, v = dclab.statistics.get_statistics(mm, features=features)
+            # Make sure all features are equal
             if head is not None:
-                assert head == h, "'{}' has wrong columns!".format(mm.title)
+                assert head == h, "'{}' has wrong features!".format(mm.title)
             else:
                 head = h
             datalist.append([mm.title]+v)
@@ -268,7 +268,7 @@ class Analysis(object):
         GetUsableAxes
         """
         unusable = []
-        for ax in dfn.column_names:
+        for ax in dfn.feature_names:
             if ax in IGNORE_AXES:
                 unusable.append(ax)
                 continue
@@ -292,7 +292,7 @@ class Analysis(object):
         """
         unusable = self.GetUnusableAxes()
         usable = []
-        for ax in dfn.column_names:
+        for ax in dfn.feature_names:
             if not ax in unusable:
                 usable.append(ax)
         return usable
@@ -341,7 +341,7 @@ class Analysis(object):
             return
         
         # Remove contour accuracies for the current plots
-        for key in dfn.column_names:
+        for key in dfn.feature_names:
             for mm in self.measurements:
                 for var in ["contour accuracy {}".format(key),
                             "kde accuracy {}".format(key)]:
@@ -429,13 +429,13 @@ class Analysis(object):
             # apply filter in separate loop (safer for hierarchies)
             mm.apply_filter()
         
-        # Trigger computation of kde/contour accuracies for ancillary columns
+        # Trigger computation of kde/contour accuracies for ancillary features
         self._complete_config()
 
 
 
 def darkjet(myrange, **traits):
-    """ Generator function for the 'darkjet' colormap. """
+    """Generator function for the 'darkjet' colormap. """
     _data = {'red': ((0., 0, 0), (0.35, 0.0, 0.0), (0.66, .3, .3), (0.89, .4, .4),
     (1, 0.5, 0.5)),
     'green': ((0., 0.0, 0.0), (0.125, .1, .10), (0.375, .4, .4), (0.64,.3, .3),

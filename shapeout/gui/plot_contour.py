@@ -81,11 +81,11 @@ def contour_plot(measurements, levels=[0.5,0.95],
 
     # Axes
     left_axis = ca.PlotAxis(contour_plot, orientation='left',
-                            title=dfn.name2label[yax],
+                            title=dfn.feature_name2label[yax],
                             tick_generator=plot_common.MyTickGenerator())
     
     bottom_axis = ca.PlotAxis(contour_plot, orientation='bottom',
-                              title=dfn.name2label[xax],
+                              title=dfn.feature_name2label[xax],
                               tick_generator=plot_common.MyTickGenerator())
     # Show log scale only with 10** values (#56)
     contour_plot.index_axis.tick_generator=plot_common.MyTickGenerator()

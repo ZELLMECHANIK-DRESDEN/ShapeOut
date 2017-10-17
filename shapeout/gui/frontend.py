@@ -439,7 +439,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         This will open a choice dialog for the user
         - which data (filtered/unfiltered)
-        - which columns (Area, Deformation, etc)
+        - which features (area_um, deform, etc)
         - to which folder should be exported 
         """
         # Generate dialog
@@ -451,7 +451,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         This will open a choice dialog for the user
         - which data (filtered/unfiltered)
-        - which columns (Area, Deformation, etc)
+        - which features (area_um, deform, etc)
         - to which folder should be exported 
         """
         # Generate dialog

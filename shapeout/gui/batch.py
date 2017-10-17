@@ -23,8 +23,8 @@ class BatchFilterFolder(wx.Frame):
         self.out_tsv_file = None
         self.data_files = None
         self.axes_panel_sizer = None
-        # Columns checks
-        self.toggled_event_columns = True
+        # Features checks
+        self.toggled_event_features = True
         # Statistical parameters checks
         self.toggled_stat_parms = False
 
@@ -146,22 +146,22 @@ class BatchFilterFolder(wx.Frame):
     def OnBatch(self, e=None):
         wx.BeginBusyCursor()
         # Get selected axes
-        axes = []
+        features = []
         for ch in self.axes_panel.GetChildren():
             if (isinstance(ch, wx._controls.CheckBox) and 
                 ch.IsChecked()):
                 name = ch.GetName()
-                if name in dclab.dfn.column_names:
-                    axes.append(name)
-        # Get selected columns
+                if name in dclab.dfn.feature_names:
+                    features.append(name)
+        # Get selected features
         col_dict = dclab.statistics.Statistics.available_methods
-        columns = []
+        methods = []
         for ch in self.stat_panel.GetChildren():
             if (isinstance(ch, wx._controls.CheckBox) and 
                 ch.IsChecked()):
                 name = ch.GetName()
                 if name in col_dict:
-                    columns.append(name)
+                    methods.append(name)
         # Get filter configuration of selected measurement
         if self.rbtnhere.GetValue():
             mhere = self.analysis.measurements[self.dropdown.GetSelection()] 
@@ -199,12 +199,12 @@ class BatchFilterFolder(wx.Frame):
             mm.apply_filter()
             # Get statistics
             h, v = dclab.statistics.get_statistics(rtdc_ds=mm,
-                                                   columns=columns,
-                                                   axes=axes)
+                                                   methods=methods,
+                                                   features=features)
             if head is None:
                 head = h
             else:
-                assert h==head, "Problem with available columns/axes!"
+                assert h==head, "Problem with available methods/features!"
             
             rows.append([mm.path, mm.title]+v)
 
@@ -314,7 +314,7 @@ class BatchFilterFolder(wx.Frame):
                 window.Destroy()
             sizerin = sizer
         else:
-            box = wx.StaticBox(self.axes_panel, label="Event columns")
+            box = wx.StaticBox(self.axes_panel, label="Event features")
             sizerbox = wx.StaticBoxSizer(box, wx.HORIZONTAL)
             sizerin = wx.BoxSizer(orient=wx.VERTICAL)
             sizerbox.Add(sizerin)
@@ -322,24 +322,24 @@ class BatchFilterFolder(wx.Frame):
             btnselect = wx.Button(self.axes_panel, wx.ID_ANY, "(De-)select all")
             sizersel.Add(btnselect, 0, wx.ALIGN_RIGHT)
             sizerbox.Add(sizersel, 1, wx.EXPAND|wx.ALIGN_RIGHT)
-            self.Bind(wx.EVT_BUTTON, self.OnToggleAllEventColumns, btnselect)
+            self.Bind(wx.EVT_BUTTON, self.OnToggleAllEventFeatures, btnselect)
             sizerbox.AddSpacer(5)
 
-        self.axes_panel_sizer=sizerin
+        self.axes_panel_sizer = sizerin
 
         checks = []
         if self.rbtnhere.Value:
             sel = self.dropdown.GetSelection()
             mm = self.analysis.measurements[sel]
-            for c in dclab.dfn.column_names:
+            for c in dclab.dfn.feature_names:
                 if c in mm:
                     checks.append(c)
         else:
-            for c in dclab.dfn.column_names:
+            for c in dclab.dfn.feature_names:
                 checks.append(c)
 
         checks = list(set(checks))
-        labels = [ dclab.dfn.name2label[c] for c in checks ]
+        labels = [ dclab.dfn.feature_name2label[c] for c in checks ]
 
         # Sort checks according to labels
         checks = [x for (_y,x) in sorted(zip(labels,checks))]
@@ -362,18 +362,18 @@ class BatchFilterFolder(wx.Frame):
         self.SetSize((size[0]-1, -1))
 
 
-    def OnToggleAllEventColumns(self, e=None):
-        """Set all values of the event columns to 
-        `self.toggled_event_columns` and invert
-        `self.toggled_event_columns`.
+    def OnToggleAllEventFeatures(self, e=None):
+        """Set all values of the event features to 
+        `self.toggled_event_features` and invert
+        `self.toggled_event_features`.
         """
         panel = self.axes_panel
         for ch in panel.GetChildren():
             if isinstance(ch, wx._controls.CheckBox):
-                ch.SetValue(self.toggled_event_columns)
+                ch.SetValue(self.toggled_event_features)
             
         # Invert for next execution
-        self.toggled_event_columns = not self.toggled_event_columns
+        self.toggled_event_features = not self.toggled_event_features
 
 
     def OnToggleAllStatParms(self, e=None):

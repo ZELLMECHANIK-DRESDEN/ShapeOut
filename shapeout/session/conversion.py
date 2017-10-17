@@ -117,7 +117,7 @@ def compatibilitize_polygon(pdata, version=None):
         Data returned by `io.open(...).read()`
     version: None or `LooseVersion`
         The version string. If set to `None`, the version
-        is inferred from the column names in "x axis" and
+        is inferred from the feature names in "x axis" and
         "y axis".
 
     Returns
@@ -168,7 +168,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
       - remove emodulus computation parameters if accuracy not present
     
     ShapeOut 0.7.6
-      - introduction of new column names in dclab 0.2.5
+      - introduction of new feature names in dclab 0.2.5
       - all previous version did not support manual filters in
         hierarchy children (remove the _filter_manual.npy file)
       - update session hashes (if `hash_update` is set to `True`)
@@ -178,7 +178,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
       - replace "parent id" key with "parent key" in hierarchy children
 
     ShapeOut 0.7.9
-      - renamed column "inert_ratio" to "inert_ratio_cvx"
+      - renamed feature "inert_ratio" to "inert_ratio_cvx"
 
     ShapeOut 0.8.1
       - removed read-only config.txt sections "framerate", "general",
@@ -200,7 +200,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     """
     version = index.index_version(tempdir)
     
-    # Find all config.txt files and replace column names
+    # Find all config.txt files and replace feature names
     change_configs = []
     for root, _d, fs in os.walk(tempdir):
         for f in fs:
@@ -334,7 +334,7 @@ def convert_polygon(infile, outfile=None, version=None):
         file will be created.
     version: None or `LooseVersion`
         The version string. If set to `None`, the version
-        is inferred from the column names in "x axis" and
+        is inferred from the feature names in "x axis" and
         "y axis".
     
     Returns
