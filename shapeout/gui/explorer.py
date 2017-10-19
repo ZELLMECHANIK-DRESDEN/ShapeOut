@@ -133,8 +133,10 @@ class ExplorerPanel(ScrolledPanel):
                 else:
                     k.SetBold(False)
         self.htreectrl.SetColumnWidth(0, self.col_width)
-        self.external_analyze(files)
-
+        if files:
+            self.external_analyze(files)
+        else:
+            raise ValueError("No data selected in Measurement Browser!")
 
     def OnSelectAll(self, e=None):
         r = self.htreectrl.GetRootItem()

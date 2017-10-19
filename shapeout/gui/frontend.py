@@ -362,7 +362,7 @@ class Frame(gaugeframe.GaugeFrame):
 
 
     def NewAnalysis(self, data):
-        """ Create new analysis object and show data """
+        """Create new analysis object and show data """
         wx.BeginBusyCursor()
         # Get Plotting and Filtering parameters from previous analysis
         if hasattr(self, "analysis"):
@@ -376,7 +376,7 @@ class Frame(gaugeframe.GaugeFrame):
             newcfg = {}
             contour_colors = None
 
-        # Set Analysis        
+        # Set Analysis
         anal = analysis.Analysis(data, config=newcfg)
         # Set previous contour colors
         anal.SetContourColors(contour_colors)
