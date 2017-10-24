@@ -1,6 +1,7 @@
 0.8.2
  - Code cleanup:
    - Use the term "feature" consistently (dclab 0.2.9.dev2)
+   - Use file format agnostic fluorescence trace keys (dclab 0.2.9.dev4)
 0.8.1
  - Update internal configuration parameter names (dclab 0.2.8)
  - Cache event counts of tdms-based data sets on disk (#179)
