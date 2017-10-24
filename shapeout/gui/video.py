@@ -6,10 +6,10 @@
 from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca
+import dclab
 from enable.api import Window
 import numpy as np
 from PIL import Image
-
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
