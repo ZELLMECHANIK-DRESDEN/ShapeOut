@@ -2,16 +2,12 @@
 # -*- coding: utf-8 -*-
 """This must be the last test executed for some unknown reason"""
 from __future__ import division, print_function
-import sys
-from os.path import abspath, dirname
 
-import numpy as np
 import tempfile
 
 import dclab
+import numpy as np
 
-# Add parent directory to beginning of path variable
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 import shapeout
 
 

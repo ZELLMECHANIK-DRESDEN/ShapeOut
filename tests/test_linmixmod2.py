@@ -8,13 +8,9 @@ For this test to work, this must be installed
  - R package 'lme4'
 """
 from __future__ import division, print_function, unicode_literals
-import sys
-from os.path import abspath, dirname
 
 import numpy as np
 
-# Add parent directory to beginning of path variable
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 from shapeout.lin_mix_mod import linmixmod, diffdef
 
 

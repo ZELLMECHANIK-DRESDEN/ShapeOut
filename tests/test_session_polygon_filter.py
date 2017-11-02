@@ -4,14 +4,10 @@
 from __future__ import division, print_function
 
 import os
-from os.path import abspath, dirname, join
+import os.path as op
 import shutil
-import sys
 
 import dclab
-
-# Add parent directory to beginning of path variable
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from shapeout.session import conversion
 
@@ -24,7 +20,7 @@ def test_polygon():
     other column names.
     """
     sdir, _path = extract_session("session_v0.6.0.zmso")
-    pfile = join(sdir, "PolygonFilters.poly")
+    pfile = op.join(sdir, "PolygonFilters.poly")
     # conversion
     outfile = conversion.convert_polygon(pfile,
                                          # pretend we don't know the version

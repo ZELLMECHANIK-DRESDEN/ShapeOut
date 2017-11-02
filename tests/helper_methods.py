@@ -1,14 +1,11 @@
 import os
-from os.path import join, basename, dirname, abspath
+import os.path as op
+import pathlib
 import shutil
-import sys
 import tempfile
 import zipfile
 
 import numpy as np
-
-
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from dclab.rtdc_dataset.fmt_tdms import get_tdms_files
 
@@ -46,20 +43,19 @@ def extract_session(name):
     Arc.extractall(tempdir)
     Arc.close()
     _tempdirs.append(tempdir)
-    return tempdir, dirname(path)
+    return tempdir, op.dirname(path)
 
 
 def retreive_tdms(zip_file):
     """Eytract contents of data zip file and return dir
     """
     global _tempdirs
-    thisdir = dirname(abspath(__file__))
-    ddir = join(thisdir, "data")
+    zpath = pathlib.Path(__file__).resolve().parent / "data" / zip_file
     # unpack
-    arc = zipfile.ZipFile(join(ddir, zip_file))
+    arc = zipfile.ZipFile(str(zpath))
     
     # extract all files to a temporary directory
-    edest = tempfile.mkdtemp(prefix=basename(zip_file))
+    edest = tempfile.mkdtemp(prefix=zpath.name)
     arc.extractall(edest)
     
     _tempdirs.append(edest)
@@ -74,26 +70,26 @@ def retreive_tdms(zip_file):
     return tdmsfiles
 
 
-def retreive_session(zsmo_file):
+def retreive_session(zmso_file):
     """Return path to session file with data in same dir"""
     global _tempdirs
-    thisdir = dirname(abspath(__file__))
-    ddir = join(thisdir, "data")
+    ddir = pathlib.Path(__file__).resolve().parent / "data"
+    zpath = ddir / zmso_file
 
     # extract all files to a temporary directory
-    edest = tempfile.mkdtemp(prefix=basename(zsmo_file))
-    _tempdirs.append(edest)
+    edest = pathlib.Path(tempfile.mkdtemp(prefix=zpath.name))
+    _tempdirs.append(str(edest))
 
     # unpack ALL data files (might result in overhead)
     for ed in example_data_sets:
-        arc = zipfile.ZipFile(join(ddir, ed))
-        mdir = join(edest, ed[:-4])
+        arc = zipfile.ZipFile(str(ddir / ed))
+        mdir = str(edest / ed[:-4])
         os.mkdir(mdir)
         arc.extractall(mdir)
     
     # copy session file
-    shutil.copy2(join(ddir, zsmo_file), edest)
-    return join(edest, zsmo_file)
+    shutil.copy2(str(zpath), str(edest))
+    return str(edest / zpath.name)
 
 
     
