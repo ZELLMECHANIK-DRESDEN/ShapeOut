@@ -1,4 +1,6 @@
 0.8.2
+ - Bugfixes:
+   - Young's modulus not updated (dclab 0.2.9.dev9) (#190)
  - Code cleanup:
    - Use the term "feature" consistently (dclab 0.2.9.dev2)
    - Use file format agnostic fluorescence trace keys (dclab 0.2.9.dev4)
