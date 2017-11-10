@@ -40,7 +40,7 @@ exe = EXE(pyz,
           strip=False,
           upx=False,
           icon=icofile,
-          console=False)
+          console=True)
 
 # things that are safe to remove and save space
 remove_startswith = ["IPython", "libnvidia-glcore",
