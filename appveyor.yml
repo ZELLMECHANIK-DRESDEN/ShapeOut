@@ -81,6 +81,7 @@ install:
   - "pip freeze"
   # PIP installs
   - "pip install appdirs"
+  - "pip install pathlib"
   #- "pip install imageio"
   # Try installing with patched version
   - "pip install git+https://github.com/paulmueller/imageio.git"
