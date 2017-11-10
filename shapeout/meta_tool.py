@@ -45,7 +45,7 @@ def get_event_count(fname):
     
     See Also
     --------
-    get_event_count_tdms_cache: 
+    get_event_count_cache: cached event counts from tdms/avi files
     """
     fname = op.abspath(fname)
     ext = op.splitext(fname)[1]
@@ -80,7 +80,7 @@ def get_event_count(fname):
 
 
 def get_event_count_cache(fname):
-    """Get the number of events in a tdms file
+    """Get the number of events from a tdms or avi file
     
     Parameters
     ----------
