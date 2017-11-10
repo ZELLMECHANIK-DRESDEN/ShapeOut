@@ -18,7 +18,7 @@ from helper_methods import example_data_dict
 def test_cfg_basic():
     cfg = configuration.ConfigurationFile()
     wd = pathlib.Path(".").resolve()
-    cfg.set_dir(str(wd.parent / "Peter"))
+    cfg.set_dir(str(wd.parent), "Peter")
 
     assert wd.parent == pathlib.Path(cfg.get_dir("Peter")).resolve()
 
