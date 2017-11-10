@@ -20,7 +20,7 @@ def test_cfg_basic():
     wd = pathlib.Path(".").resolve()
     cfg.set_dir(str(wd.parent / "Peter"))
 
-    assert wd.parent == pathlib.Path(cfg.get_dir("Peter"))
+    assert wd.parent == pathlib.Path(cfg.get_dir("Peter").resolve())
 
 
 if __name__ == "__main__":
