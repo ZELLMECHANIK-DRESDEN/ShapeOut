@@ -238,14 +238,29 @@ class ImagePanel(ScrolledPanel):
         self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
 
+        # Set max value for spin control
+        max_evt = len(self.analysis.measurements[mm_id])
+        self.WXSP_plot.SetRange(1, max_evt)
+        
+        # Remove this case structure when #100 is fixed
+        if isinstance(mm, dclab.rtdc_dataset.fmt_hierarchy.RTDC_Hierarchy):
+            # Hierarchy children do not support image selection (issue #100)
+            self.plot_window.control.Show(False)
+            image = Image.fromarray(np.zeros((90, 250, 3), dtype=np.uint8))
+            self.PlotImage(image)
+            wx.EndBusyCursor()
+            self.WXChB_exclude.SetValue(False)
+            self.WXChB_exclude.Disable()
+            self.Layout()
+            self.GetParent().Layout()
+            return
+        else:
+            self.WXChB_exclude.Enable()
+
         self.PlotImage()
 
         # Update exclude check-box
         self.WXChB_exclude.SetValue(not mm.filter.manual[evt_id])
-
-        # Set max value for spin control
-        max_evt = len(self.analysis.measurements[mm_id])
-        self.WXSP_plot.SetRange(1, max_evt)
 
         # Plot traces
         if "trace" in mm:

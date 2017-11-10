@@ -2,6 +2,7 @@
  - Bugfixes:
    - Young's modulus not updated (dclab 0.2.9.dev9) (#190)
    - UnicodeDecodeError on fcs-export (fcswrite 0.1.3.dev13) (#189)
+   - Mouse cursor stuck in wait when plotting hierarchy data (#188)
  - Code cleanup:
    - Use the term "feature" consistently (dclab 0.2.9.dev2)
    - Use file format agnostic fluorescence trace keys (dclab 0.2.9.dev4)
