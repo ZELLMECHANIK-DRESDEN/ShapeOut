@@ -18,7 +18,8 @@ datas += collect_data_files("shapeout", subdir="img")
 
 ## Hidden imports
 # nptdms
-hiddenimports = ["nptdms", "nptdms.version", "nptdms.tdms", "nptdms.tdmsinfo"]
+hiddenimports = ["nptdms", "nptdms.version", "nptdms.tdms", "nptdms.tdmsinfo",
+                 "pathlib"]
 # scipy stats
 hiddenimports += ["scipy.stats", "scipy.special", "scipy.special._ufuncs_cxx"]
 hiddenimports += ["dclab", "six"]
