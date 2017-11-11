@@ -15,6 +15,59 @@ class SubPanelCalculate(SubPanel):
         self.config = ConfigurationFile()
         self.key = "Calculate"
 
+
+    def make_crosstalk_choices(self, analysis):
+        gen = wx.StaticBox(self, label="Fluorescence maximum crosstalk correction")
+        hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
+        
+        crosstalk = {}
+        for i in [1, 2, 3]:
+            for j in [1, 2, 3]:
+                if i == j:
+                    continue
+                crosstalk["crosstalk fl{}{}".format(i, j)] = 0
+        
+        if analysis is not None:
+            # get common parameters
+            sizer_bag = wx.GridBagSizer(hgap=20, vgap=5)
+            mm = analysis.measurements[0]
+
+            if "calculation" in mm.config:
+                # override default variables
+                calc = mm.config["calculation"]
+                for key in crosstalk:
+                    if key in calc:
+                        crosstalk[key] = calc[key]
+
+            # Model to apply
+            sizer_bag.Add(wx.StaticText(self, label="Crosstalk  (bleed-through) from channel i to channel j"),
+                          (0,0), span=(1,4))
+            self.WXcrosstalk_sp = []
+            pos = 4
+            for i in [1, 2, 3]:
+                for j in [1, 2, 3]:            
+                    if i == j:
+                        continue
+                    line = pos // 4
+                    col = pos % 4
+                    label = "{} to {}:".format(i, j)
+                    name = "crosstalk fl{}{}".format(i, j)
+                    value = str(crosstalk[name])
+                    sizer_bag.Add(wx.StaticText(self, label=label), (line, col))
+                    spctl = wx.SpinCtrlDouble(self, value=value, min=0, max=1, inc=.1, name=name)
+                    sizer_bag.Add(spctl, (line, col+1))
+                    pos += 2
+                    self.WXcrosstalk_sp.append(spctl)
+
+            compute_btn = wx.Button(self, label="Crosstalk correction")
+            sizer_bag.Add(compute_btn, (4,0), span=(1,4), flag=wx.EXPAND|wx.ALL)
+            self.Bind(wx.EVT_BUTTON, self.OnCrosstalkCorrection, compute_btn)
+            
+            hbox.Add(sizer_bag)
+            
+        return hbox
+        
+
     
     def make_emodulus_choices(self, analysis):
         gen = wx.StaticBox(self, label="Elastic modulus")
@@ -94,6 +147,17 @@ class SubPanelCalculate(SubPanel):
         return hbox
 
 
+    def OnCrosstalkCorrection(self, e=None):
+        """Set crosstalk values for all measurements
+        """
+        ctdict = {}
+        for sp in self.WXcrosstalk_sp:
+            ctdict[sp.GetName()] = sp.GetValue()
+        self.analysis.SetParameters({"calculation": ctdict})
+        # Update filtering
+        self.funcparent.OnChangeFilter()
+
+
     def OnComputeEmodulus(self, e=None):
         """
         Compute Emodulus for all measurements
@@ -109,7 +173,7 @@ class SubPanelCalculate(SubPanel):
                                       "emodulus viscosity":viscosity,
                                       "emodulus temperature":temperature}
                                      })
-        # Update filtering (triggers computation of emodulus in dclab)
+        # Update filtering
         self.funcparent.OnChangeFilter()
 
 
@@ -121,9 +185,12 @@ class SubPanelCalculate(SubPanel):
         self.ClearSubPanel()
         
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        statbox = self.make_emodulus_choices(analysis)
-        sizer.Add(statbox)
-        
+        emodbox = self.make_emodulus_choices(analysis)
+        sizer.Add(emodbox)
+
+        crossbox = self.make_crosstalk_choices(analysis)
+        sizer.Add(crossbox)
+                
         sizerv = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(sizerv)
         vertsizer  = wx.BoxSizer(wx.VERTICAL)
