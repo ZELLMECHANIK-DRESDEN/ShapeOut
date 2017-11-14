@@ -55,6 +55,7 @@ class SubPanelCalculate(SubPanel):
                     value = str(crosstalk[name])
                     sizer_bag.Add(wx.StaticText(self, label=label), (line, col))
                     spctl = wx.SpinCtrlDouble(self, value=value, min=0, max=1, inc=.1, name=name)
+                    spctl.SetDigits(3)
                     sizer_bag.Add(spctl, (line, col+1))
                     pos += 2
                     self.WXcrosstalk_sp.append(spctl)
