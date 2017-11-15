@@ -17,7 +17,7 @@ class SubPanelCalculate(SubPanel):
 
 
     def make_crosstalk_choices(self, analysis):
-        gen = wx.StaticBox(self, label="Fluorescence maximum crosstalk correction")
+        gen = wx.StaticBox(self, label="Fluorescence maximum crosstalk compensation")
         hbox = wx.StaticBoxSizer(gen, wx.VERTICAL)
         
         crosstalk = {}
@@ -40,7 +40,7 @@ class SubPanelCalculate(SubPanel):
                         crosstalk[key] = calc[key]
 
             # Model to apply
-            sizer_bag.Add(wx.StaticText(self, label="Crosstalk  (bleed-through) from channel i to channel j"),
+            sizer_bag.Add(wx.StaticText(self, label="Spill from channel i to channel j"),
                           (0,0), span=(1,4))
             self.WXcrosstalk_sp = []
             pos = 4
@@ -54,13 +54,13 @@ class SubPanelCalculate(SubPanel):
                     name = "crosstalk fl{}{}".format(i, j)
                     value = str(crosstalk[name])
                     sizer_bag.Add(wx.StaticText(self, label=label), (line, col))
-                    spctl = wx.SpinCtrlDouble(self, value=value, min=0, max=1, inc=.1, name=name)
+                    spctl = wx.SpinCtrlDouble(self, value=value, min=0, max=10, inc=.1, name=name)
                     spctl.SetDigits(3)
                     sizer_bag.Add(spctl, (line, col+1))
                     pos += 2
                     self.WXcrosstalk_sp.append(spctl)
 
-            compute_btn = wx.Button(self, label="Crosstalk correction")
+            compute_btn = wx.Button(self, label="Crosstalk compensation")
             sizer_bag.Add(compute_btn, (4,0), span=(1,4), flag=wx.EXPAND|wx.ALL)
             self.Bind(wx.EVT_BUTTON, self.OnCrosstalkCorrection, compute_btn)
             
