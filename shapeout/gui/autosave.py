@@ -11,7 +11,9 @@ import wx
 import wx.lib.delayedresult as delayedresult
 
 import appdirs
+
 from .. import session
+from . import session_ui
 
 cache_dir = appdirs.user_cache_dir(appname="ShapeOut")
 autosave_file = os.path.join(cache_dir, "autosave.zmso")
@@ -77,6 +79,6 @@ def check_recover(parent):
         mod = dlg.ShowModal()
         dlg.Destroy()
         if mod == wx.ID_YES:
-            session.open_session_worker(autosave_file, parent)
+            session_ui.open_session_worker(autosave_file, parent)
             return True
     return False

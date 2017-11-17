@@ -30,7 +30,7 @@ from . import help
 from . import misc
 from . import plot_export
 from . import plot_main
-from . import session
+from . import session_ui
 from . import update
 from . import video
 
@@ -504,7 +504,7 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuLoad(self, e=None, session_file=None):
         """ Load entire analysis """
-        session.open_session(self, session_file=session_file)
+        session_ui.open_session(self, session_file=session_file)
 
 
     def OnMenuPreferences(self, event):
@@ -607,7 +607,7 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuSave(self, e=None):
         """ Save configuration without measurement data """
-        session.save_session(self)
+        session_ui.save_session(self)
 
 
 def MyExceptionHook(etype, value, trace):
