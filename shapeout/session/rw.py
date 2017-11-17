@@ -21,6 +21,9 @@ class HashComparisonWarning(UserWarning):
     pass
 
 
+class UnsupportedDataClassSaveError(BaseException):
+    pass
+
 
 def load(path, search_path="."):
     """Open a ShapeOut session
@@ -150,7 +153,7 @@ def save(path, rtdc_list):
     for mm in rtdc_list:
         if mm.format not in ["hdf5", "hierarchy", "tdms"]:
             msg = "RT-DC dataset must be from data file or hierarchy child!"
-            raise ValueError(msg)
+            raise UnsupportedDataClassSaveError(msg)
         i += 1
         ident = "{}_{}".format(i, mm.identifier)
         # the directory in the session zip file where all information
