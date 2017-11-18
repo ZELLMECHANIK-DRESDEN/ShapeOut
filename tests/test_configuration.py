@@ -2,17 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import division, print_function
-import sys
-from os.path import abspath, dirname
 
-import numpy as np
+import pathlib
 import tempfile
 import shutil
 
 import dclab
+import numpy as np
 
-# Add parent directory to beginning of path variable
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 from shapeout import configuration
 
 from helper_methods import example_data_dict
@@ -20,10 +17,10 @@ from helper_methods import example_data_dict
 
 def test_cfg_basic():
     cfg = configuration.ConfigurationFile()
-    wd = abspath("./")
-    cfg.set_dir(dirname(wd), "Peter")
+    wd = pathlib.Path(".").resolve()
+    cfg.set_dir(str(wd.parent), "Peter")
 
-    assert dirname(wd) == cfg.get_dir("Peter")
+    assert wd.parent == pathlib.Path(cfg.get_dir("Peter")).resolve()
 
 
 if __name__ == "__main__":

@@ -4,14 +4,9 @@
 from __future__ import division, print_function
 
 import os
-from os.path import abspath, dirname, join
-import sys
 import tempfile
 
 import dclab
-
-# Add parent directory to beginning of path variable
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from shapeout.session import rw
 from shapeout.analysis import Analysis

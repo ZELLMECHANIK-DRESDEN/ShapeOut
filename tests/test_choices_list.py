@@ -4,13 +4,7 @@
 """
 from __future__ import print_function
 
-from os.path import abspath, dirname
-import sys
-
 import dclab
-
-# Add parent directory to beginning of path variable
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from shapeout.tlabwrap import get_config_entry_choices, get_config_entry_dtype
 
@@ -41,7 +35,7 @@ def test_config_choices():
 
 def test_config_dtype():
     a = get_config_entry_dtype("filtering", "enable filters")
-    assert a == dclab.definitions.Bool
+    assert a == bool
 
     a = get_config_entry_dtype("setup", "channel width")
     assert a == float

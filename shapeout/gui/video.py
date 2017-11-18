@@ -6,11 +6,10 @@
 from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca
-import dclab.rtdc_dataset
+import dclab
 from enable.api import Window
 import numpy as np
 from PIL import Image
-
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
@@ -96,13 +95,12 @@ class ImagePanel(ScrolledPanel):
         exclsizer.Add(updbutton, 0, wx.ALIGN_RIGHT)
         
         ## Add traces plot
-        # TODO:
-        # - write method in dclab that gets all traces across file formats
+        # set initial values
         x = np.linspace(-np.pi, np.pi, 50)
         y = np.cos(x)+1
         plotkwargs = {}
-        for key in dclab.rtdc_dataset.fmt_tdms.naming.tr_data:
-            plotkwargs[key[1]] = y
+        for trid in dclab.definitions.FLUOR_TRACES:
+            plotkwargs[trid] = y
         
         self.trace_data = ca.ArrayPlotData(x=x, **plotkwargs)
 
@@ -110,16 +108,16 @@ class ImagePanel(ScrolledPanel):
                                   padding=0,
                                   spacing=0)
 
-        for key in list(plotkwargs.keys()):
-            if key.count("raw"):
+        for trid in dclab.definitions.FLUOR_TRACES:
+            if trid.count("raw"):
                 color = "gray"
-            elif key == "FL1med":
+            elif trid == "fl1_median":
                 color = "green"
-            elif key == "FL2med":
+            elif trid == "fl2_median":
                 color = "orange"
-            elif key == "FL3med":
+            elif trid == "fl3_median":
                 color = "red"
-            self.trace_plot.plot(("x", key), type="line", color=color)
+            self.trace_plot.plot(("x", trid), type="line", color=color)
 
         container = ca.HPlotContainer(spacing=70,
                                       padding=50,
@@ -240,37 +238,53 @@ class ImagePanel(ScrolledPanel):
         self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
         mm = self.analysis.measurements[mm_id]
 
+        # Set max value for spin control
+        max_evt = len(self.analysis.measurements[mm_id])
+        self.WXSP_plot.SetRange(1, max_evt)
+        
+        # Remove this case structure when #100 is fixed
+        if isinstance(mm, dclab.rtdc_dataset.fmt_hierarchy.RTDC_Hierarchy):
+            # Hierarchy children do not support image selection (issue #100)
+            self.plot_window.control.Show(False)
+            image = Image.fromarray(np.zeros((90, 250, 3), dtype=np.uint8))
+            self.PlotImage(image)
+            wx.EndBusyCursor()
+            self.WXChB_exclude.SetValue(False)
+            self.WXChB_exclude.Disable()
+            self.Layout()
+            self.GetParent().Layout()
+            return
+        else:
+            self.WXChB_exclude.Enable()
+
         self.PlotImage()
 
         # Update exclude check-box
         self.WXChB_exclude.SetValue(not mm.filter.manual[evt_id])
 
-        # Set max value for spin control
-        max_evt = len(self.analysis.measurements[mm_id])
-        self.WXSP_plot.SetRange(1, max_evt)
-
         # Plot traces
         if "trace" in mm:
             self.plot_window.control.Show(True)
             empty_traces = []
-            # Default shape needed for zerodata
+            # Default shape needed for zero-data
             # (will be overridden by this loop if there
             # is trace data for this event.
-            dshape=(10,1)
-            for ch in mm["trace"]:
-                data = mm["trace"][ch][evt_id]
-                if data.size == 0:
-                    empty_traces.append(ch)
-                else:
+            dshape = (10,1)
+            for trid in dclab.definitions.FLUOR_TRACES:
+                if trid in mm["trace"] and mm["trace"][trid][evt_id].size:
+                    data = mm["trace"][trid][evt_id]
                     # Set y values for present traces
-                    self.trace_data.set_data(ch, data)
+                    self.trace_data.set_data(trid, data)
                     dshape = data.shape
+                else:
+                    empty_traces.append(trid)
+
             # Set x-values for all plots
             self.trace_data.set_data("x", np.arange(dshape[0]))
             # Set other trace data to zero if event does not have it
             zerodata = np.zeros(dshape[0])
-            for ech in empty_traces:
-                self.trace_data.set_data(ech, zerodata)
+            for etr in empty_traces:
+                self.trace_data.set_data(etr, zerodata)
 
         else:
             self.plot_window.control.Show(False)

@@ -76,8 +76,8 @@ class SubPanel(ScrolledPanel):
         choices = tlabwrap.get_config_entry_choices(key, item[0],
                                            ignore_axes=ignore_axes)
         if choices:
-            if choices[0] in dclab.dfn.column_names:
-                human_choices = [ dclab.dfn.name2label[c] for c in choices]
+            if choices[0] in dclab.dfn.feature_names:
+                human_choices = [ dclab.dfn.feature_name2label[c] for c in choices]
             else:
                 human_choices = choices
 

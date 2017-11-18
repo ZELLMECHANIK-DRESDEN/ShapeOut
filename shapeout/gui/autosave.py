@@ -4,13 +4,16 @@
 """
 from __future__ import division, print_function, unicode_literals
 
-import appdirs
 import os
 import time
+
 import wx
 import wx.lib.delayedresult as delayedresult
 
-from . import session
+import appdirs
+
+from .. import session
+from . import session_ui
 
 cache_dir = appdirs.user_cache_dir(appname="ShapeOut")
 autosave_file = os.path.join(cache_dir, "autosave.zmso")
@@ -31,8 +34,12 @@ def _autosave_consumer(delayedresult, parent):
     tempname = autosave_file+".tmp"
     mkdir_p(cache_dir)
     try:
-        session.save_session(tempname, parent.analysis)
-    except:
+        session.rw.save(tempname, parent.analysis.measurements)
+    except session.rw.UnsupportedDataClassSaveError:
+        # dictionary data type not supported -> ignore
+        parent.StatusBar.SetStatusText("")
+    except BaseException:
+        raise
         parent.StatusBar.SetStatusText("Autosaving failed!")
         if os.path.exists(tempname):
             os.remove(tempname)
@@ -49,7 +56,7 @@ def _autosave_worker(parent, interval):
     time.sleep(interval)
 
 
-def autosave_run(parent, interval=60):
+def autosave_run(parent, interval=5):
     """Runs in the background and performs autosaving"""
     delayedresult.startWorker(_autosave_consumer,
                               _autosave_worker,
@@ -72,6 +79,6 @@ def check_recover(parent):
         mod = dlg.ShowModal()
         dlg.Destroy()
         if mod == wx.ID_YES:
-            session.open_session_worker(autosave_file, parent)
+            session_ui.open_session_worker(autosave_file, parent)
             return True
     return False

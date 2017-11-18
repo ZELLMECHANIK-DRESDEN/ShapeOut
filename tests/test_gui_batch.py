@@ -4,20 +4,12 @@
 """
 from __future__ import print_function
 
-from os.path import abspath, dirname
-import sys
-
 import io
 import tempfile
 
+import dclab
 import numpy as np
 import unittest
-
-import dclab
-
-
-# Add parent directory to beginning of path variable
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from shapeout.__main__ import prepare_app
 

@@ -30,7 +30,7 @@ from . import help
 from . import misc
 from . import plot_export
 from . import plot_main
-from . import session
+from . import session_ui
 from . import update
 from . import video
 
@@ -362,7 +362,7 @@ class Frame(gaugeframe.GaugeFrame):
 
 
     def NewAnalysis(self, data):
-        """ Create new analysis object and show data """
+        """Create new analysis object and show data """
         wx.BeginBusyCursor()
         # Get Plotting and Filtering parameters from previous analysis
         if hasattr(self, "analysis"):
@@ -376,7 +376,7 @@ class Frame(gaugeframe.GaugeFrame):
             newcfg = {}
             contour_colors = None
 
-        # Set Analysis        
+        # Set Analysis
         anal = analysis.Analysis(data, config=newcfg)
         # Set previous contour colors
         anal.SetContourColors(contour_colors)
@@ -439,7 +439,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         This will open a choice dialog for the user
         - which data (filtered/unfiltered)
-        - which columns (Area, Deformation, etc)
+        - which features (area_um, deform, etc)
         - to which folder should be exported 
         """
         # Generate dialog
@@ -451,7 +451,7 @@ class Frame(gaugeframe.GaugeFrame):
         
         This will open a choice dialog for the user
         - which data (filtered/unfiltered)
-        - which columns (Area, Deformation, etc)
+        - which features (area_um, deform, etc)
         - to which folder should be exported 
         """
         # Generate dialog
@@ -504,7 +504,7 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuLoad(self, e=None, session_file=None):
         """ Load entire analysis """
-        session.open_session(self, session_file=session_file)
+        session_ui.open_session(self, session_file=session_file)
 
 
     def OnMenuPreferences(self, event):
@@ -607,7 +607,7 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuSave(self, e=None):
         """ Save configuration without measurement data """
-        session.save_session(self)
+        session_ui.save_session(self)
 
 
 def MyExceptionHook(etype, value, trace):

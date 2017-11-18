@@ -32,10 +32,19 @@ if [ ! -d $DIRECTORY ]; then
     pip install appdirs
     pip install simplejson
 
-    # register dclab and fcswrite
-    ln -s "../../../../../../dclab/dclab" "$DIRECTORY/lib/python2.7/site-packages"
-    ln -s "../../../../../../fcswrite/fcswrite" "$DIRECTORY/lib/python2.7/site-packages"
-
+    # install dclab and fcswrite
+    cd $_base
+    cd ../../fcswrite
+    pip install -e .
+    cd $_base
+    cd ../../dclab
+    pip install -e .
+    cd $_base
+    # setup shapeout
+    cd $_base
+    cd ..
+    pip install -e .
+    
 	# install lme4 package
 	R -e "install.packages('lme4', repos='http://cran.r-project.org')"
 fi

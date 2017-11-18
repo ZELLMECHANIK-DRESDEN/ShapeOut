@@ -41,10 +41,10 @@ class SubPanelAnalyze(SubPanel):
                           flag=wx.EXPAND|wx.ALL)
             self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_model)
             
-            # Axis to analyze
-            sizer_bag.Add(wx.StaticText(self, label="Axis to analyze:"), (1,0), span=wx.GBSpan(1,1))
+            # Feature to analyze
+            sizer_bag.Add(wx.StaticText(self, label="Feature to analyze:"), (1,0), span=wx.GBSpan(1,1))
             self.axes = analysis.GetUsableAxes()
-            axeslist = [dclab.dfn.name2label[a] for a in self.axes]
+            axeslist = [dclab.dfn.feature_name2label[a] for a in self.axes]
             self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
                                          style=wx.CB_DROPDOWN|wx.CB_READONLY)
             self.Bind(wx.EVT_COMBOBOX, self.update_info_text, self.WXCB_axes)
