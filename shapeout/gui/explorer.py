@@ -198,7 +198,7 @@ class ExplorerPanel(ScrolledPanel):
         Parameters
         ----------
         data : tuple (treelist, cols)
-            The return value of `tlabwrap.GetTDMSTreeGUI`.
+            The return value of `meta_tool.collect_data_tree`.
         add : bool
             If True, the current treelist is updated with new
             measurements. If False, the current treelist is replaced.

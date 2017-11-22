@@ -18,7 +18,7 @@ import dclab
 
 from .. import analysis
 from ..configuration import ConfigurationFile
-from .. import tlabwrap
+from .. import meta_tool
 
 from . import autosave
 from . import batch
@@ -550,7 +550,7 @@ class Frame(gaugeframe.GaugeFrame):
             self.config.set_dir(path, name="MeasurementList")
             dlg.Destroy()
             self.GaugeIndefiniteStart(
-                                func=tlabwrap.GetTDMSTreeGUI,
+                                func=meta_tool.collect_data_tree,
                                 func_args=(path,),
                                 post_call=self.PanelLeft.SetProjectTree,
                                 msg="Searching for data files"
@@ -571,7 +571,7 @@ class Frame(gaugeframe.GaugeFrame):
                 return
             
         self.GaugeIndefiniteStart(
-                        func=tlabwrap.GetTDMSTreeGUI,
+                        func=meta_tool.collect_data_tree,
                         func_args=(path,),
                         post_call=self.PanelLeft.SetProjectTree,
                         post_call_kwargs = {"add":add, "marked":marked},

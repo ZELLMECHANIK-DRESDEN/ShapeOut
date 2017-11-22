@@ -8,89 +8,11 @@ import io
 import os
 import pkg_resources
 
-import numpy as np
-
 import dclab
-from dclab.rtdc_dataset.fmt_tdms import get_project_name_from_path, get_tdms_files
 from dclab.rtdc_dataset import config as rt_config
 
 from . import configuration
-from .meta_tool import get_event_count, get_chip_region, get_flow_rate
 
-        
-def GetTDMSTreeGUI(directories):
-    """Return projects (folders) and measurements therein
-    
-    This is a convenience function for the GUI
-    """
-    if not isinstance(directories, list):
-        directories = [directories]
-    
-    directories = np.unique(directories)
-    
-    pathdict = dict()
-    treelist = list()
-    
-    for directory in directories:
-        files = get_tdms_files(directory)
-
-        #to = os.path.getctime(f)
-        #t = time.strftime("%Y-%m-%d %H:%M", time.gmtime(to))
-        cols = ["Measurement"]
-
-        for f in files:
-            if not IsFullMeasurement(f):
-                # Ignore broken measurements
-                continue
-            path, name = os.path.split(f)
-            # try to find the path in pathdict
-            if pathdict.has_key(path):
-                i = pathdict[path]
-            else:
-                treelist.append([])
-                i = len(treelist)-1
-                pathdict[path] = i
-                # The first element of a tree contains the measurement name
-                project = get_project_name_from_path(path)
-                treelist[i].append((project, path))
-            # Get data from filename
-            mx = name.split("_")[0]
-            chip_region = get_chip_region(f)
-            dn = u"{} {}".format(mx, chip_region)
-            if not chip_region.lower() in ["reservoir"]:
-                # outlet (flow rate is not important)
-                dn += u"  {} µls⁻¹".format(get_flow_rate(f))
-            dn += "  ({} events)".format(get_event_count(f))
-                                   
-            treelist[i].append((dn, f))
-        
-    return treelist, cols
-
-
-def IsFullMeasurement(fname):
-    """
-    Check for existence of ini files and returns False if some
-    files are missing.
-    """
-    is_ok = True
-    path, name = os.path.split(fname)
-    mx = name.split("_")[0]
-    stem = os.path.join(path, mx)
-    
-    # Check if all config files are present
-    if ( (not os.path.exists(stem+"_para.ini")) or
-         (not os.path.exists(stem+"_camera.ini")) or
-         (not os.path.exists(fname))                ):
-        is_ok = False
-    
-    # Check if we can perform all standard file operations
-    for test in [get_chip_region, get_flow_rate, get_event_count]:
-        try:
-            test(fname)
-        except:
-            is_ok = False
-            break
-    return is_ok
 
 
 def get_config_entry_choices(key, subkey, ignore_axes=[]):
