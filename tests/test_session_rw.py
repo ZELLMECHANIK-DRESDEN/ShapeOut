@@ -11,13 +11,13 @@ import dclab
 from shapeout.session import rw
 from shapeout.analysis import Analysis
 
-from helper_methods import cleanup, retreive_tdms
+from helper_methods import cleanup, retrieve_data
 
 
 def test_rw_basic():
     # Create a session with a few datasets
-    f1 = retreive_tdms("rtdc_data_traces_video.zip")
-    f2 = retreive_tdms("rtdc_data_minimal.zip")
+    f1 = retrieve_data("rtdc_data_traces_video.zip")
+    f2 = retrieve_data("rtdc_data_minimal.zip")
     an = Analysis([f1, f2])
     msave = an.measurements
     _fd, fsave = tempfile.mkstemp(suffix=".zsmo", prefix="shapeout_test_session_")

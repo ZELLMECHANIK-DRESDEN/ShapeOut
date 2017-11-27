@@ -13,7 +13,7 @@ import unittest
 
 from shapeout.__main__ import prepare_app
 
-from helper_methods import retreive_tdms, example_data_sets, cleanup
+from helper_methods import retrieve_data, example_data_sets, cleanup
 
 
 class TestSimple(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestSimple(unittest.TestCase):
     
     def test_batch(self):
         # load data
-        tdms_path = retreive_tdms(example_data_sets[0])
+        tdms_path = retrieve_data(example_data_sets[0])
         ds = dclab.new_dataset(tdms_path)
         # start session
         self.frame.NewAnalysis([ds])

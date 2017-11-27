@@ -11,7 +11,7 @@ import numpy as np
 from shapeout.session import conversion, index, rw
 from shapeout.analysis import Analysis
 
-from helper_methods import cleanup, extract_session, retreive_session
+from helper_methods import cleanup, extract_session, retrieve_session
 
 
 def compatibility_task(name):

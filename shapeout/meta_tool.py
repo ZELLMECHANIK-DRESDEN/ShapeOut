@@ -259,7 +259,7 @@ def get_run_index(fname):
             run_index = h5.attrs["experiment:run index"]
     elif ext == ".tdms":
         name = fname.name
-        run_index = name.split("_")[0].strip("Mm ")
+        run_index = int(name.split("_")[0].strip("Mm "))
     return run_index
 
 
