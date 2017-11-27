@@ -169,8 +169,8 @@ def get_event_count_cache(fname):
         event_count = cfgec.get_int(fhash)
     except KeyError:
         if ext == ".avi":
-            video = imageio.get_reader(str(fname))
-            event_count = len(video)
+            with imageio.get_reader(str(fname)) as video:
+                event_count = len(video)
         elif ext == ".tdms":
             tdmsfd = nptdms.TdmsFile(str(fname))
             event_count = len(tdmsfd.object("Cell Track", "time").data)
