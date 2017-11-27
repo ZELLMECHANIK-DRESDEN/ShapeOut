@@ -38,12 +38,17 @@ def test_tdms_avi():
     assert meta_tool.get_chip_region(path) == "channel"
     # this is the number of frames in the video file
     assert meta_tool.get_event_count(path) == 2
-    # delete avi file  and get event count from tdms file
-    os.remove(str(path.parent / "M1_imaq.avi"))
-    assert meta_tool.get_event_count(path) == 44
     assert meta_tool.get_flow_rate(path) == .16
     assert meta_tool.get_run_index(path) == 1
     assert "rtdc_data_traces_video.zip" in meta_tool.get_sample_name(path)
+    assert meta_tool.verify_dataset(path)
+    cleanup()
+
+
+def test_tdms_avi2():
+    path = retrieve_data("rtdc_data_traces_video.zip")
+    # delete avi file  and get event count from tdms file
+    os.remove(str(path.parent / "M1_imaq.avi"))
     assert meta_tool.verify_dataset(path)
     cleanup()
 
