@@ -61,7 +61,7 @@ def retrieve_data(zip_file):
     _tempdirs.append(edest)
     
     ## Load RT-DC Data set
-    # find tdms files
+    # find hdf5/tdms files
     datafiles = find_data(edest)
     
     if len(datafiles) == 1:

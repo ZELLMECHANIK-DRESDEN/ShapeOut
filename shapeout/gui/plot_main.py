@@ -81,8 +81,8 @@ class MainPlotArea(wx.Panel):
         
         if anal is not None:
             self.analysis = anal
-        
-        anal = self.analysis
+        else:
+            anal = self.analysis
         
         rows, cols, lcc, lll = anal.GetPlotGeometry()
         
