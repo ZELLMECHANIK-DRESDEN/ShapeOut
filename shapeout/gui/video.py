@@ -271,7 +271,7 @@ class ImagePanel(ScrolledPanel):
             # is trace data for this event.
             dshape = (10,1)
             for trid in dclab.definitions.FLUOR_TRACES:
-                if trid in mm["trace"] and mm["trace"][trid][evt_id].size:
+                if trid in mm["trace"]:
                     data = mm["trace"][trid][evt_id]
                     # Set y values for present traces
                     self.trace_data.set_data(trid, data)
