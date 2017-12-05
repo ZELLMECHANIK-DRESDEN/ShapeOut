@@ -4,8 +4,6 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 
-import numpy as np
-
 from helper_methods import retrieve_data, cleanup
 
 from shapeout import meta_tool

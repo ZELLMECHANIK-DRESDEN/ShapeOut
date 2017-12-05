@@ -26,11 +26,12 @@ from helper_methods import retreive_session, cleanup
 
 class TestSimple(unittest.TestCase):
     '''Test ShapeOut batch'''
+
     def setUp(self):
         '''Create the GUI'''
         self.app = prepare_app()
         self.frame = self.app.frame
-        #self.frame.InitRun()
+        # self.frame.InitRun()
 
     def tearDown(self):
         cleanup()

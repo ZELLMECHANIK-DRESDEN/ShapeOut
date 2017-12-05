@@ -28,10 +28,10 @@ def example_data_dict(size=100, keys=["area_um", "deform"]):
         if key in ["time", "frame"]:
             val = np.arange(size)
         else:
-            state = np.random.RandomState(size+ii)
+            state = np.random.RandomState(size + ii)
             val = state.random_sample(size)
         ddict[key] = val
-    
+
     return ddict
 
 
@@ -53,17 +53,17 @@ def retrieve_data(zip_file):
     zpath = pathlib.Path(__file__).resolve().parent / "data" / zip_file
     # unpack
     arc = zipfile.ZipFile(str(zpath))
-    
+
     # extract all files to a temporary directory
     edest = tempfile.mkdtemp(prefix=zpath.name)
     arc.extractall(edest)
-    
+
     _tempdirs.append(edest)
-    
-    ## Load RT-DC Data set
+
+    # Load RT-DC Data set
     # find hdf5/tdms files
     datafiles = find_data(edest)
-    
+
     if len(datafiles) == 1:
         datafiles = datafiles[0]
 
@@ -86,14 +86,13 @@ def retrieve_session(zmso_file):
         mdir = str(edest / ed[:-4])
         os.mkdir(mdir)
         arc.extractall(mdir)
-    
+
     # copy session file
     shutil.copy2(str(zpath), str(edest))
     return str(edest / zpath.name)
 
 
-    
-# Do not change order    
+# Do not change order
 example_data_sets = ["rtdc_data_minimal.zip",
                      "rtdc_data_traces_video.zip",
                      "rtdc_data_hdf5_contour_image_trace.zip"]

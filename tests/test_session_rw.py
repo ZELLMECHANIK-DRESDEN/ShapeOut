@@ -6,8 +6,6 @@ from __future__ import division, print_function
 import os
 import tempfile
 
-import dclab
-
 from shapeout.session import rw
 from shapeout.analysis import Analysis
 
@@ -20,18 +18,19 @@ def test_rw_basic():
     f2 = retrieve_data("rtdc_data_minimal.zip")
     an = Analysis([f1, f2])
     msave = an.measurements
-    _fd, fsave = tempfile.mkstemp(suffix=".zsmo", prefix="shapeout_test_session_")
+    _fd, fsave = tempfile.mkstemp(
+        suffix=".zsmo", prefix="shapeout_test_session_")
     rw.save(path=fsave,
             rtdc_list=msave)
     mload = rw.load(fsave)
-    
+
     assert mload[0].identifier == msave[0].identifier
     assert mload[1].identifier == msave[1].identifier
-    
+
     cleanup()
     try:
         os.remove(fsave)
-    except:
+    except OSError:
         pass
 
 
