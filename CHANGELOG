@@ -1,5 +1,9 @@
 0.8.3
  - Prefer sample name from para.ini over data folder name (dclab 0.3.0.dev15)
+ - Implement new .rtdc file format (dclab 0.3.0.dev20) (#151)
+ - Bugfixes:
+   - Enable scrolling in data export dialogs
+   - Ignore missing features during data export 
 0.8.2
  - Add fluorescence crosstalk correction (#185)
  - Bugfixes:

@@ -214,12 +214,15 @@ class Frame(gaugeframe.GaugeFrame):
         ## Export Data menu
         exportDataMenu = wx.Menu()
         self.menubar.Append(exportDataMenu, "Export &Data")
-        e2tsv = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.tsv)", 
-                "Export the plotted event data as tab-separated values")
-        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
         e2fcs = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.fcs)", 
                 "Export the plotted event data as flow cytometry standard files")
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsFCS, e2fcs)
+        e2rtdc = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.rtdc)", 
+                "Export the plotted event data as tab-separated values")
+        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsRTDC, e2rtdc)
+        e2tsv = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.tsv)", 
+                "Export the plotted event data as tab-separated values")
+        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
         e2stat = exportDataMenu.Append(wx.ID_ANY, "Computed &statistics (*.tsv)", 
                        "Export the statistics data as tab-separated values")
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
@@ -444,6 +447,18 @@ class Frame(gaugeframe.GaugeFrame):
         """
         # Generate dialog
         export.ExportAnalysisEventsFCS(self, self.analysis)
+
+
+    def OnMenuExportEventsRTDC(self, e=None):
+        """Export the event data of the entire analysis as rtdc
+        
+        This will open a choice dialog for the user
+        - which data (filtered/unfiltered)
+        - which features (area_um, deform, etc)
+        - to which folder should be exported 
+        """
+        # Generate dialog
+        export.ExportAnalysisEventsRTDC(self, self.analysis)
 
 
     def OnMenuExportEventsTSV(self, e=None):

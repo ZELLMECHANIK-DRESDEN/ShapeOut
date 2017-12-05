@@ -6,14 +6,16 @@
 from __future__ import division, print_function, unicode_literals
 
 import io
-import numpy as np
 import os
-import wx
+
 import dclab
+import numpy as np
+import wx
+from wx.lib.scrolledpanel import ScrolledPanel
 
 
 class ExportAnalysisEvents(wx.Frame):
-    def __init__(self, parent, analysis, ext="ext"):
+    def __init__(self, parent, analysis, ext="ext", non_scalars=[]):
         self.parent = parent
         self.analysis = analysis
         self.ext = ext
@@ -24,7 +26,8 @@ class ExportAnalysisEvents(wx.Frame):
         wx.Frame.__init__(self, parent=self.parent, title="Export all event data",
             pos=pos, style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
         ## panel
-        self.panel = wx.Panel(self)
+        self.panel = ScrolledPanel(self)
+        self.panel.SetupScrolling()
         self.topSizer = wx.BoxSizer(wx.VERTICAL)
         # init
         textinit = wx.StaticText(self.panel,
@@ -49,8 +52,7 @@ class ExportAnalysisEvents(wx.Frame):
             for mm in self.analysis.measurements:
                 if cc in mm:
                     checks.append(cc)
-        checks = list(set(checks))
-        checks.sort()
+        checks = non_scalars + sorted(list(set(checks)))
         self.box = wx.StaticBox(self.panel, label="Axes")
         self.sizerin = wx.StaticBoxSizer(self.box, wx.VERTICAL)
         # get longest text of checks
@@ -61,7 +63,10 @@ class ExportAnalysisEvents(wx.Frame):
         for c in checks:
             # label id (b/c of sorting)
             lid = c+":"+" "*((tl-dc.GetTextExtent(c)[0])//sp)+"\t"
-            label = dclab.dfn.feature_name2label[c]
+            if c in non_scalars:
+                label = c
+            else:
+                label = dclab.dfn.feature_name2label[c]
             cb = wx.CheckBox(self.panel, label=lid + label, name=c)
             self.sizerin.Add(cb)
             if c in self.analysis.GetPlotAxes():
@@ -73,7 +78,7 @@ class ExportAnalysisEvents(wx.Frame):
         self.topSizer.Add(btnbrws, 0, wx.EXPAND)
         self.panel.SetSizer(self.topSizer)
         self.topSizer.Fit(self)
-        self.SetMinSize(self.topSizer.GetMinSizeTuple())
+        self.SetMinSize((self.topSizer.GetMinSizeTuple()[0], 500))
         #Icon
         if parent.MainIcon is not None:
             wx.Frame.SetIcon(self, parent.MainIcon)
@@ -95,11 +100,11 @@ class ExportAnalysisEvents(wx.Frame):
                 style=wx.OK|wx.ICON_ERROR)
             if dlg1.ShowModal() == wx.ID_OK:
                 return
-        
+
         # make directory dialog
         dlg2 = wx.DirDialog(self,
                            message="Select directory for data export",
-                           defaultPath=self.parent.config.get_dir("ExportTSV"),
+                           defaultPath=self.parent.config.get_dir("ExportData"),
                            style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
@@ -110,13 +115,14 @@ class ExportAnalysisEvents(wx.Frame):
             filtered = self.WXCheckFilter.IsChecked()
 
             # search all children for checkboxes that have
-            # the names in tlabwrap.dfn.feature_names
+            # the names in dclab.dfn.feature_names
+            names = dclab.dfn.feature_names + ["contour", "image", "trace"]
             features = []
             for ch in self.panel.GetChildren():
                 if (isinstance(ch, wx._controls.CheckBox) and 
                     ch.IsChecked()):
                     name = ch.GetName()
-                    if name in dclab.dfn.feature_names:
+                    if name in names:
                         features.append(name)
             
             # Call the export function of dclab.rtdc_dataset
@@ -134,8 +140,9 @@ class ExportAnalysisEvents(wx.Frame):
                     else:
                         # do not continue
                         return
-            
+            wx.BeginBusyCursor()
             self.export(out_dir=outdir, features=features, filtered=filtered)
+            wx.EndBusyCursor()
             
     def OnToggleAllEventFeatures(self, e=None):
         """Set all values of the event features to 
@@ -143,13 +150,22 @@ class ExportAnalysisEvents(wx.Frame):
         `self.toggled_event_features`.
         """
         panel = self.panel
+        names = dclab.dfn.feature_names + ["contour", "image", "trace"]
         for ch in panel.GetChildren():
             if (isinstance(ch, wx._controls.CheckBox) and 
-                ch.GetName() in dclab.dfn.feature_names):
+                ch.GetName() in names):
                 ch.SetValue(self.toggled_event_features)
             
         # Invert for next execution
         self.toggled_event_features = not self.toggled_event_features
+
+    @staticmethod
+    def get_dataset_features(data_set, features):
+        out_feat = []
+        for feat in features:
+            if feat in data_set:
+                out_feat.append(feat)
+        return out_feat
 
     def export(self, out_dir, features, filtered):
         raise NotImplementedError("Please subclass and rewrite this function.")
@@ -158,25 +174,48 @@ class ExportAnalysisEvents(wx.Frame):
 
 class ExportAnalysisEventsFCS(ExportAnalysisEvents):
     def __init__(self, parent, analysis):
-        super(ExportAnalysisEventsFCS, self).__init__(parent, analysis, ext="fcs")
+        super(ExportAnalysisEventsFCS, self).__init__(parent,
+                                                      analysis,
+                                                      ext="fcs")
 
     def export(self, out_dir, features, filtered):
         for m in self.analysis.measurements:
+            mfeat = self.get_dataset_features(m, features)
             m.export.fcs(os.path.join(out_dir, m.title+".fcs"),
-                         features,
+                         mfeat,
                          filtered=filtered,
                          override=True)
 
 
-
-class ExportAnalysisEventsTSV(ExportAnalysisEvents):
+class ExportAnalysisEventsRTDC(ExportAnalysisEvents):
     def __init__(self, parent, analysis):
-        super(ExportAnalysisEventsTSV, self).__init__(parent, analysis, ext="tsv")
+        super(ExportAnalysisEventsRTDC, self).__init__(parent,
+                                                       analysis,
+                                                       ext="rtdc",
+                                                       non_scalars=["contour",
+                                                                    "image",
+                                                                    "trace"])
 
     def export(self, out_dir, features, filtered):
         for m in self.analysis.measurements:
+            mfeat = self.get_dataset_features(m, features)
+            m.export.hdf5(os.path.join(out_dir, m.title+".rtdc"),
+                          mfeat,
+                          filtered=filtered,
+                          override=True)
+
+
+class ExportAnalysisEventsTSV(ExportAnalysisEvents):
+    def __init__(self, parent, analysis):
+        super(ExportAnalysisEventsTSV, self).__init__(parent,
+                                                      analysis,
+                                                      ext="tsv")
+
+    def export(self, out_dir, features, filtered):
+        for m in self.analysis.measurements:
+            mfeat = self.get_dataset_features(m, features)
             m.export.tsv(os.path.join(out_dir, m.title+".tsv"),
-                         features,
+                         mfeat,
                          filtered=filtered,
                          override=True)
 
