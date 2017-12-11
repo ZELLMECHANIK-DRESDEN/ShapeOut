@@ -62,7 +62,7 @@ def my_log_auto_ticks(data_low, data_high,
 
     startlog = np.ceil(log_low)
     endlog = np.floor(log_high)
-    interval = np.ceil((endlog-startlog)/9.0)
+    interval = max(1, np.ceil((endlog-startlog)/9.0))
     expticks = np.arange(startlog, endlog, interval)
     expticks = np.concatenate([expticks, [endlog]])
 
