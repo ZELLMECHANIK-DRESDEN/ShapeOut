@@ -4,6 +4,7 @@
  - Bugfixes:
    - Enable scrolling in data export dialogs
    - Ignore missing features during data export 
+   - Plotting circularity with isoelastics failed (dclab 0.3.0.dev21) (#197)
 0.8.2
  - Add fluorescence crosstalk correction (#185)
  - Bugfixes:
