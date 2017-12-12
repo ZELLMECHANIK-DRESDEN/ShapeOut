@@ -217,9 +217,11 @@ class Frame(gaugeframe.GaugeFrame):
         e2fcs = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.fcs)", 
                 "Export the plotted event data as flow cytometry standard files")
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsFCS, e2fcs)
-        e2rtdc = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.rtdc)", 
-                "Export the plotted event data as tab-separated values")
-        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsRTDC, e2rtdc)
+        if self.config.get_bool("expert mode"):
+            # Only allow .rtdc export in expert mode
+            e2rtdc = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.rtdc)", 
+                    "Export the plotted event data as tab-separated values")
+            self.Bind(wx.EVT_MENU, self.OnMenuExportEventsRTDC, e2rtdc)
         e2tsv = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.tsv)", 
                 "Export the plotted event data as tab-separated values")
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
