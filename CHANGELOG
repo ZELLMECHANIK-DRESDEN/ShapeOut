@@ -1,6 +1,6 @@
 0.8.3
  - Prefer sample name from para.ini over data folder name (dclab 0.3.0.dev15)
- - Implement new .rtdc file format (dclab 0.3.0.dev20) (#151)
+ - Support new .rtdc file format (dclab 0.3.0.dev20) (#151)
  - Bugfixes:
    - Automatically fix inverted plotting range
    - Enable scrolling in data export dialogs
