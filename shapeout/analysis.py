@@ -387,29 +387,37 @@ class Analysis(object):
 
 
     def SetParameters(self, newcfg):
-        """ updates the RT-DC dataset configuration
-
-        """
+        """Update the RT-DC dataset configuration"""
         upcfg = {}
         if "filtering" in newcfg:
             upcfg["filtering"] = newcfg["filtering"].copy()
         if "plotting" in newcfg:
             upcfg["plotting"] = newcfg["plotting"].copy()
+            pl = upcfg["plotting"]
             # prevent applying indivual things to all measurements
             ignorelist = ["contour color"]
             pops = []
-            for skey in upcfg["plotting"]:
+            for skey in pl:
                 if skey in ignorelist:
                     pops.append(skey)
             for skey in pops:
-                upcfg["plotting"].pop(skey)
+                pl.pop(skey)
             # Address issue with faulty contour plot on log scale
             # https://github.com/enthought/chaco/issues/300
-            pl = upcfg["plotting"]
             if (("scale x" in pl and pl["scale x"] == "log") or
                 ("scale y" in pl and pl["scale y"] == "log")):
                 warnings.warn("Disabling contour plot because of chaco issue #300!")
-                upcfg["plotting"]["contour plot"] = False
+                pl["contour plot"] = False
+            # check for inverted plotting ranges
+            for feat in dfn.feature_names:
+                fmin = feat + " min"
+                fmax = feat + " max"
+                if (fmin in pl and
+                    fmax in pl and
+                        pl[fmin] > pl[fmax]):
+                    msg = "inverting plot range: {} > {}".format(fmin, fmax)
+                    warnings.warn(msg)
+                    pl[fmin], pl[fmax] = pl[fmax], pl[fmin]
         if "analysis" in newcfg:
             upcfg["analysis"] = newcfg["analysis"].copy()
             ignorelist = ["regression treatment", "regression repetition"]
