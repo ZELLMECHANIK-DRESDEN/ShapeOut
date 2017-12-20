@@ -27,15 +27,6 @@ from .controls_scatterplot import SubPanelPlotScatter
 from .controls_statistics import SubPanelStatistics
 
 
-class FlatNotebook(wx.Notebook):
-    """
-    Flatnotebook class
-    """
-    def __init__(self, parent):
-        """Constructor"""
-        self.fnb = wx.Notebook.__init__(self, parent, wx.ID_ANY)
-
-
 class ControlPanel(ScrolledPanel):
     """"""
     def __init__(self, parent, frame):
@@ -46,12 +37,10 @@ class ControlPanel(ScrolledPanel):
         
         self.frame = frame
         self.config = frame.config
-        self.notebook = FlatNotebook(self)
+        self.notebook = wx.Notebook(self)
 
         self.subpanels = []
-
         self.AddSubpanels()
-        
         self.notebook.SetSelection(5)
 
         # Shortucut SHIFT+ENTER replots everything
