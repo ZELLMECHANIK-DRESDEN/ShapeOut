@@ -45,7 +45,7 @@ class ControlPanel(ScrolledPanel):
 
         # Shortucut SHIFT+ENTER replots everything
         randomId = wx.NewId()
-        self.Bind(wx.EVT_MENU, self.OnChangePlot, id=randomId)
+        self.Bind(wx.EVT_MENU, self.OnChange, id=randomId)
         accel_tbl = wx.AcceleratorTable([(wx.ACCEL_SHIFT, wx.WXK_RETURN, randomId )])
         self.SetAcceleratorTable(accel_tbl)
 
@@ -95,6 +95,10 @@ class ControlPanel(ScrolledPanel):
         if anal is not None:
             self.analysis = anal
         self.UpdatePages()
+        self.OnChange()
+
+
+    def OnChange(self, e=None):
         self.OnChangeFilter()
         self.OnChangePlot()
 
