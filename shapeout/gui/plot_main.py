@@ -92,13 +92,14 @@ class MainPlotArea(wx.Panel):
 
         if self.container is None:
             container = ca.GridPlotContainer(
-                                  shape = (rows,cols),
+                                  shape = (rows, cols),
                                   spacing = (0,0),
                                   padding = (0,0,0,0),
                                   valign = 'top',
                                   bgcolor = 'white',
                                   fill_padding = True,
                                   use_backbuffer = True)
+            self.plot_window.component = container
         else:
             container = self.container
             for pl in list(container.plot_components):
@@ -107,6 +108,9 @@ class MainPlotArea(wx.Panel):
                 container.remove(pl)
                 del pl
             container.shape = (rows, cols)
+            # Call this method as a workaround for ValueError in
+            # plot_containers.py line 615.
+            container.get_preferred_size()
         
         maxplots = min(len(anal.measurements), numplots)
 
@@ -179,10 +183,7 @@ class MainPlotArea(wx.Panel):
         del self.scatter2measure
         self.scatter2measure = scatter2measure
 
-        self.plot_window.component = container
-
         self.plot_window.redraw()
-        
         # Update the image plot (dropdown choices, etc.)
         self.frame.ImageArea.UpdateAnalysis(self.analysis)
 

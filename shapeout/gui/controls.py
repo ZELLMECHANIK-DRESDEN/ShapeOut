@@ -96,6 +96,7 @@ class ControlPanel(ScrolledPanel):
             self.analysis = anal
         self.UpdatePages()
         self.OnChangeFilter()
+        self.OnChangePlot()
 
 
     def OnChangeFilter(self, e=None):
@@ -137,7 +138,7 @@ class ControlPanel(ScrolledPanel):
                 if name == "limit events":
                     c.SetValue(str(minsize))
         self.analysis.SetParameters(cfg)
-        
+
         # Only update the plotting data.
         # (Until version 0.6.1 the plots were recreated after
         #  each update, which caused a memory leak)
@@ -148,14 +149,13 @@ class ControlPanel(ScrolledPanel):
                 if plot.id == mm.identifier:
                     plot_scatter.set_scatter_data(plot, mm)
                     plot_scatter.reset_inspector(plot)
-            
+
             if plot.id == "ShapeOut_contour_plot":
                 plot_contour.set_contour_data(plot, self.analysis.measurements)
-    
-        self.frame.PlotArea.Plot(self.analysis)
+
         self.UpdatePages()
         wx.EndBusyCursor()
-    
+
 
     def OnChangePlot(self, e=None):
         # Set plot order
@@ -212,7 +212,6 @@ class ControlPanel(ScrolledPanel):
         # Update Plots
         self.frame.PlotArea.Plot(self.analysis)
         self.UpdatePages()
-        
         wx.EndBusyCursor()
 
 
@@ -256,13 +255,6 @@ class ControlPanel(ScrolledPanel):
         """ fills pages """
         sel = self.notebook.GetSelection()
 
-        # Recreate all pages instead of just calling `UpdatePanel`.
-        # This resolves issues on at least Linux
-        for _i in range(len(self.subpanels)):
-            self.notebook.RemovePage(0)
-        self.subpanels = []
-        self.AddSubpanels()
-
         # Update page content        
         for page in self.subpanels:
             page.UpdatePanel(self.analysis)
@@ -270,7 +262,7 @@ class ControlPanel(ScrolledPanel):
             page.Layout()
             page.Refresh()
             page.Update()
-            
+
         # select previously selected page
         self.notebook.SetSelection(sel)
         self.notebook.Refresh()
