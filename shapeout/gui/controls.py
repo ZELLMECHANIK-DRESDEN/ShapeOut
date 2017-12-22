@@ -136,7 +136,6 @@ class ControlPanel(ScrolledPanel):
                 name = c.GetName()
                 if name == "limit events":
                     c.SetValue(str(minsize))
-        
         self.analysis.SetParameters(cfg)
         
         # Only update the plotting data.
@@ -152,8 +151,7 @@ class ControlPanel(ScrolledPanel):
             
             if plot.id == "ShapeOut_contour_plot":
                 plot_contour.set_contour_data(plot, self.analysis.measurements)
-
-
+    
         self.frame.PlotArea.Plot(self.analysis)
         self.UpdatePages()
         wx.EndBusyCursor()
