@@ -167,8 +167,8 @@ class SubPanel(ScrolledPanel):
 
     def ClearSubPanel(self):
         for item in self.GetChildren():
-            item.Hide()
-            self.RemoveChild(item)
+            #item.Hide()
+            #self.RemoveChild(item)
             item.Destroy()
 
 
@@ -195,3 +195,8 @@ class SubPanel(ScrolledPanel):
     def UpdatePanel(self, *args, **kwargs):
         """ Overwritten by subclass """
         pass
+
+
+    def UpdateScrolling(self):
+        self.SetupScrolling(scroll_y=True)
+        self.SetupScrolling(scroll_x=True)

@@ -99,11 +99,12 @@ class ControlPanel(ScrolledPanel):
 
 
     def OnChange(self, e=None):
-        self.OnChangeFilter()
-        self.OnChangePlot()
+        self.OnChangeFilter(updp=False)
+        self.OnChangePlot(updp=False)
+        self.UpdatePages()
 
 
-    def OnChangeFilter(self, e=None):
+    def OnChangeFilter(self, e=None, updp=True):
         # get all values
         wx.BeginBusyCursor()
         ctrls = self.page_filter.GetChildren()
@@ -156,12 +157,13 @@ class ControlPanel(ScrolledPanel):
 
             if plot.id == "ShapeOut_contour_plot":
                 plot_contour.set_contour_data(plot, self.analysis.measurements)
-
-        self.UpdatePages()
+        
+        if updp:
+            self.UpdatePages()
         wx.EndBusyCursor()
 
 
-    def OnChangePlot(self, e=None):
+    def OnChangePlot(self, e=None, updp=True):
         # Set plot order
         if hasattr(self.analysis, "measurements"):
             mms = [ self.analysis.measurements[ii] for ii in self.page_plot.plot_order ]
@@ -215,7 +217,8 @@ class ControlPanel(ScrolledPanel):
 
         # Update Plots
         self.frame.PlotArea.Plot(self.analysis)
-        self.UpdatePages()
+        if updp:
+            self.UpdatePages()
         wx.EndBusyCursor()
 
 

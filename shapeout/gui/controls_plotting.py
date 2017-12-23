@@ -334,5 +334,6 @@ class SubPanelPlotting(SubPanel):
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        
+        self.UpdateScrolling()
+                
         self.analysis = analysis
