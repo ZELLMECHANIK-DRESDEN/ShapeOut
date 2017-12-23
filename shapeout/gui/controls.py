@@ -267,10 +267,18 @@ class ControlPanel(ScrolledPanel):
             page.UpdatePanel(self.analysis)
             # workaround to force redrawing of Page:
             page.Layout()
+            page.UpdateScrolling()
             page.Refresh()
             page.Update()
 
         # select previously selected page
         self.notebook.SetSelection(sel)
+        
+        # call all kinds of update functions such that
+        # scrollbars don't disappear on Windows
+        self.notebook.Layout()
         self.notebook.Refresh()
         self.notebook.Update()
+        
+        self.Layout()
+        

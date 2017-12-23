@@ -75,5 +75,3 @@ class SubPanelStatistics(SubPanel):
         sizer.Add(statbox)
         self.SetSizer(sizer)
         sizer.Fit(self)
-        self.Layout()
-        self.UpdateScrolling()

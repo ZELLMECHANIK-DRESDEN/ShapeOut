@@ -592,5 +592,3 @@ class SubPanelFilter(SubPanel):
                             ctrl_targets=["limit events"])
         self.SetSizer(sizer)
         sizer.Fit(self)
-        self.Layout()
-        self.UpdateScrolling()

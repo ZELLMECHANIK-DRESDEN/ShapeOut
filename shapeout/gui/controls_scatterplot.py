@@ -78,5 +78,3 @@ class SubPanelPlotScatter(SubPanel):
 
         self.SetSizer(sizer)
         sizer.Fit(self)
-        self.Layout()
-        self.UpdateScrolling()

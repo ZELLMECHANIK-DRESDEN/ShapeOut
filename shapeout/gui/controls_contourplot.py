@@ -123,5 +123,3 @@ class SubPanelPlotContour(SubPanel):
                             ctrl_targets=["kde accuracy {}".format(a) for a in axes])
         self.SetSizer(sizer)
         sizer.Fit(self)
-        self.Layout()
-        self.UpdateScrolling()
