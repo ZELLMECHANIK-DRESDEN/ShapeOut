@@ -3,10 +3,43 @@
 from __future__ import division, print_function, unicode_literals
 
 import os
+import os.path as op
+import tempfile
 
-from helper_methods import retrieve_data, cleanup
+from dclab import new_dataset
+
+from helper_methods import example_data_dict, retrieve_data, cleanup
 
 from shapeout import meta_tool
+
+
+def test_collect_data_tree():
+    features = ["area_um", "deform", "time"]
+    edest = tempfile.mkdtemp()
+
+    for ii in range(1, 4):
+        dat = new_dataset(data=example_data_dict(ii + 10, keys=features))
+        cfg = {"experiment": {"sample": "test sample",
+                              "run index": ii},
+               "imaging": {"pixel size": 0.34},
+               "setup": {"channel width": 20,
+                         "chip region": "channel",
+                         "flow rate": 0.04}
+               }
+        dat.config.update(cfg)
+        dat.export.hdf5(path=op.join(edest, "{}.rtdc".format(ii)),
+                        features=features)
+    data = meta_tool.collect_data_tree([edest])[0]
+    assert len(data) == 1, "only one data folder"
+    assert len(data[0]) == 4, "three measurements"
+
+    # check name
+    assert data[0][0][0] == "test sample"
+
+    # check order
+    assert data[0][1][1].endswith("1.rtdc")
+    assert data[0][2][1].endswith("2.rtdc")
+    assert data[0][3][1].endswith("3.rtdc")
 
 
 def test_hdf5():
