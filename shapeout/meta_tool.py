@@ -33,17 +33,15 @@ def collect_data_tree(directories):
     for directory in directories:
         files = find_data(directory)
 
-        #to = os.path.getctime(f)
-        #t = time.strftime("%Y-%m-%d %H:%M", time.gmtime(to))
         cols = ["Measurement"]
 
         for ff in files:
             if not verify_dataset(ff):
                 # Ignore broken measurements
                 continue
-            path = ff.parent
+            path = str(ff.parent)
             # try to find the path in pathdict
-            if pathdict.has_key(str(path)):
+            if pathdict.has_key(path):
                 dirindex = pathdict[path]
             else:
                 treelist.append([])
