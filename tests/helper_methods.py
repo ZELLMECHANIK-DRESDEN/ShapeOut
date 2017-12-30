@@ -7,7 +7,7 @@ import zipfile
 
 import numpy as np
 
-from dclab.rtdc_dataset.fmt_tdms import get_tdms_files
+from shapeout.meta_tool import find_data
 
 _tempdirs = []
 
@@ -28,16 +28,16 @@ def example_data_dict(size=100, keys=["area_um", "deform"]):
         if key in ["time", "frame"]:
             val = np.arange(size)
         else:
-            state = np.random.RandomState(size+ii)
+            state = np.random.RandomState(size + ii)
             val = state.random_sample(size)
         ddict[key] = val
-    
+
     return ddict
 
 
 def extract_session(name):
     global _tempdirs
-    path = retreive_session(name)
+    path = retrieve_session(name)
     Arc = zipfile.ZipFile(path, mode='r')
     tempdir = tempfile.mkdtemp(prefix="ShapeOut-test_")
     Arc.extractall(tempdir)
@@ -46,31 +46,31 @@ def extract_session(name):
     return tempdir, op.dirname(path)
 
 
-def retreive_tdms(zip_file):
+def retrieve_data(zip_file):
     """Eytract contents of data zip file and return dir
     """
     global _tempdirs
     zpath = pathlib.Path(__file__).resolve().parent / "data" / zip_file
     # unpack
     arc = zipfile.ZipFile(str(zpath))
-    
+
     # extract all files to a temporary directory
     edest = tempfile.mkdtemp(prefix=zpath.name)
     arc.extractall(edest)
-    
+
     _tempdirs.append(edest)
-    
-    ## Load RT-DC Data set
-    # find tdms files
-    tdmsfiles = get_tdms_files(edest)
-    
-    if len(tdmsfiles) == 1:
-        tdmsfiles = tdmsfiles[0]
 
-    return tdmsfiles
+    # Load RT-DC Data set
+    # find hdf5/tdms files
+    datafiles = find_data(edest)
+
+    if len(datafiles) == 1:
+        datafiles = datafiles[0]
+
+    return datafiles
 
 
-def retreive_session(zmso_file):
+def retrieve_session(zmso_file):
     """Return path to session file with data in same dir"""
     global _tempdirs
     ddir = pathlib.Path(__file__).resolve().parent / "data"
@@ -86,16 +86,16 @@ def retreive_session(zmso_file):
         mdir = str(edest / ed[:-4])
         os.mkdir(mdir)
         arc.extractall(mdir)
-    
+
     # copy session file
     shutil.copy2(str(zpath), str(edest))
     return str(edest / zpath.name)
 
 
-    
-# Do not change order    
+# Do not change order
 example_data_sets = ["rtdc_data_minimal.zip",
-                     "rtdc_data_traces_video.zip"]
+                     "rtdc_data_traces_video.zip",
+                     "rtdc_data_hdf5_contour_image_trace.zip"]
 
 example_sessions = ["session_v0.6.0.zmso",
                     "session_v0.6.5.zmso",

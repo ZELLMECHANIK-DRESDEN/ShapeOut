@@ -5,6 +5,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 from os.path import isfile, exists, join
+import shutil
 import tempfile
 import warnings
 import zipfile
@@ -47,11 +48,13 @@ def load(path, search_path="."):
     if isfile(path):
         # extract it first
         arc = zipfile.ZipFile(path, mode='r')
-        tempdir = tempfile.mkdtemp(prefix="ShapeOut-session_")
+        tempdir = tempfile.mkdtemp(prefix="ShapeOut-session-load_")
         arc.extractall(tempdir)
         arc.close()
+        cleanup = True
     else:
         tempdir = path
+        cleanup = False
 
     # Support older measurement files
     conversion.compatibilitize_session(tempdir, search_path=search_path)
@@ -122,6 +125,8 @@ def load(path, search_path="."):
             mm.apply_filter()
             rtdc_list[kidx] = mm
     
+    if cleanup:
+        shutil.rmtree(tempdir, ignore_errors=True)
     return rtdc_list
 
 
@@ -142,7 +147,7 @@ def save(path, rtdc_list):
     relevant configuration data to reproduce the list of
     RTDCBase instances. 
     """
-    tempdir = tempfile.mkdtemp()
+    tempdir = tempfile.mkdtemp(prefix="ShapeOut-session-save")
     returnWD = os.getcwd()
     os.chdir(tempdir)
     # Dump data into the temporary directory
@@ -219,5 +224,6 @@ def save(path, rtdc_list):
                 arc.write(os.path.relpath(fw,tempdir))
                 os.remove(fw)
     os.chdir(returnWD)
-
+    # cleanup
+    shutil.rmtree(tempdir, ignore_errors=True)
 

@@ -27,15 +27,6 @@ from .controls_scatterplot import SubPanelPlotScatter
 from .controls_statistics import SubPanelStatistics
 
 
-class FlatNotebook(wx.Notebook):
-    """
-    Flatnotebook class
-    """
-    def __init__(self, parent):
-        """Constructor"""
-        self.fnb = wx.Notebook.__init__(self, parent, wx.ID_ANY)
-
-
 class ControlPanel(ScrolledPanel):
     """"""
     def __init__(self, parent, frame):
@@ -46,17 +37,15 @@ class ControlPanel(ScrolledPanel):
         
         self.frame = frame
         self.config = frame.config
-        self.notebook = FlatNotebook(self)
+        self.notebook = wx.Notebook(self)
 
         self.subpanels = []
-
         self.AddSubpanels()
-        
         self.notebook.SetSelection(5)
 
         # Shortucut SHIFT+ENTER replots everything
         randomId = wx.NewId()
-        self.Bind(wx.EVT_MENU, self.OnChangePlot, id=randomId)
+        self.Bind(wx.EVT_MENU, self.OnChange, id=randomId)
         accel_tbl = wx.AcceleratorTable([(wx.ACCEL_SHIFT, wx.WXK_RETURN, randomId )])
         self.SetAcceleratorTable(accel_tbl)
 
@@ -106,10 +95,16 @@ class ControlPanel(ScrolledPanel):
         if anal is not None:
             self.analysis = anal
         self.UpdatePages()
-        self.OnChangeFilter()
+        self.OnChange()
 
 
-    def OnChangeFilter(self, e=None):
+    def OnChange(self, e=None):
+        self.OnChangeFilter(updp=False)
+        self.OnChangePlot(updp=False)
+        self.UpdatePages()
+
+
+    def OnChangeFilter(self, e=None, updp=True):
         # get all values
         wx.BeginBusyCursor()
         ctrls = self.page_filter.GetChildren()
@@ -147,9 +142,8 @@ class ControlPanel(ScrolledPanel):
                 name = c.GetName()
                 if name == "limit events":
                     c.SetValue(str(minsize))
-        
         self.analysis.SetParameters(cfg)
-        
+
         # Only update the plotting data.
         # (Until version 0.6.1 the plots were recreated after
         #  each update, which caused a memory leak)
@@ -160,17 +154,16 @@ class ControlPanel(ScrolledPanel):
                 if plot.id == mm.identifier:
                     plot_scatter.set_scatter_data(plot, mm)
                     plot_scatter.reset_inspector(plot)
-            
+
             if plot.id == "ShapeOut_contour_plot":
                 plot_contour.set_contour_data(plot, self.analysis.measurements)
-
-
-        self.frame.PlotArea.Plot(self.analysis)
-        self.UpdatePages()
+        
+        if updp:
+            self.UpdatePages()
         wx.EndBusyCursor()
-    
 
-    def OnChangePlot(self, e=None):
+
+    def OnChangePlot(self, e=None, updp=True):
         # Set plot order
         if hasattr(self.analysis, "measurements"):
             mms = [ self.analysis.measurements[ii] for ii in self.page_plot.plot_order ]
@@ -224,8 +217,8 @@ class ControlPanel(ScrolledPanel):
 
         # Update Plots
         self.frame.PlotArea.Plot(self.analysis)
-        self.UpdatePages()
-        
+        if updp:
+            self.UpdatePages()
         wx.EndBusyCursor()
 
 
@@ -269,22 +262,23 @@ class ControlPanel(ScrolledPanel):
         """ fills pages """
         sel = self.notebook.GetSelection()
 
-        # Recreate all pages instead of just calling `UpdatePanel`.
-        # This resolves issues on at least Linux
-        for _i in range(len(self.subpanels)):
-            self.notebook.RemovePage(0)
-        self.subpanels = []
-        self.AddSubpanels()
-
         # Update page content        
         for page in self.subpanels:
             page.UpdatePanel(self.analysis)
             # workaround to force redrawing of Page:
             page.Layout()
+            page.UpdateScrolling()
             page.Refresh()
             page.Update()
-            
+
         # select previously selected page
         self.notebook.SetSelection(sel)
+        
+        # call all kinds of update functions such that
+        # scrollbars don't disappear on Windows
+        self.notebook.Layout()
         self.notebook.Refresh()
         self.notebook.Update()
+        
+        self.Layout()
+        

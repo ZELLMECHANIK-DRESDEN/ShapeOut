@@ -243,7 +243,7 @@ class ImagePanel(ScrolledPanel):
         self.WXSP_plot.SetRange(1, max_evt)
         
         # Remove this case structure when #100 is fixed
-        if isinstance(mm, dclab.rtdc_dataset.fmt_hierarchy.RTDC_Hierarchy):
+        if mm.format == "hierarchy":
             # Hierarchy children do not support image selection (issue #100)
             self.plot_window.control.Show(False)
             image = Image.fromarray(np.zeros((90, 250, 3), dtype=np.uint8))
@@ -271,7 +271,7 @@ class ImagePanel(ScrolledPanel):
             # is trace data for this event.
             dshape = (10,1)
             for trid in dclab.definitions.FLUOR_TRACES:
-                if trid in mm["trace"] and mm["trace"][trid][evt_id].size:
+                if trid in mm["trace"]:
                     data = mm["trace"][trid][evt_id]
                     # Set y values for present traces
                     self.trace_data.set_data(trid, data)

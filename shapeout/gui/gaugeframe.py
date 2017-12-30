@@ -1,10 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - gauge frame class
-
-"""
+"""ShapeOut - gauge frame class"""
 from __future__ import division, print_function
-
 
 import platform
 import time

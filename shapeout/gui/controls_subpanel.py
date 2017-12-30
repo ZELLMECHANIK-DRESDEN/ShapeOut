@@ -147,13 +147,19 @@ class SubPanel(ScrolledPanel):
         for tar in targets:
             if isinstance(source, wx._controls.CheckBox):
                 def method(evt=None, tar=tar, value=value):
-                    tar.Enable(source.IsChecked() in value)
+                    try:
+                        tar.Enable(source.IsChecked() in value)
+                    except wx.PyDeadObjectError:
+                        pass
                     if evt is not None:
                         evt.Skip()
                 event = wx.EVT_CHECKBOX
             elif isinstance(source, wx._controls.ComboBox):
                 def method(evt=None, tar=tar, value=value):
-                    tar.Enable(source.GetValue() in value)
+                    try:
+                        tar.Enable(source.GetValue() in value)
+                    except wx.PyDeadObjectError:
+                        pass                    
                     if evt is not None:
                         evt.Skip()
                 event = wx.EVT_COMBOBOX
@@ -195,3 +201,8 @@ class SubPanel(ScrolledPanel):
     def UpdatePanel(self, *args, **kwargs):
         """ Overwritten by subclass """
         pass
+
+
+    def UpdateScrolling(self):
+        self.SetupScrolling(scroll_y=True)
+        self.SetupScrolling(scroll_x=True)

@@ -12,11 +12,11 @@ from shapeout.util import float2string_nsf
 
 def test_string_formatter():
     a = 1.23456789
-    b = a*10.**(np.arange(-10, 10))
-    n=4
-    
+    b = a * 10.**(np.arange(-10, 10))
+    n = 4
+
     results = []
-    
+
     for fval in b:
         results.append(float2string_nsf(fval, n=n))
 
@@ -39,7 +39,7 @@ def test_string_formatter():
                 "1234568",
                 "12345679",
                 "123456789",
-                "1234567890",]
+                "1234567890", ]
 
     for ii in range(len(b)):
         assert shouldbe[ii] == results[ii]
@@ -51,5 +51,3 @@ if __name__ == "__main__":
     for key in list(loc.keys()):
         if key.startswith("test_") and hasattr(loc[key], "__call__"):
             loc[key]()
-
-        

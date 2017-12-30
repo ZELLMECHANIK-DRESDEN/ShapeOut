@@ -3,13 +3,6 @@
 """This must be the last test executed for some unknown reason"""
 from __future__ import division, print_function
 
-import tempfile
-
-import dclab
-import numpy as np
-
-import shapeout
-
 
 def test_final():
     from shapeout.__main__ import prepare_app

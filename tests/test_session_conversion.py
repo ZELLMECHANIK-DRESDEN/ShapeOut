@@ -1,17 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import division, print_function
-
-import tempfile
-import zipfile
 
 import numpy as np
 
-from shapeout.session import conversion, index, rw
+from shapeout.session import index, rw
 from shapeout.analysis import Analysis
 
-from helper_methods import cleanup, extract_session, retreive_session
+from helper_methods import cleanup, extract_session
 
 
 def compatibility_task(name):
@@ -21,7 +17,7 @@ def compatibility_task(name):
     assert len(idout["missing files"]) == 0
     analysis = Analysis(rtdc_list)
     return analysis
-    
+
 
 def test_060():
     analysis = compatibility_task("session_v0.6.0.zmso")
@@ -59,7 +55,7 @@ def test_070hierarchy2():
 
 def test_074ierarchy2():
     analysis = compatibility_task("session_v0.7.4_hierarchy2.zmso")
-    
+
     mms = analysis.measurements
     assert np.sum(mms[0]._filter) == len(mms[1])
     assert np.sum(mms[1]._filter) == len(mms[2])

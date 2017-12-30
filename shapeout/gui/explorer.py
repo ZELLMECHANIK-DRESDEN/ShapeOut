@@ -123,7 +123,7 @@ class ExplorerPanel(ScrolledPanel):
         - calls self.external_analyze with the list of data files
         - Updates bold font faces on tree view
         """
-        files = list()
+        files = []
         r = self.htreectrl.GetRootItem()
         for c in r.GetChildren():
             for k in c.GetChildren():
@@ -193,12 +193,12 @@ class ExplorerPanel(ScrolledPanel):
                     self.htreectrl.CheckItem(k)
 
     def SetProjectTree(self, data, add=False, marked=[]):
-        """ Update tree view with measurement data information
+        """Update tree view with measurement data information
 
         Parameters
         ----------
         data : tuple (treelist, cols)
-            The return value of `tlabwrap.GetTDMSTreeGUI`.
+            The return value of `meta_tool.collect_data_tree`.
         add : bool
             If True, the current treelist is updated with new
             measurements. If False, the current treelist is replaced.
@@ -213,7 +213,7 @@ class ExplorerPanel(ScrolledPanel):
                     treelist.append(item)
 
         # Any checked or bold items ?
-        checked = list()
+        checked = []
         bold = marked
         r = self.htreectrl.GetRootItem()
         if r is not None:
@@ -258,12 +258,6 @@ class ExplorerPanel(ScrolledPanel):
                                           data=project[k][1])
                 # displayed column width
                 col_width = max(len(project[k][0]), col_width)
-        #for i in range(1,len(collengths)):
-        #     self.htreectrl.SetColumnWidth(i, collengths[i]*self.s_mult)
-        
-        #self.normal_width = col_width*self.s_mult + self.s_off
-        # open the entire tree
-        
         
         # Add warning message
         if len(treelist) == 0:

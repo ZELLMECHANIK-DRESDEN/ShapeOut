@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import division, print_function
 
 import os
 import os.path as op
-import shutil
 
 import dclab
 
@@ -32,9 +30,9 @@ def test_polygon():
     cleanup()
     try:
         os.remove(outfile)
-    except:
+    except OSError:
         pass
-    
+
 
 if __name__ == "__main__":
     # Run all tests

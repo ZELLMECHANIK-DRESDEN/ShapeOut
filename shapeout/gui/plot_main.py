@@ -73,31 +73,45 @@ class MainPlotArea(wx.Panel):
         self.vbox.Fit(self)
         
         self.container = None
+        self.scatter2measure = {}
 
     def Plot(self, anal=None):
         self._lastplot = -1
         self._lastselect = -1
         self._lasthover = -1
         
+        
         if anal is not None:
             self.analysis = anal
-        
-        anal = self.analysis
+        else:
+            anal = self.analysis
         
         rows, cols, lcc, lll = anal.GetPlotGeometry()
         
         numplots = rows * cols
 
-        container = ca.GridPlotContainer(
-                                      shape = (rows,cols),
-                                      spacing = (0,0),
-                                      padding = (0,0,0,0),
-                                      valign = 'top',
-                                      bgcolor = 'white',
-                                      fill_padding = True,
-                                      use_backbuffer = True)
-                                      
-
+        if self.container is None:
+            container = ca.GridPlotContainer(
+                                  shape = (rows, cols),
+                                  spacing = (0,0),
+                                  padding = (0,0,0,0),
+                                  valign = 'top',
+                                  bgcolor = 'white',
+                                  fill_padding = True,
+                                  use_backbuffer = True)
+            self.plot_window.component = container
+        else:
+            container = self.container
+            for pl in list(container.plot_components):
+                for sp in list(pl.plots.keys()):
+                    pl.delplot(sp)
+                container.remove(pl)
+                del pl
+            container.shape = (rows, cols)
+            # Call this method as a workaround for ValueError in
+            # plot_containers.py line 615.
+            container.get_preferred_size()
+        
         maxplots = min(len(anal.measurements), numplots)
 
         self.index_datasources = []
@@ -166,12 +180,10 @@ class MainPlotArea(wx.Panel):
         container.set_outer_bounds(0, bx)
         container.set_outer_bounds(1, by)
         self.container = container
+        del self.scatter2measure
         self.scatter2measure = scatter2measure
 
-        self.plot_window.component = container
-
         self.plot_window.redraw()
-        
         # Update the image plot (dropdown choices, etc.)
         self.frame.ImageArea.UpdateAnalysis(self.analysis)
 

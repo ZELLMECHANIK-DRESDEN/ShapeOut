@@ -12,6 +12,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 
 import dclab
 from .. import analysis
+from .. import meta_tool
 from .. import tlabwrap
 
 
@@ -243,7 +244,7 @@ class BatchFilterFolder(wx.Frame):
             self.WXfold_text1.SetLabel(thepath)
             self.parent.config.set_dir(thepath, "BatchFD")
             # Search directory
-            tree, _cols = tlabwrap.GetTDMSTreeGUI(thepath)
+            tree, _cols = meta_tool.collect_data_tree(thepath)
             self.data_files = [ t[1][1] for t in tree ]
             
             if self.out_tsv_file is not None:

@@ -18,7 +18,7 @@ import dclab
 
 from .. import analysis
 from ..configuration import ConfigurationFile
-from .. import tlabwrap
+from .. import meta_tool
 
 from . import autosave
 from . import batch
@@ -214,12 +214,17 @@ class Frame(gaugeframe.GaugeFrame):
         ## Export Data menu
         exportDataMenu = wx.Menu()
         self.menubar.Append(exportDataMenu, "Export &Data")
-        e2tsv = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.tsv)", 
-                "Export the plotted event data as tab-separated values")
-        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
         e2fcs = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.fcs)", 
-                "Export the plotted event data as flow cytometry standard files")
+                "Export all scalar event data as flow cytometry standard files")
         self.Bind(wx.EVT_MENU, self.OnMenuExportEventsFCS, e2fcs)
+        if self.config.get_bool("expert mode"):
+            # Only allow .rtdc export in expert mode
+            e2rtdc = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.rtdc)", 
+                    "Export all event data as .rtdc files")
+            self.Bind(wx.EVT_MENU, self.OnMenuExportEventsRTDC, e2rtdc)
+        e2tsv = exportDataMenu.Append(wx.ID_ANY, "All &event data (*.tsv)", 
+                "Export all scalar event data as tab-separated values")
+        self.Bind(wx.EVT_MENU, self.OnMenuExportEventsTSV, e2tsv)
         e2stat = exportDataMenu.Append(wx.ID_ANY, "Computed &statistics (*.tsv)", 
                        "Export the statistics data as tab-separated values")
         self.Bind(wx.EVT_MENU, self.OnMenuExportStatistics, e2stat)
@@ -446,6 +451,18 @@ class Frame(gaugeframe.GaugeFrame):
         export.ExportAnalysisEventsFCS(self, self.analysis)
 
 
+    def OnMenuExportEventsRTDC(self, e=None):
+        """Export the event data of the entire analysis as rtdc
+        
+        This will open a choice dialog for the user
+        - which data (filtered/unfiltered)
+        - which features (area_um, deform, etc)
+        - to which folder should be exported 
+        """
+        # Generate dialog
+        export.ExportAnalysisEventsRTDC(self, self.analysis)
+
+
     def OnMenuExportEventsTSV(self, e=None):
         """Export the event data of the entire analysis as tsv
         
@@ -550,7 +567,7 @@ class Frame(gaugeframe.GaugeFrame):
             self.config.set_dir(path, name="MeasurementList")
             dlg.Destroy()
             self.GaugeIndefiniteStart(
-                                func=tlabwrap.GetTDMSTreeGUI,
+                                func=meta_tool.collect_data_tree,
                                 func_args=(path,),
                                 post_call=self.PanelLeft.SetProjectTree,
                                 msg="Searching for data files"
@@ -571,7 +588,7 @@ class Frame(gaugeframe.GaugeFrame):
                 return
             
         self.GaugeIndefiniteStart(
-                        func=tlabwrap.GetTDMSTreeGUI,
+                        func=meta_tool.collect_data_tree,
                         func_args=(path,),
                         post_call=self.PanelLeft.SetProjectTree,
                         post_call_kwargs = {"add":add, "marked":marked},

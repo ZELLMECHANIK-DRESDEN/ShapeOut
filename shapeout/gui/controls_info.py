@@ -44,4 +44,4 @@ class SubPanelInfo(SubPanel):
         sizer.Add(roibox)
         self.SetSizer(sizer)
         sizer.Fit(self)
-        self.Layout()
+                
