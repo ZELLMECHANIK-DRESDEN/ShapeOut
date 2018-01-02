@@ -4,14 +4,14 @@
      from one scatter plot to another
    - Hierarchy children: image, contour, and trace data were not
      displayed in the image/trace panel (dclab 0.3.1.dev1) (#100)
-   - Hierarchy children did not support manual filters (dclab 0.3.1.dev1)
+   - Hierarchy children did not support manual filters (dclab 0.3.1.dev2)
 0.8.3
  - Prefer sample name from para.ini over data folder name (dclab 0.3.0.dev15)
  - Support new .rtdc file format (dclab 0.3.0.dev20) (#151)
  - Bugfixes:
    - Automatically fix inverted plotting range
    - Enable scrolling in data export dialogs
-   - Ignore missing features during data export 
+   - Ignore missing features during data export
    - Plotting circularity with isoelastics failed (dclab 0.3.0.dev21) (#197)
    - Plotting errors with log-scale axes (#194, #195)
    - SHIFT+ENTER shortcut did not update filters

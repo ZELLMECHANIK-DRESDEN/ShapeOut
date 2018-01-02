@@ -53,7 +53,7 @@ def test_070hierarchy2():
     cleanup()
 
 
-def test_074ierarchy2():
+def test_074hierarchy2():
     analysis = compatibility_task("session_v0.7.4_hierarchy2.zmso")
 
     mms = analysis.measurements
@@ -63,7 +63,7 @@ def test_074ierarchy2():
     cleanup()
 
 
-def test_075ierarchy1():
+def test_075hierarchy1():
     analysis = compatibility_task("session_v0.7.5_hierarchy1.zmso")
     mms = analysis.measurements
     assert np.sum(mms[0]._filter) == len(mms[1])
@@ -71,7 +71,7 @@ def test_075ierarchy1():
     cleanup()
 
 
-def test_075ierarchy2():
+def test_075hierarchy2():
     analysis = compatibility_task("session_v0.7.5_hierarchy2.zmso")
     mms = analysis.measurements
     assert np.sum(mms[0]._filter) == len(mms[1])
@@ -81,7 +81,7 @@ def test_075ierarchy2():
     cleanup()
 
 
-def test_076ierarchy2():
+def test_076hierarchy2():
     analysis = compatibility_task("session_v0.7.6_hierarchy2.zmso")
     mms = analysis.measurements
     assert mms[3].title == "rtdc_data_traces_video - M1_child_child_child"
@@ -92,7 +92,7 @@ def test_076ierarchy2():
     cleanup()
 
 
-def test_077ierarchy2():
+def test_077hierarchy2():
     analysis = compatibility_task("session_v0.7.7_hierarchy2.zmso")
     mms = analysis.measurements
     assert mms[0].title == "original data"
@@ -116,7 +116,7 @@ def test_077ierarchy2():
     cleanup()
 
 
-def test_078ierarchy2():
+def test_078hierarchy2():
     """
     In 0.7.8, each dataset gets a unique identifier that is independent
     of the data it holds. Therefore, two identical datasets (same filters,
@@ -172,6 +172,25 @@ def test_080():
     assert len(mms[-1]) == 3
     assert len(mms) == 5
     assert mms[0].config["plotting"]["axis y"] == "volume"
+    cleanup()
+
+
+def test_084_manhierarchy():
+    """Manual filters for hierarchy children are stored in session
+    """
+    analysis = compatibility_task("session_v0.8.4_hierarchy_filtman.zmso")
+    mms = analysis.measurements
+    assert mms[0].title == '0000_SessionTest - M1'
+    assert mms[1].title == '0000_SessionTest - M1_child'
+    # check basic filter settings
+    assert len(mms[1]) == 37
+    assert not mms[1].filter.manual[26]
+    # make hidden manual filter visible
+    mms[0].config["filtering"]["enable filters"] = False
+    mms[1].apply_filter()
+    assert len(mms[1]) == 44
+    assert not mms[1].filter.manual[7]
+    assert not mms[1].filter.manual[32]
     cleanup()
 
 
