@@ -105,8 +105,7 @@ bugs were resolved, or new features were introduced.
 Procedure
 _________
 1. Make sure that the `changelog (develop) <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/develop/CHANGELOG>`__
-   is updated and that the `version (develop) <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/develop/shapeout/_version.py>`__
-   is incremented.
+   is updated.
 
 2. Create a pull request from develop into master using the web interface or simply run
 
@@ -119,14 +118,14 @@ _________
 3. Create the release at https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/releases.  
    Make sure that the tag of the release follows the version format of ShapeOut
    (e.g. `0.5.3`) and also name the release correctly (e.g. `ShapeOut 0.5.3`).
-   Also, copy and paste the change log of the new version into the comments of the release.
+   Also, copy and paste the changelog of the new version into the comments of the release.
    The first line of the release comments should contain the download counts shield like so:
    
    ::
    
        ![](https://img.shields.io/github/downloads/ZELLMECHANIK-DRESDEN/ShapeOut/0.5.3/total.svg)
    
-   The rest should contain the change log.  
+   The rest should contain the changelog.  
    Make sure to check `This is a pre-release` box.
    
 4. Once the release is created, `Appveyor <https://ci.appveyor.com/project/paulmueller/ShapeOut>`__
