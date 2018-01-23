@@ -165,7 +165,6 @@ class SubPanelPlotting(SubPanel):
         mastersizer.Add(miscbox)
 
         items = analysis.GetParameters(key).items()
-
         # Determine the order in which things are displayed
         # in the control panel
         sortfunc = lambda x: (x[0].replace("max", "2")
