@@ -12,8 +12,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 import dclab
 from dclab.rtdc_dataset import config as rt_config
 
-from .. import tlabwrap
-
+from . import confparms
 from . import plot_contour
 from . import plot_scatter
 
@@ -248,7 +247,7 @@ class ControlPanel(ScrolledPanel):
 
 
     def Reset(self, key, subkeys=[]):
-        newcfg = tlabwrap.GetDefaultConfiguration(key)
+        newcfg = confparms.GetDefaultConfiguration(key)
         if len(subkeys) != 0:
             for k in list(newcfg.keys()):
                 if not k in subkeys:

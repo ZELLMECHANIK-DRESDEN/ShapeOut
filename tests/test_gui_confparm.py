@@ -4,7 +4,7 @@
 """
 from __future__ import print_function
 
-from shapeout.tlabwrap import get_config_entry_choices, get_config_entry_dtype
+from shapeout.gui.confparms import get_config_entry_choices, get_config_entry_dtype
 
 
 def test_config_choices():

@@ -9,8 +9,9 @@ import webbrowser
 import wx
 
 from ..configuration import ConfigurationFile
-from .. import lin_mix_mod, tlabwrap
+from .. import lin_mix_mod
 
+from . import confparms
 from .controls_subpanel import SubPanel
 
 class SubPanelAnalyze(SubPanel):
@@ -31,8 +32,8 @@ class SubPanelAnalyze(SubPanel):
             # Model to apply
             sizer_bag.Add(wx.StaticText(self, label="Mixed effects model:"),
                           (0,0), span=wx.GBSpan(1,1))
-            choices = tlabwrap.get_config_entry_choices("analysis",
-                                                        "regression model")
+            choices = confparms.get_config_entry_choices("analysis",
+                                                         "regression model")
             model=analysis.measurements[0].config["analysis"]["regression model"]
             self.WXCB_model = wx.ComboBox(self, -1, choices=choices,
                                     value=model, name="regression model",

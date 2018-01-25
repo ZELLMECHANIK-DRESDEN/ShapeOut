@@ -5,8 +5,8 @@ from __future__ import unicode_literals
 import wx
 
 from ..configuration import ConfigurationFile
-from .. import tlabwrap
 
+from . import confparms
 from .controls_subpanel import SubPanel
 
 class SubPanelCalculate(SubPanel):
@@ -99,8 +99,8 @@ class SubPanelCalculate(SubPanel):
 
             # Model to apply
             sizer_bag.Add(wx.StaticText(self, label="Model:"), (0,0))
-            choices = tlabwrap.get_config_entry_choices("calculation",
-                                                        "emodulus model")
+            choices = confparms.get_config_entry_choices("calculation",
+                                                         "emodulus model")
             self.WXCB_model = wx.ComboBox(self, -1, choices=choices,
                                     value=model, name="emodulus model",
                                     style=wx.CB_DROPDOWN|wx.CB_READONLY)
@@ -109,8 +109,8 @@ class SubPanelCalculate(SubPanel):
             # Medium to use
             sizer_bag.Add(wx.StaticText(self, label="Medium:"), (1,0))
             self.axes = analysis.GetUsableAxes()
-            mediumlist = tlabwrap.get_config_entry_choices("calculation",
-                                                           "emodulus medium")
+            mediumlist = confparms.get_config_entry_choices("calculation",
+                                                            "emodulus medium")
             self.WXCB_medium = wx.ComboBox(self, -1, choices=mediumlist,
                                          value=medium, name="emodulus medium",
                                          style=wx.CB_DROPDOWN|wx.CB_READONLY)
