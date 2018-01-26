@@ -5,7 +5,7 @@ from __future__ import print_function, division, unicode_literals
 
 import chaco
 import numpy as np
-
+import scipy.stats
 
 class MyTickGenerator(chaco.ticks.AbstractTickGenerator):
     """ An implementation of AbstractTickGenerator that simply uses the
@@ -28,18 +28,17 @@ def get_kde_kwargs(x, y, kde_type, xacc, yacc):
     if kde_type == "multivariate":
         kde_kwargs["bw"] = [xacc, yacc]
     elif kde_type == "histogram":
-        # The histogram accuracy is scaled by 1.8 to approximately
-        # match the multivariate kde.
-        try:
-            binx = naninfminmaxdiff(x)/(1.8*xacc)
-        except:
-            binx = 5
-        try:
-            biny = naninfminmaxdiff(y)/(1.8*yacc)
-        except:
-            biny = 5
-        binx = int(max(5, binx))
-        biny = int(max(5, biny))
+        #Use Doanes formula to determine the number of bins
+        g1_x = scipy.stats.skew(x)
+        g1_y = scipy.stats.skew(y)
+        
+        bad = np.isnan(x)+np.isinf(x)
+        l = len(x[~bad]) #Number values that are not nan or inf
+        sigma_g1 = np.sqrt((6.0*(l-2.0))/((l+1.0)*(l+3.0)))
+        #Use the values xacc and yacc to allow the user to adjust the binsize
+        binx = xacc*int(1.0+np.log2(l)+np.log2(1+abs(g1_x)/sigma_g1))
+        biny = yacc*int(1.0+np.log2(l)+np.log2(1+abs(g1_y)/sigma_g1))
+        
         kde_kwargs["bins"] = [binx, biny]
     return kde_kwargs
             
