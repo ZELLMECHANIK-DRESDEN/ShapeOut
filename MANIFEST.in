@@ -4,3 +4,4 @@ include README.rst
 recursive-include tests *zip *.zmso *.py *.md
 recursive-include shapeout/img *.png LICENSE
 recursive-include shapeout/cfg *.cfg
+recursive-include shapeout/data *.txt

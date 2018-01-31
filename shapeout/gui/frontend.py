@@ -109,9 +109,10 @@ class Frame(gaugeframe.GaugeFrame):
         self.spright.SetMinimumPaneSize(sy)
        
         # Fake analysis
-        ddict = {"area_um" : np.arange(10)*30,
+        ddict = {"area_um" : np.linspace(45, 250, 10),
                  "deform" : np.arange(10)*.02}
-        cfg = {"setup": {"channel width": 30}}
+        cfg = {"setup": {"channel width": 20},
+               "imaging": {"pixel size": 0.34}}
         rtdc_ds = dclab.new_dataset(ddict)
         rtdc_ds.config.update(cfg)
         self.NewAnalysis([rtdc_ds])
