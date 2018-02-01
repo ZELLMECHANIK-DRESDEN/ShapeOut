@@ -36,8 +36,7 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
         elif subkey.count("scale "):
             choices = ["linear", "log"]
         elif subkey == "isoelastics":
-            choices = ["not shown", "analytical", "numerical",
-                       "legacy (prior to version 0.8.4)"]
+            choices = ["not shown", "analytical", "numerical", "legacy"]
     elif key == "analysis":
         if subkey == "regression model":
             choices = ["lmm", "glmm"]

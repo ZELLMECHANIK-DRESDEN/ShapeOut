@@ -184,6 +184,11 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
       - removed read-only config.txt sections "framerate", "general",
         "roi", and "image".
 
+    ShapeOut 0.8.4
+      - change options for cfg["plotting"]["isoelastics"]
+        previous: bool
+        new: ["not shown", "analytical", "numerical", "legacy"]
+
     Parameters
     ----------
     tempdir: str
@@ -259,7 +264,14 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
                                   pattern.format(old),
                                   pattern.format(new))
 
-        
+        if version < LooseVersion("0.8.4"):
+            data = ci_replace(data,
+                              "\nisoelastics = True\n",
+                              "\nisoelastics = legacy\n")
+            data = ci_replace(data,
+                              "\nisoelastics = False\n",
+                              "\nisoelastics = not shown\n")
+
         with io.open(cc, "w") as fd:
             fd.write(data)
 

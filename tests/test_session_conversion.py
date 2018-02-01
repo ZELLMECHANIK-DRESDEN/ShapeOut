@@ -175,6 +175,22 @@ def test_080():
     cleanup()
 
 
+def test_084_pre_isoelastics_conversion():
+    """Manual filters for hierarchy children are stored in session
+    """
+    analysis = compatibility_task("session_v0.7.5_hierarchy2.zmso")
+    mms = analysis.measurements
+    # isoelastics = True
+    assert mms[0].config["plotting"]["isoelastics"] == "legacy"
+
+    analysis = compatibility_task("session_v0.8.0.zmso")
+    mms = analysis.measurements
+    # isoelastics = False
+    assert mms[0].config["plotting"]["isoelastics"] == "not shown"
+
+    cleanup()
+
+
 def test_084_manhierarchy():
     """Manual filters for hierarchy children are stored in session
     """

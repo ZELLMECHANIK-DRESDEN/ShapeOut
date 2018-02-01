@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import dclab
+import copy
 import warnings
+
+import dclab
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
@@ -78,6 +80,11 @@ class SubPanel(ScrolledPanel):
         if choices:
             if choices[0] in dclab.dfn.feature_names:
                 human_choices = [ dclab.dfn.feature_name2label[c] for c in choices]
+            elif key.lower() == "plotting" and item[0] == "isoelastics":
+                # add the <0.8.4 version info to prevent user confusion
+                human_choices = copy.copy(choices)
+                idl = choices.index("legacy")
+                human_choices[idl] = "legacy (prior to version 0.8.4)"
             else:
                 human_choices = choices
 
