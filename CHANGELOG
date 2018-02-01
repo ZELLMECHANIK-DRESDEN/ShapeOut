@@ -8,6 +8,7 @@
      displayed in the image/trace panel (dclab 0.3.1.dev1) (#100)
    - Hierarchy children did not support manual filters (dclab 0.3.1.dev2)
    - Regression: Setting plotting range manually not possible (#201)
+   - Pixel size not read from tdms-based data (dclab 0.3.1.dev13) (#205)
 0.8.3
  - Prefer sample name from para.ini over data folder name (dclab 0.3.0.dev15)
  - Support new .rtdc file format (dclab 0.3.0.dev20) (#151)
