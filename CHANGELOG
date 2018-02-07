@@ -1,7 +1,8 @@
 0.8.4
  - Add pixelation-corrected numerical and analytical isoelastics (#203)
  - Update emodulus look-up table (dclab 0.3.1.dev3) (#202)
- - Bugfixes:
+ - Improved handling of polygon filters (partly #95)
+  - Bugfixes:
    - Image/trace panel shows wrong event when the mouse pointer hovers
      from one scatter plot to another
    - Hierarchy children: image, contour, and trace data were not

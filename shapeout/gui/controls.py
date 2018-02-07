@@ -225,25 +225,24 @@ class ControlPanel(ScrolledPanel):
 
     def OnPolygonFilter(self, result):
         """ Called by polygon Window """
-        dclab.PolygonFilter(points=result["points"],
-                            axes=result["axes"])
+        pf = dclab.PolygonFilter(points=result["points"],
+                                 axes=result["axes"])
+        uid = pf.unique_id
+        mcur = result["measurement"]
         # update list of polygon filters
         self.UpdatePages()
-        # The first polygon will be applied to all plots
-        if len(self.page_filter.GetPolygonHtreeChecked()) == 0:
-            ctrls = self.page_filter.GetChildren()
-            # identify controls via their name correspondence in the cfg
-            for c in ctrls:
-                if c.GetName() == "Polygon Filter Selection":
-                    # get the selected items
-                    r = c.GetRootItem()
-                    cs = r.GetChildren()
-                    unique_id = cs[-1].GetData()
-                    newcfg = {"filtering": 
-                             {"polygon filters": [unique_id]} }
-                    self.analysis.SetParameters(newcfg)
-            # and apply
-            self.OnChangeFilter()
+        # Determine the number of existing polygon filters
+        npol = len(dclab.PolygonFilter.instances)
+
+        if npol == 1 and mcur.format != "hierarchy":
+            # apply to all measurements except hierarchy children
+            for mm in self.analysis.measurements:
+                if not mm.format == "hierarchy":
+                    mm.config["filtering"]["polygon filters"].append(uid)
+        else:
+            # apply only to this one data set
+            mcur.config["filtering"]["polygon filters"].append(uid)
+        self.OnChangeFilter()
 
 
     def Reset(self, key, subkeys=[]):
