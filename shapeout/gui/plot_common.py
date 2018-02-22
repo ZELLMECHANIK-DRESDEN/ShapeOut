@@ -43,7 +43,7 @@ def get_isoelastics(mm):
             px_um = None
         else:
             method = isotype
-            isosource = isoelastics.default
+            isosource = isoelastics.get_default()
             add_px_err = True
             px_um = mm.config["imaging"]["pixel size"]
         kwargs = dict(method=method,

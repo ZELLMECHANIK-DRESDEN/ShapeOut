@@ -6,13 +6,10 @@
 from __future__ import division, unicode_literals
 
 import time
-import warnings
-
 
 import chaco.api as ca
 import chaco.tools.api as cta
 from dclab import definitions as dfn
-from dclab import isoelastics
 import numpy as np
 
 from . import plot_common
