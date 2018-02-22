@@ -2,6 +2,7 @@
  - Add pixelation-corrected numerical and analytical isoelastics (#203)
  - Update emodulus look-up table (dclab 0.3.1.dev3) (#202)
  - Improved handling of polygon filters (partly #95)
+ - Updated R version to 3.2.5 due to build errors
  - Bugfixes:
    - Young's modulus computation is wrong due to faulty FEM
      simulations (dclab 0.3.1.dev20) (#207)
