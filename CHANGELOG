@@ -2,7 +2,9 @@
  - Add pixelation-corrected numerical and analytical isoelastics (#203)
  - Update emodulus look-up table (dclab 0.3.1.dev3) (#202)
  - Improved handling of polygon filters (partly #95)
-  - Bugfixes:
+ - Bugfixes:
+   - Young's modulus computation is wrong due to faulty FEM
+     simulations (dclab 0.3.1.dev20) (#207)
    - Image/trace panel shows wrong event when the mouse pointer hovers
      from one scatter plot to another
    - Hierarchy children: image, contour, and trace data were not
