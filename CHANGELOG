@@ -14,7 +14,7 @@
    - Regression: Setting plotting range manually not possible (#201)
    - Pixel size not read from tdms-based data (dclab 0.3.1.dev13) (#205)
    - "limit events" filtering must be integer not boolean
-     (dclab 0.3.2.dev1) (#210)
+     (dclab 0.3.2.dev3) (#210)
 0.8.3
  - Prefer sample name from para.ini over data folder name (dclab 0.3.0.dev15)
  - Support new .rtdc file format (dclab 0.3.0.dev20) (#151)
