@@ -3,17 +3,24 @@
 """Configuration file handling for ShapeOut"""
 from __future__ import division, print_function, unicode_literals
 
+import copy
 import io
 import os
 from os.path import join
 
 import appdirs
 
+#: default configuration file name
 NAME = "shapeout.cfg"
+
+#: default configuration parameters
 DEFAULTS = {"autosave session": True,
             "check update": True,
             "expert mode": False,
             }
+
+#: data features only visible in expert mode
+EXPERT_FEATURES = ["area_cvx", "area_msd", "frame"]
 
 
 class ConfigurationFile(object):
@@ -132,3 +139,17 @@ class ConfigurationFile(object):
 
 class ConfigurationFileError(BaseException):
     pass
+
+
+def get_ignored_features():
+    """return a list of ignored features
+    
+    Features defined in :const:`EXPERT_FEATURES` are returned
+    if the expert mode is disabled.
+    """
+    if ConfigurationFile().get_bool("expert mode"):
+        ignored = []
+    else:
+        # Axes that should not be displayed  by ShapeOut
+        ignored = copy.copy(EXPERT_FEATURES)
+    return ignored

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - more functionalities for dclab"""
+"""ShapeOut - configuration parameters relevant for the GUI"""
 from __future__ import division, unicode_literals
 
 import copy
@@ -10,9 +10,6 @@ import pkg_resources
 
 import dclab
 from dclab.rtdc_dataset import config as rt_config
-
-from . import configuration
-
 
 
 def get_config_entry_choices(key, subkey, ignore_axes=[]):
@@ -38,6 +35,8 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
             choices = [ str(i) for i in range(1,5) ]
         elif subkey.count("scale "):
             choices = ["linear", "log"]
+        elif subkey == "isoelastics":
+            choices = ["not shown", "analytical", "numerical", "legacy"]
     elif key == "analysis":
         if subkey == "regression model":
             choices = ["lmm", "glmm"]
@@ -148,14 +147,7 @@ def SortConfigurationKeys(cfgkeys):
 
     return sorted(cfgkeys, cmp=compare)
 
-## Overwrite the dclab configuration with our own.
 cfg_dir = pkg_resources.resource_filename("shapeout", "cfg")
 cfg_file = os.path.join(cfg_dir, "default.cfg")
 cfg = rt_config.load_from_file(cfg_file)
 cfg_ordered_list = GetConfigurationKeys(cfg_file)
-
-if configuration.ConfigurationFile().get_bool("expert mode"):
-    IGNORE_AXES = []
-else:
-    # Axes that should not be displayed  by ShapeOut
-    IGNORE_AXES = ["area_cvx", "area_msd", "frame"]

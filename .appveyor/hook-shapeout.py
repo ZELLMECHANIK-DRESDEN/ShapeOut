@@ -13,8 +13,10 @@ from PyInstaller.utils.hooks import collect_data_files
 
 # Data files
 datas = collect_data_files("shapeout")
-datas += collect_data_files("shapeout", subdir="cfg")
 datas += collect_data_files("shapeout", subdir="img")
+datas += collect_data_files("shapeout", subdir="cfg")
+datas += collect_data_files("shapeout", subdir="data")
+
 
 ## Hidden imports
 # nptdms

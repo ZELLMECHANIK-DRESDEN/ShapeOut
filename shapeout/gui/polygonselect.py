@@ -30,15 +30,17 @@ class LineDrawer(cta.LineSegmentTool):
     but subclasses can customize this.
     
     """
-    def __init__(self, callback, axes, *args, **kwargs):
+    def __init__(self, callback, axes, measurement, *args, **kwargs):
         cta.LineSegmentTool.__init__(self, *args, **kwargs)
         self.callback = callback
         self.axes = axes
-        
+        self.mm = measurement
+
     def _finalize_selection(self):
         # give ShapeOut the points
-        results = {"points" : self.points,
-                   "axes" : self.axes
+        results = {"points": self.points,
+                   "axes": self.axes,
+                   "measurement": self.mm,
                   }
         self.callback(results)
 
@@ -125,7 +127,7 @@ class LineDrawerWindow(wx.Frame):
         plot.tools.append(pan)
         zoom = cta.ZoomTool(component=plot, tool_mode="box", always_on=False)
         plot.overlays.append(zoom)
-        plot.overlays.append(LineDrawer(self.callback, (xax, yax), plot))
+        plot.overlays.append(LineDrawer(self.callback, (xax, yax), measurement, plot))
         return plot
 
 

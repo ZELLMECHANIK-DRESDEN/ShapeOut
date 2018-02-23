@@ -46,13 +46,13 @@ install:
   - appveyor-retry choco install -y InnoSetup
   - appveyor-retry choco install -y wget
   # install R with lme4
-  - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.2/R-3.2.2-win.exe
-  - R-3.2.2-win.exe /silent
+  - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.5/R-3.2.5-win.exe
+  - R-3.2.5-win.exe /silent
   # Installing an older version of R did neither work so:
-  #- choco install -dfvy -version 3.2.2 -source 'http://cran.at.r-project.org/bin/windows/base/old/3.2.2/;http://cran.at.r-project.org/bin/windows/base/old/;c:\projects\shapeout' r.project
+  #- choco install -dfvy -version 3.2.5 -source 'http://cran.at.r-project.org/bin/windows/base/old/3.2.5/;http://cran.at.r-project.org/bin/windows/base/old/;c:\projects\shapeout' r.project
   # nor so:
-  #- choco install -y -version 3.2.2 r.project
-  - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.2\\bin\\i386"
+  #- choco install -y -version 3.2.5 r.project
+  - set PATH=%PATH%;"C:\\Program Files\\R\\R-3.2.5\\bin\\i386"
   - R -e "install.packages('lme4', repos='http://cran.r-project.org')"
   # Use appveyor miniconda
   # Determine platform

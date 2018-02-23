@@ -6,7 +6,7 @@ from __future__ import division, print_function, unicode_literals
 
 import wx
 
-from .. import tlabwrap
+from . import confparms
 from .controls_subpanel import SubPanel
 
 
@@ -35,7 +35,7 @@ class SubPanelPlotScatter(SubPanel):
         items = analysis.GetParameters(key).items()
 
         ## Scatter plot data
-        items = tlabwrap.SortConfigurationKeys(items)
+        items = confparms.SortConfigurationKeys(items)
         for item in items:
             for strid in Plotting_Elements_Scatter:
                 if item[0].startswith(strid):

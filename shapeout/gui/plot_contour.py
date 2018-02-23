@@ -6,13 +6,10 @@
 from __future__ import division, unicode_literals
 
 import time
-import warnings
-
 
 import chaco.api as ca
 import chaco.tools.api as cta
 from dclab import definitions as dfn
-from dclab import isoelastics
 import numpy as np
 
 from . import plot_common
@@ -49,29 +46,15 @@ def contour_plot(measurements, levels=[0.5,0.95],
     scaley = mm.config["plotting"]["scale y"].lower()
 
     ## Add isoelastics
-    if mm.config["plotting"]["isoelastics"]:
-        kwargs = dict(method="analytical",
-                      channel_width=mm.config["setup"]["channel width"],
-                      flow_rate=None,
-                      viscosity=None,
-                      col1=xax,
-                      col2=yax,
-                      )
-        try:
-            isoel = isoelastics.default.get(**kwargs)
-        except KeyError:
-            warnings.warn("Could not find matching isoelastics for"+
-                          " Setting: x={}, y={}, method: {}".
-                          format(xax, yax, kwargs["method"]))
-        else:
-            for ii, data in enumerate(isoel):
-                x_key = 'isoel_x'+str(ii)
-                y_key = 'isoel_y'+str(ii)
-                pd.set_data(x_key, data[:,0])
-                pd.set_data(y_key, data[:,1])
-                contour_plot.plot((x_key, y_key), color="gray",
-                                  index_scale=scalex, value_scale=scaley)
-
+    isoel = plot_common.get_isoelastics(mm)
+    if isoel:
+        for ii, data in enumerate(isoel):
+            x_key = 'isoel_x'+str(ii)
+            y_key = 'isoel_y'+str(ii)
+            pd.set_data(x_key, data[:,0])
+            pd.set_data(y_key, data[:,1])
+            contour_plot.plot((x_key, y_key), color="gray",
+                              index_scale=scalex, value_scale=scaley)
 
     #colors = [ "".join(map(chr, np.array(c[:3]*255,dtype=int))).encode('hex') for c in colors ]
     if not isinstance(levels, list):

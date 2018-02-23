@@ -3,19 +3,20 @@
 """ShapeOut - Analysis class"""
 from __future__ import division, unicode_literals
 
-import chaco.api as ca
-from chaco.color_mapper import ColorMapper
 import gc
-import numpy as np
 import os
+import pkg_resources
 import warnings
 
-# dclab imports
+import chaco.api as ca
+from chaco.color_mapper import ColorMapper
+import numpy as np
+
 import dclab
 import dclab.definitions as dfn
+from dclab.rtdc_dataset import config as dclab_config
 
-from .tlabwrap import IGNORE_AXES
-from shapeout import tlabwrap
+from .configuration import get_ignored_features
 
 
 class Analysis(object):
@@ -103,7 +104,7 @@ class Analysis(object):
             # Update configuration with default values from ShapeOut,
             # but do not override anything.
             cfgold = mm.config.copy()
-            mm.config.update(tlabwrap.cfg)
+            mm.config.update(get_default_config())
             mm.config.update(cfgold)
             ## Sensible values for default contour accuracies
             # This lambda function seems to do a good job
@@ -269,7 +270,7 @@ class Analysis(object):
         """
         unusable = []
         for ax in dfn.feature_names:
-            if ax in IGNORE_AXES:
+            if ax in get_ignored_features():
                 unusable.append(ax)
                 continue
             for mm in self.measurements:
@@ -451,6 +452,15 @@ def darkjet(myrange, **traits):
     'blue': ((0., 0.7, 0.7), (0.11, .5, .5), (0.34, .4, .4), (0.65, 0, 0),
     (1, 0, 0))}
     return ColorMapper.from_segment_map(_data, range=myrange, **traits)
+
+
+# TODO: (Python3)
+# - decorate this method with a cache
+def get_default_config():
+    cfg_dir = pkg_resources.resource_filename("shapeout", "cfg")
+    cfg_file = os.path.join(cfg_dir, "default.cfg")
+    cfg = dclab_config.load_from_file(cfg_file)
+    return cfg
 
 
 def remove_nan_inf(x):

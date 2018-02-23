@@ -80,11 +80,10 @@ class MainPlotArea(wx.Panel):
         self._lastselect = -1
         self._lasthover = -1
         
-        
-        if anal is not None:
-            self.analysis = anal
-        else:
+        if anal is None:
             anal = self.analysis
+        
+        self.analysis = anal
         
         rows, cols, lcc, lll = anal.GetPlotGeometry()
         
@@ -103,6 +102,10 @@ class MainPlotArea(wx.Panel):
         else:
             container = self.container
             for pl in list(container.plot_components):
+                # Reset the handler for changing the plotting range
+                # to avoid accidentally resetting when deleting the plots.
+                pl.range2d.on_trait_change(self.OnPlotRangeChanged, remove=True)
+                # Delete all plots
                 for sp in list(pl.plots.keys()):
                     pl.delplot(sp)
                 container.remove(pl)
@@ -113,7 +116,7 @@ class MainPlotArea(wx.Panel):
             container.get_preferred_size()
         
         maxplots = min(len(anal.measurements), numplots)
-
+        
         self.index_datasources = []
 
         # dictionary mapping plot objects to data for scatter plots
@@ -185,7 +188,7 @@ class MainPlotArea(wx.Panel):
 
         self.plot_window.redraw()
         # Update the image plot (dropdown choices, etc.)
-        self.frame.ImageArea.UpdateAnalysis(self.analysis)
+        self.frame.ImageArea.UpdateAnalysis(anal)
 
 
     def OnPlotRangeChanged(self, obj, name, new):

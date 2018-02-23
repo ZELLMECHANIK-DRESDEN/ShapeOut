@@ -12,8 +12,7 @@ from wx.lib.scrolledpanel import ScrolledPanel
 import dclab
 from dclab.rtdc_dataset import config as rt_config
 
-from .. import tlabwrap
-
+from . import confparms
 from . import plot_contour
 from . import plot_scatter
 
@@ -99,12 +98,12 @@ class ControlPanel(ScrolledPanel):
 
 
     def OnChange(self, e=None):
-        self.OnChangeFilter(updp=False)
+        self.OnChangeFilter(updp=False, draw=False)
         self.OnChangePlot(updp=False)
         self.UpdatePages()
 
 
-    def OnChangeFilter(self, e=None, updp=True):
+    def OnChangeFilter(self, e=None, updp=True, draw=True):
         # get all values
         wx.BeginBusyCursor()
         ctrls = self.page_filter.GetChildren()
@@ -144,19 +143,20 @@ class ControlPanel(ScrolledPanel):
                     c.SetValue(str(minsize))
         self.analysis.SetParameters(cfg)
 
-        # Only update the plotting data.
-        # (Until version 0.6.1 the plots were recreated after
-        #  each update, which caused a memory leak)
-        plot_window = self.frame.PlotArea.mainplot.plot_window
-        plots = plot_window.component.components
-        for plot in plots:
-            for mm in self.analysis.measurements:
-                if plot.id == mm.identifier:
-                    plot_scatter.set_scatter_data(plot, mm)
-                    plot_scatter.reset_inspector(plot)
-
-            if plot.id == "ShapeOut_contour_plot":
-                plot_contour.set_contour_data(plot, self.analysis.measurements)
+        if draw:
+            # Only update the plotting data.
+            # (Until version 0.6.1 the plots were recreated after
+            #  each update, which caused a memory leak)
+            plot_window = self.frame.PlotArea.mainplot.plot_window
+            plots = plot_window.component.components
+            for plot in plots:
+                for mm in self.analysis.measurements:
+                    if plot.id == mm.identifier:
+                        plot_scatter.set_scatter_data(plot, mm)
+                        plot_scatter.reset_inspector(plot)
+    
+                if plot.id == "ShapeOut_contour_plot":
+                    plot_contour.set_contour_data(plot, self.analysis.measurements)
         
         if updp:
             self.UpdatePages()
@@ -180,11 +180,11 @@ class ControlPanel(ScrolledPanel):
         ctrls += list(self.page_scat.GetChildren())
         samdict = self.analysis.measurements[0].config.copy()["plotting"]
         newfilt = rt_config.CaseInsensitiveDict()
-        
+
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
             name = c.GetName()
-            if samdict.has_key(name):
+            if name in samdict:
                 var = name
                 if isinstance(c, wx.ComboBox) and hasattr(c, "data"):
                     # handle combobox selections such that the string in the
@@ -212,6 +212,7 @@ class ControlPanel(ScrolledPanel):
                         col = np.array([col.Red(), col.Green(),
                                        col.Blue(), col.Alpha()])/255
                         mm.config["plotting"]["contour color"] = col.tolist()
+        
         cfg = {"plotting": newfilt }
         self.analysis.SetParameters(cfg)
 
@@ -224,29 +225,28 @@ class ControlPanel(ScrolledPanel):
 
     def OnPolygonFilter(self, result):
         """ Called by polygon Window """
-        dclab.PolygonFilter(points=result["points"],
-                            axes=result["axes"])
+        pf = dclab.PolygonFilter(points=result["points"],
+                                 axes=result["axes"])
+        uid = pf.unique_id
+        mcur = result["measurement"]
         # update list of polygon filters
         self.UpdatePages()
-        # The first polygon will be applied to all plots
-        if len(self.page_filter.GetPolygonHtreeChecked()) == 0:
-            ctrls = self.page_filter.GetChildren()
-            # identify controls via their name correspondence in the cfg
-            for c in ctrls:
-                if c.GetName() == "Polygon Filter Selection":
-                    # get the selected items
-                    r = c.GetRootItem()
-                    cs = r.GetChildren()
-                    unique_id = cs[-1].GetData()
-                    newcfg = {"filtering": 
-                             {"polygon filters": [unique_id]} }
-                    self.analysis.SetParameters(newcfg)
-            # and apply
-            self.OnChangeFilter()
+        # Determine the number of existing polygon filters
+        npol = len(dclab.PolygonFilter.instances)
+
+        if npol == 1 and mcur.format != "hierarchy":
+            # apply to all measurements except hierarchy children
+            for mm in self.analysis.measurements:
+                if not mm.format == "hierarchy":
+                    mm.config["filtering"]["polygon filters"].append(uid)
+        else:
+            # apply only to this one data set
+            mcur.config["filtering"]["polygon filters"].append(uid)
+        self.OnChangeFilter()
 
 
     def Reset(self, key, subkeys=[]):
-        newcfg = tlabwrap.GetDefaultConfiguration(key)
+        newcfg = confparms.GetDefaultConfiguration(key)
         if len(subkeys) != 0:
             for k in list(newcfg.keys()):
                 if not k in subkeys:

@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import dclab
+import copy
 import warnings
+
+import dclab
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
-from .. import tlabwrap
+from . import confparms
 
 
 class SubPanel(ScrolledPanel):
@@ -73,11 +75,16 @@ class SubPanel(ScrolledPanel):
         stemp = wx.BoxSizer(wx.HORIZONTAL)
         # these axes should not be displayed in the UI
         ignore_axes = analysis.GetUnusableAxes()
-        choices = tlabwrap.get_config_entry_choices(key, item[0],
+        choices = confparms.get_config_entry_choices(key, item[0],
                                            ignore_axes=ignore_axes)
         if choices:
             if choices[0] in dclab.dfn.feature_names:
                 human_choices = [ dclab.dfn.feature_name2label[c] for c in choices]
+            elif key.lower() == "plotting" and item[0] == "isoelastics":
+                # add the <0.8.4 version info to prevent user confusion
+                human_choices = copy.copy(choices)
+                idl = choices.index("legacy")
+                human_choices[idl] = "legacy (prior to version 0.8.4)"
             else:
                 human_choices = choices
 
@@ -98,7 +105,7 @@ class SubPanel(ScrolledPanel):
             stemp.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
             stemp.Add(c)
 
-        elif (tlabwrap.get_config_entry_dtype(key, item[0]) == bool or
+        elif (confparms.get_config_entry_dtype(key, item[0]) == bool or
               str(item[1]).capitalize() in ["True", "False"]):
             a = wx.CheckBox(self, label=item[0], name=item[0])
             a.SetValue(item[1])
@@ -190,7 +197,7 @@ class SubPanel(ScrolledPanel):
             ctrls = self.GetChildren()
             subkeys = list()
             # identify controls via their name correspondence in the cfg
-            default = tlabwrap.GetDefaultConfiguration(self.key)
+            default = confparms.GetDefaultConfiguration(self.key)
             for c in ctrls:
                 subkey = c.GetName()
                 if subkey in default:

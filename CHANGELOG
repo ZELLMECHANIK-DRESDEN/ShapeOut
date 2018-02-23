@@ -1,10 +1,25 @@
+0.8.4
+ - Add pixelation-corrected numerical and analytical isoelastics (#203)
+ - Update emodulus look-up table (dclab 0.3.1.dev3) (#202)
+ - Improved handling of polygon filters (partly #95)
+ - Updated R version to 3.2.5 due to build errors
+ - Bugfixes:
+   - Young's modulus computation is wrong due to faulty FEM
+     simulations (dclab 0.3.1.dev20) (#207)
+   - Image/trace panel shows wrong event when the mouse pointer hovers
+     from one scatter plot to another
+   - Hierarchy children: image, contour, and trace data were not
+     displayed in the image/trace panel (dclab 0.3.1.dev1) (#100)
+   - Hierarchy children did not support manual filters (dclab 0.3.1.dev2)
+   - Regression: Setting plotting range manually not possible (#201)
+   - Pixel size not read from tdms-based data (dclab 0.3.1.dev13) (#205)
 0.8.3
  - Prefer sample name from para.ini over data folder name (dclab 0.3.0.dev15)
  - Support new .rtdc file format (dclab 0.3.0.dev20) (#151)
  - Bugfixes:
    - Automatically fix inverted plotting range
    - Enable scrolling in data export dialogs
-   - Ignore missing features during data export 
+   - Ignore missing features during data export
    - Plotting circularity with isoelastics failed (dclab 0.3.0.dev21) (#197)
    - Plotting errors with log-scale axes (#194, #195)
    - SHIFT+ENTER shortcut did not update filters

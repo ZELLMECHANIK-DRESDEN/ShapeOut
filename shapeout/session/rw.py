@@ -103,6 +103,12 @@ def load(path, search_path="."):
                 hparent = rtdc_list[pidx]
                 if hparent is not None:
                     mm = new_dataset(hparent, identifier=mm_dict["identifier"])
+                    # apply manually excluded events
+                    root_idx_file = os.path.join(os.path.dirname(config_file),
+                                                 "_filter_manual_root.npy")
+                    if os.path.exists(root_idx_file):
+                        root_idx = np.load(root_idx_file)
+                        mm.filter.apply_manual_indices(root_idx)
                 else:
                     # parent doesn't exist - try again in next loop
                     continue
@@ -191,8 +197,7 @@ def save(path, rtdc_list):
             except ValueError:
                 rdir = "."
             mm_dict["rdir"] = rdir
-            # save manual filters only for real data
-            # (see https://github.com/ZELLMECHANIK-DRESDEN/dclab/issues/22)
+            # save manual filters file only for real data
             np.save(os.path.join(mmdir, "_filter_manual.npy"), mm.filter.manual)
         elif mm.format == "hierarchy":
             pidx = rtdc_list.index(mm.hparent) + 1
@@ -200,6 +205,10 @@ def save(path, rtdc_list):
             mm_dict["special type"] = "hierarchy child"
             mm_dict["parent hash"] = mm.hparent.hash
             mm_dict["parent key"] = p_ident
+            # save (possibly hidden) root filter indices instead of
+            # manual filter array.
+            root_idx = mm.filter.retrieve_manual_indices()
+            np.save(os.path.join(mmdir, "_filter_manual_root.npy"), root_idx)
         # Use forward slash such that sessions saved on Windows
         # can be opened on *nix as well.
         mm_dict["config"] = "{}/config.txt".format(ident)

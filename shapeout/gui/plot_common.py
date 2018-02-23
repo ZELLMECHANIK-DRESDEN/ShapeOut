@@ -3,8 +3,14 @@
 """Common plotting methods"""
 from __future__ import print_function, division, unicode_literals
 
+import os
+from pkg_resources import resource_filename
+import warnings
+
 import chaco
 import numpy as np
+
+from dclab import isoelastics
 
 
 class MyTickGenerator(chaco.ticks.AbstractTickGenerator):
@@ -20,6 +26,43 @@ class MyTickGenerator(chaco.ticks.AbstractTickGenerator):
         elif scale == 'log':
             return np.array(my_log_auto_ticks(data_low, data_high, bounds_low, bounds_high,
                                               interval, use_endpoints=False), np.float64)
+
+
+def get_isoelastics(mm):
+    isotype = mm.config["plotting"]["isoelastics"]
+    xax = mm.config["plotting"]["axis x"].lower()
+    yax = mm.config["plotting"]["axis y"].lower()
+    if isotype == "not shown":
+        # nothing to do
+        isoel = None
+    else:
+        if "legacy" in isotype:
+            method = "analytical"
+            isosource = legacy_isoelastics
+            add_px_err = False
+            px_um = None
+        else:
+            method = isotype
+            isosource = isoelastics.get_default()
+            add_px_err = True
+            px_um = mm.config["imaging"]["pixel size"]
+        kwargs = dict(method=method,
+                      channel_width=mm.config["setup"]["channel width"],
+                      flow_rate=None,
+                      viscosity=None,
+                      col1=xax,
+                      col2=yax,
+                      add_px_err=add_px_err,
+                      px_um=px_um,
+                      )
+        try:
+            isoel = isosource.get(**kwargs)
+        except KeyError:
+            warnings.warn("Could not find matching isoelastics for"+
+                          " Setting: x={}, y={}, method: {}".
+                          format(xax, yax, kwargs["method"]))
+            isoel = None
+    return isoel
 
 
 def get_kde_kwargs(x, y, kde_type, xacc, yacc):
@@ -74,3 +117,9 @@ def naninfminmaxdiff(x):
     x = x[~bad]
     diff = (x.max()-x.min())
     return diff
+
+
+# Load legacy isoelasticity lines (not part of dclab)
+data_dir = resource_filename("shapeout", "data")
+iso_file = os.path.join(data_dir, "isoel-analytical-area_um-deform_legacy.txt")
+legacy_isoelastics = isoelastics.Isoelastics([iso_file])

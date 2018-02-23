@@ -13,7 +13,6 @@ from wx.lib.scrolledpanel import ScrolledPanel
 import dclab
 from .. import analysis
 from .. import meta_tool
-from .. import tlabwrap
 
 
 
@@ -185,7 +184,7 @@ class BatchFilterFolder(wx.Frame):
                 reg = "reservoir"
             newfiles = []
             for tt in files:
-                if tlabwrap.get_chip_region(tt) == reg:
+                if meta_tool.get_chip_region(tt) == reg:
                     newfiles.append(tt)
             files = newfiles
         if not files:
@@ -255,7 +254,7 @@ class BatchFilterFolder(wx.Frame):
         # Determine flow rates
         flow_dict = {}
         for tt in self.data_files:
-            fr = tlabwrap.get_flow_rate(tt)
+            fr = meta_tool.get_flow_rate(tt)
             if fr not in flow_dict:
                 flow_dict[fr] = []
             flow_dict[fr].append(tt)

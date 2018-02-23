@@ -4,12 +4,10 @@
 from __future__ import division, unicode_literals
 
 import time
-import warnings
 
 import chaco.api as ca
 import chaco.tools.api as cta
 from dclab import definitions as dfn
-from dclab import isoelastics
 import numpy as np
 
 from . import plot_common
@@ -61,28 +59,15 @@ def scatter_plot(measurement,
     sc_plot.id = mm.identifier
 
     ## Add isoelastics
-    if mm.config["plotting"]["isoelastics"]:
-        kwargs = dict(method="analytical",
-                      channel_width=mm.config["setup"]["channel width"],
-                      flow_rate=None,
-                      viscosity=None,
-                      col1=xax,
-                      col2=yax,
-                      )
-        try:
-            isoel = isoelastics.default.get(**kwargs)
-        except KeyError:
-            warnings.warn("Could not find matching isoelastics for"+
-                          " Setting: x={}, y={}, method: {}".
-                          format(xax, yax, kwargs["method"]))
-        else:
-            for ii, data in enumerate(isoel):
-                x_key = 'isoel_x'+str(ii)
-                y_key = 'isoel_y'+str(ii)
-                pd.set_data(x_key, data[:,0])
-                pd.set_data(y_key, data[:,1])
-                sc_plot.plot((x_key, y_key), color="gray",
-                              index_scale=scalex, value_scale=scaley)
+    isoel = plot_common.get_isoelastics(mm)
+    if isoel:
+        for ii, data in enumerate(isoel):
+            x_key = 'isoel_x'+str(ii)
+            y_key = 'isoel_y'+str(ii)
+            pd.set_data(x_key, data[:,0])
+            pd.set_data(y_key, data[:,1])
+            sc_plot.plot((x_key, y_key), color="gray",
+                          index_scale=scalex, value_scale=scaley)
 
     # Display numer of events
     elabel = ca.PlotLabel(text="",

@@ -218,7 +218,6 @@ class ImagePanel(ScrolledPanel):
         
         if evt_id == -1:
             evt_id = 0
-
         self.ShowEvent(mm_id, evt_id)
 
 
@@ -234,28 +233,16 @@ class ImagePanel(ScrolledPanel):
         
         """
         wx.BeginBusyCursor()
-        
-        self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
+
         mm = self.analysis.measurements[mm_id]
+        if evt_id > len(mm):
+            evt_id = 0
 
         # Set max value for spin control
         max_evt = len(self.analysis.measurements[mm_id])
         self.WXSP_plot.SetRange(1, max_evt)
-        
-        # Remove this case structure when #100 is fixed
-        if mm.format == "hierarchy":
-            # Hierarchy children do not support image selection (issue #100)
-            self.plot_window.control.Show(False)
-            image = Image.fromarray(np.zeros((90, 250, 3), dtype=np.uint8))
-            self.PlotImage(image)
-            wx.EndBusyCursor()
-            self.WXChB_exclude.SetValue(False)
-            self.WXChB_exclude.Disable()
-            self.Layout()
-            self.GetParent().Layout()
-            return
-        else:
-            self.WXChB_exclude.Enable()
+
+        self.UpdateSelections(mm_id=mm_id, evt_id=evt_id)
 
         self.PlotImage()
 
@@ -330,4 +317,7 @@ class ImagePanel(ScrolledPanel):
         if evt_id is not None:
             # Sanity check:
             mm = self.analysis.measurements[mm_id]
-            self.WXSP_plot.SetValue(mm["index"][evt_id])
+            if evt_id > len(mm):
+                self.WXSP_plot.SetValue(1)
+            else:
+                self.WXSP_plot.SetValue(mm["index"][evt_id])
