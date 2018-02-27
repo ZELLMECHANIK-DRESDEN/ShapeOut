@@ -376,11 +376,6 @@ class Frame(gaugeframe.GaugeFrame):
             newcfg = {}
             for key in ["analysis", "calculation", "filtering", "plotting"]:
                 newcfg[key] = self.analysis.GetParameters(key)
-            # Reset plotting range
-            for skey in list(newcfg["plotting"].keys()):
-                if skey.endswith(" min") or skey.endswith(" max"):
-                    if skey.rsplit(" ", 1)[0] in dclab.dfn.feature_names:
-                        newcfg["plotting"].pop(skey)
             # Remember contour colors
             contour_colors = self.analysis.GetContourColors()
             self.analysis._clear()
@@ -390,6 +385,8 @@ class Frame(gaugeframe.GaugeFrame):
 
         # Set Analysis
         anal = analysis.Analysis(data, config=newcfg)
+        # Reset plotting parameters
+        anal.reset_plot()
         # Set previous contour colors
         anal.SetContourColors(contour_colors)
 

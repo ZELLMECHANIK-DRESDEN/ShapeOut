@@ -11,6 +11,7 @@ import warnings
 import chaco.api as ca
 from chaco.color_mapper import ColorMapper
 import numpy as np
+import scipy.stats
 
 import dclab
 import dclab.definitions as dfn
@@ -107,17 +108,19 @@ class Analysis(object):
             mm.config.update(get_default_config())
             mm.config.update(cfgold)
             ## Sensible values for default contour accuracies
-            # This lambda function seems to do a good job
-            accl = lambda a: (remove_nan_inf(a).max()-remove_nan_inf(a).min())/10
-            defs = [["contour accuracy {}", accl],
-                    ["kde accuracy {}", accl],
+            # Use Doane's formula
+            defs = [["contour accuracy {}", self._doanes_formula_acc, 1/4],
+                    ["kde accuracy {}", self._doanes_formula_acc, 1/2],
                    ]
             pltng = mm.config["plotting"]
             for kk in self.GetPlotAxes():
-                for d, l in defs:
+                for d, l, mult in defs:
                     var = d.format(kk)
                     if var not in pltng:
-                        pltng[var] = l(mm[kk])
+                        acc = l(mm[kk]) * mult
+                        # round to make it look pretty in the GUI
+                        accr = float("{:.1e}".format(acc))
+                        pltng[var] = accr
             ## Check for missing min/max values and set them to zero
             for item in dfn.feature_names:
                 appends = [" min", " max"]
@@ -125,6 +128,20 @@ class Analysis(object):
                     if not item+a in mm.config["plotting"]:
                         mm.config["plotting"][item+a] = 0
 
+
+    @staticmethod
+    def _doanes_formula_acc(a):
+        """Compute accuracy (bin width) based on Doane's formula"""
+        # https://en.wikipedia.org/wiki/Histogram#Number_of_bins_and_width
+        # https://stats.stackexchange.com/questions/55134/doanes-formula-for-histogram-binning
+        bad = np.isnan(a) + np.isinf(a)
+        data = a[~bad]
+        n = data.size
+        g1 = scipy.stats.skew(data)
+        sigma_g1 = np.sqrt(6 * (n - 2) / ((n + 1) * (n + 3)))
+        k = 1 + np.log2(n) + np.log2(1 + np.abs(g1) / sigma_g1)
+        acc = (data.max() - data.min()) / k
+        return acc
 
 
     def ForceSameDataSize(self):
@@ -320,6 +337,11 @@ class Analysis(object):
         return conf
 
 
+    def reset_plot(self):
+        self.reset_plot_accuracies()
+        self.reset_plot_ranges()
+
+
     def reset_plot_accuracies(self):
         """ Set initial (heuristic) accuracies for all plots.
         
@@ -348,8 +370,19 @@ class Analysis(object):
                             "kde accuracy {}".format(key)]:
                     if var in mm.config["plotting"]:
                         mm.config["plotting"].pop(var)
-
         # Set default accuracies
+        self._complete_config()
+
+
+    def reset_plot_ranges(self):
+        """Reset plotting range"""
+        for key in dfn.feature_names:
+            for mm in self.measurements:
+                for var in ["{} min".format(key),
+                            "{} max".format(key)]:
+                    if var in mm.config["plotting"]:
+                        mm.config["plotting"].pop(var)
+        # Set defaul values
         self._complete_config()
 
 
