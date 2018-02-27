@@ -273,6 +273,11 @@ def set_scatter_data(plot, mm):
     ylim.low = ymin
     ylim.high = ymax
 
+    # Update plotting range for measurement
+    mm.config["plotting"][xax+" min"] = xmin
+    mm.config["plotting"][xax+" max"] = xmax
+    mm.config["plotting"][yax+" min"] = ymin
+    mm.config["plotting"][yax+" max"] = ymax
 
 def get_plot_limits(axis, data, cfg):
     feature = cfg["plotting"]["axis {}".format(axis)].lower()

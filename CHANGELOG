@@ -1,3 +1,6 @@
+0.8.5
+ - Update plotting range when switching to log scale (#198)
+ - Reset plotting range when performing a new analysis (#198)
 0.8.4
  - Add pixelation-corrected numerical and analytical isoelastics (#203)
  - Update emodulus look-up table (dclab 0.3.1.dev3) (#202)
