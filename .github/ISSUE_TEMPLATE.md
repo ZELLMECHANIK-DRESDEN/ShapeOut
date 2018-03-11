@@ -18,5 +18,5 @@ ShapeOut plots the data.
 There is an error message
 
 ```
-COPY ERROR MESSAGE HERE
+PASTE ERROR MESSAGE HERE
 ```
