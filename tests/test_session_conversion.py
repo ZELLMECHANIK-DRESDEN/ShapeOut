@@ -175,6 +175,19 @@ def test_080():
     cleanup()
 
 
+def test_083():
+    """Major version test
+    """
+    analysis = compatibility_task("session_v0.8.3.zmso")
+    mms = analysis.measurements
+    mm = mms[0]
+    assert len(mm) == 44
+    assert np.sum(mm.filter.all) == 30
+    # In the configuration file, this is set to "False" by accident.
+    assert mm.config["filtering"]["limit events"] == 0
+    cleanup()
+
+
 def test_084_pre_isoelastics_conversion():
     """Manual filters for hierarchy children are stored in session
     """
