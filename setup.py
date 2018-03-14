@@ -28,6 +28,7 @@ if __name__ == "__main__":
         version=version,
         packages=find_packages(include=(name+"*",)),
         package_dir={name: name},
+        include_package_data=True,
         license="GPL v2",
         description=description,
         long_description=open('README.rst').read() if exists('README.rst') else '',
