@@ -400,7 +400,7 @@ class Analysis(object):
     def SetContourColors(self, colors=None):
         """ Sets the contour colors.
         
-        If colors is given and if it the number of colors is equal or
+        If colors is given and if the number of colors is equal or
         greater than the number of measurements, then the colors are
         applied to the measurement. Otherwise, default colors are used.
         """
