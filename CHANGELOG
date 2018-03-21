@@ -6,7 +6,7 @@
    - Support opening tdms files with capitalized "userDef" column names
      (dclab dclab 0.3.2.dev5) (#212)
  - Refactoring:
-   - Use pathlib when saving and opening sessions and 
+   - Use pathlib when saving and opening sessions and do not use os.chdir
 0.8.4
  - Add pixelation-corrected numerical and analytical isoelastics (#203)
  - Update emodulus look-up table (dclab 0.3.1.dev3) (#202)
