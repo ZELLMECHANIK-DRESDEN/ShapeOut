@@ -118,10 +118,12 @@ class ImagePanel(ScrolledPanel):
             elif trid == "fl3_median":
                 color = "red"
             self.trace_plot.plot(("x", trid), type="line", color=color)
-
+        
+        # convert wx color to something chaco understands
+        bgcolor = list(np.array(self.GetBackgroundColour()) / 255)
         container = ca.HPlotContainer(spacing=70,
                                       padding=50,
-                                      bgcolor=self.GetBackgroundColour(),
+                                      bgcolor=bgcolor,
                                       fill_padding=True,)#)
         container.add(self.trace_plot)
         

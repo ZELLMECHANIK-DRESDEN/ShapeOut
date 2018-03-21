@@ -5,6 +5,7 @@
  - Bugfixes:
    - Support opening tdms files with capitalized "userDef" column names
      (dclab dclab 0.3.2.dev5) (#212)
+   - Wx colors and chaco not compatible anymore (Windows appveyor build)
  - Refactoring:
    - Use pathlib when saving and opening sessions and do not use os.chdir
 0.8.4
