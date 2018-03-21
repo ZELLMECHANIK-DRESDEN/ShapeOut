@@ -7,6 +7,7 @@ from distutils.version import LooseVersion
 import copy
 import io
 import os
+import pathlib
 from os.path import abspath, basename, join, isdir
 import warnings
 
@@ -110,11 +111,12 @@ def index_load(index_file):
     index_dict: dict
         Dictionary containing all index information
     """
+    index_file = pathlib.Path(index_file)
     cfg = {}
 
-    if isdir(index_file):
-        index_file = join(index_file, "index.txt")
-    with io.open(index_file, 'r') as f:
+    if index_file.is_dir():
+        index_file = index_file / "index.txt"
+    with index_file.open() as f:
         code = f.readlines()
     
     for line in code:
@@ -146,8 +148,9 @@ def index_save(index_file, index_dict, save_version=version):
     index_dict : dict
         Index dictionary
     """
-    if isdir(index_file):
-        index_file = join(index_file, "index.txt")
+    index_file = pathlib.Path(index_file)
+    if index_file.is_dir():
+        index_file = index_file / "index.txt"
     out = ["# ShapeOut measurement index",
            "# Software version {}".format(save_version)
            ]
@@ -164,7 +167,7 @@ def index_save(index_file, index_dict, save_version=version):
     
     for i in range(len(out)):
         out[i] = out[i]+"\n"
-    with io.open(index_file, "w") as f:
+    with index_file.open("w") as f:
         f.writelines(out)
 
 
@@ -195,10 +198,11 @@ def index_version(index_file):
     save the version in the session file and the version is set
     to "0.0.1".
     """
-    if isdir(index_file):
-        index_file = join(index_file, "index.txt")
+    index_file = pathlib.Path(index_file)
+    if index_file.is_dir():
+        index_file = index_file / "index.txt"
     # Obtain version of session
-    with io.open(index_file, "r") as fd:
+    with index_file.open("r") as fd:
         data = fd.readlines()
     
     for line in data:
