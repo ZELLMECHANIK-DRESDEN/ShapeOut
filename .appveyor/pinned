@@ -4,4 +4,5 @@ pillow 3.0.0 py27_0
 pyface ==4.4.0
 python-dateutil 2.4.2 py27_0
 scipy 0.15.1 np19py27_0
+wxpython 3.0 py27_0
 
