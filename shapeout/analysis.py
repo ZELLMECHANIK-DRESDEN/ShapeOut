@@ -190,7 +190,6 @@ class Analysis(object):
         of mean and std. If indeterminable, values or are set to .1 (rmin)
         or 1 (rmax).
         """
-        print(feature)
         if scale not in ["linear", "log"]:
             raise ValueError("`scale` must be one of 'linear', 'log'.")
         if feature == "deform":
