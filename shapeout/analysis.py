@@ -165,6 +165,101 @@ class Analysis(object):
         return minsize
 
 
+    def get_best_plot_range(self, feature, scale="linear"):
+        """Return the optimal plotting range for all measurements
+
+        Parameters
+        ----------
+        feature: str
+            Name of the feature for which the plotting range is computed
+        scale: str
+            Plotting scale, one of "log", "linear".
+
+        Returns
+        -------
+        (rmin, rmax): tuple of floats
+            Optimal plotting range
+
+        Notes
+        -----
+        For `feature="deform"`, the returned plotting range is always(0, 0.2).
+        If the scale of the current configuration is set to "log", then a
+        heuristic method is used to determine the plot range: Fluorescence
+        maxima data (e.g. "fl1_max" or "fl2_max_ctc") will get an rmin value
+        of 1. The value of rmin is determined using a combination
+        of mean and std. If indeterminable, values or are set to .1 (rmin)
+        or 1 (rmax).
+        """
+        print(feature)
+        if scale not in ["linear", "log"]:
+            raise ValueError("`scale` must be one of 'linear', 'log'.")
+        if feature == "deform":
+            rmin = 0
+            rmax = 0.2
+        else:
+            # find min/max values of all measurements
+            rmin = np.inf
+            rmax = -np.inf
+            for mm in self.measurements:
+                mmf = mm[feature]
+                rmin = min(rmin, np.nanmin(mmf))
+                rmax = max(rmax, np.nanmax(mmf))
+                # check for logarithmic plots
+                if scale == "log":
+                    if rmin <= 0:
+                        if feature.startswith("fl") and feature.count("_max"):
+                            # fluorescence maxima data
+                            rmin = 1
+                        else:
+                            # compute std and mean (nans are always False)
+                            ld = np.log(mmf[mmf > 0])
+                            if len(ld):
+                                rmin = np.exp(ld.mean() - 2 * ld.std())
+                            else:
+                                # generic default
+                                rmin = .1
+                    if rmax <= 0:
+                        # generic default
+                        rmax = 1
+
+        return rmin, rmax
+
+
+    def get_config_value(self, section, key):
+        """Return the section/key value of all measurements
+
+        Parameters
+        ----------
+        section: str
+            Configuration section, e.g. "imaging", "filtering", or "plotting"
+        key: str
+            Configuration key within `section`
+
+        Returns
+        -------
+        value: multiple types
+            The configuration key value
+
+        Raises
+        ------
+        ValueError if not all measurements share the same value
+
+        Notes
+        -----
+        Using this function to retrieve section/key values ensures that the
+        value is identical for all measurements.
+        """
+        values = []
+        for mm in self.measurements:
+            values.append(mm.config[section][key])
+        all_same = np.sum([ v == values[0] for v in values ]) == len(values)
+        if not all_same:
+            msg = "Multiple values encountered for [{}]: {}".format(section,
+                                                                    key)
+            raise ValueError(msg)
+        return mm.config[section][key]
+
+
     def GetCommonParameters(self, key):
         """
         For as key (e.g. "Filtering") find all parameters that are given
@@ -378,7 +473,7 @@ class Analysis(object):
         """Reset plotting range"""
         for key in dfn.feature_names:
             for mm in self.measurements:
-                if not mm.config["plotting"]["fix plotting range"]:
+                if not mm.config["plotting"]["fix range"]:
                     for var in ["{} min".format(key),
                                 "{} max".format(key)]:
                         if var in mm.config["plotting"]:

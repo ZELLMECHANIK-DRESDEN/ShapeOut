@@ -84,6 +84,32 @@ class MainPlotArea(wx.Panel):
             anal = self.analysis
         
         self.analysis = anal
+
+        # Determine the min/max plotting range
+        fix_range = self.analysis.get_config_value("plotting", "fix range")
+        xax, yax = self.analysis.GetPlotAxes()
+        xmin = self.analysis.get_config_value("plotting", xax+" min")
+        xmax = self.analysis.get_config_value("plotting", xax+" max")
+        ymin = self.analysis.get_config_value("plotting", yax+" min")
+        ymax = self.analysis.get_config_value("plotting", yax+" max")
+        if not fix_range:
+            xscale = self.analysis.get_config_value("plotting", "scale x")
+            yscale = self.analysis.get_config_value("plotting", "scale y")
+            if (xmin == xmax or (xscale == "log" and 
+                                 (xmin <= 0 or xmax <= 0))):
+                xmin, xmax = self.analysis.get_best_plot_range(feature=xax,
+                                                               scale=xscale)
+            if (ymin == ymax or (yscale == "log" and 
+                                 (ymin <= 0 or ymax <= 0))):
+                ymin, ymax = self.analysis.get_best_plot_range(feature=yax,
+                                                               scale=yscale)
+            # Set config keys
+            newcfg = {"plotting": {xax+" min": xmin,
+                                   xax+" max": xmax,
+                                   yax+" min": ymin,
+                                   yax+" max": ymax,
+                                   }}
+            self.analysis.SetParameters(newcfg)
         
         rows, cols, lcc, lll = anal.GetPlotGeometry()
         
@@ -150,6 +176,11 @@ class MainPlotArea(wx.Panel):
                     id_ds.on_trait_change(self.OnMouseScatter,
                                           "metadata_changed")
                     self.index_datasources.append((aplot, id_ds))
+                    # Set plotting range
+                    aplot.index_mapper.range.low = xmin
+                    aplot.index_mapper.range.high = xmax
+                    aplot.value_mapper.range.low = ymin
+                    aplot.value_mapper.range.high = ymax
                 elif (not legend_plotted and lll == 1 and rows == 1) :
                     # Legend plot in next free window
                     aplot = plot_legend.legend_plot(anal.measurements)

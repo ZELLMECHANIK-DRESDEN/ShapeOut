@@ -1,6 +1,7 @@
 0.8.5
  - Update plotting range when switching to log scale (#198)
  - Allow to fix plotting range to retain previous behavior (#198)
+ - Initial plotting range is determined from min/max values of all plots (#213)
  - Improved standard contour and kde accuracies using Doane's formula (#147)
  - Bugfixes:
    - Support opening tdms files with capitalized "userDef" column names

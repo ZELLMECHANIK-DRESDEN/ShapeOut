@@ -218,6 +218,8 @@ class ControlPanel(ScrolledPanel):
 
         # Update Plots
         self.frame.PlotArea.Plot(self.analysis)
+
+
         if updp:
             self.UpdatePages()
         wx.EndBusyCursor()
