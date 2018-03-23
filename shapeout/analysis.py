@@ -378,10 +378,11 @@ class Analysis(object):
         """Reset plotting range"""
         for key in dfn.feature_names:
             for mm in self.measurements:
-                for var in ["{} min".format(key),
-                            "{} max".format(key)]:
-                    if var in mm.config["plotting"]:
-                        mm.config["plotting"].pop(var)
+                if not mm.config["plotting"]["fix plotting range"]:
+                    for var in ["{} min".format(key),
+                                "{} max".format(key)]:
+                        if var in mm.config["plotting"]:
+                            mm.config["plotting"].pop(var)
         # Set defaul values
         self._complete_config()
 
