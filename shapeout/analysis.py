@@ -165,8 +165,45 @@ class Analysis(object):
         return minsize
 
 
-    def get_best_plot_range(self, feature, scale="linear"):
-        """Return the optimal plotting range for all measurements
+    def get_feat_range(self, feature, scale="linear", update_config=True):
+        """Return the current plotting range of a feature
+
+        Parameters
+        ----------
+        feature: str
+            Name of the feature for which the plotting range is computed
+        scale: str
+            Plotting scale, one of "log", "linear".
+        update_config: bool
+            If True and the current plotting range is invalid, update
+            the current configuration. Invalid plotting ranges are
+            length-zero intervals and, in the case of logarithmic scale,
+            intervals with negative boundaries.
+
+        Returns
+        -------
+        (rmin, rmax): tuple of floats
+            Current/Correct plotting range
+        """
+        rmin = self.get_config_value("plotting", feature+" min")
+        rmax = self.get_config_value("plotting", feature+" max")
+        # update range if necessary
+        # - "rmin == rmax" means the values *must* be determined automatically
+        # - for log-scale, new ranges must be found to avoid plot errors
+        if (rmin == rmax or
+                (scale == "log" and (rmin <= 0 or rmax <= 0))):
+            rmin, rmax = self.get_feat_range_opt(feature=feature,
+                                                 scale=scale)
+            if update_config:
+            # Set config keys
+                newcfg = {"plotting": {feature + " min": rmin,
+                                       feature + " max": rmax}}
+                self.SetParameters(newcfg)
+        return rmin, rmax
+
+
+    def get_feat_range_opt(self, feature, scale="linear"):
+        """Return the optimal plotting range of a feature for all measurements
 
         Parameters
         ----------
@@ -193,7 +230,10 @@ class Analysis(object):
         if scale not in ["linear", "log"]:
             raise ValueError("`scale` must be one of 'linear', 'log'.")
         if feature == "deform":
-            rmin = 0
+            if scale == "log":
+                rmin = .01
+            else:
+                rmin = 0
             rmax = 0.2
         else:
             # find min/max values of all measurements

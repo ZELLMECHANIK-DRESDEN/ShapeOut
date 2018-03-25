@@ -86,31 +86,12 @@ class MainPlotArea(wx.Panel):
         self.analysis = anal
 
         # Determine the min/max plotting range
-        fix_range = self.analysis.get_config_value("plotting", "fix range")
         xax, yax = self.analysis.GetPlotAxes()
-        xmin = self.analysis.get_config_value("plotting", xax+" min")
-        xmax = self.analysis.get_config_value("plotting", xax+" max")
-        ymin = self.analysis.get_config_value("plotting", yax+" min")
-        ymax = self.analysis.get_config_value("plotting", yax+" max")
-        if not fix_range:
-            xscale = self.analysis.get_config_value("plotting", "scale x")
-            yscale = self.analysis.get_config_value("plotting", "scale y")
-            if (xmin == xmax or (xscale == "log" and 
-                                 (xmin <= 0 or xmax <= 0))):
-                xmin, xmax = self.analysis.get_best_plot_range(feature=xax,
-                                                               scale=xscale)
-            if (ymin == ymax or (yscale == "log" and 
-                                 (ymin <= 0 or ymax <= 0))):
-                ymin, ymax = self.analysis.get_best_plot_range(feature=yax,
-                                                               scale=yscale)
-            # Set config keys
-            newcfg = {"plotting": {xax+" min": xmin,
-                                   xax+" max": xmax,
-                                   yax+" min": ymin,
-                                   yax+" max": ymax,
-                                   }}
-            self.analysis.SetParameters(newcfg)
-        
+        xscale = self.analysis.get_config_value("plotting", "scale x")
+        yscale = self.analysis.get_config_value("plotting", "scale y")
+        xmin, xmax = self.analysis.get_feat_range(feature=xax, scale=xscale)
+        ymin, ymax = self.analysis.get_feat_range(feature=yax, scale=yscale)
+
         rows, cols, lcc, lll = anal.GetPlotGeometry()
         
         numplots = rows * cols

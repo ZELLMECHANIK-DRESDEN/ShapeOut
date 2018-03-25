@@ -18,7 +18,7 @@ def test_basic():
     assert len(anal.measurements) == 1
 
 
-def test_get_best_plot_range():
+def test_get_feat_range_opt():
     keys = ["area_um", "deform", "fl1_max"]
     dicts = [example_data_dict(s, keys) for s in [10, 100, 12, 382]]
     # add a fl2_max column with negative numbers
@@ -29,24 +29,24 @@ def test_get_best_plot_range():
         dd["userdef2"] = np.linspace(-1, 1, lend)
     #dicts.append(otherdict)
     anal = analysis.Analysis([dclab.new_dataset(d) for d in dicts])
-    assert anal.get_best_plot_range(feature="deform") == (0, .2)
-    assert np.allclose(anal.get_best_plot_range(feature="area_um"),
+    assert anal.get_feat_range_opt(feature="deform") == (0, .2)
+    assert np.allclose(anal.get_feat_range_opt(feature="area_um"),
                        (0.000507009623987198, 0.9989715591819257))
-    assert np.allclose(anal.get_best_plot_range(feature="fl1_max"),
+    assert np.allclose(anal.get_feat_range_opt(feature="fl1_max"),
                        (0.0036766675498647317, 0.9970937546290722))
-    assert np.allclose(anal.get_best_plot_range(feature="fl1_max", scale="log"),
+    assert np.allclose(anal.get_feat_range_opt(feature="fl1_max", scale="log"),
                        (0.0036766675498647317, 0.9970937546290722))
-    assert np.allclose(anal.get_best_plot_range(feature="fl2_max"),
+    assert np.allclose(anal.get_feat_range_opt(feature="fl2_max"),
                        (-1, 5000))
-    assert np.allclose(anal.get_best_plot_range(feature="fl2_max", scale="log"),
+    assert np.allclose(anal.get_feat_range_opt(feature="fl2_max", scale="log"),
                        (1, 5000))
-    assert np.allclose(anal.get_best_plot_range(feature="userdef1"),
+    assert np.allclose(anal.get_feat_range_opt(feature="userdef1"),
                        (-3, -2))
-    assert np.allclose(anal.get_best_plot_range(feature="userdef1", scale="log"),
+    assert np.allclose(anal.get_feat_range_opt(feature="userdef1", scale="log"),
                        (.1, 1))
-    assert np.allclose(anal.get_best_plot_range(feature="userdef2"),
+    assert np.allclose(anal.get_feat_range_opt(feature="userdef2"),
                        (-1, 1))
-    assert np.allclose(anal.get_best_plot_range(feature="userdef2", scale="log"),
+    assert np.allclose(anal.get_feat_range_opt(feature="userdef2", scale="log"),
                        (0.051197602631569354, 1.0))
 
 
