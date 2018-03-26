@@ -193,11 +193,7 @@ def set_scatter_data(plot, mm):
     xax = mm.config["plotting"]["axis x"].lower()
     yax = mm.config["plotting"]["axis y"].lower()
     
-    if mm.config["filtering"]["enable filters"]:
-        x0 = mm[xax][mm._filter]
-    else:
-        # filtering disabled
-        x0 = mm[xax]
+    x0 = mm[xax][mm.filter.all]
 
     downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 

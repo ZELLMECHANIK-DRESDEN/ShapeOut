@@ -165,7 +165,8 @@ class Analysis(object):
         return minsize
 
 
-    def get_feat_range(self, feature, scale="linear", update_config=True):
+    def get_feat_range(self, feature, scale="linear", filtered=True,
+                       update_config=True):
         """Return the current plotting range of a feature
 
         Parameters
@@ -173,7 +174,9 @@ class Analysis(object):
         feature: str
             Name of the feature for which the plotting range is computed
         scale: str
-            Plotting scale, one of "log", "linear".
+            Plotting scale, one of "log", "linear"
+        filtered: bool
+            If True, determine plotting range for filtered data
         update_config: bool
             If True and the current plotting range is invalid, update
             the current configuration. Invalid plotting ranges are
@@ -193,7 +196,8 @@ class Analysis(object):
         if (rmin == rmax or
                 (scale == "log" and (rmin <= 0 or rmax <= 0))):
             rmin, rmax = self.get_feat_range_opt(feature=feature,
-                                                 scale=scale)
+                                                 scale=scale,
+                                                 filtered=filtered)
             if update_config:
             # Set config keys
                 newcfg = {"plotting": {feature + " min": rmin,
@@ -202,7 +206,7 @@ class Analysis(object):
         return rmin, rmax
 
 
-    def get_feat_range_opt(self, feature, scale="linear"):
+    def get_feat_range_opt(self, feature, scale="linear", filtered=True):
         """Return the optimal plotting range of a feature for all measurements
 
         Parameters
@@ -210,7 +214,9 @@ class Analysis(object):
         feature: str
             Name of the feature for which the plotting range is computed
         scale: str
-            Plotting scale, one of "log", "linear".
+            Plotting scale, one of "log", "linear"
+        filtered: bool
+            If True, determine plotting range for filtered data
 
         Returns
         -------
@@ -241,6 +247,8 @@ class Analysis(object):
             rmax = -np.inf
             for mm in self.measurements:
                 mmf = mm[feature]
+                if filtered:
+                    mmf = mmf[mm.filter.all]
                 rmin = min(rmin, np.nanmin(mmf))
                 rmax = max(rmax, np.nanmax(mmf))
                 # check for logarithmic plots
