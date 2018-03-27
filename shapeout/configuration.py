@@ -4,7 +4,6 @@
 from __future__ import division, print_function, unicode_literals
 
 import copy
-import io
 import pathlib
 
 import appdirs
@@ -45,7 +44,7 @@ class ConfigurationFile(object):
 
     def load(self):
         """Loads the configuration file returning a dictionary"""
-        with io.open(self.cfgfile, 'r') as fop:
+        with self.cfgfile.open() as fop:
             fc = fop.readlines()
         cdict = {}
         for line in fc:
@@ -105,7 +104,7 @@ class ConfigurationFile(object):
         for sk in skeys:
             outlist.append("{} = {}\n".format(sk, cdict[sk]))
 
-        with io.open(self.cfgfile, 'w') as fop:
+        with self.cfgfile.open('w') as fop:
             fop.writelines(outlist)
 
     def set_bool(self, key, value):
