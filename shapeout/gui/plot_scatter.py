@@ -193,11 +193,7 @@ def set_scatter_data(plot, mm):
     xax = mm.config["plotting"]["axis x"].lower()
     yax = mm.config["plotting"]["axis y"].lower()
     
-    if mm.config["filtering"]["enable filters"]:
-        x0 = mm[xax][mm._filter]
-    else:
-        # filtering disabled
-        x0 = mm[xax]
+    x0 = mm[xax][mm.filter.all]
 
     downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
@@ -257,44 +253,3 @@ def set_scatter_data(plot, mm):
             else:
                 oltext = ""
             ol.text = oltext
-
-    # Density, as returned by dclab contains `nans` where x or y
-    # is nan or inf. Use this information to set the plot limits.
-    bad = np.isnan(density)
-
-    # Set x-y limits
-    xlim = plot.index_mapper.range
-    xmin, xmax = get_plot_limits(axis="x", data=x[~bad], cfg=mm.config)
-    xlim.low = xmin
-    xlim.high = xmax
-
-    ylim = plot.value_mapper.range
-    ymin, ymax = get_plot_limits(axis="y", data=y[~bad], cfg=mm.config)
-    ylim.low = ymin
-    ylim.high = ymax
-
-
-def get_plot_limits(axis, data, cfg):
-    feature = cfg["plotting"]["axis {}".format(axis)].lower()
-    scale = cfg["plotting"]["scale {}".format(axis)].lower()
-    dmin = cfg["plotting"][feature + " min"]
-    dmax = cfg["plotting"][feature + " max"]
-    if dmin == dmax:
-        dmin = data.min()
-        dmax = data.max()
-    if scale == "log":
-        if dmin <= 0:
-            if feature.startswith("fl") and feature.count("_max"):
-                # fluorescence maxima data
-                dmin = 1
-            else:
-                # compute std and mean
-                ld = np.log(data[data>0])
-                if len(ld):
-                    dmin = np.exp(ld.mean() - 2 * ld.std())
-                else:
-                    dmin = .1
-        if dmax <= 0:
-            dmax = 1
-
-    return dmin, dmax

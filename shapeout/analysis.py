@@ -11,6 +11,7 @@ import warnings
 import chaco.api as ca
 from chaco.color_mapper import ColorMapper
 import numpy as np
+import scipy.stats
 
 import dclab
 import dclab.definitions as dfn
@@ -107,17 +108,19 @@ class Analysis(object):
             mm.config.update(get_default_config())
             mm.config.update(cfgold)
             ## Sensible values for default contour accuracies
-            # This lambda function seems to do a good job
-            accl = lambda a: (remove_nan_inf(a).max()-remove_nan_inf(a).min())/10
-            defs = [["contour accuracy {}", accl],
-                    ["kde accuracy {}", accl],
+            # Use Doane's formula
+            defs = [["contour accuracy {}", self._doanes_formula_acc, 1/4],
+                    ["kde accuracy {}", self._doanes_formula_acc, 1/2],
                    ]
             pltng = mm.config["plotting"]
             for kk in self.GetPlotAxes():
-                for d, l in defs:
+                for d, l, mult in defs:
                     var = d.format(kk)
                     if var not in pltng:
-                        pltng[var] = l(mm[kk])
+                        acc = l(mm[kk]) * mult
+                        # round to make it look pretty in the GUI
+                        accr = float("{:.1e}".format(acc))
+                        pltng[var] = accr
             ## Check for missing min/max values and set them to zero
             for item in dfn.feature_names:
                 appends = [" min", " max"]
@@ -125,6 +128,20 @@ class Analysis(object):
                     if not item+a in mm.config["plotting"]:
                         mm.config["plotting"][item+a] = 0
 
+
+    @staticmethod
+    def _doanes_formula_acc(a):
+        """Compute accuracy (bin width) based on Doane's formula"""
+        # https://en.wikipedia.org/wiki/Histogram#Number_of_bins_and_width
+        # https://stats.stackexchange.com/questions/55134/doanes-formula-for-histogram-binning
+        bad = np.isnan(a) + np.isinf(a)
+        data = a[~bad]
+        n = data.size
+        g1 = scipy.stats.skew(data)
+        sigma_g1 = np.sqrt(6 * (n - 2) / ((n + 1) * (n + 3)))
+        k = 1 + np.log2(n) + np.log2(1 + np.abs(g1) / sigma_g1)
+        acc = (data.max() - data.min()) / k
+        return acc
 
 
     def ForceSameDataSize(self):
@@ -146,6 +163,148 @@ class Analysis(object):
         cfgnew = {"filtering":{"limit events":minsize}}
         self.SetParameters(cfgnew)
         return minsize
+
+
+    def get_feat_range(self, feature, scale="linear", filtered=True,
+                       update_config=True):
+        """Return the current plotting range of a feature
+
+        Parameters
+        ----------
+        feature: str
+            Name of the feature for which the plotting range is computed
+        scale: str
+            Plotting scale, one of "log", "linear"
+        filtered: bool
+            If True, determine plotting range for filtered data
+        update_config: bool
+            If True and the current plotting range is invalid, update
+            the current configuration. Invalid plotting ranges are
+            length-zero intervals and, in the case of logarithmic scale,
+            intervals with negative boundaries.
+
+        Returns
+        -------
+        (rmin, rmax): tuple of floats
+            Current/Correct plotting range
+        """
+        rmin = self.get_config_value("plotting", feature+" min")
+        rmax = self.get_config_value("plotting", feature+" max")
+        # update range if necessary
+        # - "rmin == rmax" means the values *must* be determined automatically
+        # - for log-scale, new ranges must be found to avoid plot errors
+        if (rmin == rmax or
+                (scale == "log" and (rmin <= 0 or rmax <= 0))):
+            rmin, rmax = self.get_feat_range_opt(feature=feature,
+                                                 scale=scale,
+                                                 filtered=filtered)
+            if update_config:
+            # Set config keys
+                newcfg = {"plotting": {feature + " min": rmin,
+                                       feature + " max": rmax}}
+                self.SetParameters(newcfg)
+        return rmin, rmax
+
+
+    def get_feat_range_opt(self, feature, scale="linear", filtered=True):
+        """Return the optimal plotting range of a feature for all measurements
+
+        Parameters
+        ----------
+        feature: str
+            Name of the feature for which the plotting range is computed
+        scale: str
+            Plotting scale, one of "log", "linear"
+        filtered: bool
+            If True, determine plotting range for filtered data
+
+        Returns
+        -------
+        (rmin, rmax): tuple of floats
+            Optimal plotting range
+
+        Notes
+        -----
+        For `feature="deform"`, the returned plotting range is always(0, 0.2).
+        If the scale of the current configuration is set to "log", then a
+        heuristic method is used to determine the plot range: Fluorescence
+        maxima data (e.g. "fl1_max" or "fl2_max_ctc") will get an rmin value
+        of 1. The value of rmin is determined using a combination
+        of mean and std. If indeterminable, values or are set to .1 (rmin)
+        or 1 (rmax).
+        """
+        if scale not in ["linear", "log"]:
+            raise ValueError("`scale` must be one of 'linear', 'log'.")
+        if feature == "deform":
+            if scale == "log":
+                rmin = .01
+            else:
+                rmin = 0
+            rmax = 0.2
+        else:
+            # find min/max values of all measurements
+            rmin = np.inf
+            rmax = -np.inf
+            for mm in self.measurements:
+                mmf = mm[feature]
+                if filtered:
+                    mmf = mmf[mm.filter.all]
+                rmin = min(rmin, np.nanmin(mmf))
+                rmax = max(rmax, np.nanmax(mmf))
+                # check for logarithmic plots
+                if scale == "log":
+                    if rmin <= 0:
+                        if feature.startswith("fl") and feature.count("_max"):
+                            # fluorescence maxima data
+                            rmin = 1
+                        else:
+                            # compute std and mean (nans are always False)
+                            ld = np.log(mmf[mmf > 0])
+                            if len(ld):
+                                rmin = np.exp(ld.mean() - 2 * ld.std())
+                            else:
+                                # generic default
+                                rmin = .1
+                    if rmax <= 0:
+                        # generic default
+                        rmax = 1
+
+        return rmin, rmax
+
+
+    def get_config_value(self, section, key):
+        """Return the section/key value of all measurements
+
+        Parameters
+        ----------
+        section: str
+            Configuration section, e.g. "imaging", "filtering", or "plotting"
+        key: str
+            Configuration key within `section`
+
+        Returns
+        -------
+        value: multiple types
+            The configuration key value
+
+        Raises
+        ------
+        ValueError if not all measurements share the same value
+
+        Notes
+        -----
+        Using this function to retrieve section/key values ensures that the
+        value is identical for all measurements.
+        """
+        values = []
+        for mm in self.measurements:
+            values.append(mm.config[section][key])
+        all_same = np.sum([ v == values[0] for v in values ]) == len(values)
+        if not all_same:
+            msg = "Multiple values encountered for [{}]: {}".format(section,
+                                                                    key)
+            raise ValueError(msg)
+        return mm.config[section][key]
 
 
     def GetCommonParameters(self, key):
@@ -320,6 +479,11 @@ class Analysis(object):
         return conf
 
 
+    def reset_plot(self):
+        self.reset_plot_accuracies()
+        self.reset_plot_ranges()
+
+
     def reset_plot_accuracies(self):
         """ Set initial (heuristic) accuracies for all plots.
         
@@ -348,8 +512,20 @@ class Analysis(object):
                             "kde accuracy {}".format(key)]:
                     if var in mm.config["plotting"]:
                         mm.config["plotting"].pop(var)
-
         # Set default accuracies
+        self._complete_config()
+
+
+    def reset_plot_ranges(self):
+        """Reset plotting range"""
+        for key in dfn.feature_names:
+            for mm in self.measurements:
+                if not mm.config["plotting"]["fix range"]:
+                    for var in ["{} min".format(key),
+                                "{} max".format(key)]:
+                        if var in mm.config["plotting"]:
+                            mm.config["plotting"].pop(var)
+        # Set defaul values
         self._complete_config()
 
 
@@ -367,7 +543,7 @@ class Analysis(object):
     def SetContourColors(self, colors=None):
         """ Sets the contour colors.
         
-        If colors is given and if it the number of colors is equal or
+        If colors is given and if the number of colors is equal or
         greater than the number of measurements, then the colors are
         applied to the measurement. Otherwise, default colors are used.
         """

@@ -4,7 +4,7 @@
 from __future__ import division, print_function, unicode_literals
 
 import os
-from os.path import isfile, exists, join
+import pathlib
 import shutil
 import tempfile
 import warnings
@@ -26,9 +26,13 @@ class UnsupportedDataClassSaveError(BaseException):
     pass
 
 
+class SessionIndexFileMissingError(BaseException):
+    pass
+
+
 def load(path, search_path="."):
     """Open a ShapeOut session
-    
+
     Parameters
     ----------
     path: str
@@ -43,13 +47,15 @@ def load(path, search_path="."):
     This method assumes that the paths of the measurement files can
     be obtained using the data stored in the index file of the session
     and the `search_path` parameter. If this is not the case, please
-    use `conversion.search_hashed_measurement`. 
+    use `conversion.search_hashed_measurement`.
     """
-    if isfile(path):
+    path = pathlib.Path(path)
+    if path.is_file():
         # extract it first
-        arc = zipfile.ZipFile(path, mode='r')
+        arc = zipfile.ZipFile(str(path.resolve()), mode='r')
         tempdir = tempfile.mkdtemp(prefix="ShapeOut-session-load_")
-        arc.extractall(tempdir)
+        tempdir = pathlib.Path(tempdir)
+        arc.extractall(str(tempdir))
         arc.close()
         cleanup = True
     else:
@@ -57,26 +63,28 @@ def load(path, search_path="."):
         cleanup = False
 
     # Support older measurement files
-    conversion.compatibilitize_session(tempdir, search_path=search_path)
+    conversion.compatibilitize_session(str(tempdir),
+                                       search_path=str(search_path))
 
     # load index
-    index_file = join(tempdir, "index.txt")
-    if not exists(index_file):
-        raise OSError("Index file must be in {}!".format(tempdir))
-    
+    index_file = tempdir / "index.txt"
+    if not index_file.exists():
+        msg = "Index file must be in {}!".format(tempdir)
+        raise SessionIndexFileMissingError(msg)
+
     index_dict = index.index_load(index_file)
 
     # Load polygons before importing any data
-    polygonfile = os.path.join(tempdir, "PolygonFilters.poly")
+    polygonfile = tempdir / "PolygonFilters.poly"
     PolygonFilter.clear_all_filters()
-    if os.path.exists(polygonfile):
+    if polygonfile.exists():
         PolygonFilter.import_all(polygonfile)
 
     # get configurations
     keys = list(index_dict.keys())
     # The identifier (in brackets []) contains a number before the first
     # underscore "_" which determines the order of the plots:
-    #keys.sort(key=lambda x: int(x.split("_")[0]))
+    # keys.sort(key=lambda x: int(x.split("_")[0]))
     rtdc_list = [None]*len(keys)
     while rtdc_list.count(None):
         for key in keys:
@@ -87,27 +95,26 @@ def load(path, search_path="."):
             if rtdc_list[kidx] is not None:
                 # we have already imported that measurement
                 continue
-            
+
             mm_dict = index_dict[key]
             # os.path.normpath replaces forward slash with
             # backslash on Windows
-            config_file = os.path.normpath(os.path.join(tempdir,
-                                                        mm_dict["config"]))
+            config_file = tempdir / mm_dict["config"]
+            config_dir = config_file.parent
             cfg = Configuration(files=[config_file])
 
             # Start importing data
             if ("special type" in mm_dict and
-                mm_dict["special type"] == "hierarchy child"):
+                    mm_dict["special type"] == "hierarchy child"):
                 # check if parent is already here
                 pidx = int(mm_dict["parent key"].split("_")[0])-1
                 hparent = rtdc_list[pidx]
                 if hparent is not None:
                     mm = new_dataset(hparent, identifier=mm_dict["identifier"])
                     # apply manually excluded events
-                    root_idx_file = os.path.join(os.path.dirname(config_file),
-                                                 "_filter_manual_root.npy")
-                    if os.path.exists(root_idx_file):
-                        root_idx = np.load(root_idx_file)
+                    root_idx_file = config_dir / "_filter_manual_root.npy"
+                    if root_idx_file.exists():
+                        root_idx = np.load(str(root_idx_file))
                         mm.filter.apply_manual_indices(root_idx)
                 else:
                     # parent doesn't exist - try again in next loop
@@ -119,47 +126,45 @@ def load(path, search_path="."):
                 if mm.hash != mm_dict["hash"]:
                     msg = "File hashes don't match for: {}".format(tloc)
                     warnings.warn(msg, HashComparisonWarning)
-            
+
             # Load manually excluded events
-            filter_manual_file = os.path.join(os.path.dirname(config_file),
-                                              "_filter_manual.npy")
-            if os.path.exists(filter_manual_file):
-                mm.filter.manual[:] = np.load(os.path.join(filter_manual_file))
+            filter_manual_file = config_dir / "_filter_manual.npy"
+            if filter_manual_file.exists():
+                mm.filter.manual[:] = np.load(str(filter_manual_file))
 
             mm.title = mm_dict["title"]
             mm.config.update(cfg)
             mm.apply_filter()
             rtdc_list[kidx] = mm
-    
+
     if cleanup:
-        shutil.rmtree(tempdir, ignore_errors=True)
+        shutil.rmtree(str(tempdir), ignore_errors=True)
     return rtdc_list
 
 
 def save(path, rtdc_list):
     """Save a ShapeOut session
-    
+
     Parameters
     ----------
     path: str
         Path to a file where the session will be saved.
     rtdc_list: list of RTDCBase instances
         The measurements to save in the session
-        
-    
+
+
     Notes
     -----
     The session file is a .zip file with an index and all
     relevant configuration data to reproduce the list of
-    RTDCBase instances. 
+    RTDCBase instances.
     """
-    tempdir = tempfile.mkdtemp(prefix="ShapeOut-session-save")
-    returnWD = os.getcwd()
-    os.chdir(tempdir)
+    path = pathlib.Path(path)
+    tempdir = pathlib.Path(tempfile.mkdtemp(prefix="ShapeOut-session-save"))
     # Dump data into the temporary directory
-    index_file = os.path.join(tempdir, "index.txt")
+    index_file = tempdir / "index.txt"
     index_dict = {}
-    
+
     i = 0
     for mm in rtdc_list:
         if mm.format not in ["hdf5", "hierarchy", "tdms"]:
@@ -169,36 +174,35 @@ def save(path, rtdc_list):
         ident = "{}_{}".format(i, mm.identifier)
         # the directory in the session zip file where all information
         # will be stored:
-        mmdir = os.path.join(tempdir, ident)
+        mmdir = tempdir / ident
         while True:
             # If the directory already exists, append a number to that
             # directory to distinguish different measurements.
-            g=0
-            if os.path.exists(mmdir):
-                mmdir = mmdir+str(g)
-                ident = os.path.split(mmdir)[1]
+            g = 0
+            if mmdir.exists():
+                mmdir = mmdir.with_name(ident + str(g))
                 g += 1
             else:
                 break
-        os.mkdir(mmdir)
+        ident = mmdir.name
+        mmdir.mkdir()
         mm_dict = {}
         mm_dict["title"] = mm.title
         mm_dict["hash"] = mm.hash
         mm_dict["identifier"] = mm.identifier
         if mm.format in ["tdms", "hdf5"]:
-            mm_dict["name"] = os.path.basename(mm.path)
-            mm_dict["fdir"] = os.path.dirname(mm.path)
+            mm_dict["name"] = pathlib.Path(mm.path).name
+            mm_dict["fdir"] = pathlib.Path(mm.path).parent
             try:
                 # On Windows we have multiple drive letters and
                 # relpath will complain about that if dirname(mm.path)
                 # and rel_path are not on the same drive.
-                rel_path = os.path.dirname(path)
-                rdir = os.path.relpath(os.path.dirname(mm.path), rel_path)
+                rdir = str(pathlib.Path(mm.path).relative_to(path.parent))
             except ValueError:
                 rdir = "."
             mm_dict["rdir"] = rdir
             # save manual filters file only for real data
-            np.save(os.path.join(mmdir, "_filter_manual.npy"), mm.filter.manual)
+            np.save(str(mmdir / "_filter_manual.npy"), mm.filter.manual)
         elif mm.format == "hierarchy":
             pidx = rtdc_list.index(mm.hparent) + 1
             p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
@@ -208,31 +212,28 @@ def save(path, rtdc_list):
             # save (possibly hidden) root filter indices instead of
             # manual filter array.
             root_idx = mm.filter.retrieve_manual_indices()
-            np.save(os.path.join(mmdir, "_filter_manual_root.npy"), root_idx)
+            np.save(str(mmdir / "_filter_manual_root.npy"), root_idx)
         # Use forward slash such that sessions saved on Windows
         # can be opened on *nix as well.
         mm_dict["config"] = "{}/config.txt".format(ident)
         index_dict[ident] = mm_dict
         # Save configurations
-        cfgfile = os.path.join(mmdir, "config.txt")
+        cfgfile = mmdir / "config.txt"
         mm.config.save(cfgfile)
 
     # Write index
     index.index_save(index_file, index_dict)
-    
+
     # Dump polygons
     if len(PolygonFilter.instances) > 0:
-        PolygonFilter.save_all(os.path.join(tempdir,
-                               "PolygonFilters.poly"))
+        PolygonFilter.save_all(tempdir / "PolygonFilters.poly")
 
-    # Zip everything    
-    with zipfile.ZipFile(path, mode='w') as arc:
-        for root, _dirs, files in os.walk(tempdir):
+    # Zip everything
+    with zipfile.ZipFile(str(path), mode='w') as arc:
+        for root, _dirs, files in os.walk(str(tempdir)):
             for f in files:
-                fw = os.path.join(root,f)
-                arc.write(os.path.relpath(fw,tempdir))
-                os.remove(fw)
-    os.chdir(returnWD)
+                fp = pathlib.Path(root) / f
+                if fp.is_file():
+                    arc.write(str(fp), str(fp.relative_to(tempdir)))
     # cleanup
-    shutil.rmtree(tempdir, ignore_errors=True)
-
+    shutil.rmtree(str(tempdir), ignore_errors=True)

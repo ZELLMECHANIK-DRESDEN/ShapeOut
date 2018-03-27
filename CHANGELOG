@@ -1,3 +1,14 @@
+0.8.5
+ - Update plotting range when switching to log scale (#198)
+ - Allow to fix plotting range to retain previous behavior (#198)
+ - Initial plotting range is determined from min/max values of all plots (#213)
+ - Improved standard contour and kde accuracies using Doane's formula (#147)
+ - Bugfixes:
+   - Support opening tdms files with capitalized "userDef" column names
+     (dclab dclab 0.3.2.dev5) (#212)
+   - Wx colors and chaco not compatible anymore (Windows appveyor build)
+ - Refactoring:
+   - Use pathlib when saving and opening sessions and do not use os.chdir
 0.8.4
  - Add pixelation-corrected numerical and analytical isoelastics (#203)
  - Update emodulus look-up table (dclab 0.3.1.dev3) (#202)
@@ -13,6 +24,8 @@
    - Hierarchy children did not support manual filters (dclab 0.3.1.dev2)
    - Regression: Setting plotting range manually not possible (#201)
    - Pixel size not read from tdms-based data (dclab 0.3.1.dev13) (#205)
+   - "limit events" filtering must be integer not boolean
+     (dclab 0.3.2.dev3) (#210)
 0.8.3
  - Prefer sample name from para.ini over data folder name (dclab 0.3.0.dev15)
  - Support new .rtdc file format (dclab 0.3.0.dev20) (#151)

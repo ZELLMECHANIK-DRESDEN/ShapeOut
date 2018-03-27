@@ -173,7 +173,8 @@ class SubPanelPlotting(SubPanel):
                                   .replace("accuracy", "2")
                                   .replace("columns", "a1")
                                   .replace("rows", "a2")
-                                  .replace("axis", "Aa"))
+                                  .replace("axis", "Aa")
+                                  .replace("fix range", "scale a"))
         
         items.sort(key=sortfunc)
         
@@ -215,7 +216,8 @@ class SubPanelPlotting(SubPanel):
         ## Populate axes
         for item in items:
             if (item[0].startswith("axis") or 
-                item[0].startswith("scale ")):
+                item[0].startswith("scale ") or
+                item[0] == "fix range"):
                 stemp = self._create_type_wx_controls(analysis, key, item)
                 useditems.append(item)
                 axessizer.Add(stemp)

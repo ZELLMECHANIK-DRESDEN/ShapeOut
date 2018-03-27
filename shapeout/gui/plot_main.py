@@ -84,7 +84,14 @@ class MainPlotArea(wx.Panel):
             anal = self.analysis
         
         self.analysis = anal
-        
+
+        # Determine the min/max plotting range
+        xax, yax = self.analysis.GetPlotAxes()
+        xscale = self.analysis.get_config_value("plotting", "scale x")
+        yscale = self.analysis.get_config_value("plotting", "scale y")
+        xmin, xmax = self.analysis.get_feat_range(feature=xax, scale=xscale)
+        ymin, ymax = self.analysis.get_feat_range(feature=yax, scale=yscale)
+
         rows, cols, lcc, lll = anal.GetPlotGeometry()
         
         numplots = rows * cols
@@ -150,6 +157,11 @@ class MainPlotArea(wx.Panel):
                     id_ds.on_trait_change(self.OnMouseScatter,
                                           "metadata_changed")
                     self.index_datasources.append((aplot, id_ds))
+                    # Set plotting range
+                    aplot.index_mapper.range.low = xmin
+                    aplot.index_mapper.range.high = xmax
+                    aplot.value_mapper.range.low = ymin
+                    aplot.value_mapper.range.high = ymax
                 elif (not legend_plotted and lll == 1 and rows == 1) :
                     # Legend plot in next free window
                     aplot = plot_legend.legend_plot(anal.measurements)

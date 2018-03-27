@@ -26,7 +26,7 @@ if __name__ == "__main__":
         author_email='dev@craban.de',
         url='https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut',
         version=version,
-        packages=find_packages(include=(name+"*",)),
+        packages=find_packages(),
         package_dir={name: name},
         include_package_data=True,
         license="GPL v2",

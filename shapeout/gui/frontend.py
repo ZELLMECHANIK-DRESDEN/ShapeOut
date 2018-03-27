@@ -376,6 +376,7 @@ class Frame(gaugeframe.GaugeFrame):
             newcfg = {}
             for key in ["analysis", "calculation", "filtering", "plotting"]:
                 newcfg[key] = self.analysis.GetParameters(key)
+            # Remember contour colors
             contour_colors = self.analysis.GetContourColors()
             self.analysis._clear()
         else:
@@ -384,6 +385,8 @@ class Frame(gaugeframe.GaugeFrame):
 
         # Set Analysis
         anal = analysis.Analysis(data, config=newcfg)
+        # Reset plotting parameters
+        anal.reset_plot()
         # Set previous contour colors
         anal.SetContourColors(contour_colors)
 
