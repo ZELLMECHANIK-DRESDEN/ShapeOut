@@ -1,6 +1,8 @@
 0.8.6
  - Refactoring:
-   - Use pathlib instead of os.path for all session handling/conversion tasks
+   - Use pathlib instead of os.path for
+     - All session handling/conversion tasks
+     - Configuration file management
 0.8.5
  - Update plotting range when switching to log scale (#198)
  - Allow to fix plotting range to retain previous behavior (#198)

@@ -5,8 +5,7 @@ from __future__ import division, print_function, unicode_literals
 
 import copy
 import io
-import os
-from os.path import join
+import pathlib
 
 import appdirs
 
@@ -25,6 +24,7 @@ EXPERT_FEATURES = ["area_cvx", "area_msd", "frame"]
 
 class ConfigurationFile(object):
     """Manages a configuration file in the user's config dir"""
+
     def __init__(self, name=NAME, defaults=DEFAULTS, datatype="config"):
         """Initialize configuration file (create if it does not exist)"""
         if datatype == "config":
@@ -33,16 +33,15 @@ class ConfigurationFile(object):
             udir = appdirs.user_cache_dir()
         else:
             raise ValueError("`datatype` must be 'config' or 'cache'.")
-        fname = join(udir, name)
+        fname = pathlib.Path(udir) / name
         # create file if not existent
-        if not os.path.exists(fname):
+        if not fname.exists():
             # Create the file
-            open(fname, "w").close()
-        
+            fname.open("w").close()
+
         self.cfgfile = fname
         self.defaults = defaults
         self.working_directories = {}
-
 
     def load(self):
         """Loads the configuration file returning a dictionary"""
@@ -54,7 +53,6 @@ class ConfigurationFile(object):
             var, val = line.split("=", 1)
             cdict[var.lower().strip()] = val.strip()
         return cdict
-    
 
     def get_bool(self, key):
         """Returns boolean configuration key"""
@@ -71,20 +69,18 @@ class ConfigurationFile(object):
         else:
             ret = self.defaults[key]
         return ret
-        
 
     def get_dir(self, name=""):
         """Returns the working directory for label `name`"""
         cdict = self.load()
         wdkey = "working directory {}".format(name.lower())
-        
+
         if wdkey in cdict:
             wd = cdict[wdkey]
         else:
             wd = "./"
 
         return wd
-
 
     def get_int(self, key):
         """Returns integer configuration key"""
@@ -99,7 +95,6 @@ class ConfigurationFile(object):
             raise KeyError("Config key `{}` not set!".format(key))
         return ret
 
-
     def save(self, cdict):
         """Save a configuration dictionary into a file"""
         if not self.cfgfile:
@@ -113,13 +108,11 @@ class ConfigurationFile(object):
         with io.open(self.cfgfile, 'w') as fop:
             fop.writelines(outlist)
 
-    
     def set_bool(self, key, value):
         """Sets boolean key in the configuration file"""
         cdict = self.load()
         cdict[key.lower()] = bool(value)
         self.save(cdict)
-
 
     def set_dir(self, wd, name=""):
         """Set the working directory in the configuration file"""
@@ -128,13 +121,11 @@ class ConfigurationFile(object):
         cdict[wdkey] = wd
         self.save(cdict)
 
-
     def set_int(self, key, value):
         """Sets integer key in the configuration file"""
         cdict = self.load()
         cdict[key.lower()] = int(value)
         self.save(cdict)
-
 
 
 class ConfigurationFileError(BaseException):
@@ -143,7 +134,7 @@ class ConfigurationFileError(BaseException):
 
 def get_ignored_features():
     """return a list of ignored features
-    
+
     Features defined in :const:`EXPERT_FEATURES` are returned
     if the expert mode is disabled.
     """
