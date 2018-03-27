@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function
 
-import os
 import os.path as op
 
 import dclab
@@ -29,7 +28,7 @@ def test_polygon():
     assert pf.axes == (u'area_um', u'deform')
     cleanup()
     try:
-        os.remove(outfile)
+        outfile.unlink()
     except OSError:
         pass
 

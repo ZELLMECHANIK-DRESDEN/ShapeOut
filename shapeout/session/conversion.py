@@ -14,18 +14,12 @@ work with the current version of ShapeOut.
 from __future__ import division, print_function, unicode_literals
 
 from distutils.version import LooseVersion
-import io
 import hashlib
 import os
-from os.path import dirname, exists, join
+import pathlib
 import re
 import sys
 import tempfile
-
-if sys.version_info[0] == 2:
-    str_classes = (str, unicode)
-else:
-    str_classes = str
 
 import numpy as np
 
@@ -34,42 +28,48 @@ from dclab.rtdc_dataset.config import Configuration
 
 from . import index
 
+if sys.version_info[0] == 2:
+    str_classes = (str, unicode)
+else:
+    str_classes = str
+
+
 # Column name replacements, see
 # https://github.com/ZELLMECHANIK-DRESDEN/dclab/issues/16
 # https://github.com/ZELLMECHANIK-DRESDEN/rtdc_hdf5/issues/5
 compat_replace = [
-                  ["area ratio", "area_ratio"],
-                  ["area", "area_um"],
-                  ["areapix", "area_cvx"],
-                  ["arearaw", "area_msd"],
-                  ["brightness", "bright_avg"],
-                  ["brightnesssd", "bright_sd"],
-                  ["inertia ratio", "inert_ratio"],
-                  ["inertia ratio raw", "inert_ratio_raw"],
-                  ["defo", "deform"],
-                  ["fl-1area", "fl1_area"],
-                  ["fl-1max", "fl1_max"],
-                  ["fl-1dpeaks", "fl1_dist"],
-                  ["fl-1width", "fl1_width"],
-                  ["fl-1npeaks", "fl1_npeaks"],
-                  ["fl-1pos", "fl1_pos"],
-                  ["fl-2area", "fl2_area"],
-                  ["fl-2max", "fl2_max"],
-                  ["fl-2dpeaks", "fl2_dist"],
-                  ["fl-2width", "fl2_width"],
-                  ["fl-2npeaks", "fl2_npeaks"],
-                  ["fl-2pos", "fl2_pos"],
-                  ["fl-3area", "fl3_area"],
-                  ["fl-3max", "fl3_max"],
-                  ["fl-3dpeaks", "fl3_dist"],
-                  ["fl-3width", "fl3_width"],
-                  ["fl-3npeaks", "fl3_npeaks"],
-                  ["fl-3pos", "fl3_pos"],
-                  ["pos x", "pos_x"],
-                  ["pos lat", "pos_y"],
-                  ["x-size", "size_x"],
-                  ["y-size", "size_y"],
-                  ]
+    ["area ratio", "area_ratio"],
+    ["area", "area_um"],
+    ["areapix", "area_cvx"],
+    ["arearaw", "area_msd"],
+    ["brightness", "bright_avg"],
+    ["brightnesssd", "bright_sd"],
+    ["inertia ratio", "inert_ratio"],
+    ["inertia ratio raw", "inert_ratio_raw"],
+    ["defo", "deform"],
+    ["fl-1area", "fl1_area"],
+    ["fl-1max", "fl1_max"],
+    ["fl-1dpeaks", "fl1_dist"],
+    ["fl-1width", "fl1_width"],
+    ["fl-1npeaks", "fl1_npeaks"],
+    ["fl-1pos", "fl1_pos"],
+    ["fl-2area", "fl2_area"],
+    ["fl-2max", "fl2_max"],
+    ["fl-2dpeaks", "fl2_dist"],
+    ["fl-2width", "fl2_width"],
+    ["fl-2npeaks", "fl2_npeaks"],
+    ["fl-2pos", "fl2_pos"],
+    ["fl-3area", "fl3_area"],
+    ["fl-3max", "fl3_max"],
+    ["fl-3dpeaks", "fl3_dist"],
+    ["fl-3width", "fl3_width"],
+    ["fl-3npeaks", "fl3_npeaks"],
+    ["fl-3pos", "fl3_pos"],
+    ["pos x", "pos_x"],
+    ["pos lat", "pos_y"],
+    ["x-size", "size_x"],
+    ["y-size", "size_y"],
+]
 
 
 def ci_replace(data, old, new):
@@ -90,13 +90,14 @@ def ci_rm_row(data, ident):
 
 def cleanup_old_config_sections(tempdir):
     """Remove old read-only config sections
-    
+
     Remove read-only config.txt sections "framerate", "general",
     "roi", and "image".
     """
+    tempdir = pathlib.Path(tempdir)
     index_dict = index.index_load(tempdir)
     for key in index_dict:
-        cfgfile = join(tempdir, index_dict[key]["config"])
+        cfgfile = tempdir / index_dict[key]["config"]
         cfg = Configuration(files=[cfgfile])
         for section in ["framerate",
                         "general",
@@ -110,7 +111,7 @@ def cleanup_old_config_sections(tempdir):
 
 def compatibilitize_polygon(pdata, version=None):
     """Update polygon filters to latest format
-    
+
     Parameters
     ----------
     pdata: list of str
@@ -147,26 +148,26 @@ def compatibilitize_polygon(pdata, version=None):
                             ]:
                 pdata = ci_replace(pdata,
                                    pattern.format(old),
-                                   pattern.format(new))    
+                                   pattern.format(new))
     return pdata
 
 
 def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     """Update extracted files to latest format
-    
+
     ShapeOut 0.5.7
       - title saved in index.txt
-    
+
     ShapeOut 0.7.1
       - change names of KDE accuracies
         (kde multivariate -> kde accuracy)
-    
+
     ShapeOut 0.7.4
       - rewrite config.txt path to always use slash
-    
+
     ShapeOut 0.7.5
       - remove emodulus computation parameters if accuracy not present
-    
+
     ShapeOut 0.7.6
       - introduction of new feature names in dclab 0.2.5
       - all previous version did not support manual filters in
@@ -203,14 +204,12 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     --------
     update_session_hashes: Update hashes for RT-DC datasets/hierarchies
     """
+    tempdir = pathlib.Path(tempdir)
+    search_path = pathlib.Path(search_path)
     version = index.index_version(tempdir)
-    
+
     # Find all config.txt files and replace feature names
-    change_configs = []
-    for root, _d, fs in os.walk(tempdir):
-        for f in fs:
-            if f == "config.txt":
-                change_configs.append(os.path.join(root, f))
+    change_configs = [f for f in tempdir.rglob("*config.txt")]
 
     # Add title to index
     if version < LooseVersion("0.5.7"):
@@ -221,13 +220,12 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
         index.index_save(tempdir, index_dict)
 
     for cc in change_configs:
-        with io.open(cc) as fd:
+        with cc.open() as fd:
             data = fd.read()
-        
+
         if version < LooseVersion("0.7.1"):
             data = ci_replace(data, "\nkde multivariate ", "\nkde accuracy ")
-        
-        
+
         if version < LooseVersion("0.7.5"):
             if data.count("kde accuracy emodulus") == 0:
                 data = ci_rm_row(data, "emodulus medium ")
@@ -244,7 +242,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
                                 "\ncontour accuracy {} = ",
                                 "\nkde accuracy {} = ",
                                 ]:
-    
+
                     data = ci_replace(data,
                                       pattern.format(old),
                                       pattern.format(new))
@@ -272,23 +270,22 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
                               "\nisoelastics = False\n",
                               "\nisoelastics = not shown\n")
 
-        with io.open(cc, "w") as fd:
+        with cc.open("w") as fd:
             fd.write(data)
 
     # Change polygon filters as well
-    pfile = os.path.join(tempdir, "PolygonFilters.poly")
-    if os.path.exists(pfile):
-        with io.open(pfile) as fd:
+    pfile = tempdir / "PolygonFilters.poly"
+    if pfile.exists():
+        with pfile.open() as fd:
             datap = fd.read()
-            
+
         if version < LooseVersion("0.7.6"):
             datap = compatibilitize_polygon(pdata=datap,
                                             version=version)
-        
-        with io.open(pfile, "w") as fd:
+
+        with pfile.open("w") as fd:
             fd.write(datap)
 
-    
     # Rewrite confix.txt path
     if version < LooseVersion("0.7.4"):
         index_dict = index.index_load(tempdir)
@@ -298,7 +295,6 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
             index_dict[key]["config"] = repl
         index.index_save(tempdir, index_dict)
 
-
     # Remove _filter_manual.npy of hierarchy children
     # These were actually not supported but stored anyway and sometimes
     # with a wrong size.
@@ -306,9 +302,9 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
         index_dict = index.index_load(tempdir)
         for key in index_dict:
             if "special type" in index_dict[key]:
-                filtman = join(join(tempdir, key), "_filter_manual.npy")
-                if exists(filtman):
-                    os.remove(filtman)
+                filtman = tempdir / key / "_filter_manual.npy"
+                if filtman.exists():
+                    filtman.unlink()
 
     # Update file hashes
     # This only works if the absolute or relative paths in the index
@@ -336,7 +332,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
 
 def convert_polygon(infile, outfile=None, version=None):
     """Convert a polygon filter file
-    
+
     Parameters
     ----------
     infile: path to .poly file
@@ -348,28 +344,30 @@ def convert_polygon(infile, outfile=None, version=None):
         The version string. If set to `None`, the version
         is inferred from the feature names in "x axis" and
         "y axis".
-    
+
     Returns
     -------
     outfile: path to output .poly file
     """
+    infile = pathlib.Path(infile)
     if outfile is None:
         _fd, outfile = tempfile.mkstemp(prefix="converted_filter_",
                                         suffix=".poly")
-        
-    with io.open(infile) as fd:
+    outfile = pathlib.Path(outfile)
+
+    with infile.open() as fd:
         pdata = fd.read()
     pdata = compatibilitize_polygon(pdata=pdata, version=version)
-    
-    with io.open(outfile, "w") as fd:
+
+    with outfile.open("w") as fd:
         fd.write(pdata)
-    
+
     return outfile
 
 
 def hashfile_sha(fname, blocksize=65536):
     """Compute sha256 hex-hash of a file
-    
+
     Parameters
     ----------
     fname: str
@@ -379,8 +377,9 @@ def hashfile_sha(fname, blocksize=65536):
     count: int
         number of blocks read from the file
     """
+    fname = pathlib.Path(fname)
     hasher = hashlib.sha256()
-    with io.open(fname, 'rb') as fd:
+    with fname.open('rb') as fd:
         buf = fd.read(blocksize)
         while len(buf) > 0:
             hasher.update(buf)
@@ -423,11 +422,11 @@ def old_tdms_saved_hash(index_item):
 
     if fd.count(":\\"):
         tdms_path = fd + "\\" + ff
-        mx = fd + "\\" +  ff.split("_")[0]
+        mx = fd + "\\" + ff.split("_")[0]
     else:
-        tdms_path = join(fd, ff)
-        mx = join(fd, ff.split("_")[0])
-    
+        tdms_path = fd + "/" + ff
+        mx = fd + "/" + ff.split("_")[0]
+
     file_hashes = [(tdms_path, index_item["tdms hash"]),
                    (mx+"_camera.ini", index_item["camera.ini hash"]),
                    (mx+"_para.ini", index_item["para.ini hash"])
@@ -441,7 +440,7 @@ def old_tdms_saved_hash(index_item):
 
 def search_hashed_measurement(mfile, index_item, directories, version):
     """Search for a data set using hashes
-    
+
     Parameters
     ----------
     mfile: str
@@ -454,22 +453,23 @@ def search_hashed_measurement(mfile, index_item, directories, version):
     version: distutils.version.LooseVersion
         The version of ShapeOut used to save the session
         (for backwards compatibility).
-    
+
     Returns
     -------
     ffile: str or None
         Path to the found measurement file.
-    
+
     Notes
     -----
     This method only searches for filenames that match the basename
-    of the given `mfile`. 
+    of the given `mfile`.
     """
-    mname = os.path.basename(mfile)
+    mfile = pathlib.Path(mfile)
     for adir in directories:
-        for root, _ds, fs in os.walk(adir):
-            if mname in fs:
-                this_file = os.path.join(root, mname)
+        for root, _ds, fs in os.walk(str(adir)):
+            root = pathlib.Path(root)
+            if mfile.name in fs:
+                this_file = root / mfile.name
                 if version < LooseVersion("0.7.6"):
                     saved_hash = index_item["tdms hash"]
                     check_hash = hashfile_sha(this_file)
@@ -483,10 +483,10 @@ def search_hashed_measurement(mfile, index_item, directories, version):
 
 def update_session_hashes(tempdir, search_path="."):
     """Find all hierarchy children and compute correct hash
-    
+
     - Replace old hashes with new hashes
     - Fix some (not all) hierarchy problems
-    
+
     New hashing methods were introduced in ShapeOut 0.7.6.
     Do not call this method for later sessions.
 
@@ -494,6 +494,7 @@ def update_session_hashes(tempdir, search_path="."):
     are correct. It is therefore not included in the
     `compatibilitize_session` method.
     """
+    tempdir = pathlib.Path(tempdir)
     index_dict = index.index_load(tempdir)
     parents = []
     children = []
@@ -512,7 +513,7 @@ def update_session_hashes(tempdir, search_path="."):
         assert "tdms hash" in item
         # We have two ways to check data hashes
         old = old_tdms_saved_hash(item)
-        cfgfile = join(tempdir, item["config"])
+        cfgfile = tempdir / item["config"]
         cfg = Configuration(files=[cfgfile])
         mm = dclab.new_dataset(path)
         mm.config.update(cfg)
@@ -525,8 +526,7 @@ def update_session_hashes(tempdir, search_path="."):
         index_dict[pp].pop("camera.ini hash")
         index_dict[pp].pop("para.ini hash")
         index_dict[pp]["hash"] = mm.hash
-        index_dict[pp]["fdir"] = dirname(path)
-
+        index_dict[pp]["fdir"] = path.parent
 
     # As long as there are children, iteratively search
     # for their parents.
@@ -534,7 +534,7 @@ def update_session_hashes(tempdir, search_path="."):
     for ch in children:
         item = index_dict[ch]
         # Get configuration of child
-        cfgfile = join(tempdir, item["config"])
+        cfgfile = tempdir / item["config"]
         cfg = Configuration(files=[cfgfile])
         hparent = cfg["filtering"]["hierarchy parent"]
         # Search for hash and replace in dict
@@ -575,7 +575,7 @@ def update_session_hashes(tempdir, search_path="."):
             mm = dclab.new_dataset(mm_p)
             # Update configuration file
             item = index_dict[ch]
-            cfgfile = join(tempdir, item["config"])
+            cfgfile = tempdir / item["config"]
             cfg = Configuration(files=[cfgfile])
             cfg["filtering"]["hierarchy parent"] = mm_p.identifier
             cfg.save(cfgfile)

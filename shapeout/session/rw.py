@@ -97,8 +97,6 @@ def load(path, search_path="."):
                 continue
 
             mm_dict = index_dict[key]
-            # os.path.normpath replaces forward slash with
-            # backslash on Windows
             config_file = tempdir / mm_dict["config"]
             config_dir = config_file.parent
             cfg = Configuration(files=[config_file])
