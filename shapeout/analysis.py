@@ -4,9 +4,10 @@
 from __future__ import division, unicode_literals
 
 import gc
-import os
+import pathlib
 import pkg_resources
 import warnings
+import sys
 
 import chaco.api as ca
 from chaco.color_mapper import ColorMapper
@@ -20,17 +21,24 @@ from dclab.rtdc_dataset import config as dclab_config
 from .configuration import get_ignored_features
 
 
+if sys.version_info[0] == 2:
+    str_classes = (str, unicode)
+else:
+    str_classes = str
+
+
 class Analysis(object):
     """Stores several RT-DC data sets and useful methods
-    
+
     This object contains
      - RT-DC data sets
      - common configuration parameters of the data sets
      - Plotting parameters
     """
+
     def __init__(self, data, config={}):
         """ Analysis data object.
-        
+
         Parameters
         ----------
         data: str or list of (str, dclab.rtdc_dataset.RTDCBase)
@@ -53,30 +61,31 @@ class Analysis(object):
         self.measurements = []
         if isinstance(data, list):
             # New analysis
-            for f in data:
-                if os.path.exists(unicode(f)):
-                    rtdc_ds = dclab.new_dataset(f)
+            for dd in data:
+                if isinstance(dd, dclab.rtdc_dataset.RTDCBase):
+                    rtdc_ds = dd
+                elif (isinstance(dd, (str_classes, pathlib.Path)) and
+                      pathlib.Path(dd).exists()):
+                    rtdc_ds = dclab.new_dataset(dd)
                 else:
-                    # RT-DC data set
-                    rtdc_ds = f
+                    raise ValueError("Data type not understood: {}".format(dd))
                 self.measurements.append(rtdc_ds)
         else:
-            raise ValueError("Argument not a list of files or "+\
+            raise ValueError("Argument not a list of files or " +
                              "measuremens: {}".format(data))
-        
+
         # Set configuration (e.g. from previous analysis)
         if config:
             self.SetParameters(config)
         # Complete missing configuration parameters
         self._complete_config()
-        
 
     def _clear(self):
         """Remove all attributes from this instance, making it unusable
-        
+
         It is difficult to control how the chaco plots refer to a measurement
         object.
-        
+
         """
         for _i in range(len(self.measurements)):
             mm = self.measurements.pop(0)
@@ -91,27 +100,26 @@ class Analysis(object):
         self.reset_plot_accuracies()
         gc.collect()
 
-
     def _complete_config(self, measurements=None):
         """Complete configuration of all RT-DC datasets
-        
+
         Sets configuration keywords that are not (necessarily)
         used/required by dclab.
         """
         if measurements is None:
             measurements = self.measurements
-        
+
         for mm in measurements:
             # Update configuration with default values from ShapeOut,
             # but do not override anything.
             cfgold = mm.config.copy()
             mm.config.update(get_default_config())
             mm.config.update(cfgold)
-            ## Sensible values for default contour accuracies
+            # Sensible values for default contour accuracies
             # Use Doane's formula
             defs = [["contour accuracy {}", self._doanes_formula_acc, 1/4],
                     ["kde accuracy {}", self._doanes_formula_acc, 1/2],
-                   ]
+                    ]
             pltng = mm.config["plotting"]
             for kk in self.GetPlotAxes():
                 for d, l, mult in defs:
@@ -121,13 +129,12 @@ class Analysis(object):
                         # round to make it look pretty in the GUI
                         accr = float("{:.1e}".format(acc))
                         pltng[var] = accr
-            ## Check for missing min/max values and set them to zero
+            # Check for missing min/max values and set them to zero
             for item in dfn.feature_names:
                 appends = [" min", " max"]
                 for a in appends:
-                    if not item+a in mm.config["plotting"]:
+                    if item + a not in mm.config["plotting"]:
                         mm.config["plotting"][item+a] = 0
-
 
     @staticmethod
     def _doanes_formula_acc(a):
@@ -143,7 +150,6 @@ class Analysis(object):
         acc = (data.max() - data.min()) / k
         return acc
 
-
     def ForceSameDataSize(self):
         """
         Force all measurements to have the same filtered size by setting
@@ -152,18 +158,17 @@ class Analysis(object):
         """
         # Reset limit filtering to get the correct number of events
         # This value will be overridden in the end.
-        cfgreset = {"filtering":{"limit events":0}}
+        cfgreset = {"filtering": {"limit events": 0}}
         # This also calls apply_filter and comutes clean filters
         self.SetParameters(cfgreset)
-        
+
         # Get minimum size
         minsize = np.inf
         for m in self.measurements:
             minsize = min(minsize, np.sum(m._filter))
-        cfgnew = {"filtering":{"limit events":minsize}}
+        cfgnew = {"filtering": {"limit events": minsize}}
         self.SetParameters(cfgnew)
         return minsize
-
 
     def get_feat_range(self, feature, scale="linear", filtered=True,
                        update_config=True):
@@ -199,12 +204,11 @@ class Analysis(object):
                                                  scale=scale,
                                                  filtered=filtered)
             if update_config:
-            # Set config keys
+                # Set config keys
                 newcfg = {"plotting": {feature + " min": rmin,
                                        feature + " max": rmax}}
                 self.SetParameters(newcfg)
         return rmin, rmax
-
 
     def get_feat_range_opt(self, feature, scale="linear", filtered=True):
         """Return the optimal plotting range of a feature for all measurements
@@ -271,7 +275,6 @@ class Analysis(object):
 
         return rmin, rmax
 
-
     def get_config_value(self, section, key):
         """Return the section/key value of all measurements
 
@@ -299,13 +302,12 @@ class Analysis(object):
         values = []
         for mm in self.measurements:
             values.append(mm.config[section][key])
-        all_same = np.sum([ v == values[0] for v in values ]) == len(values)
+        all_same = np.sum([v == values[0] for v in values]) == len(values)
         if not all_same:
             msg = "Multiple values encountered for [{}]: {}".format(section,
                                                                     key)
             raise ValueError(msg)
         return mm.config[section][key]
-
 
     def GetCommonParameters(self, key):
         """
@@ -322,13 +324,11 @@ class Analysis(object):
                 retdict[item[0]] = item[1]
         return retdict
 
-
     def GetContourColors(self):
         colors = list()
         for mm in self.measurements:
             colors.append(mm.config["Plotting"]["Contour Color"])
         return colors
-
 
     def GetNames(self):
         """ Returns the titles of all measurements """
@@ -337,17 +337,14 @@ class Analysis(object):
             names.append(mm.title)
         return names
 
-
     def GetPlotAxes(self, mid=0):
         p = self.GetParameters("plotting", mid)
         return [p["axis x"].lower(), p["axis y"].lower()]
-
 
     def GetPlotGeometry(self, mid=0):
         p = self.GetParameters("Plotting", mid)
         return (int(p["Rows"]), int(p["Columns"]),
                 int(p["Contour Plot"]), int(p["Legend Plot"]))
-
 
     def GetStatisticsBasic(self):
         """
@@ -366,10 +363,9 @@ class Analysis(object):
             else:
                 head = h
             datalist.append([mm.title]+v)
-            
+
         head = ["Data set"] + head
         return head, datalist
-
 
     def GetFilenames(self):
         """Returns paths of measurements"""
@@ -378,14 +374,12 @@ class Analysis(object):
             names.append(mm.path)
         return names
 
-
     def GetTitles(self):
         """ Returns the titles of all measurements """
         titles = list()
         for mm in self.measurements:
             titles.append(mm.title)
         return titles
-
 
     def GetUncommonParameters(self, key):
         # Get common parameters first:
@@ -397,29 +391,30 @@ class Analysis(object):
             for nn in self.measurements[1:]:
                 s2 = set(nn.config[key].items())
                 uncom2 = set(com.items()) ^ s2
-                
+
                 newuncom = dict()
                 uncom.symmetric_difference_update(uncom2)
                 for _i in range(len(uncom)):
                     item = uncom.pop()
                     newuncom[item[0]] = None
                 uncom = set(newuncom.items())
-                    
+
             for item in uncom:
                 vals = list()
                 for mm in self.measurements:
-                    if mm.config[key].has_key(item[0]):
+                    if item[0] in mm.config[key]:
                         vals.append(mm.config[key][item[0]])
                     else:
                         vals.append(None)
-                        warnings.warn(
-                          "Measurement {} might be corrupt!".format(mm.title))
+                        msg = "Missing key {}: {} in {}!".format(key,
+                                                                 item[0],
+                                                                 mm)
+                        warnings.warn(msg)
                 retdict[item[0]] = vals
-        return retdict        
-
+        return retdict
 
     def GetUnusableAxes(self):
-        """ 
+        """
         Unusable axes are axes that are not shared by all measurements
         or that are ignored by default.
 
@@ -439,9 +434,8 @@ class Analysis(object):
                     break
         return unusable
 
-
     def GetUsableAxes(self):
-        """ 
+        """
         Usable axes are axes that are shared by all measurements
         A measurement does not have an axis, if all values along
         that axis are zero.
@@ -453,10 +447,9 @@ class Analysis(object):
         unusable = self.GetUnusableAxes()
         usable = []
         for ax in dfn.feature_names:
-            if not ax in unusable:
+            if ax not in unusable:
                 usable.append(ax)
         return usable
-
 
     def GetParameters(self, key, mid=0, filter_for_humans=True):
         """Get parameters that all measurements share."""
@@ -475,36 +468,34 @@ class Analysis(object):
         for k in list(set(pops)):
             if k in conf:
                 conf.pop(k)
-            
-        return conf
 
+        return conf
 
     def reset_plot(self):
         self.reset_plot_accuracies()
         self.reset_plot_ranges()
 
-
     def reset_plot_accuracies(self):
         """ Set initial (heuristic) accuracies for all plots.
-        
+
         It is not always easy to determine the correct accuracy for
         the contour plots. This method sets these accuracies for the user.
-        
+
         All keys of the active axes are changed, e.g.:
           - "contour accuracy area"
           - "contour accuracy defo"
           - "kde accuracy defo"
           - "kde accuracy defo"
-        
+
         Note that the accuracies are not updated when the key
         ["Plotting"]["Contour Fix Scale"] is set to `True` for the
         first measurement of the analysis.
         """
         # check if updating is disabled:
         if (len(self.measurements) == 0 or
-            self.measurements[0].config["plotting"]["contour fix scale"]):
+                self.measurements[0].config["plotting"]["contour fix scale"]):
             return
-        
+
         # Remove contour accuracies for the current plots
         for key in dfn.feature_names:
             for mm in self.measurements:
@@ -514,7 +505,6 @@ class Analysis(object):
                         mm.config["plotting"].pop(var)
         # Set default accuracies
         self._complete_config()
-
 
     def reset_plot_ranges(self):
         """Reset plotting range"""
@@ -528,7 +518,6 @@ class Analysis(object):
         # Set defaul values
         self._complete_config()
 
-
     def PolygonFilterRemove(self, filt):
         """
         Removes a polygon filter from all elements of the analysis.
@@ -539,10 +528,9 @@ class Analysis(object):
             except ValueError:
                 pass
 
-
     def SetContourColors(self, colors=None):
         """ Sets the contour colors.
-        
+
         If colors is given and if the number of colors is equal or
         greater than the number of measurements, then the colors are
         applied to the measurement. Otherwise, default colors are used.
@@ -550,18 +538,17 @@ class Analysis(object):
         if len(self.measurements) > 1:
             if colors is None or len(colors) < len(self.measurements):
                 # set colors
-                colormap=darkjet(ca.DataRange1D(low=0, high=1),
-                                 steps=len(self.measurements))
-                colors=colormap.color_bands
+                colormap = darkjet(ca.DataRange1D(low=0, high=1),
+                                   steps=len(self.measurements))
+                colors = colormap.color_bands
                 newcolors = list()
                 for color in colors:
-                    color = [ float(c) for c in color ]
+                    color = [float(c) for c in color]
                     newcolors.append(color)
                 colors = newcolors
 
             for ii, mm in enumerate(self.measurements):
                 mm.config["plotting"]["contour color"] = colors[ii]
-
 
     def SetParameters(self, newcfg):
         """Update the RT-DC dataset configuration"""
@@ -582,8 +569,9 @@ class Analysis(object):
             # Address issue with faulty contour plot on log scale
             # https://github.com/enthought/chaco/issues/300
             if (("scale x" in pl and pl["scale x"] == "log") or
-                ("scale y" in pl and pl["scale y"] == "log")):
-                warnings.warn("Disabling contour plot because of chaco issue #300!")
+                    ("scale y" in pl and pl["scale y"] == "log")):
+                warnings.warn(
+                    "Disabling contour plot because of chaco issue #300!")
                 pl["contour plot"] = False
             # check for inverted plotting ranges
             for feat in dfn.feature_names:
@@ -613,20 +601,19 @@ class Analysis(object):
         for mm in self.measurements:
             # apply filter in separate loop (safer for hierarchies)
             mm.apply_filter()
-        
+
         # Trigger computation of kde/contour accuracies for ancillary features
         self._complete_config()
-
 
 
 def darkjet(myrange, **traits):
     """Generator function for the 'darkjet' colormap. """
     _data = {'red': ((0., 0, 0), (0.35, 0.0, 0.0), (0.66, .3, .3), (0.89, .4, .4),
-    (1, 0.5, 0.5)),
-    'green': ((0., 0.0, 0.0), (0.125, .1, .10), (0.375, .4, .4), (0.64,.3, .3),
-    (0.91,0.2,0.2), (1, 0, 0)),
-    'blue': ((0., 0.7, 0.7), (0.11, .5, .5), (0.34, .4, .4), (0.65, 0, 0),
-    (1, 0, 0))}
+                     (1, 0.5, 0.5)),
+             'green': ((0., 0.0, 0.0), (0.125, .1, .10), (0.375, .4, .4), (0.64, .3, .3),
+                       (0.91, 0.2, 0.2), (1, 0, 0)),
+             'blue': ((0., 0.7, 0.7), (0.11, .5, .5), (0.34, .4, .4), (0.65, 0, 0),
+                      (1, 0, 0))}
     return ColorMapper.from_segment_map(_data, range=myrange, **traits)
 
 
@@ -634,7 +621,7 @@ def darkjet(myrange, **traits):
 # - decorate this method with a cache
 def get_default_config():
     cfg_dir = pkg_resources.resource_filename("shapeout", "cfg")
-    cfg_file = os.path.join(cfg_dir, "default.cfg")
+    cfg_file = pathlib.Path(cfg_dir) / "default.cfg"
     cfg = dclab_config.load_from_file(cfg_file)
     return cfg
 

@@ -3,6 +3,7 @@
    - Use pathlib instead of os.path for
      - All session handling/conversion tasks
      - Configuration file management
+     - Measurement/Analysis management
 0.8.5
  - Update plotting range when switching to log scale (#198)
  - Allow to fix plotting range to retain previous behavior (#198)
