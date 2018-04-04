@@ -4,6 +4,9 @@
      - All session handling/conversion tasks
      - Configuration file management
      - Measurement/Analysis management
+ - Bugfixes:
+   - Opening sessions containing paths to data with a hash "#" failed
+   - AttributeError during autosave when no measurement data is available
 0.8.5
  - Update plotting range when switching to log scale (#198)
  - Allow to fix plotting range to retain previous behavior (#198)

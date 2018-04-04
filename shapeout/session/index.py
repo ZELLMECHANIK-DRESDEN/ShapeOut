@@ -116,11 +116,13 @@ def index_load(index_file):
         code = f.readlines()
 
     for line in code:
-        # We deal with comments and empty lines
         # We need to check line length first and then we look for
         # a hash.
-        line = line.split("#")[0].strip()
+        line = line.strip()
         if len(line):
+            if line.startswith("#"):
+                # ignore comments
+                continue
             if line.startswith("[") and line.endswith("]"):
                 section = line[1:-1]
                 if section not in cfg:
