@@ -7,6 +7,8 @@
  - Bugfixes:
    - Opening sessions containing paths to data with a hash "#" failed
    - AttributeError during autosave when no measurement data is available
+   - Exporting to .fcs files failed due to NaN-valued events; Events
+     containing NaN values are now ignored (fcswrite 0.1.3.dev22) (#215)
 0.8.5
  - Update plotting range when switching to log scale (#198)
  - Allow to fix plotting range to retain previous behavior (#198)
