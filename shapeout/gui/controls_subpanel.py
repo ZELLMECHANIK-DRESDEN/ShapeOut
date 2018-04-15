@@ -56,7 +56,15 @@ class SubPanel(ScrolledPanel):
             
             for item in items:
                 a = wx.StaticText(self, label=item[0])
-                b = wx.StaticText(self, label=str(item[1]))
+                # This is a hacky temporary workaround as long as we are
+                # in WxPython to display nice string representations:
+                if item[0] == "pixel size":
+                    label = "{:.3f}".format(item[1])
+                elif item[0] in ["flow rate", "flow rate sample", "flow rate sheath"]:
+                    label = "{:.5f}".format(item[1])
+                else:
+                    label = str(item[1])
+                b = wx.StaticText(self, label=label)
                 if item[1] == multiplestr:
                     a.Disable()
                     b.Disable()
