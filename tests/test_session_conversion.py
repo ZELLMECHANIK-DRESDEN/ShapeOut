@@ -223,6 +223,16 @@ def test_084_manhierarchy():
     cleanup()
 
 
+def test_086_removed_keys_dclab034():
+    """Removed keys in dclab 0.3.4"""
+    analysis = compatibility_task("session_v0.8.4_hierarchy_filtman.zmso")
+    mm = analysis.measurements[0]
+    assert "temperature" not in mm.config["setup"]
+    assert "viscosity" not in mm.config["setup"]
+    assert "exposure time" not in mm.config["imaging"]
+    assert "flash current" not in mm.config["imaging"]
+
+
 if __name__ == "__main__":
     # Run all tests
     loc = locals()

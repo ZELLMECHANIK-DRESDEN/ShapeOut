@@ -79,11 +79,17 @@ def ci_replace(data, old, new):
 
 
 def ci_rm_row(data, ident):
-    """Case insensitive removal of a row contained in data"""
+    """Case insensitive removal of a row contained in data
+
+    Parameters
+    ----------
+    ident: str
+        Lines starting with this string are removed
+    """
     data = data.split("\n")
     newdata = []
     for ii in range(len(data)):
-        if data[ii].lower().count(ident.lower()) == 0:
+        if not data[ii].lower().startswith(ident.lower()):
             newdata.append(data[ii])
     return "\n".join(newdata)
 
@@ -190,6 +196,12 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
         previous: bool
         new: ["not shown", "analytical", "numerical", "legacy"]
 
+    ShapeOut 0.8.6
+      - remove configuration keys (dclab 0.3.4)
+        [imaging]: "exposure time", "flash current"
+        [setup]: "temperature", "viscosity"
+
+
     Parameters
     ----------
     tempdir: str
@@ -228,10 +240,10 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
 
         if version < LooseVersion("0.7.5"):
             if data.count("kde accuracy emodulus") == 0:
-                data = ci_rm_row(data, "emodulus medium ")
-                data = ci_rm_row(data, "emodulus model ")
-                data = ci_rm_row(data, "emodulus temperature ")
-                data = ci_rm_row(data, "emodulus viscosity ")
+                data = ci_rm_row(data, "emodulus medium = ")
+                data = ci_rm_row(data, "emodulus model = ")
+                data = ci_rm_row(data, "emodulus temperature = ")
+                data = ci_rm_row(data, "emodulus viscosity = ")
 
         if version < LooseVersion("0.7.6"):
             for old, new in compat_replace:
@@ -269,6 +281,12 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
             data = ci_replace(data,
                               "\nisoelastics = False\n",
                               "\nisoelastics = not shown\n")
+
+        if version < LooseVersion("0.8.6"):
+            data = ci_rm_row(data, "exposure time = ")
+            data = ci_rm_row(data, "flash current = ")
+            data = ci_rm_row(data, "temperature = ")
+            data = ci_rm_row(data, "viscosity = ")
 
         with cc.open("w") as fd:
             fd.write(data)
