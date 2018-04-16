@@ -30,16 +30,16 @@ def open_session(parent, session_file=None):
         # User dialog
         dlg = wx.FileDialog(parent,
                             "Open session file",
-                            parent.config.get_dir(name="Session"),
+                            parent.config.get_path(name="Session"),
                             "",
                             "ShapeOut session (*.zmso)|*.zmso", wx.FD_OPEN)
         
         if dlg.ShowModal() == wx.ID_OK:
-            parent.config.set_dir(dlg.GetDirectory(), name="Session")
+            parent.config.set_path(dlg.GetDirectory(), name="Session")
             fname = dlg.GetPath()
             dlg.Destroy()
         else:
-            parent.config.set_dir(dlg.GetDirectory(), name="Session")
+            parent.config.set_path(dlg.GetDirectory(), name="Session")
             dlg.Destroy()
             return # nothing more to do here
     else:
@@ -106,11 +106,11 @@ def open_session_worker(path, parent):
         msg = "Please select directory containing {}".format(miss)
         dlg = wx.DirDialog(parent,
                            message=msg,
-                           defaultPath=parent.config.get_dir(name=sd)
+                           defaultPath=parent.config.get_path(name=sd)
                            )
         mod = dlg.ShowModal()
         path = dlg.GetPath()
-        parent.config.set_dir(wd=path, name=sd)
+        parent.config.set_path(wd=path, name=sd)
         dlg.Destroy()
         if mod != wx.ID_OK:
             break
@@ -184,7 +184,7 @@ def open_session_worker(path, parent):
 
 def save_session(parent):
     dlg = wx.FileDialog(parent, "Save ShapeOut session", 
-                parent.config.get_dir(name="Session"), "",
+                parent.config.get_path(name="Session"), "",
                 "ShapeOut session (*.zmso)|*.zmso",
                 wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
@@ -193,10 +193,10 @@ def save_session(parent):
         dirname = path.parent
         if not path.name.endswith(".zmso"):
             path = dirname / (path.name + ".zmso")
-        parent.config.set_dir(dirname, name="Session")
+        parent.config.set_path(dirname, name="Session")
         rw.save(path, parent.analysis.measurements)
         return path
     else:
         dirname = dlg.GetDirectory()
-        parent.config.set_dir(dirname, name="Session")
+        parent.config.set_path(dirname, name="Session")
         dlg.Destroy()

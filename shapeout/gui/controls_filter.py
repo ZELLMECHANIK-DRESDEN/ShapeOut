@@ -388,15 +388,15 @@ class SubPanelFilter(SubPanel):
             if ch is None:
                 return
         dlg = wx.FileDialog(self, "Open polygon file",
-                    self.config.get_dir(name="Polygon"), "",
+                    self.config.get_path(name="Polygon"), "",
                     "ShapeOut polygon file (*.poly)|*.poly", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             fname = dlg.GetPath()
-            self.config.set_dir(dlg.GetDirectory(),
+            self.config.set_path(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
         else:
-            self.config.set_dir(dlg.GetDirectory(),
+            self.config.set_path(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
             return # nothing more to do here
@@ -450,16 +450,16 @@ class SubPanelFilter(SubPanel):
     
     def OnPolygonImport(self, e=None):
         dlg = wx.FileDialog(self, "Open polygon file",
-                    self.config.get_dir(name="Polygon"), "",
+                    self.config.get_path(name="Polygon"), "",
                     "ShapeOut polygon file (*.poly)|*.poly", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             fname = dlg.GetPath()
-            self.config.set_dir(dlg.GetDirectory(),
-                                            name="Polygon")
+            self.config.set_path(dlg.GetDirectory(),
+                                 name="Polygon")
             dlg.Destroy()
         else:
-            self.config.set_dir(dlg.GetDirectory(),
-                                            name="Polygon")
+            self.config.set_path(dlg.GetDirectory(),
+                                 name="Polygon")
             dlg.Destroy()
             return # nothing more to do here
         if not fname.endswith(".poly"):

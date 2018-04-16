@@ -65,18 +65,6 @@ class SettingsFile(object):
             ret = self.defaults[key]
         return ret
 
-    def get_dir(self, name=""):
-        """Returns the working directory for label `name`"""
-        cdict = self.load()
-        wdkey = "working directory {}".format(name.lower())
-
-        if wdkey in cdict:
-            wd = cdict[wdkey]
-        else:
-            wd = "./"
-
-        return wd
-
     def get_int(self, key):
         """Returns integer configuration key"""
         key = key.lower()
@@ -89,6 +77,18 @@ class SettingsFile(object):
         else:
             raise KeyError("Config key `{}` not set!".format(key))
         return ret
+
+    def get_path(self, name=""):
+        """Returns the path for label `name`"""
+        cdict = self.load()
+        wdkey = "path {}".format(name.lower())
+
+        if wdkey in cdict:
+            wd = cdict[wdkey]
+        else:
+            wd = "./"
+
+        return wd
 
     def save(self, cdict):
         """Save a settings dictionary into a file"""
@@ -109,17 +109,17 @@ class SettingsFile(object):
         cdict[key.lower()] = bool(value)
         self.save(cdict)
 
-    def set_dir(self, wd, name=""):
-        """Set the working directory in the settings file"""
-        cdict = self.load()
-        wdkey = "working directory {}".format(name.lower())
-        cdict[wdkey] = wd
-        self.save(cdict)
-
     def set_int(self, key, value):
         """Sets integer key in the settings file"""
         cdict = self.load()
         cdict[key.lower()] = int(value)
+        self.save(cdict)
+
+    def set_path(self, wd, name=""):
+        """Set the path in the settings file"""
+        cdict = self.load()
+        wdkey = "path {}".format(name.lower())
+        cdict[wdkey] = wd
         self.save(cdict)
 
 
