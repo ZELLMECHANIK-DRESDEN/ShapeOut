@@ -18,7 +18,7 @@ import dclab
 import dclab.definitions as dfn
 from dclab.rtdc_dataset import config as dclab_config
 
-from .configuration import get_ignored_features
+from .settings import get_ignored_features
 
 
 if sys.version_info[0] == 2:

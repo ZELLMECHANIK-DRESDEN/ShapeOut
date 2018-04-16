@@ -17,7 +17,7 @@ import dclab
 
 
 from .. import analysis
-from ..configuration import ConfigurationFile
+from ..settings import SettingsFile
 from .. import meta_tool
 
 from . import autosave
@@ -48,7 +48,7 @@ class Frame(gaugeframe.GaugeFrame):
     """"""
     def __init__(self, version):
         """Constructor"""
-        self.config = ConfigurationFile()
+        self.config = SettingsFile()
         self.version = version
         #size = (1300,900)
         size = (1200,700)

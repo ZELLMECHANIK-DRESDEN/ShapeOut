@@ -4,11 +4,11 @@ from __future__ import division, print_function
 
 import pathlib
 
-from shapeout import configuration
+from shapeout import settings
 
 
 def test_cfg_basic():
-    cfg = configuration.ConfigurationFile()
+    cfg = settings.SettingsFile()
     wd = pathlib.Path(".").resolve()
     cfg.set_dir(str(wd.parent), "Peter")
 

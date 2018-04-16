@@ -8,7 +8,7 @@ import dclab
 import wx
 import wx.lib.agw.hypertreelist as HT
 
-from ..configuration import ConfigurationFile
+from ..settings import SettingsFile
 from ..session import conversion
 from .polygonselect import LineDrawerWindow
 from .controls_subpanel import SubPanel
@@ -16,7 +16,7 @@ from .controls_subpanel import SubPanel
 class SubPanelFilter(SubPanel):
     def __init__(self, parent, *args, **kwargs):
         SubPanel.__init__(self, parent, *args, **kwargs)
-        self.config = ConfigurationFile()
+        self.config = SettingsFile()
         self.key = "Filtering"
 
     def _box_rest_filter(self, analysis, key):

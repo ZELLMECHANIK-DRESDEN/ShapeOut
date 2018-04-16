@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import wx
 
-from ..configuration import ConfigurationFile
+from ..settings import SettingsFile
 
 from . import confparms
 from .controls_subpanel import SubPanel
@@ -12,7 +12,7 @@ from .controls_subpanel import SubPanel
 class SubPanelCalculate(SubPanel):
     def __init__(self, parent, *args, **kwargs):
         SubPanel.__init__(self, parent, *args, **kwargs)
-        self.config = ConfigurationFile()
+        self.config = SettingsFile()
         self.key = "Calculate"
 
 

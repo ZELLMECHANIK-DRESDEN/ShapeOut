@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Configuration file handling for ShapeOut"""
+"""Settings file management"""
 from __future__ import division, print_function, unicode_literals
 
 import copy
@@ -8,7 +8,7 @@ import pathlib
 
 import appdirs
 
-#: default configuration file name
+#: default settings file name
 NAME = "shapeout.cfg"
 
 #: default configuration parameters
@@ -21,18 +21,14 @@ DEFAULTS = {"autosave session": True,
 EXPERT_FEATURES = ["area_cvx", "area_msd", "frame"]
 
 
-class ConfigurationFile(object):
-    """Manages a configuration file in the user's config dir"""
+class SettingsFile(object):
+    """Manages a settings file in the user's config dir"""
 
-    def __init__(self, name=NAME, defaults=DEFAULTS, datatype="config"):
-        """Initialize configuration file (create if it does not exist)"""
-        if datatype == "config":
-            udir = appdirs.user_config_dir()
-        elif datatype == "cache":
-            udir = appdirs.user_cache_dir()
-        else:
-            raise ValueError("`datatype` must be 'config' or 'cache'.")
-        fname = pathlib.Path(udir) / name
+    def __init__(self, name=NAME, defaults=DEFAULTS, directory=None):
+        """Initialize settings file (create if it does not exist)"""
+        if directory is None:
+            directory = appdirs.user_config_dir()
+        fname = pathlib.Path(directory) / name
         # create file if not existent
         if not fname.exists():
             # Create the file
@@ -43,7 +39,7 @@ class ConfigurationFile(object):
         self.working_directories = {}
 
     def load(self):
-        """Loads the configuration file returning a dictionary"""
+        """Loads the settings file returning a dictionary"""
         with self.cfgfile.open() as fop:
             fc = fop.readlines()
         cdict = {}
@@ -95,9 +91,9 @@ class ConfigurationFile(object):
         return ret
 
     def save(self, cdict):
-        """Save a configuration dictionary into a file"""
+        """Save a settings dictionary into a file"""
         if not self.cfgfile:
-            raise ConfigurationFileError("configuration path not set!")
+            raise SettingsFileError("Settings path not set!")
         skeys = list(cdict.keys())
         skeys.sort()
         outlist = []
@@ -108,26 +104,35 @@ class ConfigurationFile(object):
             fop.writelines(outlist)
 
     def set_bool(self, key, value):
-        """Sets boolean key in the configuration file"""
+        """Sets boolean key in the settings file"""
         cdict = self.load()
         cdict[key.lower()] = bool(value)
         self.save(cdict)
 
     def set_dir(self, wd, name=""):
-        """Set the working directory in the configuration file"""
+        """Set the working directory in the settings file"""
         cdict = self.load()
         wdkey = "working directory {}".format(name.lower())
         cdict[wdkey] = wd
         self.save(cdict)
 
     def set_int(self, key, value):
-        """Sets integer key in the configuration file"""
+        """Sets integer key in the settings file"""
         cdict = self.load()
         cdict[key.lower()] = int(value)
         self.save(cdict)
 
 
-class ConfigurationFileError(BaseException):
+class SettingsFileCache(SettingsFile):
+    """A SettingsFile-based data cache"""
+    def __init__(self, name):
+        directory = appdirs.user_cache_dir()
+        super(SettingsFileCache, self).__init__(name=name,
+                                                defaults={},
+                                                directory=directory)
+
+
+class SettingsFileError(BaseException):
     pass
 
 
@@ -137,7 +142,7 @@ def get_ignored_features():
     Features defined in :const:`EXPERT_FEATURES` are returned
     if the expert mode is disabled.
     """
-    if ConfigurationFile().get_bool("expert mode"):
+    if SettingsFile().get_bool("expert mode"):
         ignored = []
     else:
         # Axes that should not be displayed  by ShapeOut

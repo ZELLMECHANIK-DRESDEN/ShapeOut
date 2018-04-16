@@ -14,7 +14,7 @@ import nptdms
 from dclab.rtdc_dataset import config as rt_config
 from dclab.rtdc_dataset import fmt_tdms
 
-from . import configuration
+from . import settings
 
 
 def collect_data_tree(directories):
@@ -159,10 +159,7 @@ def get_event_count_cache(fname):
     with fname.open(mode="rb") as fd:
         data = fd.read(100 * 1024)
     fhash = hashlib.md5(data + str(fname).encode("utf-8")).hexdigest()
-    cfgec = configuration.ConfigurationFile(
-        name="shapeout_tdms_event_counts.txt",
-        defaults={},
-        datatype="cache")
+    cfgec = settings.SettingsFileCache(name="shapeout_tdms_event_counts.txt")
     try:
         event_count = cfgec.get_int(fhash)
     except KeyError:
