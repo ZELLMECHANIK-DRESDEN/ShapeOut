@@ -200,6 +200,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
       - remove configuration keys (dclab 0.3.4)
         [imaging]: "exposure time", "flash current"
         [setup]: "temperature", "viscosity"
+      - rename feature "ncells" to "nevents"
 
 
     Parameters
@@ -283,10 +284,25 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
                               "\nisoelastics = not shown\n")
 
         if version < LooseVersion("0.8.6"):
+            # remove config keys
             data = ci_rm_row(data, "exposure time = ")
             data = ci_rm_row(data, "flash current = ")
             data = ci_rm_row(data, "temperature = ")
             data = ci_rm_row(data, "viscosity = ")
+            # rename feature
+            old = "ncells"
+            new = "nevents"
+            for pattern in ["\n{} min = ",
+                            "\n{} max = ",
+                            "\naxis x = {}\n",
+                            "\naxis y = {}\n",
+                            "\ncontour accuracy {} = ",
+                            "\nkde accuracy {} = ",
+                            ]:
+
+                data = ci_replace(data,
+                                  pattern.format(old),
+                                  pattern.format(new))
 
         with cc.open("w") as fd:
             fd.write(data)

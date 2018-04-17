@@ -4,6 +4,7 @@
      - All session handling/conversion tasks
      - Configuration file management
      - Measurement/Analysis management
+   - Support all changes to dclab.definitions (dclab 0.4.0)
  - Bugfixes:
    - Opening sessions containing paths to data with a hash "#" failed
    - AttributeError during autosave when no measurement data is available
