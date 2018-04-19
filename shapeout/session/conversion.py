@@ -200,6 +200,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
       - remove configuration keys (dclab 0.3.4)
         [imaging]: "exposure time", "flash current"
         [setup]: "temperature", "viscosity"
+        [online_contour]: "bin margin"
       - rename feature "ncells" to "nevents"
 
 
@@ -289,6 +290,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
             data = ci_rm_row(data, "flash current = ")
             data = ci_rm_row(data, "temperature = ")
             data = ci_rm_row(data, "viscosity = ")
+            data = ci_rm_row(data, "bin margin = ")
             # rename feature
             old = "ncells"
             new = "nevents"
