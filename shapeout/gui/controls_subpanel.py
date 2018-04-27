@@ -86,7 +86,7 @@ class SubPanel(ScrolledPanel):
         choices = confparms.get_config_entry_choices(key, item[0],
                                            ignore_axes=ignore_axes)
         if choices:
-            if choices[0] in dclab.dfn.feature_names:
+            if choices[0] in dclab.dfn.scalar_feature_names:
                 human_choices = [ dclab.dfn.feature_name2label[c] for c in choices]
             elif key.lower() == "plotting" and item[0] == "isoelastics":
                 # add the <0.8.4 version info to prevent user confusion

@@ -151,7 +151,7 @@ class BatchFilterFolder(wx.Frame):
             if (isinstance(ch, wx._controls.CheckBox) and 
                 ch.IsChecked()):
                 name = ch.GetName()
-                if name in dclab.dfn.feature_names:
+                if name in dclab.dfn.scalar_feature_names:
                     features.append(name)
         # Get selected features
         col_dict = dclab.statistics.Statistics.available_methods
@@ -331,11 +331,11 @@ class BatchFilterFolder(wx.Frame):
         if self.rbtnhere.Value:
             sel = self.dropdown.GetSelection()
             mm = self.analysis.measurements[sel]
-            for c in dclab.dfn.feature_names:
+            for c in dclab.dfn.scalar_feature_names:
                 if c in mm:
                     checks.append(c)
         else:
-            for c in dclab.dfn.feature_names:
+            for c in dclab.dfn.scalar_feature_names:
                 checks.append(c)
 
         checks = list(set(checks))

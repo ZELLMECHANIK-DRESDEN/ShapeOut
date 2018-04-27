@@ -24,7 +24,7 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
         if subkey == "kde":
             choices = list(dclab.kde_methods.methods.keys())
         elif subkey in ["axis x", "axis y"]:
-            choices = copy.copy(dclab.dfn.feature_names)
+            choices = copy.copy(dclab.dfn.scalar_feature_names)
             # remove unwanted axes
             for choice in ignore_axes:
                 if choice in choices:

@@ -130,7 +130,7 @@ class Analysis(object):
                         accr = float("{:.1e}".format(acc))
                         pltng[var] = accr
             # Check for missing min/max values and set them to zero
-            for item in dfn.feature_names:
+            for item in dfn.scalar_feature_names:
                 appends = [" min", " max"]
                 for a in appends:
                     if item + a not in mm.config["plotting"]:
@@ -423,7 +423,7 @@ class Analysis(object):
         GetUsableAxes
         """
         unusable = []
-        for ax in dfn.feature_names:
+        for ax in dfn.scalar_feature_names:
             if ax in get_ignored_features():
                 unusable.append(ax)
                 continue
@@ -446,7 +446,7 @@ class Analysis(object):
         """
         unusable = self.GetUnusableAxes()
         usable = []
-        for ax in dfn.feature_names:
+        for ax in dfn.scalar_feature_names:
             if ax not in unusable:
                 usable.append(ax)
         return usable
@@ -497,7 +497,7 @@ class Analysis(object):
             return
 
         # Remove contour accuracies for the current plots
-        for key in dfn.feature_names:
+        for key in dfn.scalar_feature_names:
             for mm in self.measurements:
                 for var in ["contour accuracy {}".format(key),
                             "kde accuracy {}".format(key)]:
@@ -508,7 +508,7 @@ class Analysis(object):
 
     def reset_plot_ranges(self):
         """Reset plotting range"""
-        for key in dfn.feature_names:
+        for key in dfn.scalar_feature_names:
             for mm in self.measurements:
                 if not mm.config["plotting"]["fix range"]:
                     for var in ["{} min".format(key),
@@ -574,7 +574,7 @@ class Analysis(object):
                     "Disabling contour plot because of chaco issue #300!")
                 pl["contour plot"] = False
             # check for inverted plotting ranges
-            for feat in dfn.feature_names:
+            for feat in dfn.scalar_feature_names:
                 fmin = feat + " min"
                 fmax = feat + " max"
                 if (fmin in pl and

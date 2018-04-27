@@ -48,7 +48,7 @@ class ExportAnalysisEvents(wx.Frame):
         ## Add checkboxes
         checks = []
         # find out which are actually used in the analysis
-        for cc in dclab.dfn.feature_names:
+        for cc in dclab.dfn.scalar_feature_names:
             for mm in self.analysis.measurements:
                 if cc in mm:
                     checks.append(cc)
@@ -63,10 +63,7 @@ class ExportAnalysisEvents(wx.Frame):
         for c in checks:
             # label id (b/c of sorting)
             lid = c+":"+" "*((tl-dc.GetTextExtent(c)[0])//sp)+"\t"
-            if c in non_scalars:
-                label = c
-            else:
-                label = dclab.dfn.feature_name2label[c]
+            label = dclab.dfn.feature_name2label[c]
             cb = wx.CheckBox(self.panel, label=lid + label, name=c)
             self.sizerin.Add(cb)
             if c in self.analysis.GetPlotAxes():
@@ -116,7 +113,7 @@ class ExportAnalysisEvents(wx.Frame):
 
             # search all children for checkboxes that have
             # the names in dclab.dfn.feature_names
-            names = dclab.dfn.feature_names + ["contour", "image", "trace"]
+            names = dclab.dfn.feature_names
             features = []
             for ch in self.panel.GetChildren():
                 if (isinstance(ch, wx._controls.CheckBox) and 
@@ -150,7 +147,7 @@ class ExportAnalysisEvents(wx.Frame):
         `self.toggled_event_features`.
         """
         panel = self.panel
-        names = dclab.dfn.feature_names + ["contour", "image", "trace"]
+        names = dclab.dfn.feature_names
         for ch in panel.GetChildren():
             if (isinstance(ch, wx._controls.CheckBox) and 
                 ch.GetName() in names):
