@@ -13,10 +13,15 @@ year = "2015"
 
 
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
-try:
-    from _version import version # @UnresolvedImport
-except:
-    version = "unknown"
+from _version import version
+
+if version.count("dev") or sys.argv.count("test"):
+    # specific versions are not desired for
+    # - development version
+    # - running pytest
+    release_deps = ["dclab"]
+else:
+    release_deps = ["dclab==0.5.0"]
 
 
 if __name__ == "__main__":
@@ -42,13 +47,12 @@ if __name__ == "__main__":
                                    ],
                           },
         install_requires=["appdirs",
-                          "dclab>=0.4.1",
                           "h5py",
                           "nptdms",
                           "numpy>=1.7.0",
                           "pyper",
                           "scipy>=0.13.0",
-                          ],
+                          ] + release_deps,
         setup_requires=['pytest-runner'],
         tests_require=["pytest", "urllib3"],
         keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
