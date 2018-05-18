@@ -19,9 +19,11 @@ if version.count("dev") or sys.argv.count("test"):
     # specific versions are not desired for
     # - development version
     # - running pytest
-    release_deps = ["dclab"]
+    release_deps = ["dclab",
+                    "fcswrite"]
 else:
-    release_deps = ["dclab==0.5.0"]
+    release_deps = ["dclab==0.5.1",
+                    "fcswrite==0.2.0"]
 
 setup(
     name=name,
