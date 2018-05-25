@@ -410,8 +410,6 @@ def hashfile_sha(fname, blocksize=65536):
         path to the file
     blocksize: int
         block size read from the file
-    count: int
-        number of blocks read from the file
     """
     fname = pathlib.Path(fname)
     hasher = hashlib.sha256()
@@ -437,10 +435,6 @@ def obj2str(obj):
         return obj2str(list(obj))
     elif isinstance(obj, list):
         return b"".join(obj2str(o) for o in obj)
-    elif isinstance(obj, dict):
-        return obj2str(list(obj.items()))
-    elif hasattr(obj, "identifier"):
-        return obj2str(obj.identifier)
     else:
         raise ValueError("No rule to convert object '{}' to string.".
                          format(obj.__class__))
