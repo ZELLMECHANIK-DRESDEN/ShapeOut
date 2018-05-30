@@ -20,7 +20,7 @@ def export_plot_pdf(parent):
                         "PDF file"+" (*.pdf)|*.pdf",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
-        path = dlg.GetPath()
+        path = dlg.GetPath().encode("utf-8")
         if not path.endswith(".pdf"):
             path += ".pdf"
         parent.config.set_path(os.path.dirname(path), "PDF")
@@ -139,7 +139,7 @@ def export_plot_png(parent):
                         "PNG file (*.png)|*.png",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
-        path = dlg.GetPath()
+        path = dlg.GetPath().encode("utf-8")
         if not path.endswith(".png"):
             path += ".png"
         parent.config.set_path(os.path.dirname(path), "PNG")
@@ -169,7 +169,7 @@ def export_plot_svg(parent):
                         "SVG file"+" (*.svg)|*.svg",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
-        path = dlg.GetPath()
+        path = dlg.GetPath().encode("utf-8")
         if not path.endswith(".svg"):
             path += ".svg"
         parent.config.set_path(os.path.dirname(path), "SVG")

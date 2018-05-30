@@ -391,7 +391,7 @@ class SubPanelFilter(SubPanel):
                     self.config.get_path(name="Polygon"), "",
                     "ShapeOut polygon file (*.poly)|*.poly", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
-            fname = dlg.GetPath()
+            fname = dlg.GetPath().encode("utf-8")
             self.config.set_path(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
@@ -453,7 +453,7 @@ class SubPanelFilter(SubPanel):
                     self.config.get_path(name="Polygon"), "",
                     "ShapeOut polygon file (*.poly)|*.poly", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
-            fname = dlg.GetPath()
+            fname = dlg.GetPath().encode("utf-8")
             self.config.set_path(dlg.GetDirectory(),
                                  name="Polygon")
             dlg.Destroy()

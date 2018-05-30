@@ -105,7 +105,7 @@ class ExportAnalysisEvents(wx.Frame):
                            style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
-            outdir = dlg2.GetPath()
+            outdir = dlg2.GetPath().encode("utf-8")
             self.parent.config.set_path(outdir, "ExportData")
             
             # determine if user wants filtered data
@@ -224,7 +224,7 @@ def export_event_images_avi(parent, analysis):
                defaultPath=parent.config.get_path("ExportAVI"),
                style=wx.DD_DEFAULT_STYLE)
     if dlg.ShowModal() == wx.ID_OK:
-        out_dir=dlg.GetPath()
+        out_dir=dlg.GetPath().encode("utf-8")
         parent.config.set_path(out_dir, "ExportAVI")
         for m in analysis.measurements:
             m.export.avi(os.path.join(out_dir, m.title+".avi"),
@@ -238,7 +238,7 @@ def export_event_image_png(parent, image):
                         "Portable Network Graphics (*.png)|*.png;*.PNG",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
-        path = dlg.GetPath()
+        path = dlg.GetPath().encode("utf-8")
         parent.config.set_path(os.path.dirname(path), "ExportEventPNG")
         if not path.lower().endswith(".png"):
             path += ".png"
@@ -269,7 +269,7 @@ def export_statistics_tsv(parent):
             wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     # user cannot do anything until he clicks "OK"
     if dlg.ShowModal() == wx.ID_OK:
-        path = dlg.GetPath()
+        path = dlg.GetPath().encode("utf-8")
         if path.lower().endswith(".tsv") is not True:
             path = path+".tsv"
         parent.config.set_path(os.path.dirname(path), "TSV")

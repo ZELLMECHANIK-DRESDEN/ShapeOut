@@ -58,7 +58,9 @@ class SubPanel(ScrolledPanel):
                 a = wx.StaticText(self, label=item[0])
                 # This is a hacky temporary workaround as long as we are
                 # in WxPython to display nice string representations:
-                if item[0] == "pixel size":
+                if item[1] == multiplestr:
+                    label = multiplestr
+                elif item[0] == "pixel size":
                     label = "{:.3f}".format(item[1])
                 elif item[0] in ["flow rate", "flow rate sample", "flow rate sheath"]:
                     label = "{:.5f}".format(item[1])

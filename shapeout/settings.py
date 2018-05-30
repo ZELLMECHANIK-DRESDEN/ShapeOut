@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Settings file management"""
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function
 
 import copy
 import pathlib
@@ -98,7 +98,12 @@ class SettingsFile(object):
         skeys.sort()
         outlist = []
         for sk in skeys:
-            outlist.append("{} = {}\n".format(sk, cdict[sk]))
+            sval = cdict[sk]
+            if isinstance(sval, str):
+                sval = sval.decode("utf-8")
+            elif isinstance(sval, pathlib.Path):
+                sval = str(sval).decode("utf-8")
+            outlist.append(u"{} = {}\n".format(sk, sval))
 
         with self.cfgfile.open('w') as fop:
             fop.writelines(outlist)

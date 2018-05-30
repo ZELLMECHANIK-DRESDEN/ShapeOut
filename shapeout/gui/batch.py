@@ -233,7 +233,7 @@ class BatchFilterFolder(wx.Frame):
                 style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
-            thepath = dlg2.GetPath()
+            thepath = dlg2.GetPath().encode("utf-8")
         else:
             thepath = None
         dlg2.Destroy()
@@ -278,7 +278,7 @@ class BatchFilterFolder(wx.Frame):
                 wildcard="TSV files"+" (*.tsv)|*.tsv")
         
         if dlg2.ShowModal() == wx.ID_OK:
-            thepath = dlg2.GetPath()
+            thepath = dlg2.GetPath().encode("utf-8")
             if not thepath.endswith(".tsv"):
                 thepath+=".tsv"
             self.WXtsv_text1.SetLabel(thepath)

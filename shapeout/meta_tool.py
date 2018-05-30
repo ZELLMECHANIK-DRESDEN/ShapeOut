@@ -67,7 +67,7 @@ def collect_data_tree(directories):
 def find_data(path):
     """Find tdms and rtdc data files in a directory"""
     path = pathlib.Path(path)
-    tdmsfiles = sorted(fmt_tdms.get_tdms_files(str(path)))
+    tdmsfiles = sorted(fmt_tdms.get_tdms_files(path))
     rtdcfiles = sorted([r for r in path.rglob("*.rtdc") if r.is_file()])
     files = [pathlib.Path(ff) for ff in rtdcfiles + tdmsfiles]
     return files
@@ -158,7 +158,7 @@ def get_event_count_cache(fname):
     # Generate key
     with fname.open(mode="rb") as fd:
         data = fd.read(100 * 1024)
-    fhash = hashlib.md5(data + str(fname).encode("utf-8")).hexdigest()
+    fhash = hashlib.md5(data + fname.as_uri()).hexdigest()
     cfgec = settings.SettingsFileCache(name="shapeout_tdms_event_counts.txt")
     try:
         event_count = cfgec.get_int(fhash)
@@ -269,7 +269,7 @@ def get_sample_name(fname):
     return sample
 
 
-def verify_dataset(path):
+def verify_dataset(path, verbose=False):
     """Returns `True` if the data set is complete/usable"""
     path = pathlib.Path(path).resolve()
     if path.suffix == ".tdms":
@@ -283,6 +283,8 @@ def verify_dataset(path):
                     (not (parent / (mx + "_camera.ini")).exists()) or
                     (not path.exists())
                 ):
+            if verbose:
+                print("config files missing")
             is_ok = False
 
         # Check if we can perform all standard file operations
@@ -290,6 +292,8 @@ def verify_dataset(path):
             try:
                 test(path)
             except:
+                if verbose:
+                    print("standard file operations failed")
                 is_ok = False
                 break
     elif path.suffix == ".rtdc":
@@ -303,11 +307,15 @@ def verify_dataset(path):
                         "setup:flow rate",
                         ]:
                 if key not in h5.attrs:
+                    if verbose:
+                        print("fmt_rtdc keys missing")
                     is_ok = False
                     break
             else:
                 is_ok = True
     else:
+        if verbose:
+            print("unsupported format")
         is_ok = False
 
     return is_ok

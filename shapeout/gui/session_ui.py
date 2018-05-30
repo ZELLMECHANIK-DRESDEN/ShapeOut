@@ -36,7 +36,7 @@ def open_session(parent, session_file=None):
         
         if dlg.ShowModal() == wx.ID_OK:
             parent.config.set_path(dlg.GetDirectory(), name="Session")
-            fname = dlg.GetPath()
+            fname = dlg.GetPath().encode("utf-8")
             dlg.Destroy()
         else:
             parent.config.set_path(dlg.GetDirectory(), name="Session")
@@ -109,7 +109,7 @@ def open_session_worker(path, parent):
                            defaultPath=parent.config.get_path(name=sd)
                            )
         mod = dlg.ShowModal()
-        path = dlg.GetPath()
+        path = dlg.GetPath().encode("utf-8")
         parent.config.set_path(wd=path, name=sd)
         dlg.Destroy()
         if mod != wx.ID_OK:
@@ -189,7 +189,7 @@ def save_session(parent):
                 wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         # Save everything
-        path = pathlib.Path(dlg.GetPath())
+        path = pathlib.Path(dlg.GetPath().encode("utf-8"))
         dirname = path.parent
         if not path.name.endswith(".zmso"):
             path = dirname / (path.name + ".zmso")

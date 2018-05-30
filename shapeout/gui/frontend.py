@@ -567,7 +567,7 @@ class Frame(gaugeframe.GaugeFrame):
                defaultPath=self.config.get_path(name="MeasurementList"))
         answer = dlg.ShowModal()
         if answer == wx.ID_OK:
-            path = dlg.GetPath()
+            path = dlg.GetPath().encode("utf-8")
             self.config.set_path(path, name="MeasurementList")
             dlg.Destroy()
             self.GaugeIndefiniteStart(
@@ -585,12 +585,11 @@ class Frame(gaugeframe.GaugeFrame):
             dlg = wx.DirDialog(self, "Please select a directory",
                    defaultPath=self.config.get_path(name="MeasurementList"))
             answer = dlg.ShowModal()
-            path = dlg.GetPath()
+            path = dlg.GetPath().encode("utf-8")
             self.config.set_path(path, name="MeasurementList")
             dlg.Destroy()
             if answer != wx.ID_OK:
                 return
-            
         self.GaugeIndefiniteStart(
                         func=meta_tool.collect_data_tree,
                         func_args=(path,),
