@@ -13,6 +13,7 @@
      containing NaN values are now ignored (fcswrite 0.1.3.dev22) (#215)
    - Improve displayed float values for selected configuration keys (#216)
    - Unicode error when searching for data sets on disk (#218)
+   - Unicode error when perfming LMM analysis on some setups (#217)
 0.8.5
  - Update plotting range when switching to log scale (#198)
  - Allow to fix plotting range to retain previous behavior (#198)
