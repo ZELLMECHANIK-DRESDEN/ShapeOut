@@ -56,7 +56,7 @@ def collect_data_tree(directories):
             dn = u"M{} {}".format(mx, chip_region)
             if not chip_region.lower() in ["reservoir"]:
                 # outlet (flow rate is not important)
-                dn += u"  {} µls⁻¹".format(get_flow_rate(ff))
+                dn += u"  {:.5f} µls⁻¹".format(get_flow_rate(ff))
             dn += "  ({} events)".format(get_event_count(ff))
 
             treelist[dirindex].append((dn, str(ff)))
