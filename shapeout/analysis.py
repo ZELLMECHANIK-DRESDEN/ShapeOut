@@ -325,7 +325,7 @@ class Analysis(object):
         return retdict
 
     def GetContourColors(self):
-        colors = list()
+        colors = []
         for mm in self.measurements:
             colors.append(mm.config["Plotting"]["Contour Color"])
         return colors

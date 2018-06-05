@@ -371,16 +371,18 @@ class Frame(gaugeframe.GaugeFrame):
         """Create new analysis object and show data """
         wx.BeginBusyCursor()
         # Get Plotting and Filtering parameters from previous analysis
+        newcfg = {}
         if hasattr(self, "analysis"):
             # Get Plotting and Filtering parameters from previous analysis
-            newcfg = {}
             for key in ["analysis", "calculation", "filtering", "plotting"]:
-                newcfg[key] = self.analysis.GetParameters(key)
+                try:
+                    newcfg[key] = self.analysis.GetParameters(key)
+                except IndexError:
+                    pass
             # Remember contour colors
             contour_colors = self.analysis.GetContourColors()
             self.analysis._clear()
         else:
-            newcfg = {}
             contour_colors = None
 
         # Set Analysis
