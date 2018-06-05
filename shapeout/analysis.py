@@ -583,6 +583,17 @@ class Analysis(object):
                     msg = "inverting plot range: {} > {}".format(fmin, fmax)
                     warnings.warn(msg)
                     pl[fmin], pl[fmax] = pl[fmax], pl[fmin]
+            # make sure that x- and y-axes are present in all measurements
+            if "axis x" in pl:
+                for mm in self.measurements:
+                    if pl["axis x"] not in mm:
+                        pl["axis x"] = "area_um"
+                        break
+            if "axis y" in pl:
+                for mm in self.measurements:
+                    if pl["axis y"] not in mm:
+                        pl["axis y"] = "deform"
+                        break
         if "analysis" in newcfg:
             upcfg["analysis"] = newcfg["analysis"].copy()
             ignorelist = ["regression treatment", "regression repetition"]
