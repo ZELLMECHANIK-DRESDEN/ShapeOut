@@ -297,22 +297,27 @@ def verify_dataset(path, verbose=False):
                 is_ok = False
                 break
     elif path.suffix == ".rtdc":
-        with h5py.File(str(path), mode="r") as h5:
-            for key in ["experiment:event count",
-                        "experiment:sample",
-                        "experiment:run index",
-                        "imaging:pixel size",
-                        "setup:channel width",
-                        "setup:chip region",
-                        "setup:flow rate",
-                        ]:
-                if key not in h5.attrs:
-                    if verbose:
-                        print("fmt_rtdc keys missing")
-                    is_ok = False
-                    break
-            else:
-                is_ok = True
+        try:
+            with h5py.File(str(path), mode="r") as h5:
+                for key in ["experiment:event count",
+                            "experiment:sample",
+                            "experiment:run index",
+                            "imaging:pixel size",
+                            "setup:channel width",
+                            "setup:chip region",
+                            "setup:flow rate",
+                            ]:
+                    if key not in h5.attrs:
+                        if verbose:
+                            print("fmt_rtdc keys missing")
+                        is_ok = False
+                        break
+                else:
+                    is_ok = True
+        except IOError:
+            if verbose:
+                print("data file broken")
+            is_ok = False
     else:
         if verbose:
             print("unsupported format")

@@ -16,6 +16,7 @@
    - Unicode error when performing LMM analysis on some setups (#217)
    - IndexError when obtaining meta data from previous, broken analysis
    - KeyError when starting a new analysis with unavailable plotting axes
+   - Ignore broken .rtdc data files
 0.8.5
  - Update plotting range when switching to log scale (#198)
  - Allow to fix plotting range to retain previous behavior (#198)
