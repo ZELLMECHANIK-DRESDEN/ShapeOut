@@ -265,7 +265,7 @@ def get_sample_name(fname):
         with h5py.File(str(fname), mode="r") as h5:
             sample = h5.attrs["experiment:sample"]
     elif ext == ".tdms":
-        sample = fmt_tdms.get_project_name_from_path(str(fname))
+        sample = fmt_tdms.get_project_name_from_path(fname)
     return sample
 
 
