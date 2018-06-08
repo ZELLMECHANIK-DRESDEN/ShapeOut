@@ -8,7 +8,7 @@ import dclab
 import wx
 import wx.lib.agw.hypertreelist as HT
 
-from ..configuration import ConfigurationFile
+from ..settings import SettingsFile
 from ..session import conversion
 from .polygonselect import LineDrawerWindow
 from .controls_subpanel import SubPanel
@@ -16,7 +16,7 @@ from .controls_subpanel import SubPanel
 class SubPanelFilter(SubPanel):
     def __init__(self, parent, *args, **kwargs):
         SubPanel.__init__(self, parent, *args, **kwargs)
-        self.config = ConfigurationFile()
+        self.config = SettingsFile()
         self.key = "Filtering"
 
     def _box_rest_filter(self, analysis, key):
@@ -388,15 +388,15 @@ class SubPanelFilter(SubPanel):
             if ch is None:
                 return
         dlg = wx.FileDialog(self, "Open polygon file",
-                    self.config.get_dir(name="Polygon"), "",
+                    self.config.get_path(name="Polygon"), "",
                     "ShapeOut polygon file (*.poly)|*.poly", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
-            fname = dlg.GetPath()
-            self.config.set_dir(dlg.GetDirectory(),
+            fname = dlg.GetPath().encode("utf-8")
+            self.config.set_path(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
         else:
-            self.config.set_dir(dlg.GetDirectory(),
+            self.config.set_path(dlg.GetDirectory(),
                                             name="Polygon")
             dlg.Destroy()
             return # nothing more to do here
@@ -450,16 +450,16 @@ class SubPanelFilter(SubPanel):
     
     def OnPolygonImport(self, e=None):
         dlg = wx.FileDialog(self, "Open polygon file",
-                    self.config.get_dir(name="Polygon"), "",
+                    self.config.get_path(name="Polygon"), "",
                     "ShapeOut polygon file (*.poly)|*.poly", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
-            fname = dlg.GetPath()
-            self.config.set_dir(dlg.GetDirectory(),
-                                            name="Polygon")
+            fname = dlg.GetPath().encode("utf-8")
+            self.config.set_path(dlg.GetDirectory(),
+                                 name="Polygon")
             dlg.Destroy()
         else:
-            self.config.set_dir(dlg.GetDirectory(),
-                                            name="Polygon")
+            self.config.set_path(dlg.GetDirectory(),
+                                 name="Polygon")
             dlg.Destroy()
             return # nothing more to do here
         if not fname.endswith(".poly"):

@@ -56,7 +56,17 @@ class SubPanel(ScrolledPanel):
             
             for item in items:
                 a = wx.StaticText(self, label=item[0])
-                b = wx.StaticText(self, label=str(item[1]))
+                # This is a hacky temporary workaround as long as we are
+                # in WxPython to display nice string representations:
+                if item[1] == multiplestr:
+                    label = multiplestr
+                elif item[0] == "pixel size":
+                    label = "{:.3f}".format(item[1])
+                elif item[0] in ["flow rate", "flow rate sample", "flow rate sheath"]:
+                    label = "{:.5f}".format(item[1])
+                else:
+                    label = str(item[1])
+                b = wx.StaticText(self, label=label)
                 if item[1] == multiplestr:
                     a.Disable()
                     b.Disable()
@@ -78,7 +88,7 @@ class SubPanel(ScrolledPanel):
         choices = confparms.get_config_entry_choices(key, item[0],
                                            ignore_axes=ignore_axes)
         if choices:
-            if choices[0] in dclab.dfn.feature_names:
+            if choices[0] in dclab.dfn.scalar_feature_names:
                 human_choices = [ dclab.dfn.feature_name2label[c] for c in choices]
             elif key.lower() == "plotting" and item[0] == "isoelastics":
                 # add the <0.8.4 version info to prevent user confusion

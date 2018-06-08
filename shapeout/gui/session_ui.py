@@ -4,11 +4,11 @@
 from __future__ import division, print_function, unicode_literals
 
 from distutils.version import LooseVersion
-import os
+import pathlib
 import shutil
 import tempfile
-import zipfile
 import warnings
+import zipfile
 
 import wx
 
@@ -30,16 +30,16 @@ def open_session(parent, session_file=None):
         # User dialog
         dlg = wx.FileDialog(parent,
                             "Open session file",
-                            parent.config.get_dir(name="Session"),
+                            parent.config.get_path(name="Session"),
                             "",
                             "ShapeOut session (*.zmso)|*.zmso", wx.FD_OPEN)
         
         if dlg.ShowModal() == wx.ID_OK:
-            parent.config.set_dir(dlg.GetDirectory(), name="Session")
-            fname = dlg.GetPath()
+            parent.config.set_path(dlg.GetDirectory(), name="Session")
+            fname = dlg.GetPath().encode("utf-8")
             dlg.Destroy()
         else:
-            parent.config.set_dir(dlg.GetDirectory(), name="Session")
+            parent.config.set_path(dlg.GetDirectory(), name="Session")
             dlg.Destroy()
             return # nothing more to do here
     else:
@@ -55,15 +55,17 @@ def open_session_worker(path, parent):
     graphical user interface itself, such as cleanup and
     post-processing steps before and after data import.
     """
+    path = pathlib.Path(path).resolve()
     # Cleanup
     delist = [parent, parent.PanelTop, parent.PlotArea]
     for item in delist:
         if hasattr(item, "analysis"):
             del item.analysis
     
-    Arc = zipfile.ZipFile(path, mode='r')
+    Arc = zipfile.ZipFile(str(path), mode='r')
     tempdir = tempfile.mkdtemp(prefix="ShapeOut-session_")
-    Arc.extractall(tempdir)
+    tempdir = pathlib.Path(tempdir)
+    Arc.extractall(str(tempdir))
     Arc.close()
     
     # The ShapeOut version used to create the session is returned:
@@ -71,11 +73,11 @@ def open_session_worker(path, parent):
     # measurement files are where they're supposed to be. 
     version = compatibilitize_session(tempdir, hash_update=False)
     
-    index_file = os.path.join(tempdir, "index.txt")
+    index_file = tempdir / "index.txt"
     index_dict = index.index_load(index_file)
 
     # check session integrity
-    dirname = os.path.dirname(path)
+    dirname = path.parent
     messages = index.index_check(index_file, search_path=dirname)
     while messages["missing files"]:
         # There are missing files. We need to modify the extracted
@@ -84,10 +86,10 @@ def open_session_worker(path, parent):
         directories = [] # search directories
         updict = {}      # new dicts for individual measurements
         # Ask user for directory
-        miss = os.path.basename(missing[0][1])
+        miss = missing[0][1].name
         
         message = "ShapeOut could not find the following measurements:"+\
-                  "\n\n".join([""]+[m[1] for m in missing]) +"\n\n"+\
+                  "\n\n".join([""]+[str(m[1]) for m in missing]) +"\n\n"+\
                   "Please select a directory that contains these."
         
         dlg = wx.MessageDialog(parent,
@@ -104,11 +106,11 @@ def open_session_worker(path, parent):
         msg = "Please select directory containing {}".format(miss)
         dlg = wx.DirDialog(parent,
                            message=msg,
-                           defaultPath=parent.config.get_dir(name=sd)
+                           defaultPath=parent.config.get_path(name=sd)
                            )
         mod = dlg.ShowModal()
-        path = dlg.GetPath()
-        parent.config.set_dir(wd=path, name=sd)
+        path = dlg.GetPath().encode("utf-8")
+        parent.config.set_path(wd=path, name=sd)
         dlg.Destroy()
         if mod != wx.ID_OK:
             break
@@ -126,15 +128,15 @@ def open_session_worker(path, parent):
                                                 directories,
                                                 version=version)
             if newfile is not None:
-                newdir = os.path.dirname(newfile)
+                newdir = newfile.parent
                 # Store the original directory name. This is important
                 # for sessions stored with ShapeOut version <0.7.6 to
                 # correctly compute tdms file hashes.
-                updict[key] = {"fdir": newdir,
+                updict[key] = {"fdir": str(newdir),
                                "fdir_orig":index_dict[key]["fdir"],
                                }
-                directories.insert(0, os.path.dirname(newdir))
-                directories.insert(0, os.path.dirname(os.path.dirname(newdir)))
+                directories.insert(0, newdir.parent)
+                directories.insert(0, newdir.parent.parent)
                 remlist.append(m)
         for m in remlist:
             missing.remove(m)
@@ -166,8 +168,9 @@ def open_session_worker(path, parent):
 
     directories = []
     for mm in parent.analysis.measurements:
-        fdir = os.path.dirname(mm.path)
-        if os.path.exists(fdir):
+        mpath = pathlib.Path(mm.path)
+        fdir = mpath.parent
+        if fdir.exists():
             directories.append(fdir)
     
     bolddirs = parent.analysis.GetFilenames()
@@ -176,24 +179,24 @@ def open_session_worker(path, parent):
                                marked=bolddirs)
     
     # Remove all temporary files
-    shutil.rmtree(tempdir, ignore_errors=True)
+    shutil.rmtree(str(tempdir), ignore_errors=True)
 
 
 def save_session(parent):
     dlg = wx.FileDialog(parent, "Save ShapeOut session", 
-                parent.config.get_dir(name="Session"), "",
+                parent.config.get_path(name="Session"), "",
                 "ShapeOut session (*.zmso)|*.zmso",
                 wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         # Save everything
-        path = dlg.GetPath()
-        if not path.endswith(".zmso"):
-            path += ".zmso"
-        dirname = os.path.dirname(path)
-        parent.config.set_dir(dirname, name="Session")
+        path = pathlib.Path(dlg.GetPath().encode("utf-8"))
+        dirname = path.parent
+        if not path.name.endswith(".zmso"):
+            path = dirname / (path.name + ".zmso")
+        parent.config.set_path(dirname, name="Session")
         rw.save(path, parent.analysis.measurements)
         return path
     else:
         dirname = dlg.GetDirectory()
-        parent.config.set_dir(dirname, name="Session")
+        parent.config.set_path(dirname, name="Session")
         dlg.Destroy()

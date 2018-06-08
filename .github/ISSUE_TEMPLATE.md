@@ -9,10 +9,13 @@ e.g.
 2. Search for a dataset
 3. Select a dataset and press "Analyze"
 
+### Data files
+If the problem only occurs with certain data files (.tdms or .rtdc)
+and/or with a particular session file, please state where these
+files can be found, e.g. Biotec group drive or external link.
 
 ### Expected behavior
 ShapeOut plots the data.
-
 
 ### Actual behavior
 There is an error message

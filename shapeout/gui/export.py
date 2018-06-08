@@ -48,7 +48,7 @@ class ExportAnalysisEvents(wx.Frame):
         ## Add checkboxes
         checks = []
         # find out which are actually used in the analysis
-        for cc in dclab.dfn.feature_names:
+        for cc in dclab.dfn.scalar_feature_names:
             for mm in self.analysis.measurements:
                 if cc in mm:
                     checks.append(cc)
@@ -63,10 +63,7 @@ class ExportAnalysisEvents(wx.Frame):
         for c in checks:
             # label id (b/c of sorting)
             lid = c+":"+" "*((tl-dc.GetTextExtent(c)[0])//sp)+"\t"
-            if c in non_scalars:
-                label = c
-            else:
-                label = dclab.dfn.feature_name2label[c]
+            label = dclab.dfn.feature_name2label[c]
             cb = wx.CheckBox(self.panel, label=lid + label, name=c)
             self.sizerin.Add(cb)
             if c in self.analysis.GetPlotAxes():
@@ -104,19 +101,19 @@ class ExportAnalysisEvents(wx.Frame):
         # make directory dialog
         dlg2 = wx.DirDialog(self,
                            message="Select directory for data export",
-                           defaultPath=self.parent.config.get_dir("ExportData"),
+                           defaultPath=self.parent.config.get_path("ExportData"),
                            style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
-            outdir = dlg2.GetPath()
-            self.parent.config.set_dir(outdir, "ExportData")
+            outdir = dlg2.GetPath().encode("utf-8")
+            self.parent.config.set_path(outdir, "ExportData")
             
             # determine if user wants filtered data
             filtered = self.WXCheckFilter.IsChecked()
 
             # search all children for checkboxes that have
             # the names in dclab.dfn.feature_names
-            names = dclab.dfn.feature_names + ["contour", "image", "trace"]
+            names = dclab.dfn.feature_names
             features = []
             for ch in self.panel.GetChildren():
                 if (isinstance(ch, wx._controls.CheckBox) and 
@@ -150,7 +147,7 @@ class ExportAnalysisEvents(wx.Frame):
         `self.toggled_event_features`.
         """
         panel = self.panel
-        names = dclab.dfn.feature_names + ["contour", "image", "trace"]
+        names = dclab.dfn.feature_names
         for ch in panel.GetChildren():
             if (isinstance(ch, wx._controls.CheckBox) and 
                 ch.GetName() in names):
@@ -224,11 +221,11 @@ class ExportAnalysisEventsTSV(ExportAnalysisEvents):
 def export_event_images_avi(parent, analysis):
     dlg = wx.DirDialog(parent,
                message="Select directory for video export",
-               defaultPath=parent.config.get_dir("ExportAVI"),
+               defaultPath=parent.config.get_path("ExportAVI"),
                style=wx.DD_DEFAULT_STYLE)
     if dlg.ShowModal() == wx.ID_OK:
-        out_dir=dlg.GetPath()
-        parent.config.set_dir(out_dir, "ExportAVI")
+        out_dir=dlg.GetPath().encode("utf-8")
+        parent.config.set_path(out_dir, "ExportAVI")
         for m in analysis.measurements:
             m.export.avi(os.path.join(out_dir, m.title+".avi"),
                          override=True)
@@ -236,13 +233,13 @@ def export_event_images_avi(parent, analysis):
 
 def export_event_image_png(parent, image):
     dlg = wx.FileDialog(parent, "Choose file to save",
-                        parent.config.get_dir("ExportEventPNG"),
+                        parent.config.get_path("ExportEventPNG"),
                         "",
                         "Portable Network Graphics (*.png)|*.png;*.PNG",
                         wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
-        path = dlg.GetPath()
-        parent.config.set_dir(os.path.dirname(path), "ExportEventPNG")
+        path = dlg.GetPath().encode("utf-8")
+        parent.config.set_path(os.path.dirname(path), "ExportEventPNG")
         if not path.lower().endswith(".png"):
             path += ".png"
         image.save(path)
@@ -267,15 +264,15 @@ def export_statistics_tsv(parent):
     # File dialog
     
     dlg = wx.FileDialog(parent, "Choose file to save",
-            parent.config.get_dir("TSV"),
+            parent.config.get_path("TSV"),
             "", "Tab separated file (*.tsv)|*.tsv;*.TSV",
             wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     # user cannot do anything until he clicks "OK"
     if dlg.ShowModal() == wx.ID_OK:
-        path = dlg.GetPath()
+        path = dlg.GetPath().encode("utf-8")
         if path.lower().endswith(".tsv") is not True:
             path = path+".tsv"
-        parent.config.set_dir(os.path.dirname(path), "TSV")
+        parent.config.set_path(os.path.dirname(path), "TSV")
         with io.open(path, 'w') as fd:
             fd.writelines(exp)
 

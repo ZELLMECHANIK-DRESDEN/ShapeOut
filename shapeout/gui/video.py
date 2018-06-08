@@ -10,6 +10,7 @@ import dclab
 from enable.api import Window
 import numpy as np
 from PIL import Image
+from scipy.ndimage import binary_erosion
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
@@ -179,13 +180,16 @@ class ImagePanel(ScrolledPanel):
             # might run into trouble displaying random contours.
             if "contour" in mm and contour:
                 try:
-                    cont = mm["contour"][evt_id]
+                    mask = mm["mask"][evt_id]
                 except IndexError:
                     pass
                 else:
-                    cellimg[cont[:,1], cont[:,0], 0] = 255
-                    cellimg[cont[:,1], cont[:,0], 1] = 0
-                    cellimg[cont[:,1], cont[:,0], 2] = 0
+                    # compute contour image from mask
+                    cont = mask ^ binary_erosion(mask)
+                    # set red contour pixel values in original image
+                    cellimg[cont, 0] = 255
+                    cellimg[cont, 1] = 0
+                    cellimg[cont, 2] = 0
         else:
             x = np.linspace(0, 255, self.startSizeX*self.startSizeY)
             cellimg = np.array(x.reshape(self.startSizeY,self.startSizeX),

@@ -14,7 +14,7 @@ import nptdms
 from dclab.rtdc_dataset import config as rt_config
 from dclab.rtdc_dataset import fmt_tdms
 
-from . import configuration
+from . import settings
 
 
 def collect_data_tree(directories):
@@ -56,7 +56,7 @@ def collect_data_tree(directories):
             dn = u"M{} {}".format(mx, chip_region)
             if not chip_region.lower() in ["reservoir"]:
                 # outlet (flow rate is not important)
-                dn += u"  {} µls⁻¹".format(get_flow_rate(ff))
+                dn += u"  {:.5f} µls⁻¹".format(get_flow_rate(ff))
             dn += "  ({} events)".format(get_event_count(ff))
 
             treelist[dirindex].append((dn, str(ff)))
@@ -67,7 +67,7 @@ def collect_data_tree(directories):
 def find_data(path):
     """Find tdms and rtdc data files in a directory"""
     path = pathlib.Path(path)
-    tdmsfiles = sorted(fmt_tdms.get_tdms_files(str(path)))
+    tdmsfiles = sorted(fmt_tdms.get_tdms_files(path))
     rtdcfiles = sorted([r for r in path.rglob("*.rtdc") if r.is_file()])
     files = [pathlib.Path(ff) for ff in rtdcfiles + tdmsfiles]
     return files
@@ -158,11 +158,8 @@ def get_event_count_cache(fname):
     # Generate key
     with fname.open(mode="rb") as fd:
         data = fd.read(100 * 1024)
-    fhash = hashlib.md5(data + str(fname).encode("utf-8")).hexdigest()
-    cfgec = configuration.ConfigurationFile(
-        name="shapeout_tdms_event_counts.txt",
-        defaults={},
-        datatype="cache")
+    fhash = hashlib.md5(data + fname.as_uri()).hexdigest()
+    cfgec = settings.SettingsFileCache(name="shapeout_tdms_event_counts.txt")
     try:
         event_count = cfgec.get_int(fhash)
     except KeyError:
@@ -268,11 +265,11 @@ def get_sample_name(fname):
         with h5py.File(str(fname), mode="r") as h5:
             sample = h5.attrs["experiment:sample"]
     elif ext == ".tdms":
-        sample = fmt_tdms.get_project_name_from_path(str(fname))
+        sample = fmt_tdms.get_project_name_from_path(fname)
     return sample
 
 
-def verify_dataset(path):
+def verify_dataset(path, verbose=False):
     """Returns `True` if the data set is complete/usable"""
     path = pathlib.Path(path).resolve()
     if path.suffix == ".tdms":
@@ -286,6 +283,8 @@ def verify_dataset(path):
                     (not (parent / (mx + "_camera.ini")).exists()) or
                     (not path.exists())
                 ):
+            if verbose:
+                print("config files missing")
             is_ok = False
 
         # Check if we can perform all standard file operations
@@ -293,24 +292,35 @@ def verify_dataset(path):
             try:
                 test(path)
             except:
+                if verbose:
+                    print("standard file operations failed")
                 is_ok = False
                 break
     elif path.suffix == ".rtdc":
-        with h5py.File(str(path), mode="r") as h5:
-            for key in ["experiment:event count",
-                        "experiment:sample",
-                        "experiment:run index",
-                        "imaging:pixel size",
-                        "setup:channel width",
-                        "setup:chip region",
-                        "setup:flow rate",
-                        ]:
-                if key not in h5.attrs:
-                    is_ok = False
-                    break
-            else:
-                is_ok = True
+        try:
+            with h5py.File(str(path), mode="r") as h5:
+                for key in ["experiment:event count",
+                            "experiment:sample",
+                            "experiment:run index",
+                            "imaging:pixel size",
+                            "setup:channel width",
+                            "setup:chip region",
+                            "setup:flow rate",
+                            ]:
+                    if key not in h5.attrs:
+                        if verbose:
+                            print("fmt_rtdc keys missing")
+                        is_ok = False
+                        break
+                else:
+                    is_ok = True
+        except IOError:
+            if verbose:
+                print("data file broken")
+            is_ok = False
     else:
+        if verbose:
+            print("unsupported format")
         is_ok = False
 
     return is_ok

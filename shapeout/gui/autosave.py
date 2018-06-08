@@ -30,24 +30,29 @@ def mkdir_p(adir):
 
 
 def _autosave_consumer(delayedresult, parent):
-    parent.StatusBar.SetStatusText("Autosaving...")
-    tempname = autosave_file+".tmp"
-    mkdir_p(cache_dir)
-    try:
-        session.rw.save(tempname, parent.analysis.measurements)
-    except session.rw.UnsupportedDataClassSaveError:
-        # dictionary data type not supported -> ignore
-        parent.StatusBar.SetStatusText("")
-    except BaseException:
-        raise
-        parent.StatusBar.SetStatusText("Autosaving failed!")
+    if not hasattr(parent, "analysis"):
+        # nothing to do
+        pass
+    else:
+        parent.StatusBar.SetStatusText("Autosaving...")
+        tempname = autosave_file+".tmp"
+        mkdir_p(cache_dir)
+        try:
+            session.rw.save(tempname, parent.analysis.measurements)
+        except session.rw.UnsupportedDataClassSaveError:
+            # dictionary data type not supported -> ignore
+            parent.StatusBar.SetStatusText("")
+        except BaseException:
+            raise
+            parent.StatusBar.SetStatusText("Autosaving failed!")
+        else:
+            if os.path.exists(autosave_file):
+                os.remove(autosave_file)
+            os.rename(tempname, autosave_file)
+            parent.StatusBar.SetStatusText("")
+        # cleanup when autosave failed
         if os.path.exists(tempname):
             os.remove(tempname)
-    else:
-        if os.path.exists(autosave_file):
-            os.remove(autosave_file)
-        os.rename(tempname, autosave_file)
-        parent.StatusBar.SetStatusText("")
     autosave_run(parent)
 
 

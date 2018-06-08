@@ -17,7 +17,7 @@ import dclab
 
 
 from .. import analysis
-from ..configuration import ConfigurationFile
+from ..settings import SettingsFile
 from .. import meta_tool
 
 from . import autosave
@@ -48,7 +48,7 @@ class Frame(gaugeframe.GaugeFrame):
     """"""
     def __init__(self, version):
         """Constructor"""
-        self.config = ConfigurationFile()
+        self.config = SettingsFile()
         self.version = version
         #size = (1300,900)
         size = (1200,700)
@@ -371,16 +371,18 @@ class Frame(gaugeframe.GaugeFrame):
         """Create new analysis object and show data """
         wx.BeginBusyCursor()
         # Get Plotting and Filtering parameters from previous analysis
+        newcfg = {}
         if hasattr(self, "analysis"):
             # Get Plotting and Filtering parameters from previous analysis
-            newcfg = {}
             for key in ["analysis", "calculation", "filtering", "plotting"]:
-                newcfg[key] = self.analysis.GetParameters(key)
+                try:
+                    newcfg[key] = self.analysis.GetParameters(key)
+                except IndexError:
+                    pass
             # Remember contour colors
             contour_colors = self.analysis.GetContourColors()
             self.analysis._clear()
         else:
-            newcfg = {}
             contour_colors = None
 
         # Set Analysis
@@ -564,11 +566,11 @@ class Frame(gaugeframe.GaugeFrame):
         This calls `PanelLeft.SetProjectTree`.
         """
         dlg = wx.DirDialog(self, "Please select a directory",
-               defaultPath=self.config.get_dir(name="MeasurementList"))
+               defaultPath=self.config.get_path(name="MeasurementList"))
         answer = dlg.ShowModal()
         if answer == wx.ID_OK:
-            path = dlg.GetPath()
-            self.config.set_dir(path, name="MeasurementList")
+            path = dlg.GetPath().encode("utf-8")
+            self.config.set_path(path, name="MeasurementList")
             dlg.Destroy()
             self.GaugeIndefiniteStart(
                                 func=meta_tool.collect_data_tree,
@@ -583,14 +585,13 @@ class Frame(gaugeframe.GaugeFrame):
         """ Convenience wrapper around OnMenuSearchPath"""
         if path is None:
             dlg = wx.DirDialog(self, "Please select a directory",
-                   defaultPath=self.config.get_dir(name="MeasurementList"))
+                   defaultPath=self.config.get_path(name="MeasurementList"))
             answer = dlg.ShowModal()
-            path = dlg.GetPath()
-            self.config.set_dir(path, name="MeasurementList")
+            path = dlg.GetPath().encode("utf-8")
+            self.config.set_path(path, name="MeasurementList")
             dlg.Destroy()
             if answer != wx.ID_OK:
                 return
-            
         self.GaugeIndefiniteStart(
                         func=meta_tool.collect_data_tree,
                         func_args=(path,),

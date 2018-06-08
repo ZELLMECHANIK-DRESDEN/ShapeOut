@@ -66,3 +66,5 @@ dev/.env_shapeout
 
 # version
 _version_save.py
+
+.pytest_cache

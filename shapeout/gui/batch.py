@@ -151,7 +151,7 @@ class BatchFilterFolder(wx.Frame):
             if (isinstance(ch, wx._controls.CheckBox) and 
                 ch.IsChecked()):
                 name = ch.GetName()
-                if name in dclab.dfn.feature_names:
+                if name in dclab.dfn.scalar_feature_names:
                     features.append(name)
         # Get selected features
         col_dict = dclab.statistics.Statistics.available_methods
@@ -229,11 +229,11 @@ class BatchFilterFolder(wx.Frame):
         # make directory dialog
         dlg2 = wx.DirDialog(self,
                 message="Please select directory containing measurements",
-                defaultPath=self.parent.config.get_dir("BatchFD"),
+                defaultPath=self.parent.config.get_path("BatchFD"),
                 style=wx.DD_DEFAULT_STYLE)
         
         if dlg2.ShowModal() == wx.ID_OK:
-            thepath = dlg2.GetPath()
+            thepath = dlg2.GetPath().encode("utf-8")
         else:
             thepath = None
         dlg2.Destroy()
@@ -241,7 +241,7 @@ class BatchFilterFolder(wx.Frame):
         if thepath is not None:
             wx.BeginBusyCursor()
             self.WXfold_text1.SetLabel(thepath)
-            self.parent.config.set_dir(thepath, "BatchFD")
+            self.parent.config.set_path(thepath, "BatchFD")
             # Search directory
             tree, _cols = meta_tool.collect_data_tree(thepath)
             self.data_files = [ t[1][1] for t in tree ]
@@ -273,17 +273,17 @@ class BatchFilterFolder(wx.Frame):
     def OnBrowseTSV(self, e=None):
         dlg2 = wx.FileDialog(self,
                 message="Please select an output file.",
-                defaultDir=self.parent.config.get_dir("BatchOut"),
+                defaultDir=self.parent.config.get_path("BatchOut"),
                 style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT,
                 wildcard="TSV files"+" (*.tsv)|*.tsv")
         
         if dlg2.ShowModal() == wx.ID_OK:
-            thepath = dlg2.GetPath()
+            thepath = dlg2.GetPath().encode("utf-8")
             if not thepath.endswith(".tsv"):
                 thepath+=".tsv"
             self.WXtsv_text1.SetLabel(thepath)
             thedir = os.path.dirname(thepath)
-            self.parent.config.set_dir(thedir, "BatchOut")
+            self.parent.config.set_path(thedir, "BatchOut")
             self.out_tsv_file = thepath
         
         if self.data_files is not None:
@@ -331,11 +331,11 @@ class BatchFilterFolder(wx.Frame):
         if self.rbtnhere.Value:
             sel = self.dropdown.GetSelection()
             mm = self.analysis.measurements[sel]
-            for c in dclab.dfn.feature_names:
+            for c in dclab.dfn.scalar_feature_names:
                 if c in mm:
                     checks.append(c)
         else:
-            for c in dclab.dfn.feature_names:
+            for c in dclab.dfn.scalar_feature_names:
                 checks.append(c)
 
         checks = list(set(checks))

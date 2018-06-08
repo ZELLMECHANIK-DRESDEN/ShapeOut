@@ -311,13 +311,13 @@ class ExplorerPanel(ScrolledPanel):
             flr.sort()
 
             if len(flr) >= 1:
-                self.btn_selflow1.SetLabel(u"{} µls⁻¹".format(flr[0]))
+                self.btn_selflow1.SetLabel(u"{:.5f} µls⁻¹".format(flr[0]))
                 self.btn_selflow1.Enable()
             if len(flr) >= 2:
-                self.btn_selflow2.SetLabel(u"{} µls⁻¹".format(flr[1]))
+                self.btn_selflow2.SetLabel(u"{:.5f} µls⁻¹".format(flr[1]))
                 self.btn_selflow2.Enable()
             if len(flr) >= 3:
-                self.btn_selflow3.SetLabel(u"{} µls⁻¹".format(flr[2]))
+                self.btn_selflow3.SetLabel(u"{:.5f} µls⁻¹".format(flr[2]))
                 self.btn_selflow3.Enable()
             if len(flr) > 3:
                 warnings.warn("Only using first three flowrates!")
