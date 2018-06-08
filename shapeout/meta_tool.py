@@ -165,11 +165,12 @@ def get_event_count_cache(fname):
         event_count = cfgec.get_int(fhash)
     except KeyError:
         if ext == ".avi":
-            with imageio.get_reader(str(fname)) as video:
+            with imageio.get_reader(fname) as video:
                 event_count = len(video)
         elif ext == ".tdms":
-            tdmsfd = nptdms.TdmsFile(str(fname))
-            event_count = len(tdmsfd.object("Cell Track", "time").data)
+            with fname.open("rb") as fd:
+                tdmsfd = nptdms.TdmsFile(fd)
+                event_count = len(tdmsfd.object("Cell Track", "time").data)
         else:
             raise ValueError("unsupported file extension: {}".format(ext))
         cfgec.set_int(fhash, event_count)
