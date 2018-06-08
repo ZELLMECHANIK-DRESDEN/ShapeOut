@@ -158,7 +158,8 @@ def get_event_count_cache(fname):
     # Generate key
     with fname.open(mode="rb") as fd:
         data = fd.read(100 * 1024)
-    fhash = hashlib.md5(data + fname.as_uri()).hexdigest()
+    strfname = str(fname).encode("zip")
+    fhash = hashlib.md5(data + strfname).hexdigest()
     cfgec = settings.SettingsFileCache(name="shapeout_tdms_event_counts.txt")
     try:
         event_count = cfgec.get_int(fhash)
