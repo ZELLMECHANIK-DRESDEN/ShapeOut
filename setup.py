@@ -22,8 +22,8 @@ if version.count("dev") or sys.argv.count("test"):
     release_deps = ["dclab",
                     "fcswrite"]
 else:
-    release_deps = ["dclab==0.5.1",
-                    "fcswrite==0.2.0"]
+    release_deps = ["dclab==0.5.2",
+                    "fcswrite==0.3.0"]
 
 setup(
     name=name,
