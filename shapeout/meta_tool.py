@@ -7,12 +7,10 @@ import hashlib
 import pathlib
 import warnings
 
-import h5py
 import imageio
-import nptdms
 
 from dclab.rtdc_dataset import config as rt_config
-from dclab.rtdc_dataset import fmt_tdms
+from dclab.rtdc_dataset import fmt_hdf5, fmt_tdms
 
 from . import settings
 
@@ -106,7 +104,7 @@ def get_event_count(fname):
     ext = fname.suffix
 
     if ext == ".rtdc":
-        with h5py.File(str(fname), mode="r") as h5:
+        with fmt_hdf5.wrap_h5file(fname, mode="r") as h5:
             event_count = h5.attrs["experiment:event count"]
     elif ext == ".tdms":
         mdir = fname.parent
@@ -168,9 +166,8 @@ def get_event_count_cache(fname):
             with imageio.get_reader(fname) as video:
                 event_count = len(video)
         elif ext == ".tdms":
-            with fname.open("rb") as fd:
-                tdmsfd = nptdms.TdmsFile(fd)
-                event_count = len(tdmsfd.object("Cell Track", "time").data)
+            tdmsfd = fmt_tdms.wrap_tdmsfile(fname)
+            event_count = len(tdmsfd.object("Cell Track", "time").data)
         else:
             raise ValueError("unsupported file extension: {}".format(ext))
         cfgec.set_int(fhash, event_count)
@@ -195,7 +192,7 @@ def get_flow_rate(fname):
     ext = fname.suffix
 
     if ext == ".rtdc":
-        with h5py.File(str(fname), mode="r") as h5:
+        with fmt_hdf5.wrap_h5file(fname, mode="r") as h5:
             flow_rate = h5.attrs["setup:flow rate"]
     elif ext == ".tdms":
         name = fname.name
@@ -234,7 +231,7 @@ def get_chip_region(fname):
     ext = fname.suffix
 
     if ext == ".rtdc":
-        with h5py.File(str(fname), mode="r") as h5:
+        with fmt_hdf5.wrap_h5file(fname, mode="r") as h5:
             chip_region = h5.attrs["setup:chip region"]
     elif ext == ".tdms":
         name = fname.name
@@ -252,7 +249,7 @@ def get_run_index(fname):
     fname = pathlib.Path(fname).resolve()
     ext = fname.suffix
     if ext == ".rtdc":
-        with h5py.File(str(fname), mode="r") as h5:
+        with fmt_hdf5.wrap_h5file(fname, mode="r") as h5:
             run_index = h5.attrs["experiment:run index"]
     elif ext == ".tdms":
         name = fname.name
@@ -264,7 +261,7 @@ def get_sample_name(fname):
     fname = pathlib.Path(fname).resolve()
     ext = fname.suffix
     if ext == ".rtdc":
-        with h5py.File(str(fname), mode="r") as h5:
+        with fmt_hdf5.wrap_h5file(fname, mode="r") as h5:
             sample = h5.attrs["experiment:sample"]
     elif ext == ".tdms":
         sample = fmt_tdms.get_project_name_from_path(fname)
@@ -300,7 +297,7 @@ def verify_dataset(path, verbose=False):
                 break
     elif path.suffix == ".rtdc":
         try:
-            with h5py.File(str(path), mode="r") as h5:
+            with fmt_hdf5.wrap_h5file(path, mode="r") as h5:
                 for key in ["experiment:event count",
                             "experiment:sample",
                             "experiment:run index",
