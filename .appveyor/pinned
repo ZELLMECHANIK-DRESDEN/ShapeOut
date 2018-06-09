@@ -1,8 +1,7 @@
 enable ==4.4.1
-numpy ==1.14.3
+numpy ==1.12.0
 pillow ==3.0.0
 pyface ==4.4.0
 python-dateutil ==2.4.2
-scipy ==1.1.0
 wxpython 3.0 py27_0
 
