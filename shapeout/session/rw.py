@@ -202,7 +202,8 @@ def save(path, rtdc_list):
                 rdir = "."
             mm_dict["rdir"] = rdir
             # save manual filters file only for real data
-            np.save(mmdir / "_filter_manual.npy", mm.filter.manual)
+            with (mmdir / "_filter_manual.npy").open("wb") as ffd:
+                np.save(ffd, mm.filter.manual)
         elif mm.format == "hierarchy":
             pidx = rtdc_list.index(mm.hparent) + 1
             p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
@@ -212,7 +213,8 @@ def save(path, rtdc_list):
             # save (possibly hidden) root filter indices instead of
             # manual filter array.
             root_idx = mm.filter.retrieve_manual_indices()
-            np.save(mmdir / "_filter_manual_root.npy", root_idx)
+            with (mmdir / "_filter_manual_root.npy").open("wb") as rffd:
+                np.save(rffd, root_idx)
         # Use forward slash such that sessions saved on Windows
         # can be opened on *nix as well.
         mm_dict["config"] = "{}/config.txt".format(ident)
