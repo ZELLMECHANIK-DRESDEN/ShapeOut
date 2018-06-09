@@ -112,7 +112,7 @@ def load(path, search_path="."):
                     # apply manually excluded events
                     root_idx_file = config_dir / "_filter_manual_root.npy"
                     if root_idx_file.exists():
-                        root_idx = np.load(str(root_idx_file))
+                        root_idx = np.load(root_idx_file)
                         mm.filter.apply_manual_indices(root_idx)
                 else:
                     # parent doesn't exist - try again in next loop
@@ -128,7 +128,7 @@ def load(path, search_path="."):
             # Load manually excluded events
             filter_manual_file = config_dir / "_filter_manual.npy"
             if filter_manual_file.exists():
-                mm.filter.manual[:] = np.load(str(filter_manual_file))
+                mm.filter.manual[:] = np.load(filter_manual_file)
 
             mm.title = mm_dict["title"]
             mm.config.update(cfg)
@@ -200,7 +200,7 @@ def save(path, rtdc_list):
                 rdir = "."
             mm_dict["rdir"] = rdir
             # save manual filters file only for real data
-            np.save(str(mmdir / "_filter_manual.npy"), mm.filter.manual)
+            np.save(mmdir / "_filter_manual.npy", mm.filter.manual)
         elif mm.format == "hierarchy":
             pidx = rtdc_list.index(mm.hparent) + 1
             p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
@@ -210,7 +210,7 @@ def save(path, rtdc_list):
             # save (possibly hidden) root filter indices instead of
             # manual filter array.
             root_idx = mm.filter.retrieve_manual_indices()
-            np.save(str(mmdir / "_filter_manual_root.npy"), root_idx)
+            np.save(mmdir / "_filter_manual_root.npy", root_idx)
         # Use forward slash such that sessions saved on Windows
         # can be opened on *nix as well.
         mm_dict["config"] = "{}/config.txt".format(ident)
