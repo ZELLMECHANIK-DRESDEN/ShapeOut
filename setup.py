@@ -49,7 +49,7 @@ setup(
                       "h5py",
                       "imageio>=2.3.0",
                       "nptdms",
-                      "numpy>=1.12.0",
+                      "numpy>=1.9.0",
                       "pyper",
                       "scipy>=0.13.0",
                       ] + release_deps,

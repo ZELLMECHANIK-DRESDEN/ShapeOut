@@ -112,7 +112,8 @@ def load(path, search_path="."):
                     # apply manually excluded events
                     root_idx_file = config_dir / "_filter_manual_root.npy"
                     if root_idx_file.exists():
-                        root_idx = np.load(root_idx_file)
+                        with root_idx_file.open("rb") as rfd:
+                                root_idx = np.load(rfd)
                         mm.filter.apply_manual_indices(root_idx)
                 else:
                     # parent doesn't exist - try again in next loop
@@ -128,7 +129,8 @@ def load(path, search_path="."):
             # Load manually excluded events
             filter_manual_file = config_dir / "_filter_manual.npy"
             if filter_manual_file.exists():
-                mm.filter.manual[:] = np.load(filter_manual_file)
+                with filter_manual_file.open("rb") as fafd:
+                    mm.filter.manual[:] = np.load(fafd)
 
             mm.title = mm_dict["title"]
             mm.config.update(cfg)
