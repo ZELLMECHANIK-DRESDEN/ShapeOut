@@ -80,7 +80,6 @@ install:
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
   # PIP installs
-  - "pip install chaco"
   - "pip install appdirs"
   - "pip install pathlib"
   - "pip install imageio==2.3.0"
