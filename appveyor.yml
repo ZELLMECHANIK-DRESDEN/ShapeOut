@@ -82,9 +82,7 @@ install:
   # PIP installs
   - "pip install appdirs"
   - "pip install pathlib"
-  #- "pip install imageio"
-  # Try installing with patched version
-  - "pip install git+https://github.com/paulmueller/imageio.git"
+  - "pip install imageio==2.3.0"
   # Download ffmpeg binary
   - imageio_download_bin --package-dir ffmpeg 
   - "pip install nptdms"

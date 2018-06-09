@@ -41,13 +41,13 @@ setup(
                       # If you need the GUI for your project, add
                       # "shapeout[GUI]" to your install_requires.
                       'GUI':  ["chaco",
-                               "imageio",
-                               "simplejson", # for updates
+                               "simplejson",  # for updates
                                "wxPython",
                                ],
                       },
     install_requires=["appdirs",
                       "h5py",
+                      "imageio>=2.3.0",
                       "nptdms",
                       "numpy>=1.7.0",
                       "pyper",
