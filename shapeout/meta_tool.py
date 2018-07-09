@@ -78,7 +78,7 @@ def get_event_count(fname):
     ----------
     fname: str
         Path to an experimental data file. The file format is
-        determined from the file extenssion (tdms or rtdc).
+        determined from the file extension (tdms or rtdc).
 
     Returns
     -------
