@@ -1,3 +1,7 @@
+0.8.7
+ - Bugfixes:
+   - Search for missing datasets was falsely extended to directories
+     not chosen by the user
 0.8.6
  - Refactoring:
    - Use pathlib instead of os.path for
