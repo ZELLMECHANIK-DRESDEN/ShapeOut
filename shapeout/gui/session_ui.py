@@ -133,10 +133,8 @@ def open_session_worker(path, parent):
                 # for sessions stored with ShapeOut version <0.7.6 to
                 # correctly compute tdms file hashes.
                 updict[key] = {"fdir": str(newdir),
-                               "fdir_orig":index_dict[key]["fdir"],
+                               "fdir_orig": index_dict[key]["fdir"],
                                }
-                directories.insert(0, newdir.parent)
-                directories.insert(0, newdir.parent.parent)
                 remlist.append(m)
         for m in remlist:
             missing.remove(m)
@@ -166,16 +164,16 @@ def open_session_worker(path, parent):
 
     parent.NewAnalysis(rtdc_list)
 
-    directories = []
+    searchdirs = []
     for mm in parent.analysis.measurements:
         mpath = pathlib.Path(mm.path)
         fdir = mpath.parent
         if fdir.exists():
-            directories.append(fdir)
+            searchdirs.append(fdir)
     
     bolddirs = parent.analysis.GetFilenames()
 
-    parent.OnMenuSearchPathAdd(add=False, path=directories,
+    parent.OnMenuSearchPathAdd(add=False, path=searchdirs,
                                marked=bolddirs)
     
     # Remove all temporary files
