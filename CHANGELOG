@@ -2,6 +2,7 @@
  - Bugfixes:
    - Search for missing datasets was falsely extended to directories
      not chosen by the user
+ - Automated release to PyPI with appveyor
 0.8.6
  - Refactoring:
    - Use pathlib instead of os.path for

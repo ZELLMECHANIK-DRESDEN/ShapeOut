@@ -16,14 +16,9 @@ notifications:
     on_build_status_changed: false
 
 environment:
-  COVERALLS_REPO_TOKEN:
-    secure: Ftomua9xAkpFfAERywy4NiGReROTItigNUBad8nq3sCkjtQoK4QLtSoARFW89yZp
-  global:
-    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
-    # /E:ON and /V:ON options are not enabled in the batch script intepreter
-    # See: http://stackoverflow.com/a/13751649/163740
-    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\.appveyor\\run_with_compiler.cmd"
-
+  PYPI_PWD:
+    secure: 1kFM+4EzTyV0hF7cMxkKQFDuWGhiXfUXCeUGJOTgSbKukTOL9U05/nHi69AtQGpG
+  PYPI_USR: ci_zmdd
   # https://github.com/appveyor/ci/issues/359
   matrix:
     - PYTHON: "C:\\Miniconda-x64"
@@ -102,15 +97,15 @@ install:
   - "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git --no-deps"
  
   # Patch libraries
-  - '%WITH_COMPILER% %PYTHON%/python .appveyor/patch_libraries.py'
+  - '%PYTHON%/python .appveyor/patch_libraries.py'
   
   # Install pyinstaller (includes dependency for pywin32)
   #- pip install pypiwin32"
-  #- "%WITH_COMPILER% pip install git+git://github.com/pyinstaller/pyinstaller.git@779d07b236a943a4bf9d2b1a0ae3e0ebcc914798"
-  - "%WITH_COMPILER% pip install pyinstaller==3.2.1"
+  #- "pip install git+git://github.com/pyinstaller/pyinstaller.git@779d07b236a943a4bf9d2b1a0ae3e0ebcc914798"
+  - "pip install pyinstaller==3.2.1"
 
   # Run develop (installs yet missing packages and runs cython)
-  #- "%WITH_COMPILER% %PYTHON%/python setup.py develop"
+  #- "%PYTHON%/python setup.py develop"
 
   # Show the installed packages
   - "pip freeze"
@@ -129,11 +124,17 @@ test_script:
   - "codecov || exit 0"
 
 after_test:
+  - "appveyor-retry pip install twine wheel"
   # If tests are successful, create a whl package for the project.
-  #- "%WITH_COMPILER% %PYTHON%/python setup.py bdist_wheel"
-  #- ps: "ls dist"
+  - "python setup.py bdist_wheel"
+  - "python setup.py sdist"
+  - ps: "ls dist"
+  # Setup PyPI credentials
+  - cmd: "echo [pypi] > %USERPROFILE%\\.pypirc"
+  - cmd: "echo username: %PYPI_USR% >> %USERPROFILE%\\.pypirc"
+  - cmd: "echo password: %PYPI_PWD% >> %USERPROFILE%\\.pypirc"
   # Run pyinstaller
-  - "%WITH_COMPILER% pyinstaller -y --log-level=WARN .appveyor\\shapeout.spec"
+  - "pyinstaller -y --log-level=WARN .appveyor\\shapeout.spec"
   # Create InnoSetup installers
   # Generate iss file
   - "python .appveyor\\make_iss.py"
@@ -143,9 +144,13 @@ after_test:
 
 artifacts:
   # Archive the generated wheel package in the ci.appveyor.com build report.
-  #- path: dist\*
+  - path: dist\*
   # InnoSetup files
   - path: .appveyor\Output\*
+
+on_success:
+  - cmd: "if [%APPVEYOR_REPO_TAG%]==[true] twine upload dist\\*.whl || exit 0"
+  - cmd: "if [%APPVEYOR_REPO_TAG%]==[true] twine upload dist\\*.tar.gz || exit 0"
 
 deploy:
   provider: GitHub
