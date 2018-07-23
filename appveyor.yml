@@ -16,9 +16,9 @@ notifications:
     on_build_status_changed: false
 
 environment:
+  PYPI_USR: ci_zmdd
   PYPI_PWD:
     secure: 1kFM+4EzTyV0hF7cMxkKQFDuWGhiXfUXCeUGJOTgSbKukTOL9U05/nHi69AtQGpG
-  PYPI_USR: ci_zmdd
   # https://github.com/appveyor/ci/issues/359
   matrix:
     - PYTHON: "C:\\Miniconda-x64"
@@ -149,8 +149,8 @@ artifacts:
   - path: .appveyor\Output\*
 
 on_success:
-  - cmd: "if [%APPVEYOR_REPO_TAG%]==[true] twine upload dist\\*.whl || exit 0"
-  - cmd: "if [%APPVEYOR_REPO_TAG%]==[true] twine upload dist\\*.tar.gz || exit 0"
+  - cmd: "if [%APPVEYOR_REPO_TAG%]==[true] twine upload --skip-existing dist\\*.whl"
+  - cmd: "if [%APPVEYOR_REPO_TAG%]==[true] twine upload --skip-existing dist\\*.tar.gz"
 
 deploy:
   provider: GitHub
@@ -160,5 +160,4 @@ deploy:
   draft: true
   prerelease: true
   on:
-    branch: master                 # release from master branch only
     appveyor_repo_tag: true        # deploy on tag push only
