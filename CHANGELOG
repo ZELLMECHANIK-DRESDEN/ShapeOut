@@ -2,6 +2,8 @@
  - Bugfixes:
    - Search for missing datasets was falsely extended to directories
      not chosen by the user
+   - Add recording date/time tooltip in the analysis tab to avoid
+     ambiguities (#223)
  - Automated release to PyPI with appveyor
 0.8.6
  - Refactoring:

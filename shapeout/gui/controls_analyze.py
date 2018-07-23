@@ -79,6 +79,13 @@ class SubPanelAnalyze(SubPanel):
                 cbgtemp = wx.ComboBox(self, -1, choices=treatments,
                                       name=mm.identifier,
                                       style=wx.CB_DROPDOWN|wx.CB_READONLY)
+                if ("experiment" in mm.config
+                    and "date" in mm.config["experiment"]
+                    and "time" in mm.config["experiment"]):
+                    tip = "recorded: {} {}".format(
+                        mm.config["experiment"]["date"],
+                        mm.config["experiment"]["time"])
+                    cbgtemp.SetToolTip(wx.ToolTip(tip))
                 if mm.title.lower().count("control") or ii==0:
                     cbgtemp.SetSelection(1)
                 else:
