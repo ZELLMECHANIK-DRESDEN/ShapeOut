@@ -32,13 +32,18 @@ sys.path.insert(0, pdir)
 sys.path.append(op.abspath('extensions'))
 
 # Mock all dependencies
-install_requires=["fcswrite",
+install_requires=["appdirs",
+                  "dclab",
+                  "fcswrite",
+                  "h5py",
                   "imageio",
                   "nptdms",
+                  "pyper",
+                  "scipy",
                   "statsmodels",
                   "statsmodels.nonparametric",
                   "statsmodels.nonparametric.kernel_density",
-                  "wx", "wxPython",
+                  "chaco", "simplejson", "wx", "wxPython",
                   ]
 
 for mod_name in install_requires:
