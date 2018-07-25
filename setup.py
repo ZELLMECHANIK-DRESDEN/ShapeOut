@@ -15,16 +15,6 @@ year = "2015"
 sys.path.insert(0, realpath(dirname(__file__))+"/"+name)
 from _version import version
 
-if version.count("dev") or sys.argv.count("test"):
-    # specific versions are not desired for
-    # - development version
-    # - running pytest
-    release_deps = ["dclab",
-                    "fcswrite"]
-else:
-    release_deps = ["dclab==0.5.2",
-                    "fcswrite==0.3.0"]
-
 setup(
     name=name,
     author=author,
@@ -46,13 +36,15 @@ setup(
                                ],
                       },
     install_requires=["appdirs",
+                      "dclab>=0.6.2",
+                      "fcswrite>=0.4.1"
                       "h5py",
                       "imageio>=2.3.0",
                       "nptdms",
                       "numpy>=1.9.0",
                       "pyper",
                       "scipy>=0.13.0",
-                      ] + release_deps,
+                      ],
     setup_requires=['pytest-runner'],
     tests_require=["pytest", "urllib3"],
     keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
