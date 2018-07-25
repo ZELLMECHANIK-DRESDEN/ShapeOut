@@ -5,6 +5,7 @@
    - Add recording date/time tooltip in the analysis tab to avoid
      ambiguities (#223)
  - Automated release to PyPI with appveyor
+ - Begin migration of docs to sphinx/readthedocs.org
 0.8.6
  - Refactoring:
    - Use pathlib instead of os.path for
@@ -131,7 +132,7 @@
  - Define new configuration file path with appdirs
  - Add on-the-fly computation of volume (dclab 0.2.3.dev23)
  - Change: Disable "remove invalid events" in filtering to
-  avoid computation of ancillary columns (performance)
+   avoid computation of ancillary columns (performance)
 0.7.4
  - Add de-/select all buttons to Batch | Statistical analysis
  - Add de-/select all buttons to export all events data (#148)
@@ -211,7 +212,7 @@
  - Bugfixes:
    - Loading of sessions with hierarchy children failed (#99)
    - Reduced a memory leak for new analyses that resulted in frequent
-    memory errors (should be less frequent now)
+     memory errors (should be less frequent now)
 0.6.4
  - Bugfixes:
    - Batch analysis: Individual measurement parameters not preserved (#96)
@@ -225,7 +226,7 @@
    - Regression: Excluded events plotted on top of filtered events (#86)
    - PDF plot export: Scatter inspector event highlighted (#92)
  - Implement differential (w.r.t. reservoir) linear-mixed models
-  analysis with bootstrapping (#88)
+   analysis with bootstrapping (#88)
 0.6.2
  - Add batch filter processing
  - Move statistics computation to dclab (0.1.7.dev12):
@@ -257,7 +258,7 @@
  - Allow logarithmic plot axes (#56)
  - Display fluorescence curve of events (#65)
  - Bugfixes:
-   - OpenCV version 2 vs 3 variable name differences (CV_CAP_...)
+   - OpenCV version 2 vs 3 variable name differences (CV_CAP...)
    - Gray dots in PDF export too large (#69)
 0.5.8
  - dclab add fluorescence channels: peak area, peak position, number of peaks
