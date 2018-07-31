@@ -67,7 +67,6 @@ class SubPanelAnalyze(SubPanel):
             
             treatments = ["None", "Control", "Treatment",
                           "Reservoir Control", "Reservoir Treatment"]
-            repetitions = [str(i) for i in range(1,10)]
             
             self.WXCB_treatment = []
             self.WXCB_repetition = []
@@ -92,17 +91,16 @@ class SubPanelAnalyze(SubPanel):
                     cbgtemp.SetValue(mm.config["analysis"]["regression treatment"])
                 sizer_bag.Add(cbgtemp, (3+ii,1), flag=wx.EXPAND|wx.ALL)
                 # repetition
-                cbgtemp2 = wx.ComboBox(self, -1, choices=repetitions,
-                                      name=mm.identifier,
-                                      style=wx.CB_DROPDOWN|wx.CB_READONLY)
-                cbgtemp2.SetSelection(mm.config["analysis"]["regression repetition"]-1)
+                cbgtemp2 = wx.wx.SpinCtrl(self, -1, min=1, max=999,
+                                          initial=1)
+                cbgtemp2.SetValue(mm.config["analysis"]["regression repetition"]-1)
 
                 sizer_bag.Add(cbgtemp2, (3+ii,2), flag=wx.EXPAND|wx.ALL)
                 
                 self.WXCB_treatment.append(cbgtemp)
                 self.WXCB_repetition.append(cbgtemp2)
                 
-                self.Bind(wx.EVT_COMBOBOX, self.update_info_text, cbgtemp2)
+                self.Bind(wx.EVT_SPINCTRL, self.update_info_text, cbgtemp2)
                 self.Bind(wx.EVT_COMBOBOX, self.update_info_text, cbgtemp)
 
             hbox.Add(sizer_bag)
