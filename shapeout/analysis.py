@@ -80,6 +80,13 @@ class Analysis(object):
         # Complete missing configuration parameters
         self._complete_config()
 
+    def __iter__(self):
+        for mm in self.measurements:
+            yield mm
+
+    def __len__(self):
+        return len(self.measurements)
+
     def _clear(self):
         """Remove all attributes from this instance, making it unusable
 

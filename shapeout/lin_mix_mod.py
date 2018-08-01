@@ -8,12 +8,112 @@ Install the "lme4" library with:
 """
 from __future__ import division, print_function, unicode_literals
 
+import difflib
+
 import numpy as np
 import pyper
 
 from .util import cran
 
 DEFAULT_BS_ITER = 1000
+
+
+def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
+                                  id_ctl_res="", id_trt_res=""):
+    """Convenience method for assigning treatment and repetition
+
+    Parameters
+    ----------
+    analysis: shapeout.analysis.Analysis
+        The analysis instance to use. The titles of the individual
+        measurements will be searched for the `id_*` terms.
+    id_ctl: str
+        Identifies a control measurement.
+    id_ctl_res: str
+        Identifies a control measurement in the reservoir. Set to
+        an empty string to disable.
+    id_trt: str
+        Identifies the treatment measurement. Set to an empty
+        string to use all non-control measurements as treatments.
+    id_trt_res: str
+        Identifies the treatment measurement in the reservoir.
+        Must not set if `id_ctl_res` is used.
+    """
+    # sanity checks
+    if id_ctl == "":
+        raise ValueError("At least `id_ctl` must be set.")
+
+    idlist = []
+
+    for mm in analysis:
+        if id_ctl_res and id_ctl_res in mm.title:
+            idlist.append(["res ctl", mm])
+        elif id_trt_res and id_trt_res in mm.title:
+            idlist.append(["res trt", mm])
+        elif id_ctl in mm.title:
+            idlist.append(["ctl", mm])
+        elif id_trt and id_trt in mm.title:
+            idlist.append(["trt", mm])
+        elif id_trt == "":
+            idlist.append(["trt", mm])
+        else:
+            idlist.append(["none", mm])
+
+    # extract treatment
+    treatment = [tt if tt != "none" else None for (tt, mm) in idlist]
+    assert len(treatment) == len(analysis)
+    # identify timeunit via similarity analysis
+    ctl_str = [mm.title if tt == "ctl" else "" for (tt, mm) in idlist]
+    ctl_r_str = [mm.title if tt == "res ctl" else "" for (tt, mm) in idlist]
+    trt_str = [mm.title if tt == "trt" else "" for (tt, mm) in idlist ]
+    trt_r_str = [mm.title if tt == "res trt" else "" for (tt, mm) in idlist]
+    matchids = match_similar_strings(ctl_str, trt_str, ctl_r_str, trt_r_str)
+    timeunit = np.zeros(len(analysis))
+    for ii, match in enumerate(matchids):
+        timeunit[match[0]] = ii+1
+        timeunit[match[1]] = ii+1
+        if id_ctl_res and id_trt_res:
+            timeunit[match[2]] = ii+1
+            timeunit[match[3]] = ii+1
+
+    return treatment, timeunit
+
+
+def match_similar_strings(a, b, c, d):
+    ratio = lambda x, y: difflib.SequenceMatcher(a=x, b=y).ratio()
+    n = len(a)
+    assert len(a) == len(b) == len(c) == len(d)
+    # build up simliarity matrix
+    smat = np.zeros((n, n, n, n))
+    for ii in range(n):
+        for jj in range(n):
+            if a[ii] and b[jj]:
+                ratij = ratio(a[ii], b[jj])
+            else:
+                ratij = 0
+            for kk in range(n):
+                if a[ii] and c[kk]:
+                    ratik = ratio(a[ii], c[kk])
+                else:
+                    ratik = 0
+                for ll in range(n):
+                    if a[ii] and d[ll]:
+                        ratil = ratio(a[ii], d[ll])
+                    else:
+                        ratil = 0
+                    smat[ii, jj, kk, ll] = ratij + ratik + ratil
+    # match with maxima
+    matchids = []
+    for _ in range(n):
+        if np.max(smat) == 0:
+            break
+        ai, aj, ak, al = np.argwhere(smat==smat.max())[0]
+        matchids.append([ai, aj, ak, al])
+        smat[ai, :, :, :] = 0
+        smat[:, aj, :, :] = 0
+        smat[:, :, ak, :] = 0
+        smat[:, :, :, al] = 0
+    return matchids
 
 
 def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
@@ -107,6 +207,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     model: string
         'lmm': A linear mixed model will be applied
         'glmm': A generalized linear mixed model will be applied
+
     Returns
     -------
     (Generalized) Linear Mixed Effects Model Result: dictionary

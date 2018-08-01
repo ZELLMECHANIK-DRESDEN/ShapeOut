@@ -4,8 +4,10 @@
      not chosen by the user
    - Add recording date/time tooltip in the analysis tab to avoid
      ambiguities (#223)
- - fix: Allow arbitrary number of repetitions for mixed model analysis
-   with a spin control (#222)
+   - Allow arbitrary number of repetitions for mixed model analysis
+     with a spin control (#222)
+ - Automatically identify treatment and repetition for mixed model
+   analysis
  - Automated release to PyPI with appveyor
  - Begin migration of docs to sphinx/readthedocs.org
 0.8.6
