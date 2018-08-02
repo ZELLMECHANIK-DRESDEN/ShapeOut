@@ -14,6 +14,68 @@ from .. import lin_mix_mod
 from . import confparms
 from .controls_subpanel import SubPanel
 
+
+
+class ClassifyStringDialog(wx.Dialog):
+
+    def __init__(self, analysis, parent, *args, **kw):
+        super(ClassifyStringDialog, self).__init__(parent, *args, **kw)
+        self.analysis = analysis
+        self.parent = parent
+        self.InitUI()
+        self.SetSize((250, 200))
+        self.SetTitle("Treatment and control identifiers")
+
+
+    def InitUI(self):
+        grid = wx.GridBagSizer(hgap=3)
+
+        grid.Add(wx.StaticText(self, label="Control"), (0,0))
+        grid.Add(wx.StaticText(self, label="Treatment"), (1,0))
+        grid.Add(wx.StaticText(self, label="Reservoir Control"), (2,0))
+        grid.Add(wx.StaticText(self, label="Reservoir Treatment"), (3,0))
+
+        self.wxctl = wx.TextCtrl(self, value="control")
+        self.wxtrt = wx.TextCtrl(self, value="")
+        self.wxctl_res = wx.TextCtrl(self, value="")
+        self.wxtrt_res = wx.TextCtrl(self, value="")
+        
+        grid.Add(self.wxctl, (0,1))
+        grid.Add(self.wxtrt, (1,1))
+        grid.Add(self.wxctl_res, (2,1))
+        grid.Add(self.wxtrt_res, (3,1))
+
+        applyButton = wx.Button(self, label='Apply')
+        closeButton = wx.Button(self, label='Close')
+
+        grid.Add(applyButton, (4,0))
+        grid.Add(closeButton, (4,1))
+        
+        self.SetSizer(grid)
+
+        applyButton.Bind(wx.EVT_BUTTON, self.OnApply)
+        closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
+
+
+    def OnClose(self, e):
+        self.Destroy()
+
+
+    def OnApply(self, e):
+        treatment, repetition = lin_mix_mod.classify_treatment_repetition(
+            analysis=self.analysis,
+            id_ctl=self.wxctl.GetValue(),
+            id_trt=self.wxtrt.GetValue(),
+            id_ctl_res=self.wxctl_res.GetValue(),
+            id_trt_res=self.wxtrt_res.GetValue())
+
+        for mm, trt, rep in zip(self.analysis, treatment, repetition):
+            mm.config["analysis"]["regression treatment"] = trt
+            mm.config["analysis"]["regression repetition"] = rep
+
+        self.parent.update_classification()
+
+
 class SubPanelAnalyze(SubPanel):
     def __init__(self, parent, *args, **kwargs):
         SubPanel.__init__(self, parent, *args, **kwargs)
@@ -59,11 +121,16 @@ class SubPanelAnalyze(SubPanel):
             self.WXCB_axes.SetSelection(axid)
             sizer_bag.Add(self.WXCB_axes, (1,1), span=wx.GBSpan(1,2),
                           flag=wx.EXPAND|wx.ALL)
-            
+        
+        
+            btn_auto = wx.Button(self, label="Autodetect classification")
+            sizer_bag.Add(btn_auto, (2,1), span=wx.GBSpan(1,2), flag=wx.EXPAND)
+            self.Bind(wx.EVT_BUTTON, self.OnAuto, btn_auto)
+
             # Header for table
-            sizer_bag.Add(wx.StaticText(self, label="Data set"), (2,0), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label="Interpretation"), (2,1), span=wx.GBSpan(1,1))
-            sizer_bag.Add(wx.StaticText(self, label="Repetition"), (2,2), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label="Data set"), (3,0), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label="Interpretation"), (3,1), span=wx.GBSpan(1,1))
+            sizer_bag.Add(wx.StaticText(self, label="Repetition"), (3,2), span=wx.GBSpan(1,1))
             
             treatments = ["None", "Control", "Treatment",
                           "Reservoir Control", "Reservoir Treatment"]
@@ -73,7 +140,7 @@ class SubPanelAnalyze(SubPanel):
             
             for ii, mm in enumerate(analysis.measurements):
                 # title
-                sizer_bag.Add(wx.StaticText(self, label=mm.title), (3+ii,0), span=wx.GBSpan(1,1))
+                sizer_bag.Add(wx.StaticText(self, label=mm.title), (4+ii,0), span=wx.GBSpan(1,1))
                 # treatment
                 cbgtemp = wx.ComboBox(self, -1, choices=treatments,
                                       name=mm.identifier,
@@ -85,17 +152,14 @@ class SubPanelAnalyze(SubPanel):
                         mm.config["experiment"]["date"],
                         mm.config["experiment"]["time"])
                     cbgtemp.SetToolTip(wx.ToolTip(tip))
-                if mm.title.lower().count("control") or ii==0:
-                    cbgtemp.SetSelection(1)
-                else:
-                    cbgtemp.SetValue(mm.config["analysis"]["regression treatment"])
-                sizer_bag.Add(cbgtemp, (3+ii,1), flag=wx.EXPAND|wx.ALL)
+                cbgtemp.SetValue(mm.config["analysis"]["regression treatment"])
+                sizer_bag.Add(cbgtemp, (4+ii,1), flag=wx.EXPAND|wx.ALL)
                 # repetition
                 cbgtemp2 = wx.wx.SpinCtrl(self, -1, min=1, max=999,
                                           initial=1)
-                cbgtemp2.SetValue(mm.config["analysis"]["regression repetition"]-1)
+                cbgtemp2.SetValue(mm.config["analysis"]["regression repetition"])
 
-                sizer_bag.Add(cbgtemp2, (3+ii,2), flag=wx.EXPAND|wx.ALL)
+                sizer_bag.Add(cbgtemp2, (4+ii,2), flag=wx.EXPAND|wx.ALL)
                 
                 self.WXCB_treatment.append(cbgtemp)
                 self.WXCB_repetition.append(cbgtemp2)
@@ -156,6 +220,11 @@ class SubPanelAnalyze(SubPanel):
         webbrowser.open(fd.name)
 
 
+    def OnAuto(self, e=None):
+        dlg = ClassifyStringDialog(self.analysis, self)
+        dlg.ShowModal()
+        
+
     def OnReset(self, e=None):
         """
         Reset everything in the analysis tab.
@@ -191,6 +260,14 @@ class SubPanelAnalyze(SubPanel):
             text += text_mode.format(axis)
         self.info_text.SetLabel(text)
         self.Layout()
+
+
+    def update_classification(self):
+        for mm, wxtrt, wxrep in zip(self.analysis,
+                                    self.WXCB_treatment,
+                                    self.WXCB_repetition):
+            wxtrt.SetValue(mm.config["analysis"]["regression treatment"])
+            wxrep.SetValue(mm.config["analysis"]["regression repetition"])
 
 
     def UpdatePanel(self, analysis=None):

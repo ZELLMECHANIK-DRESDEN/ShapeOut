@@ -59,8 +59,13 @@ def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
         else:
             idlist.append(["none", mm])
 
-    # extract treatment
-    treatment = [tt if tt != "none" else None for (tt, mm) in idlist]
+    # extract and rename treatment
+    treatment = [tt for (tt, mm) in idlist]
+    treatment = [tt.replace("res", "Reservoir") for tt in treatment]
+    treatment = [tt.replace("ctl", "Control") for tt in treatment]
+    treatment = [tt.replace("trt", "Treatment") for tt in treatment]
+    treatment = [tt.replace("none", "None") for tt in treatment]
+
     assert len(treatment) == len(analysis)
     # identify timeunit via similarity analysis
     ctl_str = [mm.title if tt == "ctl" else "" for (tt, mm) in idlist]

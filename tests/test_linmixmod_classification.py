@@ -45,7 +45,7 @@ def test_classify_treatment_repetition_sinple():
         measurements += [ctl, trt]
     ana = Analysis(measurements)
     treatment, repetition = classify_treatment_repetition(ana, id_ctl="control")
-    assert treatment == ["ctl", "trt"] * 5
+    assert treatment == ["Control", "Treatment"] * 5
     assert np.all(repetition == np.repeat(np.arange(5), 2) + 1)
 
 
@@ -73,7 +73,10 @@ def test_classify_treatment_repetition_advanced():
     # Repetitions 1 and 2 are put in the end b/c "11" and "12" are better
     # matches than "1" and "2".
     repetition = np.roll(repetition, 8)
-    assert treatment == ["ctl", "trt", "res ctl", "res trt"] * 12
+    assert treatment == ["Control",
+                         "Treatment",
+                         "Reservoir Control",
+                         "Reservoir Treatment"] * 12
     assert np.all(repetition == np.repeat(np.arange(12), 4) + 1)
 
 

@@ -9,29 +9,32 @@ For this test to work, this must be installed
 """
 from __future__ import division, print_function, unicode_literals
 
+import copy
+
 import numpy as np
 
 from shapeout.lin_mix_mod import linmixmod, diffdef
 
 
-def test_linmixmod():
-    xs = [
-        [100, 99, 80, 120, 140, 150, 100, 100, 110, 111,
-            140, 145],  # Larger values (Control Channel1)
-        [20, 10, 5, 16, 14, 22, 27, 26, 5, 10, 11, 8, 15, 17,
-            20, 9],  # Smaller values (Control Reservoir1)
-        [115, 110, 90, 110, 145, 155, 110, 120, 115, 120, 120,
-            150, 100, 90, 100],  # Larger values (Control Channel2)
-        [30, 30, 15, 26, 24, 32, 37, 36, 15, 20, 21, 18, 25,
-            27, 30, 19],  # Smaller values (Control Reservoir2)
-        [150, 150, 130, 170, 190, 250, 150, 150, 160, 161, 180, 195, 130,
-            120, 125, 130, 125],  # Larger values (Treatment Channel1)
-        [2, 1, 5, 6, 4, 2, 7, 6, 5, 10, 1, 8, 5, 7, 2, 9, 11,
-            8, 13],  # Smaller values (Treatment Reservoir1)
-        [155, 155, 135, 175, 195, 255, 155, 155, 165, 165, 185, 200, 135, 125,
-            130, 135, 140, 150, 135, 140],  # Larger values (Treatment Channel2)
-        [25, 15, 19, 26, 44, 42, 35, 20, 15, 10, 11, 28, 35, 10, 25, 13]]  # Smaller values (Treatment Reservoir2)
+xs = [
+    [100, 99, 80, 120, 140, 150, 100, 100, 110, 111,
+        140, 145],  # Larger values (Control Channel1)
+    [20, 10, 5, 16, 14, 22, 27, 26, 5, 10, 11, 8, 15, 17,
+        20, 9],  # Smaller values (Control Reservoir1)
+    [115, 110, 90, 110, 145, 155, 110, 120, 115, 120, 120,
+        150, 100, 90, 100],  # Larger values (Control Channel2)
+    [30, 30, 15, 26, 24, 32, 37, 36, 15, 20, 21, 18, 25,
+        27, 30, 19],  # Smaller values (Control Reservoir2)
+    [150, 150, 130, 170, 190, 250, 150, 150, 160, 161, 180, 195, 130,
+        120, 125, 130, 125],  # Larger values (Treatment Channel1)
+    [2, 1, 5, 6, 4, 2, 7, 6, 5, 10, 1, 8, 5, 7, 2, 9, 11,
+        8, 13],  # Smaller values (Treatment Reservoir1)
+    [155, 155, 135, 175, 195, 255, 155, 155, 165, 165, 185, 200, 135, 125,
+        130, 135, 140, 150, 135, 140],  # Larger values (Treatment Channel2)
+    [25, 15, 19, 26, 44, 42, 35, 20, 15, 10, 11, 28, 35, 10, 25, 13]]  # Smaller values (Treatment Reservoir2)
 
+
+def test_linmixmod_1():
     # 1.: Differential Deformation in a linear mixed model
     treatment1 = ['Control', 'Reservoir Control', 'Control', 'Reservoir Control',
                   'Treatment', 'Reservoir Treatment', 'Treatment', 'Reservoir Treatment']
@@ -44,15 +47,22 @@ def test_linmixmod():
     assert np.allclose(
         [Result_1["p-Value (Likelihood Ratio Test)"]], [0.000602622503360039])
 
+
+def test_linmixmod_2():
     # 2.: Differential Deformation in a generalized linear mixed model
-    Result_2 = linmixmod(xs=xs, treatment=treatment1,
-                         timeunit=timeunit1, model='glmm')
+    treatment2 = ['Control', 'Reservoir Control', 'Control', 'Reservoir Control',
+                  'Treatment', 'Reservoir Treatment', 'Treatment', 'Reservoir Treatment']
+    timeunit2 = [1, 1, 2, 2, 1, 1, 2, 2]
+    Result_2 = linmixmod(xs=xs, treatment=treatment2,
+                         timeunit=timeunit2, model='glmm')
     assert np.allclose([Result_2["Estimate"]], [4.5385848573783898])
-    assert 'BOOTSTAP-DISTRIBUTIONS' in Result_1['Full Summary']
+    assert 'BOOTSTAP-DISTRIBUTIONS' in Result_2['Full Summary']
     assert 'GENERALIZED' in Result_2['Full Summary']
     assert np.allclose(
         [Result_2["p-Value (Likelihood Ratio Test)"]], [0.000556063024310929])
 
+
+def test_linmixmod_3():
     # 3.: Original values in a linear mixed model
     #'Reservoir' Measurements are now Controls and 'Channel' measurements are Treatments
     # This does not use differential deformation in linmixmod()
@@ -67,7 +77,9 @@ def test_linmixmod():
     assert np.allclose(
         [Result_3["p-Value (Likelihood Ratio Test)"]], [0.000331343267412872])
 
-    # 3.: Original values in a generalized linear mixed model
+
+def test_linmixmod_4():
+    # 4.: Original values in a generalized linear mixed model
     # This does not use differential deformation in linmixmod()
     treatment4 = ['Treatment', 'Control', 'Treatment', 'Control',
                   'Treatment', 'Control', 'Treatment', 'Control']
