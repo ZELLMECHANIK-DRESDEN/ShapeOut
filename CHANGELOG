@@ -6,8 +6,11 @@
      ambiguities (#223)
    - Allow arbitrary number of repetitions for mixed model analysis
      with a spin control (#222)
+   - Setting the treatment to "None" for (g)lmm analysis did not
+     exclude it from the analysis, but introduced it as a different
+     treatment (#224)
  - Automatically identify treatment and repetition for mixed model
-   analysis
+   analysis (#222)
  - Automated release to PyPI with appveyor
  - Begin migration of docs to sphinx/readthedocs.org
 0.8.6

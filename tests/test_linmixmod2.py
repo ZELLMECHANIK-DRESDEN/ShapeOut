@@ -93,6 +93,22 @@ def test_linmixmod_4():
         [Result_4["p-Value (Likelihood Ratio Test)"]], [0.00365675950677214])
 
 
+def test_linmixmod_5():
+    # 5.: Add None values and get same result as in 4.
+    treatment5 = ['Treatment', 'Control', 'Treatment', 'Control',
+                  'None', 'Treatment', 'Control', 'Treatment', 'Control']
+    timeunit5 = [1, 1, 2, 2, 1, 3, 3, 4, 4]
+    xs2 = copy.deepcopy(xs)
+    xs2.insert(4, xs[0])
+    Result_5 = linmixmod(xs=xs2, treatment=treatment5,
+                         timeunit=timeunit5, model='glmm')
+    assert np.allclose([Result_5["Estimate"]], [2.71362344639])
+    assert 'BOOTSTAP-DISTRIBUTIONS' not in Result_5['Full Summary']
+    assert 'GENERALIZED' in Result_5['Full Summary']
+    assert np.allclose(
+        [Result_5["p-Value (Likelihood Ratio Test)"]], [0.00365675950677214])
+
+
 def test_diffdef():
     # Larger values (Channel1)
     y = np.array([100, 99, 80, 120, 140, 150, 100, 100, 110, 111, 140, 145])

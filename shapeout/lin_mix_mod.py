@@ -300,6 +300,24 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
               "Please select more treatment repetitions."
         raise ValueError(msg)
 
+    # Check that names are valid
+    for trt in treatment:
+        if trt not in ["None",
+                       "Control",
+                       "Reservoir Control",
+                       "Treatment",
+                       "Reservoir Treatment"]:
+            raise ValueError("Unknown treatment: '{}'".format(trt))
+
+    # Remove "None"s
+    treatment = np.array(treatment)
+    timeunit = np.array(timeunit)
+    xs = np.array(xs)
+    invalid = (treatment == "None")
+    treatment = list(treatment[~invalid])
+    timeunit = list(timeunit[~invalid])
+    xs = [xi for ii, xi in enumerate(xs) if ~invalid[ii]]
+
     ######################Differential Deformation#############################
     # If the user selected 'Control-Reservoir' and/or 'Treatment-Reservoir'
     Median_DiffDef = []
@@ -376,7 +394,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
         treatment = np.array(Treatment)
         timeunit = np.array(TimeUnit)
 
-    else:  # If there is no 'Reservoir Channel' selected dont apply bootstrapping
+    else:  # If there is no 'Reservoir Channel' selected don't apply bootstrapping
         if model == 'glmm':
             Head_string = "GENERALIZED LINEAR MIXED MODEL: \n" +\
                 "---Results are in log space (loglink was used)--- \n"
