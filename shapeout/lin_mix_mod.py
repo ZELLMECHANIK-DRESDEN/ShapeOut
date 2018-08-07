@@ -22,6 +22,10 @@ def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
                                   id_ctl_res="", id_trt_res=""):
     """Convenience method for assigning treatment and repetition
 
+    This method pairs treatments and repetitions in an analysis
+    using the measurement titles and identifiers given as
+    keyword arguments.
+
     Parameters
     ----------
     analysis: shapeout.analysis.Analysis
@@ -88,10 +92,40 @@ def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
             timeunit[match[2]] = ii+1
             timeunit[match[3]] = ii+1
 
+    # Set all non-paired treatments to "None"
+    for ii, tu in enumerate(timeunit):
+        if tu == 0:
+            treatment[ii] = "None"
     return treatment, timeunit
 
 
 def match_similar_strings(a, b, c, d):
+    """Similarity analysis to identify string-matches in four lists
+
+    Given four lists of strings a, b, c, and d. Find the strings
+    strings that match best using similarity analysis and return
+    the matching list IDs with highest similarity first. Empty
+    strings are ignored.
+
+    For instance, the lists
+
+    a = ["peter", "hans", "", "golf"]
+    b = ["gogo", "ham", "freddy", ""]
+    c = ["red", "gans", "", "hugo"]
+    d = ["old", "futur", "erst", "ha"]
+
+    will return the following match IDs:
+
+    [1, 1, 1, 3]
+    [3, 0, 3, 0]
+    [0, 2, 0, 2]
+
+    which means that these words are similar:
+
+    ["hans", "ham", "gans", "ha"]
+    ["golf", "gogo", "hugo", "old"]
+    ["peter", "freddy", "red", "erst"]
+    """
     ratio = lambda x, y: difflib.SequenceMatcher(a=x, b=y).ratio()
     n = len(a)
     assert len(a) == len(b) == len(c) == len(d)
@@ -210,12 +244,14 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
         will perform a bootstrapping algorithm that removes the median from each
         Channel measurement. That means for each 'Control' or 'Treatment' has to exist
         a 'Reservoir ...' measurement. The resulting Differential deformations
-        are then used in the Linear Mixed Model
+        are then used in the Linear Mixed Model.
+        Values of 'None' are excluded from the analysis.
     timeunit: list
         Each item is a description/identifier for a time. The
         enumeration matches the index of `xs`.
         (e.g. list containing integers "1" and "2" according to the day
         at which the content in `xs` was measured) 
+        Values of '0' are excluded from the analysis.
     model: string
         'lmm': A linear mixed model will be applied
         'glmm': A generalized linear mixed model will be applied
@@ -316,11 +352,11 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
                        "Reservoir Treatment"]:
             raise ValueError("Unknown treatment: '{}'".format(trt))
 
-    # Remove "None"s
+    # Remove "None"s and "0"s
     treatment = np.array(treatment)
     timeunit = np.array(timeunit)
     xs = np.array(xs)
-    invalid = (treatment == "None")
+    invalid = np.logical_or(treatment == "None", timeunit == 0)
     treatment = list(treatment[~invalid])
     timeunit = list(timeunit[~invalid])
     xs = [xi for ii, xi in enumerate(xs) if ~invalid[ii]]

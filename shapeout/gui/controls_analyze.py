@@ -23,11 +23,20 @@ class ClassifyStringDialog(wx.Dialog):
         self.analysis = analysis
         self.parent = parent
         self.InitUI()
-        self.SetSize((250, 200))
         self.SetTitle("Treatment and control identifiers")
 
-
     def InitUI(self):
+        """Content of dialog box for automated classification"""
+        mainsizer = wx.BoxSizer(wx.VERTICAL)
+
+        doc = "Please provide identifiers for an\n" \
+              + "automated pairwise classification.\n" \
+              + "The classification and identification\n" \
+              + "of the repetition for a measurement\n" \
+              + "is done via its title."
+
+        mainsizer.Add(wx.StaticText(self, label=doc), flag=wx.ALL, border=5)
+
         grid = wx.GridBagSizer(hgap=3)
 
         grid.Add(wx.StaticText(self, label="Control"), (0,0))
@@ -39,7 +48,12 @@ class ClassifyStringDialog(wx.Dialog):
         self.wxtrt = wx.TextCtrl(self, value="")
         self.wxctl_res = wx.TextCtrl(self, value="")
         self.wxtrt_res = wx.TextCtrl(self, value="")
-        
+
+        self.wxctl.SetToolTip(wx.ToolTip("id_ctl"))
+        self.wxtrt.SetToolTip(wx.ToolTip("id_trt"))
+        self.wxctl_res.SetToolTip(wx.ToolTip("id_ctl_res"))
+        self.wxtrt_res.SetToolTip(wx.ToolTip("id_trt_res"))
+
         grid.Add(self.wxctl, (0,1))
         grid.Add(self.wxtrt, (1,1))
         grid.Add(self.wxctl_res, (2,1))
@@ -51,8 +65,11 @@ class ClassifyStringDialog(wx.Dialog):
         grid.Add(applyButton, (4,0))
         grid.Add(closeButton, (4,1))
         
-        self.SetSizer(grid)
+        mainsizer.Add(grid, flag=wx.ALL, border=5)
+        mainsizer.Layout()
 
+        self.SetSizer(mainsizer)
+        mainsizer.Fit(self)
         applyButton.Bind(wx.EVT_BUTTON, self.OnApply)
         closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
 
@@ -155,8 +172,8 @@ class SubPanelAnalyze(SubPanel):
                 cbgtemp.SetValue(mm.config["analysis"]["regression treatment"])
                 sizer_bag.Add(cbgtemp, (4+ii,1), flag=wx.EXPAND|wx.ALL)
                 # repetition
-                cbgtemp2 = wx.wx.SpinCtrl(self, -1, min=1, max=999,
-                                          initial=1)
+                cbgtemp2 = wx.wx.SpinCtrl(self, -1, min=0, max=999,
+                                          initial=0)
                 cbgtemp2.SetValue(mm.config["analysis"]["regression repetition"])
 
                 sizer_bag.Add(cbgtemp2, (4+ii,2), flag=wx.EXPAND|wx.ALL)
