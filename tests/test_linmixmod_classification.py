@@ -33,7 +33,7 @@ def test_match_similar_strings_advanced():
     assert [0, 2, 0, 2] in ids
 
 
-def test_classify_treatment_repetition_sinple():
+def test_classify_treatment_repetition_simple():
     measurements = []
     dd = {"area_um": np.linspace(40, 50, 10),
           "deform": np.linspace(.1, .2, 10)}
@@ -45,6 +45,24 @@ def test_classify_treatment_repetition_sinple():
         measurements += [ctl, trt]
     ana = Analysis(measurements)
     treatment, repetition = classify_treatment_repetition(ana, id_ctl="control")
+    assert treatment == ["Control", "Treatment"] * 5
+    assert np.all(repetition == np.repeat(np.arange(5), 2) + 1)
+
+
+def test_classify_treatment_repetition_simple_2():
+    measurements = []
+    dd = {"area_um": np.linspace(40, 50, 10),
+          "deform": np.linspace(.1, .2, 10)}
+    for ii in range(5):
+        ctl = dclab.new_dataset(dd)
+        ctl.title = "donor {}".format(ii)
+        trt = dclab.new_dataset(dd)
+        trt.title = "donor {} treatment".format(ii)
+        measurements += [ctl, trt]
+    ana = Analysis(measurements)
+    treatment, repetition = classify_treatment_repetition(ana,
+                                                          id_ctl="",
+                                                          id_trt="treatment")
     assert treatment == ["Control", "Treatment"] * 5
     assert np.all(repetition == np.repeat(np.arange(5), 2) + 1)
 

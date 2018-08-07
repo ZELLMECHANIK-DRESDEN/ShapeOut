@@ -37,11 +37,16 @@ def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
         string to use all non-control measurements as treatments.
     id_trt_res: str
         Identifies the treatment measurement in the reservoir.
-        Must not set if `id_ctl_res` is used.
+        Must be set if `id_ctl_res` is used.
     """
     # sanity checks
-    if id_ctl == "":
-        raise ValueError("At least `id_ctl` must be set.")
+    if id_ctl == "" and id_trt == "":
+        raise ValueError("At least `id_ctl` or `id_trt` must be set!")
+    if ((id_ctl_res == "" and id_trt_res != "")
+        or (id_ctl_res != "" and id_trt_res == "")):
+        msg = "`id_ctr_res` and `id_trt_res` must both be set or not " \
+              + "set at all!"
+        raise ValueError(msg)
 
     idlist = []
 
@@ -50,10 +55,12 @@ def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
             idlist.append(["res ctl", mm])
         elif id_trt_res and id_trt_res in mm.title:
             idlist.append(["res trt", mm])
-        elif id_ctl in mm.title:
+        elif id_ctl and id_ctl in mm.title:
             idlist.append(["ctl", mm])
         elif id_trt and id_trt in mm.title:
             idlist.append(["trt", mm])
+        elif id_ctl == "":
+            idlist.append(["ctl", mm])
         elif id_trt == "":
             idlist.append(["trt", mm])
         else:

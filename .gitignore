@@ -68,3 +68,4 @@ dev/.env_shapeout
 _version_save.py
 
 .pytest_cache
+docs/shapeout.bib.sav

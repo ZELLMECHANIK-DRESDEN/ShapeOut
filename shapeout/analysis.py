@@ -80,6 +80,9 @@ class Analysis(object):
         # Complete missing configuration parameters
         self._complete_config()
 
+    def __getitem__(self, idx):
+        return self.measurements[idx]
+
     def __iter__(self):
         for mm in self.measurements:
             yield mm
