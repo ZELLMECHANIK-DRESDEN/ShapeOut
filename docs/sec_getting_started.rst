@@ -9,3 +9,5 @@ Installation
 Basic usage
 ===========
 
+Expert usage
+============
