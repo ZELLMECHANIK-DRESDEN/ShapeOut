@@ -9,6 +9,8 @@
    - Setting the treatment to "None" for (g)lmm analysis did not
      exclude it from the analysis, but introduced it as a different
      treatment (#224)
+   - Channel width not correctly identified for old tdms files
+     (dclab 0.6.2.dev7)
  - Automatically identify treatment and repetition for mixed model
    analysis (#222)
  - Automated release to PyPI with appveyor
