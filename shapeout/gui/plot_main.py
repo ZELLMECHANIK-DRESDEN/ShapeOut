@@ -137,7 +137,7 @@ class MainPlotArea(wx.Panel):
                 #k = i + j*rows
                 if (i == cols-1 and j == 0 and lcc == 1):
                     # Contour plot in upper right corner
-                    aplot = plot_contour.contour_plot(anal.measurements)
+                    aplot = plot_contour.contour_plot(anal)
                     range_joined.append(aplot)
                 elif (i == cols-1 and j == 1 and lll == 1):
                     # Legend plot below contour plot

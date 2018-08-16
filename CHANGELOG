@@ -11,6 +11,8 @@
      treatment (#224)
    - Channel width not correctly identified for old tdms files
      (dclab 0.6.2.dev7)
+   - Do not draw isoelastics in contour plot if measurements have
+     different channel widths
  - Automatically identify treatment and repetition for mixed model
    analysis (#222)
  - Automated release to PyPI with appveyor
