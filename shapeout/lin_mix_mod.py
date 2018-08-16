@@ -46,29 +46,32 @@ def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
     # sanity checks
     if id_ctl == "" and id_trt == "":
         raise ValueError("At least `id_ctl` or `id_trt` must be set!")
-    if ((id_ctl_res == "" and id_trt_res != "")
-        or (id_ctl_res != "" and id_trt_res == "")):
-        msg = "`id_ctr_res` and `id_trt_res` must both be set or not " \
-              + "set at all!"
-        raise ValueError(msg)
 
     idlist = []
 
     for mm in analysis:
-        if id_ctl_res and id_ctl_res in mm.title:
-            idlist.append(["res ctl", mm])
-        elif id_trt_res and id_trt_res in mm.title:
-            idlist.append(["res trt", mm])
-        elif id_ctl and id_ctl in mm.title:
-            idlist.append(["ctl", mm])
-        elif id_trt and id_trt in mm.title:
-            idlist.append(["trt", mm])
-        elif id_ctl == "":
-            idlist.append(["ctl", mm])
-        elif id_trt == "":
-            idlist.append(["trt", mm])
+        if mm.config["setup"]["chip region"] == "reservoir":
+            if id_ctl_res and id_ctl_res in mm.title:
+                idlist.append(["res ctl", mm])
+            elif id_trt_res and id_trt_res in mm.title:
+                idlist.append(["res trt", mm])
+            elif id_ctl_res == "":
+                idlist.append(["res ctl", mm])
+            elif id_trt_res == "":
+                idlist.append(["res trt", mm])
+            else:
+                idlist.append(["none", mm])
         else:
-            idlist.append(["none", mm])
+            if id_ctl and id_ctl in mm.title:
+                idlist.append(["ctl", mm])
+            elif id_trt and id_trt in mm.title:
+                idlist.append(["trt", mm])
+            elif id_ctl == "":
+                idlist.append(["ctl", mm])
+            elif id_trt == "":
+                idlist.append(["trt", mm])
+            else:
+                idlist.append(["none", mm])
 
     # extract and rename treatment
     treatment = [tt for (tt, mm) in idlist]
@@ -102,7 +105,7 @@ def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
 def match_similar_strings(a, b, c, d):
     """Similarity analysis to identify string-matches in four lists
 
-    Given four lists of strings a, b, c, and d. Find the strings
+    Given four lists of strings a, b, c, and d. Find the
     strings that match best using similarity analysis and return
     the matching list IDs with highest similarity first. Empty
     strings are ignored.

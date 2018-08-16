@@ -40,8 +40,10 @@ def test_classify_treatment_repetition_simple():
     for ii in range(5):
         ctl = dclab.new_dataset(dd)
         ctl.title = "donor {} control".format(ii)
+        ctl.config["setup"]["chip region"] = "channel"
         trt = dclab.new_dataset(dd)
         trt.title = "donor {}".format(ii)
+        trt.config["setup"]["chip region"] = "channel"
         measurements += [ctl, trt]
     ana = Analysis(measurements)
     treatment, repetition = classify_treatment_repetition(ana, id_ctl="control")
@@ -56,8 +58,10 @@ def test_classify_treatment_repetition_simple_2():
     for ii in range(5):
         ctl = dclab.new_dataset(dd)
         ctl.title = "donor {}".format(ii)
+        ctl.config["setup"]["chip region"] = "channel"
         trt = dclab.new_dataset(dd)
         trt.title = "donor {} treatment".format(ii)
+        trt.config["setup"]["chip region"] = "channel"
         measurements += [ctl, trt]
     ana = Analysis(measurements)
     treatment, repetition = classify_treatment_repetition(ana,
@@ -74,12 +78,20 @@ def test_classify_treatment_repetition_advanced():
     for ii in range(12):
         ctl = dclab.new_dataset(dd)
         ctl.title = "donor {} control".format(ii)
+        ctl.config["setup"]["chip region"] = "channel"
+
         trt = dclab.new_dataset(dd)
         trt.title = "donor {}".format(ii)
+        trt.config["setup"]["chip region"] = "channel"
+
         ctlr = dclab.new_dataset(dd)
         ctlr.title = "donor {} control reservoir".format(ii)
+        ctlr.config["setup"]["chip region"] = "reservoir"
+
         trtr = dclab.new_dataset(dd)
         trtr.title = "donor {} reservoir".format(ii)
+        trtr.config["setup"]["chip region"] = "reservoir"
+
         measurements += [ctl, trt, ctlr, trtr]
     ana = Analysis(measurements)
     treatment, repetition = classify_treatment_repetition(
