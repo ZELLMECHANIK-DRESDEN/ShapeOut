@@ -91,7 +91,7 @@ def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
     for ii, match in enumerate(matchids):
         timeunit[match[0]] = ii+1
         timeunit[match[1]] = ii+1
-        if id_ctl_res and id_trt_res:
+        if id_ctl_res or id_trt_res:
             timeunit[match[2]] = ii+1
             timeunit[match[3]] = ii+1
 
