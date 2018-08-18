@@ -13,9 +13,10 @@ from dclab import definitions as dfn
 import numpy as np
 
 from . import plot_common
+from .. import analysis as ana
 
 
-def contour_plot(measurements, levels=[0.5,0.95],
+def contour_plot(analysis, levels=[0.5,0.95],
                  axContour=None, wxtext=False, square=True):
     """Plot contour for two axes of an RT-DC measurement
     
@@ -30,7 +31,7 @@ def contour_plot(measurements, levels=[0.5,0.95],
     square : bool
         The plot has square shape.
     """
-    mm = measurements[0]
+    mm = analysis[0]
     xax = mm.config["plotting"]["axis x"].lower()
     yax = mm.config["plotting"]["axis y"].lower()
 
@@ -45,22 +46,27 @@ def contour_plot(measurements, levels=[0.5,0.95],
     scalex = mm.config["plotting"]["scale x"].lower()
     scaley = mm.config["plotting"]["scale y"].lower()
 
-    ## Add isoelastics
-    isoel = plot_common.get_isoelastics(mm)
-    if isoel:
-        for ii, data in enumerate(isoel):
-            x_key = 'isoel_x'+str(ii)
-            y_key = 'isoel_y'+str(ii)
-            pd.set_data(x_key, data[:,0])
-            pd.set_data(y_key, data[:,1])
-            contour_plot.plot((x_key, y_key), color="gray",
-                              index_scale=scalex, value_scale=scaley)
+    # Add isoelastics only if all measurements have the same channel width
+    try:
+        analysis.get_config_value("setup", "channel width")
+    except ana.MultipleValuesError:
+        pass
+    else:
+        isoel = plot_common.get_isoelastics(mm)
+        if isoel:
+            for ii, data in enumerate(isoel):
+                x_key = 'isoel_x'+str(ii)
+                y_key = 'isoel_y'+str(ii)
+                pd.set_data(x_key, data[:,0])
+                pd.set_data(y_key, data[:,1])
+                contour_plot.plot((x_key, y_key), color="gray",
+                                  index_scale=scalex, value_scale=scaley)
 
     #colors = [ "".join(map(chr, np.array(c[:3]*255,dtype=int))).encode('hex') for c in colors ]
     if not isinstance(levels, list):
         levels = [levels]
 
-    set_contour_data(contour_plot, measurements, levels=levels)
+    set_contour_data(contour_plot, analysis, levels=levels)
 
     # Axes
     left_axis = ca.PlotAxis(contour_plot, orientation='left',
@@ -103,10 +109,10 @@ def contour_plot(measurements, levels=[0.5,0.95],
     return contour_plot
 
 
-def set_contour_data(plot, measurements, levels=[0.5,0.95]):
+def set_contour_data(plot, analysis, levels=[0.5,0.95]):
     pd = plot.data
     # Plotting area
-    mm = measurements[0]
+    mm = analysis[0]
     xax = mm.config["plotting"]["axis x"].lower()
     yax = mm.config["plotting"]["axis y"].lower()
 
@@ -118,7 +124,7 @@ def set_contour_data(plot, measurements, levels=[0.5,0.95]):
         x0 = mm[xax]
         y0 = mm[yax]
 
-    for ii, mm in enumerate(measurements):
+    for ii, mm in enumerate(analysis):
         cname = "con_{}_{}".format(ii, mm.identifier)
         if cname in plot.plots:
             plot.delplot(cname)

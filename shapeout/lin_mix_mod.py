@@ -8,12 +8,161 @@ Install the "lme4" library with:
 """
 from __future__ import division, print_function, unicode_literals
 
+import difflib
+
 import numpy as np
 import pyper
 
 from .util import cran
 
 DEFAULT_BS_ITER = 1000
+
+
+def classify_treatment_repetition(analysis, id_ctl="co", id_trt="",
+                                  id_ctl_res="", id_trt_res=""):
+    """Convenience method for assigning treatment and repetition
+
+    This method pairs treatments and repetitions in an analysis
+    using the measurement titles and identifiers given as
+    keyword arguments.
+
+    Parameters
+    ----------
+    analysis: shapeout.analysis.Analysis
+        The analysis instance to use. The titles of the individual
+        measurements will be searched for the `id_*` terms.
+    id_ctl: str
+        Identifies a control measurement.
+    id_ctl_res: str
+        Identifies a control measurement in the reservoir. Set to
+        an empty string to disable.
+    id_trt: str
+        Identifies the treatment measurement. Set to an empty
+        string to use all non-control measurements as treatments.
+    id_trt_res: str
+        Identifies the treatment measurement in the reservoir.
+        Must be set if `id_ctl_res` is used.
+    """
+    # sanity checks
+    if id_ctl == "" and id_trt == "":
+        raise ValueError("At least `id_ctl` or `id_trt` must be set!")
+
+    idlist = []
+
+    for mm in analysis:
+        if mm.config["setup"]["chip region"] == "reservoir":
+            if id_ctl_res and id_ctl_res in mm.title:
+                idlist.append(["res ctl", mm])
+            elif id_trt_res and id_trt_res in mm.title:
+                idlist.append(["res trt", mm])
+            elif id_ctl_res == "":
+                idlist.append(["res ctl", mm])
+            elif id_trt_res == "":
+                idlist.append(["res trt", mm])
+            else:
+                idlist.append(["none", mm])
+        else:
+            if id_ctl and id_ctl in mm.title:
+                idlist.append(["ctl", mm])
+            elif id_trt and id_trt in mm.title:
+                idlist.append(["trt", mm])
+            elif id_ctl == "":
+                idlist.append(["ctl", mm])
+            elif id_trt == "":
+                idlist.append(["trt", mm])
+            else:
+                idlist.append(["none", mm])
+
+    # extract and rename treatment
+    treatment = [tt for (tt, mm) in idlist]
+    treatment = [tt.replace("res", "Reservoir") for tt in treatment]
+    treatment = [tt.replace("ctl", "Control") for tt in treatment]
+    treatment = [tt.replace("trt", "Treatment") for tt in treatment]
+    treatment = [tt.replace("none", "None") for tt in treatment]
+
+    assert len(treatment) == len(analysis)
+    # identify timeunit via similarity analysis
+    ctl_str = [mm.title if tt == "ctl" else "" for (tt, mm) in idlist]
+    ctl_r_str = [mm.title if tt == "res ctl" else "" for (tt, mm) in idlist]
+    trt_str = [mm.title if tt == "trt" else "" for (tt, mm) in idlist ]
+    trt_r_str = [mm.title if tt == "res trt" else "" for (tt, mm) in idlist]
+    matchids = match_similar_strings(ctl_str, trt_str, ctl_r_str, trt_r_str)
+    timeunit = np.zeros(len(analysis))
+    for ii, match in enumerate(matchids):
+        timeunit[match[0]] = ii+1
+        timeunit[match[1]] = ii+1
+        if id_ctl_res or id_trt_res:
+            timeunit[match[2]] = ii+1
+            timeunit[match[3]] = ii+1
+
+    # Set all non-paired treatments to "None"
+    for ii, tu in enumerate(timeunit):
+        if tu == 0:
+            treatment[ii] = "None"
+    return treatment, timeunit
+
+
+def match_similar_strings(a, b, c, d):
+    """Similarity analysis to identify string-matches in four lists
+
+    Given four lists of strings a, b, c, and d. Find the
+    strings that match best using similarity analysis and return
+    the matching list IDs with highest similarity first. Empty
+    strings are ignored.
+
+    For instance, the lists
+
+    a = ["peter", "hans", "", "golf"]
+    b = ["gogo", "ham", "freddy", ""]
+    c = ["red", "gans", "", "hugo"]
+    d = ["old", "futur", "erst", "ha"]
+
+    will return the following match IDs:
+
+    [1, 1, 1, 3]
+    [3, 0, 3, 0]
+    [0, 2, 0, 2]
+
+    which means that these words are similar:
+
+    ["hans", "ham", "gans", "ha"]
+    ["golf", "gogo", "hugo", "old"]
+    ["peter", "freddy", "red", "erst"]
+    """
+    ratio = lambda x, y: difflib.SequenceMatcher(a=x, b=y).ratio()
+    n = len(a)
+    assert len(a) == len(b) == len(c) == len(d)
+    # build up simliarity matrix
+    smat = np.zeros((n, n, n, n))
+    for ii in range(n):
+        for jj in range(n):
+            if a[ii] and b[jj]:
+                ratij = ratio(a[ii], b[jj])
+            else:
+                ratij = 0
+            for kk in range(n):
+                if a[ii] and c[kk]:
+                    ratik = ratio(a[ii], c[kk])
+                else:
+                    ratik = 0
+                for ll in range(n):
+                    if a[ii] and d[ll]:
+                        ratil = ratio(a[ii], d[ll])
+                    else:
+                        ratil = 0
+                    smat[ii, jj, kk, ll] = ratij + ratik + ratil
+    # match with maxima
+    matchids = []
+    for _ in range(n):
+        if np.max(smat) == 0:
+            break
+        ai, aj, ak, al = np.argwhere(smat==smat.max())[0]
+        matchids.append([ai, aj, ak, al])
+        smat[ai, :, :, :] = 0
+        smat[:, aj, :, :] = 0
+        smat[:, :, ak, :] = 0
+        smat[:, :, :, al] = 0
+    return matchids
 
 
 def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
@@ -98,15 +247,18 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
         will perform a bootstrapping algorithm that removes the median from each
         Channel measurement. That means for each 'Control' or 'Treatment' has to exist
         a 'Reservoir ...' measurement. The resulting Differential deformations
-        are then used in the Linear Mixed Model
+        are then used in the Linear Mixed Model.
+        Values of 'None' are excluded from the analysis.
     timeunit: list
         Each item is a description/identifier for a time. The
         enumeration matches the index of `xs`.
         (e.g. list containing integers "1" and "2" according to the day
         at which the content in `xs` was measured) 
+        Values of '0' are excluded from the analysis.
     model: string
         'lmm': A linear mixed model will be applied
         'glmm': A generalized linear mixed model will be applied
+
     Returns
     -------
     (Generalized) Linear Mixed Effects Model Result: dictionary
@@ -194,6 +346,24 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
               "Please select more treatment repetitions."
         raise ValueError(msg)
 
+    # Check that names are valid
+    for trt in treatment:
+        if trt not in ["None",
+                       "Control",
+                       "Reservoir Control",
+                       "Treatment",
+                       "Reservoir Treatment"]:
+            raise ValueError("Unknown treatment: '{}'".format(trt))
+
+    # Remove "None"s and "0"s
+    treatment = np.array(treatment)
+    timeunit = np.array(timeunit)
+    xs = np.array(xs)
+    invalid = np.logical_or(treatment == "None", timeunit == 0)
+    treatment = list(treatment[~invalid])
+    timeunit = list(timeunit[~invalid])
+    xs = [xi for ii, xi in enumerate(xs) if ~invalid[ii]]
+
     ######################Differential Deformation#############################
     # If the user selected 'Control-Reservoir' and/or 'Treatment-Reservoir'
     Median_DiffDef = []
@@ -270,7 +440,7 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
         treatment = np.array(Treatment)
         timeunit = np.array(TimeUnit)
 
-    else:  # If there is no 'Reservoir Channel' selected dont apply bootstrapping
+    else:  # If there is no 'Reservoir Channel' selected don't apply bootstrapping
         if model == 'glmm':
             Head_string = "GENERALIZED LINEAR MIXED MODEL: \n" +\
                 "---Results are in log space (loglink was used)--- \n"

@@ -27,6 +27,10 @@ else:
     str_classes = str
 
 
+class MultipleValuesError(BaseException):
+    pass
+
+
 class Analysis(object):
     """Stores several RT-DC data sets and useful methods
 
@@ -79,6 +83,16 @@ class Analysis(object):
             self.SetParameters(config)
         # Complete missing configuration parameters
         self._complete_config()
+
+    def __getitem__(self, idx):
+        return self.measurements[idx]
+
+    def __iter__(self):
+        for mm in self.measurements:
+            yield mm
+
+    def __len__(self):
+        return len(self.measurements)
 
     def _clear(self):
         """Remove all attributes from this instance, making it unusable
@@ -292,7 +306,7 @@ class Analysis(object):
 
         Raises
         ------
-        ValueError if not all measurements share the same value
+        MultipleValuesError: if not all measurements share the same value
 
         Notes
         -----
@@ -302,11 +316,11 @@ class Analysis(object):
         values = []
         for mm in self.measurements:
             values.append(mm.config[section][key])
-        all_same = np.sum([v == values[0] for v in values]) == len(values)
+        all_same = np.all(np.array(values) == values[0])
         if not all_same:
             msg = "Multiple values encountered for [{}]: {}".format(section,
                                                                     key)
-            raise ValueError(msg)
+            raise MultipleValuesError(msg)
         return mm.config[section][key]
 
     def GetCommonParameters(self, key):

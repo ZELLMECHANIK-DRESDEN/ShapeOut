@@ -62,10 +62,10 @@ def test_get_config_value():
     assert anal.get_config_value(section="filtering", key="deform min") == 0
     try:
         anal.get_config_value(section="filtering", key="deform max")
-    except ValueError:
+    except analysis.MultipleValuesError:
         pass
     else:
-        raise ValueError("different values should raise error")
+        assert False, "different values should raise error"
     
 
 def test_data_size():

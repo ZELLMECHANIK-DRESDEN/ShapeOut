@@ -112,7 +112,8 @@ def load(path, search_path="."):
                     # apply manually excluded events
                     root_idx_file = config_dir / "_filter_manual_root.npy"
                     if root_idx_file.exists():
-                        root_idx = np.load(str(root_idx_file))
+                        with root_idx_file.open("rb") as rfd:
+                                root_idx = np.load(rfd)
                         mm.filter.apply_manual_indices(root_idx)
                 else:
                     # parent doesn't exist - try again in next loop
@@ -128,7 +129,8 @@ def load(path, search_path="."):
             # Load manually excluded events
             filter_manual_file = config_dir / "_filter_manual.npy"
             if filter_manual_file.exists():
-                mm.filter.manual[:] = np.load(str(filter_manual_file))
+                with filter_manual_file.open("rb") as fafd:
+                    mm.filter.manual[:] = np.load(fafd)
 
             mm.title = mm_dict["title"]
             mm.config.update(cfg)
@@ -200,7 +202,8 @@ def save(path, rtdc_list):
                 rdir = "."
             mm_dict["rdir"] = rdir
             # save manual filters file only for real data
-            np.save(str(mmdir / "_filter_manual.npy"), mm.filter.manual)
+            with (mmdir / "_filter_manual.npy").open("wb") as ffd:
+                np.save(ffd, mm.filter.manual)
         elif mm.format == "hierarchy":
             pidx = rtdc_list.index(mm.hparent) + 1
             p_ident = "{}_{}".format(pidx, mm.hparent.identifier)
@@ -210,7 +213,8 @@ def save(path, rtdc_list):
             # save (possibly hidden) root filter indices instead of
             # manual filter array.
             root_idx = mm.filter.retrieve_manual_indices()
-            np.save(str(mmdir / "_filter_manual_root.npy"), root_idx)
+            with (mmdir / "_filter_manual_root.npy").open("wb") as rffd:
+                np.save(rffd, root_idx)
         # Use forward slash such that sessions saved on Windows
         # can be opened on *nix as well.
         mm_dict["config"] = "{}/config.txt".format(ident)
