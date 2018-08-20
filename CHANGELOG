@@ -1,3 +1,5 @@
+0.8.8
+ - New feature in expert mode: Principal inertia ratio (dclab 0.6.3.dev1)
 0.8.7
  - Bugfixes:
    - Search for missing datasets was falsely extended to directories
