@@ -1,5 +1,9 @@
 0.8.8
- - New feature in expert mode: Principal inertia ratio (dclab 0.6.3.dev1)
+ - Bugfixes:
+   - "Mean of empty slice" error when attempting to plot bad data 
+ - New ancillary features in expert mode:
+   - Principal inertia ratio (dclab 0.6.3.dev1)
+   - Absolute tilt of raw contour (dclab 0.6.3.dev2)
 0.8.7
  - Bugfixes:
    - Search for missing datasets was falsely extended to directories

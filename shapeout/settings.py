@@ -21,7 +21,9 @@ DEFAULTS = {"autosave session": True,
 EXPERT_FEATURES = ["area_cvx",
                    "area_msd",
                    "frame",
-                   "inert_ratio_prnc"]
+                   "inert_ratio_prnc",
+                   "tilt",
+                   ]
 
 
 class SettingsFile(object):
