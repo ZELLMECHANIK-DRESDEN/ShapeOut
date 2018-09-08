@@ -4,6 +4,7 @@
  - New ancillary features in expert mode:
    - Principal inertia ratio (dclab 0.6.3.dev1)
    - Absolute tilt of raw contour (dclab 0.6.3.dev2)
+ - Display data paths as tool tip in title editor (Contour Plot tab) (#227)
 0.8.7
  - Bugfixes:
    - Search for missing datasets was falsely extended to directories
