@@ -69,3 +69,6 @@ _version_save.py
 
 .pytest_cache
 docs/shapeout.bib.sav
+
+*.bib.bak
+*.xcf
