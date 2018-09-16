@@ -65,7 +65,11 @@ and is, as such, subject to pixelation artifacts.
 
 Brightness
 ----------
-(show image of brightness vs area plot from Toepfner2017)
+Quantifying the brightness values within the image contour yields
+information on object properties such as homogeneity or density.
+For instance, it has been shown that the quantities "mean brightness" and
+"convex area" are sufficient to identify (and count) all major blood cells
+in a drop of blood :cite:`Toepfner2018`.
 
 
 Deformation
