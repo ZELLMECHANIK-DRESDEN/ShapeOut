@@ -25,7 +25,7 @@ populations in a subsequent analysis step.
 
 RT-DC enables a morpho-rheological (MORE) analysis of suspended cells
 and can be used to identify major blood cells, characterize their pathological
-changes in disease conditions :cite:`Toepfner2017`, etc...
+changes in disease conditions :cite:`Toepfner2018`, etc...
 
 
 Measured Features
@@ -69,8 +69,17 @@ Quantifying the brightness values within the image contour yields
 information on object properties such as homogeneity or density.
 For instance, it has been shown that the quantities "mean brightness" and
 "convex area" are sufficient to identify (and count) all major blood cells
-in a drop of blood :cite:`Toepfner2018`.
+in a drop of blood :cite:`Toepfner2018`. In addition to the average
+brightness values, ShapeOut can also display the standard deviation of the
+brightness values.
 
+  .. figure:: figures/brightness.jpg
+
+    Blood-classification with event brightness and cell size.
+    (A) Representative images of blood cell types acquired. Scale bar is 10 µm.
+    (B) Brightness versus cell size scatter plot with cell types labeled
+    according to the color scheme in (A).
+    Figure and caption adapted from Toepfner et al. [1]_.
 
 Deformation
 -----------
@@ -83,11 +92,11 @@ circular shape. It is defined via the circularity:
                        &= 1 - 2 \sqrt{\pi A} / l
 
 with the projected event area :math:`A` and the contour length of the convex hull
-of the event image :math:`l`. Note thatcComputing the contour length from the convex
-hull avoids an overestimation due to irregular, non-convex event shapes.
+of the event image :math:`l`. Note that computing the contour length from the convex
+hull prevents an overestimation due to irregular, non-convex event shapes.
 
 
 
 .. [1] *Detection Of Human Disease Conditions By Single-Cell Morpho-Rheological
        Phenotyping Of Whole Blood* by Toepfner et al.,
-       licensed under CC BY 4.0 :cite:`Toepfner2017`.
+       licensed under CC BY 4.0 :cite:`Toepfner2018`.
