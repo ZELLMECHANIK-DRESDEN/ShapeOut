@@ -1,3 +1,6 @@
+.. _sec_qg_youngs_modulus:
+
+
 ===============
 Young's Modulus
 ===============

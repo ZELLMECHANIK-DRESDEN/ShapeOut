@@ -48,10 +48,8 @@ area of the measured contour ("Measured area [px]") and area of the convex
 contour ("Convex area [px]" and "Area [µm²]"). The convex contour is the
 `convex hull <https://en.wikipedia.org/wiki/Convex_hull>`__ of the measured
 contour and enables a quantification of porosity (convex to measured area ratio).
-A porosity of 1 means that the measured contour is convex. Note that the
-porosity can only assume values larger than 1. Also note that the convex
-contour/area is computed on the same pixel grid as the measured contour/area
-and is, as such, subject to pixelation artifacts.
+The porosity is often used for filtering, e.g. to remove high-porosity dirt
+particles in a preprocessing step.
 
   .. figure:: figures/area.png
 
@@ -62,27 +60,35 @@ and is, as such, subject to pixelation artifacts.
      difference (the "pores") between the measured and convex areas is
      indicated in green.
 
+A porosity of 1 means that the measured contour is convex.
+Note that the porosity can only assume values larger than 1. Also note that the
+convex contour/area is computed on the same pixel grid as the measured contour/area
+and is, as such, subject to pixelation artifacts.
 
-Brightness
-----------
+
+Image brightness
+----------------
 Quantifying the brightness values within the image contour yields
 information on object properties such as homogeneity or density.
 For instance, it has been shown that the quantities "mean brightness" and
 "convex area" are sufficient to identify (and count) all major blood cells
-in a drop of blood :cite:`Toepfner2018`. In addition to the average
-brightness values, ShapeOut can also display the standard deviation of the
-brightness values.
+in a drop of blood :cite:`Toepfner2018`.
 
   .. figure:: figures/brightness.jpg
 
     Blood-classification with event brightness and cell size.
     (A) Representative images of blood cell types acquired. Scale bar is 10 µm.
-    (B) Brightness versus cell size scatter plot with cell types labeled
+    (B) Brightness versus cell size (area) scatter plot with cell types labeled
     according to the color scheme in (A).
     Figure and caption adapted from Toepfner et al. [1]_.
 
-Deformation
------------
+In addition to the average
+brightness values, ShapeOut also has access to the standard deviation of the
+brightness in each image.
+
+
+Deformation and elasticity
+--------------------------
 The deformation describes how much an event image deviates from a
 circular shape. It is defined via the circularity:
 
@@ -91,9 +97,23 @@ circular shape. It is defined via the circularity:
     \text{deformation} &= 1 - \text{circularity} \\
                        &= 1 - 2 \sqrt{\pi A} / l
 
-with the projected event area :math:`A` and the contour length of the convex hull
-of the event image :math:`l`. Note that computing the contour length from the convex
-hull prevents an overestimation due to irregular, non-convex event shapes.
+with the projected area :math:`A` and the contour length of the convex hull
+of the event image :math:`l`. The contour length is computed from the *convex*
+hull to prevent an overestimation due to irregular, non-convex event shapes.
+It has been shown that the knowledge of deformation and area allows to
+derive a value for elasticity in RT-DC :cite:`Mietke2015` :cite:`Mokbel2017`.
+As a convenient measure for elasticity, isoelasticity lines are often
+employed to visualize stiffness.
+
+  .. figure:: figures/deform.jpg
+
+    (A) Typical deformation versus cell size scatter plot. The color scale
+    indicates event density.
+    (B) Isoelasticity lines derived from numerical simulations indicate
+    trends in stiffness.
+
+Note that it is also possible to directly
+:ref:`access the Young's modulus in ShapeOut <sec_qg_youngs_modulus>`.
 
 
 
