@@ -51,14 +51,14 @@ contour and enables a quantification of porosity (convex to measured area ratio)
 The porosity is often used for filtering, e.g. to remove high-porosity dirt
 particles in a preprocessing step.
 
-  .. figure:: figures/area.png
+.. figure:: figures/area.png
 
-     Visualization of porosity. (A) The measured contour (blue line) defines
-     the measured area (blue shade). The convex contour (red line) results
-     in an area (red shade) that is usually larger than the measured area.
-     (B) The porosity is the ratio between measured and convex contour. The
-     difference (the "pores") between the measured and convex areas is
-     indicated in green.
+   Visualization of porosity. (A) The measured contour (blue line) defines
+   the measured area (blue shade). The convex contour (red line) results
+   in an area (red shade) that is usually larger than the measured area.
+   (B) The porosity is the ratio between measured and convex contour. The
+   difference (the "pores") between the measured and convex areas is
+   indicated in green.
 
 A porosity of 1 means that the measured contour is convex.
 Note that the porosity can only assume values larger than 1. Also note that the
@@ -66,21 +66,27 @@ convex contour/area is computed on the same pixel grid as the measured contour/a
 and is, as such, subject to pixelation artifacts.
 
 
-Image brightness
-----------------
+Aspect ratio of bounding box
+----------------------------
+
+.. figure:: figures/aspect.jpg
+
+
+Brightness within image
+-----------------------
 Quantifying the brightness values within the image contour yields
 information on object properties such as homogeneity or density.
 For instance, it has been shown that the quantities "mean brightness" and
 "convex area" are sufficient to identify (and count) all major blood cells
 in a drop of blood :cite:`Toepfner2018`.
 
-  .. figure:: figures/brightness.jpg
+.. figure:: figures/brightness.jpg
 
-    Blood-classification with event brightness and cell size.
-    (A) Representative images of blood cell types acquired. Scale bar is 10 µm.
-    (B) Brightness versus cell size (area) scatter plot with cell types labeled
-    according to the color scheme in (A).
-    Figure and caption adapted from Toepfner et al. [1]_.
+   Blood-classification with event brightness and cell size.
+   (A) Representative images of blood cell types acquired. Scale bar is 10 µm.
+   (B) Brightness versus cell size (area) scatter plot with cell types labeled
+   according to the color scheme in (A).
+   Figure and caption adapted from Toepfner et al. [1]_.
 
 In addition to the average
 brightness values, ShapeOut also has access to the standard deviation of the
@@ -105,15 +111,30 @@ derive a value for elasticity in RT-DC :cite:`Mietke2015` :cite:`Mokbel2017`.
 As a convenient measure for elasticity, isoelasticity lines are often
 employed to visualize stiffness.
 
-  .. figure:: figures/deform.jpg
+.. figure:: figures/deform.jpg
 
-    (A) Typical deformation versus cell size scatter plot. The color scale
-    indicates event density.
-    (B) Isoelasticity lines derived from numerical simulations indicate
-    trends in stiffness.
+   (A) Typical deformation versus cell size scatter plot. The color scale
+   indicates event density.
+   (B) Isoelasticity lines derived from numerical simulations indicate
+   trends in stiffness.
 
 Note that it is also possible to directly
 :ref:`access the Young's modulus in ShapeOut <sec_qg_youngs_modulus>`.
+
+
+Fluorescence
+------------
+:cite:`Rosendahl2018`
+
+
+Inertia ratio
+-------------
+also principal inertia ratio
+
+
+Volume
+------
+
 
 
 
