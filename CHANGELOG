@@ -4,6 +4,7 @@
  - New ancillary features in expert mode:
    - Principal inertia ratio (dclab 0.6.3.dev1)
    - Absolute tilt of raw contour (dclab 0.6.3.dev2)
+ - Add computation of Young's modulus for water medium (dclab 0.6.3.dev14)
  - Display data paths as tool tip in title editor (Contour Plot tab) (#227)
 0.8.7
  - Bugfixes:
