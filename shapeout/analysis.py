@@ -161,7 +161,10 @@ class Analysis(object):
         g1 = scipy.stats.skew(data)
         sigma_g1 = np.sqrt(6 * (n - 2) / ((n + 1) * (n + 3)))
         k = 1 + np.log2(n) + np.log2(1 + np.abs(g1) / sigma_g1)
-        acc = (data.max() - data.min()) / k
+        if len(data):
+            acc = (data.max() - data.min()) / k
+        else:
+            acc = 1
         return acc
 
     def ForceSameDataSize(self):

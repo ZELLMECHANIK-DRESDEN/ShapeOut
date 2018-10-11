@@ -4,6 +4,8 @@
 """
 from __future__ import division, print_function, unicode_literals
 
+import pathlib
+
 import numpy as np
 import wx
 
@@ -78,6 +80,7 @@ class SubPanelPlotContour(SubPanel):
             # title
             tit = wx.TextCtrl(self, value=str(mm.title), size=(300, -1),
                               name="title "+mm.identifier)
+            tit.SetToolTip(wx.ToolTip(path2str(mm.path)))
             # color
             color = mm.config["plotting"]["contour color"]
             # convert tuple to wxColour
@@ -123,3 +126,10 @@ class SubPanelPlotContour(SubPanel):
                             ctrl_targets=["kde accuracy {}".format(a) for a in axes])
         self.SetSizer(sizer)
         sizer.Fit(self)
+
+
+def path2str(path):
+    """Safely convert a path to a string"""
+    if isinstance(path, pathlib.Path):
+        path = path.as_uri()
+    return path

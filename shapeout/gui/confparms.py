@@ -44,7 +44,7 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
         if subkey == "emodulus model":
             choices = ["elastic sphere"]
         if subkey == "emodulus medium":
-            choices = ["CellCarrier", "CellCarrier B", "Other"]
+            choices = ["CellCarrier", "CellCarrier B", "water", "Other"]
     return choices
 
 

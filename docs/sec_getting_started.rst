@@ -4,6 +4,7 @@ Getting started
 
 Installation
 ============
+ShapeOut can be installed via multiple channels.
 
 1. **Windows installer:** Download the latest version for your architecture
    (e.g. ``ShapeOut_X.Y.Z_win_64bit_setup.exe`` for 64bit Windows) from the

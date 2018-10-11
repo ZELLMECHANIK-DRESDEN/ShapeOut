@@ -149,12 +149,10 @@ Range Area:
   limits the cell size in [µm²].
 
 Range Area Ratio:
-  defines the relative difference between convex hull area and cell area
-  (see figure below). "1": convex hull and area
+  defines the relative difference between convex hull area and cell area.
+  "1": convex hull and area
   contour are the same, "<1": forbidden, because the convex hull cannot
   be smaller than the contour. The minimum value is only effective ">1".
-
-  .. figure:: figures/area_ratio.png
 
 Range Aspect:
   limits the ratio of height and length of the bounding box around

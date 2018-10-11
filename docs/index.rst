@@ -12,6 +12,7 @@ This is the documentation of ShapeOut version |release|.
    :caption: Contents:
 
    sec_getting_started
+   sec_rtdc_basics
    sec_interface
    sec_quick_guides
    sec_changelog

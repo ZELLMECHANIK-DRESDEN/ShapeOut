@@ -18,7 +18,12 @@ DEFAULTS = {"autosave session": True,
             }
 
 #: data features only visible in expert mode
-EXPERT_FEATURES = ["area_cvx", "area_msd", "frame"]
+EXPERT_FEATURES = ["area_cvx",
+                   "area_msd",
+                   "frame",
+                   "inert_ratio_prnc",
+                   "tilt",
+                   ]
 
 
 class SettingsFile(object):
