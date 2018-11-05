@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - legend plot
-
-"""
+"""Shape-Out - legend plot"""
 from __future__ import division, unicode_literals
 
 # Chaco imports

@@ -1,5 +1,5 @@
-ShapeOut documentation
-======================
+Shape-Out documentation
+=======================
 To install the requirements for building the documentation, run
 
     pip install -r requirements.txt

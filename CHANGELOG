@@ -105,7 +105,7 @@
  - Bugfixes:
    - Cannot open old session files with hierarchies when the measurement
      data location has changed (#174)
-   - Cannot open polygon filters exported with ShapeOut versions < 0.7.6 (#174)
+   - Cannot open polygon filters exported versions < 0.7.6 (#174)
  - Code cleanup:
    - Move program-relevant data to "shapeout" directory
    - Move computation of isoelastics to dclab (dclab 0.2.6.dev23)

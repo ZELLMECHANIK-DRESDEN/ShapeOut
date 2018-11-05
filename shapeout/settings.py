@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Settings file management"""
+"""Shape-Out - Settings file management"""
 from __future__ import division, print_function
 
 import copy
@@ -155,6 +155,6 @@ def get_ignored_features():
     if SettingsFile().get_bool("expert mode"):
         ignored = []
     else:
-        # Axes that should not be displayed  by ShapeOut
+        # Axes that should not be displayed  by Shape-Out
         ignored = copy.copy(EXPERT_FEATURES)
     return ignored

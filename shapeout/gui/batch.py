@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - classes and methods for batch processing
-
-"""
+"""Shape-Out - classes and methods for batch processing"""
 from __future__ import division, print_function, unicode_literals
 
 import io

@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - statistics display
-"""
+"""Shape-Out - statistics display"""
 from __future__ import division, print_function, unicode_literals
 
 import wx

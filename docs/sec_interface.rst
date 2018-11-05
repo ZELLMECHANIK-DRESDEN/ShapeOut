@@ -17,7 +17,7 @@ Menu bar
      not selected in the measurement browser.
    - Save session: saves the status of the analysis
    - Load session: loads a saved session
-   - Quit: quits the program ShapeOut
+   - Quit: quits the program
 
 - Export:
    - All event data (\*.tsv): tool to export datasets (filtered, unfiltered,

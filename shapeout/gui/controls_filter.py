@@ -389,7 +389,7 @@ class SubPanelFilter(SubPanel):
                 return
         dlg = wx.FileDialog(self, "Open polygon file",
                     self.config.get_path(name="Polygon"), "",
-                    "ShapeOut polygon file (*.poly)|*.poly", wx.FD_SAVE)
+                    "Shape-Out polygon file (*.poly)|*.poly", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             fname = dlg.GetPath().encode("utf-8")
             self.config.set_path(dlg.GetDirectory(),
@@ -451,7 +451,7 @@ class SubPanelFilter(SubPanel):
     def OnPolygonImport(self, e=None):
         dlg = wx.FileDialog(self, "Open polygon file",
                     self.config.get_path(name="Polygon"), "",
-                    "ShapeOut polygon file (*.poly)|*.poly", wx.FD_OPEN)
+                    "Shape-Out polygon file (*.poly)|*.poly", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             fname = dlg.GetPath().encode("utf-8")
             self.config.set_path(dlg.GetDirectory(),

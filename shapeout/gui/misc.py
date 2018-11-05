@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - miscellaneous methods for GUI
-
-"""
+"""Shape-Out - miscellaneous methods for GUI"""
 from __future__ import division, print_function, unicode_literals
 
 import wx

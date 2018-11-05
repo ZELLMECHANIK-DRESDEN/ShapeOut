@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - control panels
-"""
+"""Shape-Out - control panels"""
 from __future__ import division, print_function, unicode_literals
 
 import numpy as np

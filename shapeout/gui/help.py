@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - help menu content
-
-"""
+"""Shape-Out - help menu content"""
 from __future__ import division, print_function, unicode_literals
 
 import importlib
@@ -16,15 +14,15 @@ from .._version import version
 
 def about(version=version):
     """Displays the about dialog"""
-    description =  ("ShapeOut is a data evaluation tool"+
+    description =  ("Shape-Out is a data evaluation tool"+
         "\nfor real-time deformability cytometry (RT-DC)."+
-        "\nShapeOut is written in Python.")
-    licence = """ShapeOut is free software: you can redistribute it and/or modify
+        "\nShape-Out is written in Python.")
+    licence = """Shape-Out is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published 
 by the Free Software Foundation, either version 2 of the License, 
 or (at your option) any later version.
 
-ShapeOut is distributed in the hope that it will be useful,
+Shape-Out is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of 
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
 See the GNU General Public License for more details. 
@@ -34,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
     info = wx.AboutDialogInfo()
     #info.SetIcon(wx.Icon('hunter.png', wx.BITMAP_TYPE_PNG))
-    info.SetName('ShapeOut')
+    info.SetName('Shape-Out')
     info.SetVersion(version)
     info.SetDescription(description)
     info.SetCopyright(u'(C) 2015 Paul Müller')
@@ -69,7 +67,7 @@ def software():
     from ..util import cran
     r_version = cran.get_R_version()
     
-    text = "ShapeOut "+version+\
+    text = "Shape-Out "+version+\
            "\n\nPython "+sys.version+\
            "\n\nModules:"
     for v in vinfo:

@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - contour plot methods
-
-"""
+"""Shape-Out - contour plot methods"""
 from __future__ import division, unicode_literals
 
 import time

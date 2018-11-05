@@ -7,7 +7,7 @@
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Hook for ShapeOut: https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut
+# Hook for Shape-Out: https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut
 
 from PyInstaller.utils.hooks import collect_data_files
 

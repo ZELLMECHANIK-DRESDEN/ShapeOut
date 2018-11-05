@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - meta data functionalities"""
+"""Shape-Out - meta data functionalities"""
 from __future__ import division, unicode_literals
 
 import hashlib

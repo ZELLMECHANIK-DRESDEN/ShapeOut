@@ -1,8 +1,8 @@
 .. _index:
 
-ShapeOut documentation
-======================
-This is the documentation of ShapeOut version |release|.
+Shape-Out documentation
+=======================
+This is the documentation of Shape-Out version |release|.
 
 .. warning:: This documentation is under construction and its existence
     thus not yet communicated publicly. Use it at your own risk.

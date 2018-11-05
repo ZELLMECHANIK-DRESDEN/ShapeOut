@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - wx frontend components
-
-"""
+"""Shape-Out - wx frontend components"""
 from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca

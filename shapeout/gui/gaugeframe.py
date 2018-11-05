@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - gauge frame class"""
+"""Shape-Out - gauge frame class"""
 from __future__ import division, print_function
 
 import platform

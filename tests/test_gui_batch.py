@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Test batch control
-"""
+"""Test batch control"""
 from __future__ import print_function
 
 import io
@@ -18,7 +17,7 @@ from helper_methods import retrieve_data, example_data_sets, cleanup
 
 
 class TestSimple(unittest.TestCase):
-    '''Test ShapeOut batch'''
+    '''Test Shape-Out batch'''
 
     def setUp(self):
         '''Create the GUI'''

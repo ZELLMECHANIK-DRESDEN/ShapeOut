@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" 
-ShapeOut launcher with splash screen
-"""
+"""Shape-Out launcher with splash screen"""
 from __future__ import print_function
 
 import multiprocessing as mp
@@ -49,7 +47,7 @@ def splash_show():
     # alpha mask is only binary - don't use it, looks ugly.
     #img.ConvertAlphaToMask()
     bitmap = wx.BitmapFromImage(img)
-    frame = wx.Frame(None, -1, "ShapeOut Splash Screen")
+    frame = wx.Frame(None, -1, "Shape-Out Splash Screen")
     AS.AdvancedSplash(frame, bitmap=bitmap, 
                       agwStyle=AS.AS_NOTIMEOUT|AS.AS_CENTER_ON_SCREEN
                       )
@@ -61,6 +59,6 @@ if __name__ == '__main__':
     mp.freeze_support()
     if 'unicode' not in wx.PlatformInfo:
         print("\nInstalled version: %s" % wx.version())
-        print("A unicode build of wxPython is required for ShapeOut.")
+        print("A unicode build of wxPython is required for Shape-Out.")
     else:
         main()

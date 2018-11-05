@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - plot export
-
-"""
+"""Shape-Out - plot export"""
 from __future__ import division, print_function
 
 import chaco

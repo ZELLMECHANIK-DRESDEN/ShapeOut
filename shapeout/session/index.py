@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - session index handling"""
+"""Shape-Out - session index handling"""
 from __future__ import division, print_function, unicode_literals
 
 from distutils.version import LooseVersion
@@ -149,7 +149,7 @@ def index_save(index_file, index_dict, save_version=version):
     index_file = pathlib.Path(index_file)
     if index_file.is_dir():
         index_file = index_file / "index.txt"
-    out = ["# ShapeOut measurement index",
+    out = ["# Shape-Out measurement index",
            "# Software version {}".format(save_version)
            ]
     keys = list(index_dict.keys())
@@ -178,7 +178,7 @@ def index_update(index_file, index_dict):
 
 
 def index_version(index_file):
-    """Obtain the ShapeOut version used to save an index
+    """Obtain the Shape-Out version used to save an index
 
     Parameters
     ----------
@@ -192,7 +192,7 @@ def index_version(index_file):
 
     Notes
     -----
-    Sessions saved with ShapeOut prior to version 0.7.6 did not
+    Sessions saved with Shape-Out prior to version 0.7.6 did not
     save the version in the session file and the version is set
     to "0.0.1".
     """

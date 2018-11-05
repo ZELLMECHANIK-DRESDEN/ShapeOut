@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - contour control panel
-"""
+"""Shape-Out - contour control panel"""
 from __future__ import division, print_function, unicode_literals
 
 import pathlib

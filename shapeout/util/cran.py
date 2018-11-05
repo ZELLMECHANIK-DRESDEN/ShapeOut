@@ -25,7 +25,7 @@ def get_R_binary(verbose=False):
     
 
     - Frozen system
-      If this is a package like ShapeOut, then the binary installer supplied us
+      If this is a package like Shape-Out, then the binary installer supplied us
       with an R binary located in
        
           sys._MEIPASS
@@ -43,7 +43,7 @@ def get_R_binary(verbose=False):
 
     append_folders = ["", "bin\\i386"]
     # Make sure that the R installation that comes with
-    # ShapeOut is the first choice in a frozen win application.
+    # Shape-Out is the first choice in a frozen win application.
     if hasattr(sys, "frozen"):
         Rroot_win_frozen = os.path.join(os.path.abspath(sys._MEIPASS), "R")  # @UndefinedVariable
         if os.path.exists(Rroot_win_frozen):

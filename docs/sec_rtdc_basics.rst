@@ -34,7 +34,7 @@ A multitude of features can be extracted from the data recorded during an
 RT-DC measurement. These features are mostly computed live during data
 acquisition and stored alongside the raw data.
 Here, only the most important features are covered. A full list of the
-features available in ShapeOut is maintained by the
+features available in Shape-Out is maintained by the
 :ref:`dclab documentation <dclab:sec_features>`.
 Please note that some of the features are only available in expert mode
 (accessible via the preferences menu).
@@ -43,7 +43,7 @@ Please note that some of the features are only available in expert mode
 Area and porosity
 -----------------
 The area is the projected object area which is determined via the contour of the
-binarized event image. ShapeOut differentiates between two types of area,
+binarized event image. Shape-Out differentiates between two types of area,
 area of the measured contour ("Measured area [px]") and area of the convex
 contour ("Convex area [px]" and "Area [µm²]"). The convex contour is the
 `convex hull <https://en.wikipedia.org/wiki/Convex_hull>`__ of the measured
@@ -89,7 +89,7 @@ in a drop of blood :cite:`Toepfner2018`.
    Figure and caption adapted from Toepfner et al. [1]_.
 
 In addition to the average
-brightness values, ShapeOut also has access to the standard deviation of the
+brightness values, Shape-Out also has access to the standard deviation of the
 brightness in each image.
 
 
@@ -119,7 +119,7 @@ employed to visualize stiffness.
    trends in stiffness.
 
 Note that it is also possible to directly
-:ref:`access the Young's modulus in ShapeOut <sec_qg_youngs_modulus>`.
+:ref:`access the Young's modulus in Shape-Out <sec_qg_youngs_modulus>`.
 
 
 Fluorescence

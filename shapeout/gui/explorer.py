@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - wx measurement explorer
-
-"""
+"""Shape-Out - wx measurement explorer"""
 from __future__ import division, print_function
 
 

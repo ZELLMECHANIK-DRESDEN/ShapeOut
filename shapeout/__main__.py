@@ -19,7 +19,7 @@ def prepare_app():
     try:
         from ._version import version
     except:
-        warnings.warn("Could not determine ShapeOut version.")
+        warnings.warn("Could not determine Shape-Out version.")
         version = None
     
     app.frame = frontend.Frame(version)

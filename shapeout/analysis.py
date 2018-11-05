@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - Analysis class"""
+"""Shape-Out - Analysis class"""
 from __future__ import division, unicode_literals
 
 import gc
@@ -124,7 +124,7 @@ class Analysis(object):
             measurements = self.measurements
 
         for mm in measurements:
-            # Update configuration with default values from ShapeOut,
+            # Update configuration with default values from Shape-Out,
             # but do not override anything.
             cfgold = mm.config.copy()
             mm.config.update(get_default_config())
