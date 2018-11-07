@@ -65,8 +65,37 @@ def collect_data_tree(directories):
 def find_data(path):
     """Find tdms and rtdc data files in a directory"""
     path = pathlib.Path(path)
-    tdmsfiles = sorted(fmt_tdms.get_tdms_files(path))
-    rtdcfiles = sorted([r for r in path.rglob("*.rtdc") if r.is_file()])
+
+    def sort_path(path):
+        """Sorting key for intuitive file sorting
+
+        This sorts a list of RT-DC files according to measurement number,
+        e.g. (M2_*.tdms is not sorted after M11_*.tdms):
+
+        /path/to/M1_*.tdms
+        /path/to/M2_*.tdms
+        /path/to/M10_*.tdms
+        /path/to/M11_*.tdms
+
+        Note that the measurement number of .rtdc files is extracted from
+        the hdf5 metadata and not from the file name.
+        """
+        try:
+            # try to get measurement number as an integer
+            idx = get_run_index(path)
+        except BaseException:
+            # just use the given path
+            name = path.name
+        else:
+            # assign new "name" for sorting
+            name = "{:09d}_{}".format(idx, path.name)
+        return path.with_name(name)
+
+    tdmsfiles = fmt_tdms.get_tdms_files(path)
+    tdmsfiles = sorted(tdmsfiles, key=sort_path)
+    rtdcfiles = [r for r in path.rglob("*.rtdc") if r.is_file()]
+    rtdcfiles = sorted(rtdcfiles, key=sort_path)
+
     files = [pathlib.Path(ff) for ff in rtdcfiles + tdmsfiles]
     return files
 

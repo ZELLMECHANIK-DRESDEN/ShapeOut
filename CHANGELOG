@@ -1,3 +1,7 @@
+0.8.9
+ - Enhancements:
+   - Order input fields in measurement browser according to measurement
+     number (#229)
 0.8.8
  - Bugfixes:
    - "Mean of empty slice" error when attempting to plot bad data 
