@@ -187,14 +187,13 @@ def scatter_plot(measurement,
 
     return sc_plot
 
-def scaling(x,scale):
-    if scale=='log':
+def scaling(x, scale):
+    if scale == 'log':
         return np.log(x)
-    elif scale=="linear":
+    elif scale == "linear":
         return x
     else:
         raise ValueError("Invalid argument for scale. Valid arguments are 'linear' and 'log'!")
-        
 
 def set_scatter_data(plot, mm):
     plotfilters = mm.config.copy()["plotting"]
@@ -215,19 +214,19 @@ def set_scatter_data(plot, mm):
         positions = None
     else:
         print("...Downsampled from {} to {} in {:.2f}s".format(lx, x.shape[0], time.time()-a))
-        #Apply log-scaling before density is computed     
-        positions = np.vstack([scaling(x.ravel(),scalex), scaling(y.ravel(),scaley)])
+        # Apply log-scaling before density is computed
+        positions = np.vstack([scaling(x.ravel(), scalex), scaling(y.ravel(), scaley)])
 
     kde_type = mm.config["plotting"]["kde"].lower()
     kde_kwargs = plot_common.get_kde_kwargs(x=x, y=y, kde_type=kde_type,
-                                            xacc=scaling(mm.config["plotting"]["kde accuracy "+xax],scalex),
-                                            yacc=scaling(mm.config["plotting"]["kde accuracy "+yax],scaley))
-    
+                                            xacc=scaling(mm.config["plotting"]["kde accuracy "+xax], scalex),
+                                            yacc=scaling(mm.config["plotting"]["kde accuracy "+yax], scaley))
+
     a = time.time()
     density = mm.get_kde_scatter(xax=xax, yax=yax, positions=positions,
                                  kde_type=kde_type, kde_kwargs=kde_kwargs)
     print("...KDE scatter time {}: {:.2f}s".format(kde_type, time.time()-a))
-    
+
     pd = plot.data
     pd.set_data("index", x)
     pd.set_data("value", y)
