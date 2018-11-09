@@ -218,7 +218,7 @@ def set_scatter_data(plot, mm):
         positions = np.vstack([scaling(x.ravel(), scalex), scaling(y.ravel(), scaley)])
 
     kde_type = mm.config["plotting"]["kde"].lower()
-    kde_kwargs = plot_common.get_kde_kwargs(x=x, y=y, kde_type=kde_type,
+    kde_kwargs = plot_common.get_kde_kwargs(x=scaling(x, scalex), y=scaling(y, scaley), kde_type=kde_type,
                                             xacc=scaling(mm.config["plotting"]["kde accuracy "+xax], scalex),
                                             yacc=scaling(mm.config["plotting"]["kde accuracy "+yax], scaley))
 
