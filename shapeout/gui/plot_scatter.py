@@ -219,7 +219,7 @@ def set_scatter_data(plot, mm):
 
     kde_type = mm.config["plotting"]["kde"].lower()
     kde_kwargs = plot_common.get_kde_kwargs(x=scaling(x, scalex), y=scaling(y, scaley), kde_type=kde_type,
-                                            xacc=(mm.config["plotting"]["kde accuracy "+xax],
+                                            xacc=mm.config["plotting"]["kde accuracy "+xax],
                                             yacc=mm.config["plotting"]["kde accuracy "+yax])
 
     a = time.time()
