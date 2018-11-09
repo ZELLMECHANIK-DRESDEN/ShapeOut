@@ -219,8 +219,8 @@ def set_scatter_data(plot, mm):
 
     kde_type = mm.config["plotting"]["kde"].lower()
     kde_kwargs = plot_common.get_kde_kwargs(x=scaling(x, scalex), y=scaling(y, scaley), kde_type=kde_type,
-                                            xacc=scaling(mm.config["plotting"]["kde accuracy "+xax], scalex),
-                                            yacc=scaling(mm.config["plotting"]["kde accuracy "+yax], scaley))
+                                            xacc=(mm.config["plotting"]["kde accuracy "+xax],
+                                            yacc=mm.config["plotting"]["kde accuracy "+yax])
 
     a = time.time()
     density = mm.get_kde_scatter(xax=xax, yax=yax, positions=positions,
