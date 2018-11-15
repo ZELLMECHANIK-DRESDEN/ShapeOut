@@ -58,7 +58,8 @@ particles in a preprocessing step.
    in an area (red shade) that is usually larger than the measured area.
    (B) The porosity is the ratio between measured and convex contour. The
    difference (the "pores") between the measured and convex areas is
-   indicated in green.
+   indicated in green. Porosity is often used to remove events with
+   non-physical contours, e.g. for cells all events with a porosity above 1.05.
 
 A porosity of 1 means that the measured contour is convex.
 Note that the porosity can only assume values larger than 1. Also note that the
@@ -66,10 +67,21 @@ convex contour/area is computed on the same pixel grid as the measured contour/a
 and is, as such, subject to pixelation artifacts.
 
 
-Aspect ratio of bounding box
-----------------------------
+The bounding box
+----------------
+The bounding box of an event image is the smallest rectangle (with its sides
+parallel to the x and y axes) that can hold the event contour. The aspect
+ratio of the bounding box is the rectangle's side length along x divided
+by the side length along y. The size of the bounding box along x and y as
+well as its aspect ratio are often used for filtering.
 
 .. figure:: figures/aspect.jpg
+
+   Illustration of the event bounding box and its use cases. From left to
+   right: definition of the bounding box, exclusion of small objects (e.g.
+   debris) via the bounding box size, exclusion of clusters via the
+   bounding box size, exclusion of objects elongated perpendicular to the
+   channel axis, exclusion of objects elongated along the channel axis.
 
 
 Brightness within image
@@ -124,18 +136,37 @@ Note that it is also possible to directly
 
 Fluorescence
 ------------
-:cite:`Rosendahl2018`
+Real-time fluorescence and deformability cytometry (RT-FDC) records, in
+addition to the event images, the fluorescence signal of each event
+:cite:`Rosendahl2018`. The raw fluorescence data consists of the
+one-dimensional fluorescence intensity trace from which features such
+as peak fluorescence or peak width can be computed. For more advanced
+applications, RT-FDC also supports multiple fluorescence channels.
 
 
 Inertia ratio
 -------------
-also principal inertia ratio
+The inertia ratio is the ratio of the second order
+`central moments
+<https://en.wikipedia.org/wiki/Image_moment#Central_moments>`_ along
+x and y computed for the event contour. Thus, the inertia ratio is a measure
+of deformation. In comparison to deformation, the inertia ratio has a low
+correlation to porosity.
+Shape-Out also allows to compute the principal inertia ratio which is the
+maximal inertia ratio that can be obtained by rotating the contour. Thus,
+the principal inertai ratio is rotation-invariant which makes it applicable
+to reservoir measurements where e.g. cells are not aligned with the channel.
+To quantify the alignment of the measured objects with the measurement
+channel, Shape-Out can additionally quantify the tilt of the contour
+relative to the channel axis.
 
 
 Volume
 ------
-
-
+Shape-Out can compute the volume from the event contour under the assumption
+of rotational symmetry. The computation of the volume is based on a full
+rotation of the upper and the lower halves of the contour from which the
+average is then used :cite:`Halpern2002`.
 
 
 .. [1] *Detection Of Human Disease Conditions By Single-Cell Morpho-Rheological
