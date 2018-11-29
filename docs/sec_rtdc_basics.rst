@@ -84,8 +84,8 @@ well as its aspect ratio are often used for filtering.
    channel axis, exclusion of objects elongated along the channel axis.
 
 
-Brightness within image
------------------------
+Brightness within contour
+-------------------------
 Quantifying the brightness values within the image contour yields
 information on object properties such as homogeneity or density.
 For instance, it has been shown that the quantities "mean brightness" and
