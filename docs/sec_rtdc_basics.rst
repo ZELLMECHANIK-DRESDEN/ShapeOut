@@ -144,6 +144,16 @@ as peak fluorescence or peak width can be computed. For more advanced
 applications, RT-FDC also supports multiple fluorescence channels.
 
 
+.. figure:: figures/fluorescence.jpg
+
+   (A) Event brightfield image. (B) Fluorescence trace of the event.
+   The raw fluorescence data and the fluorescence data filtered with
+   a rolling median filter (from which the parameters are computed)
+   is shown.
+   (C) Scatter plot of two parameters extracted from the fluorescence
+   trace.
+
+
 Inertia ratio
 -------------
 The inertia ratio is the ratio of the second order
