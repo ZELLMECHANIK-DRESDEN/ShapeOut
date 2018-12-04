@@ -61,7 +61,7 @@ ax3a.scatter(ds["area_ratio"], ds["deform"], s=.2,
 ax3a.tick_params('y', colors='#072BA3')
 ax3a.set_xlabel(dclab.dfn.feature_name2label["area_ratio"])
 ax3a.set_ylabel(dclab.dfn.feature_name2label["deform"], color='#072BA3')
-ax3a.set_xlim(1, 2)
+ax3a.set_xlim(1, 1.5)
 ax3a.set_ylim(0, .2)
 
 
@@ -71,7 +71,7 @@ ax3b.scatter(ds["area_ratio"], ds["inert_ratio_cvx"], s=.1,
 ax3b.tick_params('y', colors='#9507A3')
 ax3b.set_ylabel(dclab.dfn.feature_name2label["inert_ratio_cvx"],
                 color='#9507A3')
-ax3b.set_ylim(0, 6)
+ax3b.set_ylim(0, 3)
 
 
 fig.text(0, 1, "A",
