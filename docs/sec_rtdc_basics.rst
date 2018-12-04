@@ -67,8 +67,8 @@ convex contour/area is computed on the same pixel grid as the measured contour/a
 and is, as such, subject to pixelation artifacts.
 
 
-The bounding box
-----------------
+Bounding box
+------------
 The bounding box of an event image is the smallest rectangle (with its sides
 parallel to the x and y axes) that can hold the event contour. The aspect
 ratio of the bounding box is the rectangle's side length along x divided
@@ -169,6 +169,16 @@ to reservoir measurements where e.g. cells are not aligned with the channel.
 To quantify the alignment of the measured objects with the measurement
 channel, Shape-Out can additionally quantify the tilt of the contour
 relative to the channel axis.
+
+.. figure:: figures/inert_ratio.jpg
+
+   (A) For a rectangle that is aligned with the coordinate axes, the
+   inertia ratio and the principal inertia ratio are identical.
+   (B) If the rectangle is rotated, the inertia ratio changes, but the
+   principal inertia ratio does not.
+   (C) Comparison between deformation and inertia ratio when plotted
+   against porosity for a regular RT-DC experiment. Deformation exhibits
+   a higher correlation to porisity.
 
 
 Volume
