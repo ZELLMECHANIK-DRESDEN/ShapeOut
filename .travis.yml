@@ -1,9 +1,11 @@
 notifications:
   email: false
-python: 2.7
-language: python
 dist: xenial
 sudo: required
+language: python
+python: 2.7
+virtualenv:
+  system_site_packages: true
 addons:
   apt:
     packages:
@@ -18,6 +20,7 @@ install:
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install dependencies
+- travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
 # install all dependencies
 - travis_retry pip install .
