@@ -40,9 +40,6 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 script:
-- py.test tests/test_settings.py
-- py.test tests/test_linmixmod.py
-- py.test tests/test_gui_batch.py
 - coverage run --source=shapeout ./setup.py test
 - coverage report -m
 after_success:
