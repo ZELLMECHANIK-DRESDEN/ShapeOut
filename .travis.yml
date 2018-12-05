@@ -20,7 +20,7 @@ addons:
     - r-cran-lme4
 install:
 # somehow latest version of numpy is installed
-- pip uninstall numpy
+- pip uninstall -y numpy
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install all dependencies
