@@ -1,0 +1,32 @@
+notifications:
+  email: false
+python: 2.7
+language: python
+dist: xenial
+sudo: required
+addons:
+  apt:
+    packages:
+    - python-chaco
+    - python-wxgtk3.0
+    - r-base
+    - r-recommended
+before_install:
+# install lme4
+- R -e "install.packages('lme4', repos='http://cran.r-project.org')"
+install:
+# install binary packages
+- travis_retry pip install --upgrade pip setuptools wheel
+# install dependencies
+- travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
+# install all dependencies
+- travis_retry pip install .
+# for tests:
+- travis_retry pip install codecov coverage
+- pip freeze
+script:
+- coverage run --source=shapeout ./setup.py test
+- coverage report -m
+after_success:
+- codecov
+
