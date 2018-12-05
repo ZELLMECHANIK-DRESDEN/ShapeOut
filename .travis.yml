@@ -9,6 +9,8 @@ virtualenv:
 addons:
   apt:
     packages:
+    - gfortran
+    - gfortran-7
     - python-chaco
     - python-numpy
     - python-scipy
@@ -22,8 +24,8 @@ install:
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install all dependencies
-- travis_retry pip install simplejson
-- travis_retry pip install .
+- travis_retry pip install simplejson appdirs h5py imageio nptdms pyper
+- travis_retry pip install . --no-deps
 # install special dependencies
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
