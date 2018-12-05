@@ -10,9 +10,6 @@ addons:
   apt:
     packages:
     - cython
-    - gfortran
-    - libblas-dev
-    - liblapack-dev
     - python2.7-dev
     - python-chaco
     - python-numpy
@@ -20,9 +17,7 @@ addons:
     - python-wxgtk3.0
     - r-base
     - r-recommended
-before_install:
-# install lme4
-- sudo R -e "install.packages('lme4', repos='http://cran.r-project.org')"
+    - r-cran-lme4
 install:
 # somehow latest version of numpy is installed
 - pip uninstall numpy
