@@ -19,15 +19,16 @@ before_install:
 install:
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
-# install dependencies
-- travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
-- travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
 # install all dependencies
 - travis_retry pip install .
+# install special dependencies
+- travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
+- travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
 # for tests:
 - travis_retry pip install codecov coverage
 - pip freeze
 script:
+- python setup.py test
 - coverage run --source=shapeout ./setup.py test
 - coverage report -m
 after_success:
