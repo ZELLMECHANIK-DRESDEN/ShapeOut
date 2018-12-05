@@ -24,6 +24,8 @@ before_install:
 # install lme4
 - sudo R -e "install.packages('lme4', repos='http://cran.r-project.org')"
 install:
+# somehow latest version of numpy is installed
+- pip uninstall numpy
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install all dependencies
