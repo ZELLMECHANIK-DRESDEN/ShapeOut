@@ -31,7 +31,6 @@ install:
 - travis_retry pip install codecov coverage
 - pip freeze
 script:
-- py.test tests/
 - coverage run --source=shapeout ./setup.py test
 - coverage report -m
 after_success:
