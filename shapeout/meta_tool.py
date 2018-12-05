@@ -13,7 +13,8 @@ import nptdms
 
 from dclab.rtdc_dataset import config as rt_config
 from dclab.rtdc_dataset import fmt_tdms
-from dclab.compat import path_to_str
+
+from .util import path_to_str
 
 from . import settings
 
@@ -40,7 +41,7 @@ def collect_data_tree(directories):
             if not verify_dataset(ff):
                 # Ignore broken measurements
                 continue
-            path = str(ff.parent)
+            path = path_to_str(ff.parent)
             # try to find the path in pathdict
             if pathdict.has_key(path):
                 dirindex = pathdict[path]
@@ -60,7 +61,7 @@ def collect_data_tree(directories):
                 dn += u"  {:.5f} µls⁻¹".format(get_flow_rate(ff))
             dn += "  ({} events)".format(get_event_count(ff))
 
-            treelist[dirindex].append((dn, str(ff)))
+            treelist[dirindex].append((dn, path_to_str(ff)))
 
     return treelist, cols
 
@@ -136,7 +137,7 @@ def get_event_count(fname):
     ext = fname.suffix
 
     if ext == ".rtdc":
-        with h5py.File(fname, mode="r") as h5:
+        with h5py.File(path_to_str(fname), mode="r") as h5:
             event_count = h5.attrs["experiment:event count"]
     elif ext == ".tdms":
         mdir = fname.parent
@@ -224,7 +225,7 @@ def get_flow_rate(fname):
     ext = fname.suffix
 
     if ext == ".rtdc":
-        with h5py.File(fname, mode="r") as h5:
+        with h5py.File(path_to_str(fname), mode="r") as h5:
             flow_rate = h5.attrs["setup:flow rate"]
     elif ext == ".tdms":
         name = fname.name
@@ -232,7 +233,7 @@ def get_flow_rate(fname):
         mx = name.split("_")[0]
         para = path / (mx + "_para.ini")
         if para.exists():
-            camcfg = rt_config.load_from_file(str(para))
+            camcfg = rt_config.load_from_file(path_to_str(para))
             flow_rate = camcfg["general"]["flow rate [ul/s]"]
         else:
             # analyze the filename
@@ -263,7 +264,7 @@ def get_chip_region(fname):
     ext = fname.suffix
 
     if ext == ".rtdc":
-        with h5py.File(fname, mode="r") as h5:
+        with h5py.File(path_to_str(fname), mode="r") as h5:
             chip_region = h5.attrs["setup:chip region"]
     elif ext == ".tdms":
         name = fname.name
@@ -271,7 +272,7 @@ def get_chip_region(fname):
         mx = name.split("_")[0]
         para = path / (mx + "_para.ini")
         if para.exists():
-            camcfg = rt_config.load_from_file(str(para))
+            camcfg = rt_config.load_from_file(path_to_str(para))
             chip_region = camcfg["General"]["Region"].lower()
 
     return chip_region
@@ -281,7 +282,7 @@ def get_run_index(fname):
     fname = pathlib.Path(fname).resolve()
     ext = fname.suffix
     if ext == ".rtdc":
-        with h5py.File(fname, mode="r") as h5:
+        with h5py.File(path_to_str(fname), mode="r") as h5:
             run_index = h5.attrs["experiment:run index"]
     elif ext == ".tdms":
         name = fname.name
@@ -293,7 +294,7 @@ def get_sample_name(fname):
     fname = pathlib.Path(fname).resolve()
     ext = fname.suffix
     if ext == ".rtdc":
-        with h5py.File(fname, mode="r") as h5:
+        with h5py.File(path_to_str(fname), mode="r") as h5:
             sample = h5.attrs["experiment:sample"]
     elif ext == ".tdms":
         sample = fmt_tdms.get_project_name_from_path(fname)
@@ -329,7 +330,7 @@ def verify_dataset(path, verbose=False):
                 break
     elif path.suffix == ".rtdc":
         try:
-            with h5py.File(path, mode="r") as h5:
+            with h5py.File(path_to_str(path), mode="r") as h5:
                 for key in ["experiment:event count",
                             "experiment:sample",
                             "experiment:run index",

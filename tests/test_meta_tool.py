@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function
 
 import pathlib
 import shutil
@@ -77,8 +77,8 @@ def test_collect_data_tree_order():
 
 def test_collect_data_tree_unicode():
     features = ["area_um", "deform", "time"]
-    edest = pathlib.Path(tempfile.mkdtemp(prefix="shapeout_test_únícòdè".encode("utf-8")))
-
+    edest = pathlib.Path(tempfile.mkdtemp(prefix="shapeout_test"))
+    from shapeout.util import safe_path
     for ii in range(1, 4):
         dat = new_dataset(data=example_data_dict(ii + 10, keys=features))
         cfg = {"experiment": {"sample": "test sample",
@@ -89,7 +89,7 @@ def test_collect_data_tree_unicode():
                          "flow rate": 0.04}
                }
         dat.config.update(cfg)
-        dat.export.hdf5(path=edest / "{}.rtdc".format(ii),
+        dat.export.hdf5(path=safe_path(edest / "únícòdè_{}.rtdc".format(ii)),
                         features=features)
     meta_tool.collect_data_tree([edest])[0]
     shutil.rmtree(str(edest), ignore_errors=True)
@@ -97,13 +97,14 @@ def test_collect_data_tree_unicode():
 
 def test_event_count_cache_unicode():
     # fhash = hashlib.md5(data + str(fname).encode("utf-8")).hexdigest()
-    edest = pathlib.Path(tempfile.mkdtemp(prefix="shapeout_test_únícòdè".encode("utf-8")))
+    edest = tempfile.mkdtemp(prefix="shapeout_test_únícòdè")
     path = retrieve_data("rtdc_data_traces_video.zip")
     shutil.rmtree(str(edest))
     path.parent.rename(edest)
     tdmspath = meta_tool.find_data(edest)[0]
     ec = meta_tool.get_event_count(tdmspath)
     assert ec == 2
+    shutil.rmtree(edest, ignore_errors=True)
 
 
 def test_hdf5():

@@ -196,7 +196,7 @@ class BatchFilterFolder(wx.Frame):
             # Apply filters
             mm.apply_filter()
             # Get statistics
-            h, v = dclab.statistics.get_statistics(rtdc_ds=mm,
+            h, v = dclab.statistics.get_statistics(ds=mm,
                                                    methods=methods,
                                                    features=features)
             if head is None:
