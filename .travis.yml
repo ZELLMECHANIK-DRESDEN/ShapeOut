@@ -10,6 +10,8 @@ addons:
   apt:
     packages:
     - python-chaco
+    - python-numpy
+    - python-scipy
     - python-wxgtk3.0
     - r-base
     - r-recommended
