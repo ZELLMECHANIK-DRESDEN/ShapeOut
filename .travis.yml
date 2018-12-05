@@ -19,6 +19,7 @@ addons:
 install:
 # remove all packages that are part of the current virtualenv
 - pip freeze -l | xargs pip uninstall -y
+- rm -rf .cache
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install all dependencies
@@ -29,8 +30,12 @@ install:
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
 # for tests:
 - travis_retry pip install codecov coverage
+- pip install pytest
 - pip freeze
 script:
+- py.test tests/test_settings.py
+- py.test tests/test_linmixmod.py
+- py.test tests/test_gui_batch.py
 - coverage run --source=shapeout ./setup.py test
 - coverage report -m
 after_success:
