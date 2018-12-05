@@ -22,6 +22,8 @@ def prepare_app():
         warnings.warn("Could not determine Shape-Out version.")
         version = None
     
+    version = "1.0.0"
+    
     app.frame = frontend.Frame(version)
     
     return app
