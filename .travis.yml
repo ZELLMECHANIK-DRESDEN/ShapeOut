@@ -17,10 +17,8 @@ addons:
     - r-recommended
     - r-cran-lme4
 install:
-# somehow latest version of numpy is installed
-- pip freeze
-- pip uninstall -y numpy
-- pip freeze
+# remove all packages that are part of the current virtualenv
+- pip freeze -l | xargs pip uninstall -y
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install all dependencies
