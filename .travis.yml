@@ -9,7 +9,11 @@ virtualenv:
 addons:
   apt:
     packages:
+    - cython
     - gfortran
+    - libblas-dev
+    - liblapack-dev
+    - python2.7-dev
     - python-chaco
     - python-numpy
     - python-scipy
