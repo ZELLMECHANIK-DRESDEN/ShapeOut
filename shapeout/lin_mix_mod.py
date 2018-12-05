@@ -203,12 +203,12 @@ def diffdef(y, yR, bs_iter=DEFAULT_BS_ITER, rs=117):
     for q in range(bs_iter):
         # Channel data:
         # Compute random indices and draw from y
-        draw_y_idx = prng_object.random_integers(0, len(y) - 1, len(y))
+        draw_y_idx = prng_object.randint(0, len(y) - 1, len(y))
         y_resample = y[draw_y_idx]
         Median[q, 0] = np.median(y_resample)
         # Reservoir data
         # Compute random indices and draw from yR
-        draw_yR_idx = prng_object.random_integers(0, len(yR) - 1, len(yR))
+        draw_yR_idx = prng_object.randint(0, len(yR) - 1, len(yR))
         yR_resample = yR[draw_yR_idx]
         MedianR[q, 0] = np.median(yR_resample)
     return [Median, MedianR]
