@@ -3,9 +3,7 @@ notifications:
 dist: xenial
 sudo: required
 language: python
-python: 2.7
-virtualenv:
-  system_site_packages: true
+python: "2.7_with_system_site_packages"
 addons:
   apt:
     packages:
@@ -20,7 +18,9 @@ addons:
     - r-cran-lme4
 install:
 # somehow latest version of numpy is installed
+- pip freeze
 - pip uninstall -y numpy
+- pip freeze
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install all dependencies
