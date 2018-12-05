@@ -13,7 +13,7 @@ addons:
     - r-recommended
 before_install:
 # install lme4
-- R -e "install.packages('lme4', repos='http://cran.r-project.org')"
+- sudo R -e "install.packages('lme4', repos='http://cran.r-project.org')"
 install:
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
