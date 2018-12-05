@@ -177,16 +177,30 @@ relative to the channel axis.
    (B) If the rectangle is rotated, the inertia ratio changes, but the
    principal inertia ratio does not.
    (C) Comparison between deformation and inertia ratio when plotted
-   against porosity for a regular RT-DC experiment. Deformation exhibits
+   against porosity for an exemplary RT-DC experiment. Deformation exhibits
    a higher correlation to porisity.
 
 
 Volume
 ------
 Shape-Out can compute the volume from the event contour under the assumption
-of rotational symmetry. The computation of the volume is based on a full
+of rotational symmetry, i.e. it is assumed that the projection of the cell
+volume onto the detector plane does not change when the cell is rotated,
+with a rotational axis parallel to the flow direction.
+The computation of the volume is based on a full
 rotation of the upper and the lower halves of the contour from which the
 average is then used :cite:`Halpern2002`.
+Volume has the advantage to be less correlated to deformation when compared
+to the projected area and it is therefore a better measure of
+cell size in the channel.
+
+
+.. figure:: figures/volume.jpg
+
+   (A) Deformation versus area (red) and volume (cyan) for an exemplary
+   RT-DC dataset. There is a correlation between area and deformation,
+   at least for small (<50µm²) areas. (B) Inertia ratio versus area and
+   volume. A correlation between inertia ratio and area is visible as well.
 
 
 .. [1] *Detection Of Human Disease Conditions By Single-Cell Morpho-Rheological
