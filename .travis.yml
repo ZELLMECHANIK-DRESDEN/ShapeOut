@@ -10,7 +10,6 @@ addons:
   apt:
     packages:
     - gfortran
-    - gfortran-7
     - python-chaco
     - python-numpy
     - python-scipy
