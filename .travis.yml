@@ -20,6 +20,7 @@ install:
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install all dependencies
+- travis_retry pip install simplejson
 - travis_retry pip install .
 # install special dependencies
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
@@ -28,7 +29,7 @@ install:
 - travis_retry pip install codecov coverage
 - pip freeze
 script:
-- python setup.py test
+- py.test tests/
 - coverage run --source=shapeout ./setup.py test
 - coverage report -m
 after_success:
