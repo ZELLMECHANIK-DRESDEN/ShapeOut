@@ -32,6 +32,11 @@ install:
 - travis_retry pip install codecov coverage
 - pip install pytest
 - pip freeze
+before_script:
+  # set up virtual X display
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 
 script:
 - py.test tests/test_settings.py
 - py.test tests/test_linmixmod.py
