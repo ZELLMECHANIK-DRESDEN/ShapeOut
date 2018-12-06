@@ -193,10 +193,6 @@ class ExportAnalysisEventsRTDC(ExportAnalysisEvents):
                                                                     "trace"])
 
     def export(self, out_dir, features, filtered):
-        if "image" in features and "mask" not in features:
-            # "mask" should be there for ShapeOut to correctly display
-            # the image.
-            features.append("mask")
         for m in self.analysis.measurements:
             mfeat = self.get_dataset_features(m, features)
             m.export.hdf5(os.path.join(out_dir, m.title+".rtdc"),

@@ -176,7 +176,7 @@ class ImagePanel(ScrolledPanel):
             # Only load contour data if there is an image column.
             # We don't know how big the images should be so we
             # might run into trouble displaying random contours.
-            if "contour" in mm and contour:
+            if "mask" in mm and contour:
                 try:
                     mask = mm["mask"][evt_id]
                 except IndexError:

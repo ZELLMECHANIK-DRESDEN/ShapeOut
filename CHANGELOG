@@ -4,8 +4,8 @@
  - Introduce new online documentation at http://shapeout.readthedocs.io
  - Consistently use the term Shape-Out
  - Code cleanup and compatibility with dclab 0.8.0
- - Bugfix: Export as .rtdc resulted in files that did not contain the
-   "mask" feature and did thus not display correctly in Shape-Out
+ - Bugfix: Displaying the contour of .rtdc files that do not contain
+   the "mask" feature resulted in an error.
 0.8.8
  - Bugfixes:
    - "Mean of empty slice" error when attempting to plot bad data 
