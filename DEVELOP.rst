@@ -46,7 +46,7 @@ The easiest way to run Shape-Out from source is to use
   ::
 
     cd path/to/ShapeOut
-    pip install -e .
+    pip install -e .[GUI]
 
   Download the ffmpeg binaries (required for tdms file format):
 
@@ -104,7 +104,7 @@ The easiest way to run Shape-Out from source is to use
   ::
 
     cd path/to/ShapeOut
-    pip install -e .
+    pip install -e .[GUI]
 
   Download the ffmpeg binaries (required for tdms file format):
 

@@ -16,9 +16,12 @@ Shape-Out can be installed via multiple channels.
 
    .. code:: bash
 
-       pip install shapeout
+       pip install shapeout[GUI]
 
-   To start Shape-Out, simply run ``shapeout`` or ``python -m shapeout``
+   Note that ShapeOut requires wxPython 3 and chaco. You might have to
+   manually install these for your system if they cannot be installed
+   automatically via pip.
+   To start Shape-Out, simply run or ``python -m shapeout``
    in a command shell. 
 
 
@@ -35,7 +38,7 @@ preferences menu) and notifies the user when a new version is available.
    .. code:: bash
 
        pip uninstall shapeout
-       pip install shapeout
+       pip install shapeout[GUI]
 
 
 Basic usage
