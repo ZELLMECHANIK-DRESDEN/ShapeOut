@@ -30,9 +30,8 @@ install:
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
 # download ffmpeg
 - travis_retry imageio_download_bin ffmpeg 
-# for tests:
+# for coverage
 - travis_retry pip install codecov coverage
-- pip install pytest
 - pip freeze
 before_script:
   # set up virtual X display
