@@ -49,7 +49,7 @@ of Shape-Out can be found at https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tr
 .. |Shape-Out| image:: https://raw.github.com/ZELLMECHANIK-DRESDEN/ShapeOut/master/shapeout/img/shapeout_logotype_h50.png
 .. |PyPI Version| image:: http://img.shields.io/pypi/v/ShapeOut.svg
    :target: https://pypi.python.org/pypi/shapeout
-.. |Build Status Linux| image:: http://img.shields.io/travis/ZELLMECHANIK-DRESDEN/shapeout.svg?label=build_linux
+.. |Build Status Linux| image:: http://img.shields.io/travis/ZELLMECHANIK-DRESDEN/shapeout.svg?label=tests_linux
    :target: https://travis-ci.org/ZELLMECHANIK-DRESDEN/shapeout
 .. |Build Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/ShapeOut/master.svg?label=build_win
    :target: https://ci.appveyor.com/project/paulmueller/ShapeOut
