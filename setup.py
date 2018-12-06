@@ -38,7 +38,7 @@ setup(
     install_requires=["appdirs",
                       "dclab>=0.8.0",
                       "fcswrite>=0.4.1",
-                      "h5py",
+                      "h5py>=2.8.0",
                       "imageio>=2.3.0",
                       "nptdms",
                       "numpy>=1.9.0",
