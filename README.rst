@@ -42,7 +42,7 @@ and replace ``X.X.X`` with the version of Shape-Out that you used.
 Development
 -----------
 Details on running Shape-Out from source, contributing, testing, and releasing new versions
-of Shape-Out can be found at https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tree/develop/dev.
+of Shape-Out can be found at https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tree/develop/DEVELOP.rst.
 
 
 

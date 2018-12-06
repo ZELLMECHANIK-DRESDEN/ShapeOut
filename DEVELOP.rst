@@ -29,10 +29,10 @@ The easiest way to run Shape-Out from source is to use
 
   ::
 
-    cd path/to/fcswrite
+    cd path/to/dclab
     pip install -e .
 
-    cd path/to/dclab
+    cd path/to/fcswrite
     pip install -e .
 
   Install other dependencies for ShapeOut and chaco:
@@ -87,10 +87,10 @@ The easiest way to run Shape-Out from source is to use
 
   ::
 
-    cd path/to/fcswrite
+    cd path/to/dclab
     pip install -e .
 
-    cd path/to/dclab
+    cd path/to/fcswrite
     pip install -e .
 
   Install other dependencies for ShapeOut and chaco:
