@@ -1,7 +1,9 @@
 1.0.0
  - Enhancements: Order input fields in measurement browser according
    to measurement number (#229)
- - consistently use the term Shape-Out
+ - Introduce new online documentation at http://shapeout.readthedocs.io
+ - Consistently use the term Shape-Out
+ - Code cleanup and compatibility with dclab 0.8.0
 0.8.8
  - Bugfixes:
    - "Mean of empty slice" error when attempting to plot bad data 
