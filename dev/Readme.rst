@@ -5,16 +5,64 @@ Information for developers
 
 Running from source
 ~~~~~~~~~~~~~~~~~~~
+Shape-Out runs on Python 2 only. One reason are dependency issues
+(chaco and Anaconda on Windows). The other reason is that the development
+of Shape-Out 2 has higher priority than migrating Shape-Out 1 to Python 3.
 The easiest way to run Shape-Out from source is to use
 `Anaconda <http://continuum.io/downloads>`__. 
 
-- **Windows**: Sketchy installation instructions can be found
+- **Windows**:
+   Sketchy installation instructions can be found
   `here <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tree/develop/.appveyor>`__.
 
-- **Debian**: Run `this script <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/develop/dev/activate_linux.sh>`__
-  which will create a Python virtual environment.
+- **Debian/Ubuntu**:
+  Install all dependencies from the distribution repositories:
 
-- **MacOS**: Shape-Out should work with Anaconda (see Windows above).
+  ::
+
+    sudo apt install cython python2.7-dev python-chaco python-numpy python-scipy python-wxgtk3.0 r-base r-recommended r-cran-lme4 virtualenv
+
+
+  Checkout the `fcswrite <https://github.com/ZELLMECHANIK-DRESDEN/fcswrite>`_
+  and `dclab <https://github.com/ZELLMECHANIK-DRESDEN/dclab>`_ repositories
+  and install them in editable mode with
+
+  ::
+
+    cd path/to/fcswrite
+    pip install -e .
+
+    cd path/to/dclab
+    pip install -e .
+
+  Install other dependencies for ShapeOut and chaco:
+
+  ::
+
+    pip install simplejson kiwisolver reportlab
+
+  Checkout the Shape-Out repository and install in editable mode:
+
+  ::
+
+    cd path/to/ShapeOut
+    pip install -e .
+
+  Download the ffmpeg binaries (required for tdms file format):
+
+  ::
+
+    travis_retry imageio_download_bin ffmpeg
+
+  Start ShapeOut with:
+
+  ::
+
+    python -m shapeout
+
+
+- **MacOS**:
+  Shape-Out should work with Anaconda (see Windows above).
   It is also possible to install all dependencies with MacPorts:
 
   ::
@@ -33,21 +81,42 @@ The easiest way to run Shape-Out from source is to use
     sudo port select --set python python27
     sudo port select --set pip pip27
 
-  Check-out `dclab <https://github.com/ZELLMECHANIK-DRESDEN/dclab>`__ and
-  append the following command to ``~/.bash_profile``
-  
-  ::
-  
-    #!/bin/bash
-    export PYTHONPATH="${PYTHONPATH}:/path/to/dclab"
-
-  start Shape-Out with
+  Checkout the `fcswrite <https://github.com/ZELLMECHANIK-DRESDEN/fcswrite>`_
+  and `dclab <https://github.com/ZELLMECHANIK-DRESDEN/dclab>`_ repositories
+  and install them in editable mode with
 
   ::
-  
-    python shapeout/ShapeOut.py
 
-  This can be put into a .command file placed on the Desktop.
+    cd path/to/fcswrite
+    pip install -e .
+
+    cd path/to/dclab
+    pip install -e .
+
+  Install other dependencies for ShapeOut and chaco:
+
+  ::
+
+    pip install simplejson kiwisolver reportlab
+
+  Checkout the Shape-Out repository and install in editable mode:
+
+  ::
+
+    cd path/to/ShapeOut
+    pip install -e .
+
+  Download the ffmpeg binaries (required for tdms file format):
+
+  ::
+
+    travis_retry imageio_download_bin ffmpeg
+
+  Start ShapeOut with:
+
+  ::
+
+    python -m shapeout
 
 
 
