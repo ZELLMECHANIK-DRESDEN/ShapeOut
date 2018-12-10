@@ -1,9 +1,9 @@
 # As long as we depend on chaco, we cannot change the numpy version
 # it is built for.
 enable ==4.4.1
-numpy 1.9.3 py27_0
+numpy 1.10.0 py27_0
 pillow 3.0.0 py27_0
 pyface ==4.4.0
 python-dateutil 2.4.2 py27_0
-scipy 0.15.1 np19py27_0
+scipy 0.16.0 np110py27_0
 wxpython 3.0 py27_0
