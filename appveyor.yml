@@ -70,7 +70,7 @@ install:
   #- "conda update -f conda"
   # Anaconda client for searching packages?
   #- "conda install anaconda-client"
-  - "conda install --yes --quiet chaco enable numpy pip pyface pywin32 scipy statsmodels wxpython"
+  - "conda install --yes --quiet chaco enable kiwisolver numpy pip pyface pywin32 scipy statsmodels wxpython"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
