@@ -29,7 +29,7 @@ install:
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
 # download ffmpeg
-- travis_retry imageio_download_bin ffmpeg 
+- travis_retry imageio_download_bin ffmpeg
 # for coverage
 - travis_retry pip install codecov coverage
 - pip freeze

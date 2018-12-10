@@ -50,8 +50,13 @@ class SettingsFile(object):
         cdict = {}
         for line in fc:
             line = line.strip()
-            var, val = line.split("=", 1)
-            cdict[var.lower().strip()] = val.strip()
+            data = line.split("=", 1)
+            if len(data) == 2:
+                # Only unpack data if there is a key-value pair
+                # (Avoids ValueError when for some reason the value
+                # is missing).
+                var, val = data
+                cdict[var.lower().strip()] = val.strip()
         return cdict
 
     def get_bool(self, key):
