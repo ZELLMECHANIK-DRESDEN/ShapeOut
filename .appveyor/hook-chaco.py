@@ -30,5 +30,6 @@ hiddenimports=[
                'wx',
                'reportlab',
                'reportlab.rl_settings',
+               'pyface.action.action_item',
               ]
 
