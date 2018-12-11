@@ -3,39 +3,15 @@
 #    raise NotImplementedError("the %s pyface backend doesn't implement %s" % (ETSConfig.toolkit, oname))
 #
 # in pyface.toolkt.py in line 92
+from PyInstaller.utils.hooks import collect_submodules
+
 hiddenimports=['enable',
                'enable.toolkit_constants',
-               'enable.wx',
-               'enable.wx.image',
-               'enable.wx.base_window',
-               'enable.wx.scrollbar',
-               'enable.wx.quartz',
-               'enable.wx.gl',
-               'enable.wx.constants',
-               'enable.wx.cairo',
                'kiva',
                'kiwisolver',
                'pyface',
                'pyface.image_resource',
-               'pyface.ui.wx',
-               'pyface.ui.wx.action',
-               'pyface.ui.wx.action.action_item',
-               'pyface.ui.wx.action.menu_bar_manager',
-               'pyface.ui.wx.action.menu_manager',
-               'pyface.ui.wx.action.status_bar_manager',
-               'pyface.ui.wx.action.tool_bar_manager',
-               'pyface.ui.wx.action.tool_palette_manager',
-               'pyface.ui.wx.action.tool_palette',
-               'pyface.ui.wx.clipboard',
-               'pyface.ui.wx.confirmation_dialog',
-               'pyface.ui.wx.directory_dialog',
-               'pyface.ui.wx.file_dialog',
-               'pyface.ui.wx.clipboard',
-               'pyface.ui.wx.init',
-               'pyface.ui.wx.heading_text',
                'traitsui.toolkit',
-               'traitsui.wx',
-               'traitsui.wx.menu',
                'traits.etsconfig.api',
                'wx',
                'reportlab',
@@ -43,3 +19,6 @@ hiddenimports=['enable',
                'pyface.action.action_item',
               ]
 
+hiddenimports += collect_submodules('pyface.ui.wx')
+hiddenimports += collect_submodules('traitsui.wx')
+hiddenimports += collect_submodules('enable.wx')
