@@ -72,7 +72,7 @@ install:
   #- "conda install anaconda-client"
   - "conda install --yes --quiet chaco enable kiwisolver numpy pip pyface pywin32 scipy statsmodels wxpython"
   # Remove pyqt (the --force option prevents conda from removing chaco and enable
-  #- "conda uninstall --yes --force pyqt"
+  - "conda uninstall --yes --force pyqt"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
