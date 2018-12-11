@@ -3,7 +3,8 @@
 #    raise NotImplementedError("the %s pyface backend doesn't implement %s" % (ETSConfig.toolkit, oname))
 #
 # in pyface.toolkt.py in line 92
-hiddenimports=[
+hiddenimports=['chaco',
+               'chaco.api',
                'enable',
                'enable.toolkit_constants',
                'enable.wx',
