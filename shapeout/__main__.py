@@ -6,7 +6,14 @@ import sys
 import warnings
 import wx
 
+# This must be done _before_ any widget imports in your application,
+# including importing pyface.api. Precisely, this must be set before
+# the first import of pyface.toolkit.
+import traits.etsconfig.api
+traits.etsconfig.api.ETSConfig.toolkit = 'wx'
+
 from .gui import frontend
+
 
 def prepare_app():
     # bypass "iCCP: known incorrect sRGB profile":
@@ -21,9 +28,9 @@ def prepare_app():
     except:
         warnings.warn("Could not determine Shape-Out version.")
         version = None
-    
+
     app.frame = frontend.Frame(version)
-    
+
     return app
 
 
