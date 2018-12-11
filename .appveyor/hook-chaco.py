@@ -22,3 +22,5 @@ hiddenimports=['enable',
 hiddenimports += collect_submodules('pyface.ui.wx')
 hiddenimports += collect_submodules('traitsui.wx')
 hiddenimports += collect_submodules('enable.wx')
+
+excludedimports = ['PyQt4', 'PyQt5', 'PySide', 'Tkinter', 'wx.lib.activex']

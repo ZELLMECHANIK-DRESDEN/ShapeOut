@@ -40,15 +40,7 @@ exe = EXE(pyz,
           strip=False,
           upx=False,
           icon=icofile,
-          console=True)
-
-# things that are safe to remove and save space
-remove_startswith = ["IPython", "libnvidia-glcore",
-                     "libQtGui", "libQtWebKit",
-                     "libQtXmlPatterns", "libQtCore", "qt4" ]
-for mod in remove_startswith:
-    a.binaries = [x for x in a.binaries if not x[0].startswith(mod)]
-
+          console=False)
 
 coll = COLLECT(exe,
                a.binaries,
