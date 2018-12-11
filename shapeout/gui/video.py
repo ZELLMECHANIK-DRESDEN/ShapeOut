@@ -154,19 +154,21 @@ class ImagePanel(ScrolledPanel):
         image: PIL.Image
             The image of the event.
         """
-        # Get the event id
-        mm_id = self.WXCB_plot.GetSelection()
-        
-        if (mm_id != -1 and
-            "image" in self.analysis.measurements[mm_id]):
-            # Get event id
-            evt_id = self.WXSP_plot.GetValue() - 1
-            if evt_id == -1:
-                evt_id = 0
-            # Get measurement
-            mm = self.analysis.measurements[mm_id]
+        # Get dataset ID
+        ds_id = self.WXCB_plot.GetSelection()
+        # Get the event ID
+        evt_id = self.WXSP_plot.GetValue() - 1
+        if evt_id == -1:
+            evt_id = 0
+        # Get dataset
+        if hasattr(self, "analysis"):
+            ds = self.analysis.measurements[ds_id]
+        else:
+            assert ds_id == -1
+
+        if (ds_id != -1 and "image" in ds and len(ds["image"]) > evt_id):
             # Get the gray scale cell image
-            cellimg = mm["image"][evt_id]
+            cellimg = ds["image"][evt_id]
             if np.all(np.isnan(cellimg)):
                 # No image data - return white image
                 cellimg = 255*np.ones_like(cellimg, dtype=np.uint8)
@@ -176,18 +178,14 @@ class ImagePanel(ScrolledPanel):
             # Only load contour data if there is an image column.
             # We don't know how big the images should be so we
             # might run into trouble displaying random contours.
-            if "mask" in mm and contour:
-                try:
-                    mask = mm["mask"][evt_id]
-                except IndexError:
-                    pass
-                else:
-                    # compute contour image from mask
-                    cont = mask ^ binary_erosion(mask)
-                    # set red contour pixel values in original image
-                    cellimg[cont, 0] = 255
-                    cellimg[cont, 1] = 0
-                    cellimg[cont, 2] = 0
+            if (contour and "mask" in ds and len(ds["mask"]) > evt_id):
+                mask = ds["mask"][evt_id]
+                # compute contour image from mask
+                cont = mask ^ binary_erosion(mask)
+                # set red contour pixel values in original image
+                cellimg[cont, 0] = 255
+                cellimg[cont, 1] = 0
+                cellimg[cont, 2] = 0
         else:
             x = np.linspace(0, 255, self.startSizeX*self.startSizeY)
             cellimg = np.array(x.reshape(self.startSizeY,self.startSizeX),
