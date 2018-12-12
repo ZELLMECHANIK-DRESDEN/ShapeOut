@@ -106,7 +106,7 @@ class MainPlotArea(wx.Panel):
             self.plot_window.component = container
         else:
             container = self.container
-            for pl in list(container.plot_components):
+            for pl in list(container.components):
                 # Reset the handler for changing the plotting range
                 # to avoid accidentally resetting when deleting the plots.
                 pl.range2d.on_trait_change(self.OnPlotRangeChanged, remove=True)
