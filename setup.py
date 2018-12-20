@@ -45,7 +45,7 @@ setup(
                       "imageio>=2.3.0",
                       "nptdms",
                       "numpy>=1.9.0",
-                      "pathlib;python_version<='3.4'",
+                      "pathlib",
                       "pyper",
                       "scipy>=0.13.0",
                       ],
