@@ -249,7 +249,7 @@ class Analysis(object):
 
         Notes
         -----
-        For `feature="deform"`, the returned plotting range is always(0, 0.2).
+        For `feature="deform"`, the returned plotting range is always (0, 0.2).
         If the scale of the current configuration is set to "log", then a
         heuristic method is used to determine the plot range: Fluorescence
         maxima data (e.g. "fl1_max" or "fl2_max_ctc") will get an rmin value
@@ -273,8 +273,9 @@ class Analysis(object):
                 mmf = mm[feature]
                 if filtered:
                     mmf = mmf[mm.filter.all]
-                rmin = min(rmin, np.nanmin(mmf))
-                rmax = max(rmax, np.nanmax(mmf))
+                if mmf.size:  # prevent searching for min/max in empty array
+                    rmin = min(rmin, np.nanmin(mmf))
+                    rmax = max(rmax, np.nanmax(mmf))
                 # check for logarithmic plots
                 if scale == "log":
                     if rmin <= 0:
@@ -292,7 +293,13 @@ class Analysis(object):
                     if rmax <= 0:
                         # generic default
                         rmax = 1
-
+        # fail-safe
+        if np.isinf(rmin) and np.isinf(rmax):
+            rmin = rmax = 1
+        elif np.isinf(rmin):
+            rmin = rmax - 1
+        elif np.isinf(rmax):
+            rmax = rmin + 1
         return rmin, rmax
 
     def get_config_value(self, section, key):

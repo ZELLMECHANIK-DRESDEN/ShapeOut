@@ -13,6 +13,7 @@
    - When the titles of all measurements are identical, the measurement
      selection in the combobox does not have any effect on the displayed
      measurement when creating a new polygon filter.
+   - Possible errors when loading sessions containing empty datasets
 0.8.8
  - Bugfixes:
    - "Mean of empty slice" error when attempting to plot bad data 
