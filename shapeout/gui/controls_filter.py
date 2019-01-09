@@ -78,7 +78,7 @@ class SubPanelFilter(SubPanel):
         sgen.Add(wx.StaticText(self, label=explanation), (0,0), span=(1,2))
         sgen.Add(wx.StaticText(self, label="Select data set"+": "), (1,0),
                  flag=wx.ALIGN_CENTER_VERTICAL)
-        items = [ mm.title for mm in self.analysis.measurements ]
+        items = self.analysis.GetTitles()
         self.WXCOMBO_hparent = wx.ComboBox(self, choices=items)
         sgen.Add(self.WXCOMBO_hparent, (1,1)) 
         self.WXCOMBO_hparent.Bind(wx.EVT_COMBOBOX, self.OnHierarchySelParent)
@@ -194,8 +194,9 @@ class SubPanelFilter(SubPanel):
         cbg = wx.ComboBox(self, -1, choices=choice_be,
                                 value="None", name="None",
                                 style=wx.CB_DROPDOWN|wx.CB_READONLY)
-        cbg.SetSelection(min(0, len(choice_be)-1))
-        cbg.SetValue(choice_be[-1])
+        if choice_be:
+            cbg.SetSelection(len(choice_be) - 1)
+            cbg.SetValue(choice_be[-1])
         cbg.Bind(wx.EVT_COMBOBOX, self.OnPolygonCombobox)
         plotsizer.Add(cbg)
 
@@ -307,15 +308,15 @@ class SubPanelFilter(SubPanel):
         """
         Called when the user wants to create a new hierarchy child.
         Will create a new RT-DC dataset that is appended to
-        `self.analysis.measurements`.
+        `self.analysis`.
         In the end, the entire control panel is updated to give the
         user access to the new data set.
         """
         self._set_polygon_filter_names()
         sel = self.WXCOMBO_hparent.GetSelection()
-        mm = self.analysis.measurements[sel]
+        mm = self.analysis[sel]
         ds = dclab.new_dataset(mm)
-        self.analysis.measurements.append(ds)
+        self.analysis.append(ds)
         self.funcparent.OnChangePlot()
 
     def OnHierarchySelParent(self, e=None):
@@ -324,7 +325,7 @@ class SubPanelFilter(SubPanel):
         This methods updates the label of `self.WXTextHParent`. 
         """
         sel = self.WXCOMBO_hparent.GetSelection()
-        mm = self.analysis.measurements[sel]
+        mm = self.analysis[sel]
         hp = mm.config["filtering"]["hierarchy parent"]
         if hp.lower() == "none":
             label = "no parent"
@@ -347,7 +348,7 @@ class SubPanelFilter(SubPanel):
         # get selection
         sel = cmb.GetSelection()
         # get measurement
-        mm = self.analysis.measurements[sel]
+        mm = self.analysis[sel]
         # get filters
         r = htreectrl.GetRootItem()
         if "polygon filters" in mm.config["filtering"]:
@@ -431,7 +432,7 @@ class SubPanelFilter(SubPanel):
         # get selection
         sel = cmb.GetSelection()
         # get measurement
-        mm = self.analysis.measurements[sel]
+        mm = self.analysis[sel]
         # get filters
         newfilterlist = list()
         
@@ -504,14 +505,12 @@ class SubPanelFilter(SubPanel):
                                self.funcparent.OnPolygonFilter)
         # get plot that we want to use
         name = self._polygon_filter_combo_box.GetValue()
-        names = self.analysis.GetTitles()
-        if name in names:
-            idn = names.index(name)
-        else:
+        idn = self._polygon_filter_combo_box.GetSelection()
+        if idn < 0:
             idn = 0
 
         xax, yax = self.analysis.GetPlotAxes()
-        mm = self.analysis.measurements[idn]
+        mm = self.analysis[idn]
         ldw.show_scatter(mm, xax=xax, yax=yax)
         ldw.Show()
 

@@ -1,4 +1,4 @@
-1.0.0
+0.9.0
  - Enhancements: Order input fields in measurement browser according
    to measurement number (#229)
  - Introduce new online documentation at http://shapeout.readthedocs.io
@@ -10,6 +10,9 @@
    - ValueError in settings.py when stored data does not contain a
      key-value pair or when the value is missing.
    - IndexError when clicking on an event that has no image data
+   - When the titles of all measurements are identical, the measurement
+     selection in the combobox does not have any effect on the displayed
+     measurement when creating a new polygon filter.
 0.8.8
  - Bugfixes:
    - "Mean of empty slice" error when attempting to plot bad data 

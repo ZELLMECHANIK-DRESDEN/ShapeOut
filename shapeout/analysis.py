@@ -167,6 +167,9 @@ class Analysis(object):
             acc = 1
         return acc
 
+    def append(self, ds):
+        self.measurements.append(ds)
+
     def ForceSameDataSize(self):
         """
         Force all measurements to have the same filtered size by setting
@@ -349,10 +352,8 @@ class Analysis(object):
 
     def GetNames(self):
         """ Returns the titles of all measurements """
-        names = list()
-        for mm in self.measurements:
-            names.append(mm.title)
-        return names
+        warnings.warn("Please use GetTitles", DeprecationWarning)
+        return self.GetTitles()
 
     def GetPlotAxes(self, mid=0):
         p = self.GetParameters("plotting", mid)
@@ -393,10 +394,7 @@ class Analysis(object):
 
     def GetTitles(self):
         """ Returns the titles of all measurements """
-        titles = list()
-        for mm in self.measurements:
-            titles.append(mm.title)
-        return titles
+        return [ds.title for ds in self]
 
     def GetUncommonParameters(self, key):
         # Get common parameters first:
