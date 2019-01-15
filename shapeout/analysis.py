@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - Analysis class"""
+"""Shape-Out - Analysis class"""
 from __future__ import division, unicode_literals
 
 import gc
@@ -124,7 +124,7 @@ class Analysis(object):
             measurements = self.measurements
 
         for mm in measurements:
-            # Update configuration with default values from ShapeOut,
+            # Update configuration with default values from Shape-Out,
             # but do not override anything.
             cfgold = mm.config.copy()
             mm.config.update(get_default_config())
@@ -166,6 +166,9 @@ class Analysis(object):
         else:
             acc = 1
         return acc
+
+    def append(self, ds):
+        self.measurements.append(ds)
 
     def ForceSameDataSize(self):
         """
@@ -246,7 +249,7 @@ class Analysis(object):
 
         Notes
         -----
-        For `feature="deform"`, the returned plotting range is always(0, 0.2).
+        For `feature="deform"`, the returned plotting range is always (0, 0.2).
         If the scale of the current configuration is set to "log", then a
         heuristic method is used to determine the plot range: Fluorescence
         maxima data (e.g. "fl1_max" or "fl2_max_ctc") will get an rmin value
@@ -270,8 +273,9 @@ class Analysis(object):
                 mmf = mm[feature]
                 if filtered:
                     mmf = mmf[mm.filter.all]
-                rmin = min(rmin, np.nanmin(mmf))
-                rmax = max(rmax, np.nanmax(mmf))
+                if mmf.size:  # prevent searching for min/max in empty array
+                    rmin = min(rmin, np.nanmin(mmf))
+                    rmax = max(rmax, np.nanmax(mmf))
                 # check for logarithmic plots
                 if scale == "log":
                     if rmin <= 0:
@@ -289,7 +293,13 @@ class Analysis(object):
                     if rmax <= 0:
                         # generic default
                         rmax = 1
-
+        # fail-safe
+        if np.isinf(rmin) and np.isinf(rmax):
+            rmin = rmax = 1
+        elif np.isinf(rmin):
+            rmin = rmax - 1
+        elif np.isinf(rmax):
+            rmax = rmin + 1
         return rmin, rmax
 
     def get_config_value(self, section, key):
@@ -349,10 +359,8 @@ class Analysis(object):
 
     def GetNames(self):
         """ Returns the titles of all measurements """
-        names = list()
-        for mm in self.measurements:
-            names.append(mm.title)
-        return names
+        warnings.warn("Please use GetTitles", DeprecationWarning)
+        return self.GetTitles()
 
     def GetPlotAxes(self, mid=0):
         p = self.GetParameters("plotting", mid)
@@ -393,10 +401,7 @@ class Analysis(object):
 
     def GetTitles(self):
         """ Returns the titles of all measurements """
-        titles = list()
-        for mm in self.measurements:
-            titles.append(mm.title)
-        return titles
+        return [ds.title for ds in self]
 
     def GetUncommonParameters(self, key):
         # Get common parameters first:

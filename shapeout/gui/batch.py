@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - classes and methods for batch processing
-
-"""
+"""Shape-Out - classes and methods for batch processing"""
 from __future__ import division, print_function, unicode_literals
 
 import io
@@ -198,7 +196,7 @@ class BatchFilterFolder(wx.Frame):
             # Apply filters
             mm.apply_filter()
             # Get statistics
-            h, v = dclab.statistics.get_statistics(rtdc_ds=mm,
+            h, v = dclab.statistics.get_statistics(ds=mm,
                                                    methods=methods,
                                                    features=features)
             if head is None:

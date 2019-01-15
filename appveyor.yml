@@ -70,7 +70,7 @@ install:
   #- "conda update -f conda"
   # Anaconda client for searching packages?
   #- "conda install anaconda-client"
-  - "conda install --yes --quiet chaco enable numpy pip pyface pywin32 scipy statsmodels wxpython"
+  - "conda install --yes --quiet chaco enable kiwisolver numpy pip pyface pywin32 scipy statsmodels wxpython"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
@@ -100,9 +100,7 @@ install:
   - '%PYTHON%/python .appveyor/patch_libraries.py'
   
   # Install pyinstaller (includes dependency for pywin32)
-  #- pip install pypiwin32"
-  #- "pip install git+git://github.com/pyinstaller/pyinstaller.git@779d07b236a943a4bf9d2b1a0ae3e0ebcc914798"
-  - "pip install pyinstaller==3.2.1"
+  - "pip install pyinstaller==3.4"
 
   # Run develop (installs yet missing packages and runs cython)
   #- "%PYTHON%/python setup.py develop"
@@ -117,7 +115,6 @@ test_script:
   - "pip install coverage"
   - "pip install codecov"
   # Probably due to the GUI tests, the pytest "command exits with -1073741819".
-  # Allow the tests to fail.
   - "coverage run --source=shapeout ./setup.py test || exit 0"
   - "coverage report -m"
   # Allow codecov to fail

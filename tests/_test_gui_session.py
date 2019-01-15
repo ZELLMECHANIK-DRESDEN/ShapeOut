@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Test batch control
-"""
+"""Test gui session"""
 from __future__ import print_function
 
 from os.path import abspath, dirname
@@ -25,7 +24,7 @@ from helper_methods import retreive_session, cleanup
 
 
 class TestSimple(unittest.TestCase):
-    '''Test ShapeOut batch'''
+    '''Test Shape-Out session'''
 
     def setUp(self):
         '''Create the GUI'''

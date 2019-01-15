@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - wx and chaco plot components
-
-"""
+"""Shape-Out - wx and chaco plot components"""
 from __future__ import division, print_function, unicode_literals
 
 import chaco.api as ca
@@ -108,7 +106,7 @@ class MainPlotArea(wx.Panel):
             self.plot_window.component = container
         else:
             container = self.container
-            for pl in list(container.plot_components):
+            for pl in list(container.components):
                 # Reset the handler for changing the plotting range
                 # to avoid accidentally resetting when deleting the plots.
                 pl.range2d.on_trait_change(self.OnPlotRangeChanged, remove=True)

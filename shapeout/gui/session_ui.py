@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - session handling"""
+"""Shape-Out - session handling"""
 from __future__ import division, print_function, unicode_literals
 
 from distutils.version import LooseVersion
@@ -21,7 +21,7 @@ from ..session import index, rw
 
 
 def open_session(parent, session_file=None):
-    """Open a session file into shapeout
+    """Open a session file into Shape-Out
     
     This is a dialog wrapper for `open_session_worker`. 
     """
@@ -32,7 +32,7 @@ def open_session(parent, session_file=None):
                             "Open session file",
                             parent.config.get_path(name="Session"),
                             "",
-                            "ShapeOut session (*.zmso)|*.zmso", wx.FD_OPEN)
+                            "Shape-Out session (*.zmso)|*.zmso", wx.FD_OPEN)
         
         if dlg.ShowModal() == wx.ID_OK:
             parent.config.set_path(dlg.GetDirectory(), name="Session")
@@ -49,7 +49,7 @@ def open_session(parent, session_file=None):
 
 
 def open_session_worker(path, parent):
-    """Open a session file into shapeout
+    """Open a session file into Shape-Out
     
     This method performs a lot of logic on `parent`, the
     graphical user interface itself, such as cleanup and
@@ -68,7 +68,7 @@ def open_session_worker(path, parent):
     Arc.extractall(str(tempdir))
     Arc.close()
     
-    # The ShapeOut version used to create the session is returned:
+    # The Shape-Out version used to create the session is returned:
     # Do not perform hash update, because we do not know if all
     # measurement files are where they're supposed to be. 
     version = compatibilitize_session(tempdir, hash_update=False)
@@ -88,7 +88,7 @@ def open_session_worker(path, parent):
         # Ask user for directory
         miss = missing[0][1].name
         
-        message = "ShapeOut could not find the following measurements:"+\
+        message = "Shape-Out could not find the following measurements:"+\
                   "\n\n".join([""]+[str(m[1]) for m in missing]) +"\n\n"+\
                   "Please select a directory that contains these."
         
@@ -130,7 +130,7 @@ def open_session_worker(path, parent):
             if newfile is not None:
                 newdir = newfile.parent
                 # Store the original directory name. This is important
-                # for sessions stored with ShapeOut version <0.7.6 to
+                # for sessions stored with Shape-Out version <0.7.6 to
                 # correctly compute tdms file hashes.
                 updict[key] = {"fdir": str(newdir),
                                "fdir_orig": index_dict[key]["fdir"],
@@ -153,7 +153,7 @@ def open_session_worker(path, parent):
         rtdc_list = rw.load(tempdir, search_path=dirname)
         if len(ww):
             msg = "One or more files referred to in the chosen session "+\
-                  "did not pass the hash check. Nevertheless, ShapeOut "+\
+                  "did not pass the hash check. Nevertheless, Shape-Out "+\
                   "loaded the data. The following warnings were issued:\n"
             msg += "".join([ "\n - "+w.message.message for w in ww ])
             dlg = wx.MessageDialog(None,
@@ -181,9 +181,9 @@ def open_session_worker(path, parent):
 
 
 def save_session(parent):
-    dlg = wx.FileDialog(parent, "Save ShapeOut session", 
+    dlg = wx.FileDialog(parent, "Save Shape-Out session", 
                 parent.config.get_path(name="Session"), "",
-                "ShapeOut session (*.zmso)|*.zmso",
+                "Shape-Out session (*.zmso)|*.zmso",
                 wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
     if dlg.ShowModal() == wx.ID_OK:
         # Save everything

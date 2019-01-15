@@ -34,7 +34,7 @@ A multitude of features can be extracted from the data recorded during an
 RT-DC measurement. These features are mostly computed live during data
 acquisition and stored alongside the raw data.
 Here, only the most important features are covered. A full list of the
-features available in ShapeOut is maintained by the
+features available in Shape-Out is maintained by the
 :ref:`dclab documentation <dclab:sec_features>`.
 Please note that some of the features are only available in expert mode
 (accessible via the preferences menu).
@@ -43,7 +43,7 @@ Please note that some of the features are only available in expert mode
 Area and porosity
 -----------------
 The area is the projected object area which is determined via the contour of the
-binarized event image. ShapeOut differentiates between two types of area,
+binarized event image. Shape-Out differentiates between two types of area,
 area of the measured contour ("Measured area [px]") and area of the convex
 contour ("Convex area [px]" and "Area [µm²]"). The convex contour is the
 `convex hull <https://en.wikipedia.org/wiki/Convex_hull>`__ of the measured
@@ -58,7 +58,8 @@ particles in a preprocessing step.
    in an area (red shade) that is usually larger than the measured area.
    (B) The porosity is the ratio between measured and convex contour. The
    difference (the "pores") between the measured and convex areas is
-   indicated in green.
+   indicated in green. Porosity is often used to remove events with
+   non-physical contours, e.g. for cells all events with a porosity above 1.05.
 
 A porosity of 1 means that the measured contour is convex.
 Note that the porosity can only assume values larger than 1. Also note that the
@@ -66,14 +67,25 @@ convex contour/area is computed on the same pixel grid as the measured contour/a
 and is, as such, subject to pixelation artifacts.
 
 
-Aspect ratio of bounding box
-----------------------------
+Bounding box
+------------
+The bounding box of an event image is the smallest rectangle (with its sides
+parallel to the x and y axes) that can hold the event contour. The aspect
+ratio of the bounding box is the rectangle's side length along x divided
+by the side length along y. The size of the bounding box along x and y as
+well as its aspect ratio are often used for filtering.
 
 .. figure:: figures/aspect.jpg
 
+   Illustration of the event bounding box and its use cases. From left to
+   right: definition of the bounding box, exclusion of small objects (e.g.
+   debris) via the bounding box size, exclusion of clusters via the
+   bounding box size, exclusion of objects elongated perpendicular to the
+   channel axis, exclusion of objects elongated along the channel axis.
 
-Brightness within image
------------------------
+
+Brightness within contour
+-------------------------
 Quantifying the brightness values within the image contour yields
 information on object properties such as homogeneity or density.
 For instance, it has been shown that the quantities "mean brightness" and
@@ -89,7 +101,7 @@ in a drop of blood :cite:`Toepfner2018`.
    Figure and caption adapted from Toepfner et al. [1]_.
 
 In addition to the average
-brightness values, ShapeOut also has access to the standard deviation of the
+brightness values, Shape-Out also has access to the standard deviation of the
 brightness in each image.
 
 
@@ -119,23 +131,76 @@ employed to visualize stiffness.
    trends in stiffness.
 
 Note that it is also possible to directly
-:ref:`access the Young's modulus in ShapeOut <sec_qg_youngs_modulus>`.
+:ref:`access the Young's modulus in Shape-Out <sec_qg_youngs_modulus>`.
 
 
 Fluorescence
 ------------
-:cite:`Rosendahl2018`
+Real-time fluorescence and deformability cytometry (RT-FDC) records, in
+addition to the event images, the fluorescence signal of each event
+:cite:`Rosendahl2018`. The raw fluorescence data consists of the
+one-dimensional fluorescence intensity trace from which features such
+as peak fluorescence or peak width can be computed. For more advanced
+applications, RT-FDC also supports multiple fluorescence channels.
+
+
+.. figure:: figures/fluorescence.jpg
+
+   (A) Event brightfield image. (B) Fluorescence trace of the event.
+   The raw fluorescence data and the fluorescence data filtered with
+   a rolling median filter (from which the parameters are computed)
+   is shown.
+   (C) Scatter plot of two parameters extracted from the fluorescence
+   trace.
 
 
 Inertia ratio
 -------------
-also principal inertia ratio
+The inertia ratio is the ratio of the second order
+`central moments
+<https://en.wikipedia.org/wiki/Image_moment#Central_moments>`_ along
+x and y computed for the event contour. Thus, the inertia ratio is a measure
+of deformation. In comparison to deformation, the inertia ratio has a low
+correlation to porosity.
+Shape-Out also allows to compute the principal inertia ratio which is the
+maximal inertia ratio that can be obtained by rotating the contour. Thus,
+the principal inertai ratio is rotation-invariant which makes it applicable
+to reservoir measurements where e.g. cells are not aligned with the channel.
+To quantify the alignment of the measured objects with the measurement
+channel, Shape-Out can additionally quantify the tilt of the contour
+relative to the channel axis.
+
+.. figure:: figures/inert_ratio.jpg
+
+   (A) For a rectangle that is aligned with the coordinate axes, the
+   inertia ratio and the principal inertia ratio are identical.
+   (B) If the rectangle is rotated, the inertia ratio changes, but the
+   principal inertia ratio does not.
+   (C) Comparison between deformation and inertia ratio when plotted
+   against porosity for an exemplary RT-DC experiment. Deformation exhibits
+   a higher correlation to porisity.
 
 
 Volume
 ------
+Shape-Out can compute the volume from the event contour under the assumption
+of rotational symmetry, i.e. it is assumed that the projection of the cell
+volume onto the detector plane does not change when the cell is rotated,
+with a rotational axis parallel to the flow direction.
+The computation of the volume is based on a full
+rotation of the upper and the lower halves of the contour from which the
+average is then used :cite:`Halpern2002`.
+Volume has the advantage to be less correlated to deformation when compared
+to the projected area and it is therefore a better measure of
+cell size in the channel.
 
 
+.. figure:: figures/volume.jpg
+
+   (A) Deformation versus area (red) and volume (cyan) for an exemplary
+   RT-DC dataset. There is a correlation between area and deformation,
+   at least for small (<50µm²) areas. (B) Inertia ratio versus area and
+   volume. A correlation between inertia ratio and area is visible as well.
 
 
 .. [1] *Detection Of Human Disease Conditions By Single-Cell Morpho-Rheological

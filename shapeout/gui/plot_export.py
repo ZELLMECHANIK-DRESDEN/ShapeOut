@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - plot export
-
-"""
+"""Shape-Out - plot export"""
 from __future__ import division, print_function
 
 import chaco
@@ -12,6 +10,14 @@ import chaco.api as ca
 import os
 import warnings
 import wx
+
+from kiva.fonttools import font_manager
+
+# Override default font families, because 'Bitstream Vera Sans'
+# is not always available.
+font_manager.fontManager.defaultFamily = {
+            'ttf': 'sans-serif',
+            'afm': 'sans-serif'}
 
 
 def export_plot_pdf(parent):
@@ -96,37 +102,6 @@ def export_plot_pdf(parent):
                 if isinstance(comp, class_sp):
                     comp.marker_size *= 2
 
-        #container.height = old_height
-        #container.width = old_width
-        #container.auto_size = True
-        #container.auto_size = False
-
-        ## TODO:
-        ## Put this into a differnt function in PlotArea
-        ## -> call it after each plot?
-        
-        ## Solves font Error after saving PDF:
-        # /usr/lib/python2.7/dist-packages/kiva/fonttools/font_manag
-        # er.py:1303: UserWarning: findfont: Could not match 
-        # (['Bitstream Vera Sans'], 'normal', None, 'normal', 500, 
-        # 12.0). Returning /usr/share/fonts/truetype/lato/
-        # Lato-Hairline.ttf UserWarning)
-        for aplot in container.plot_components:
-            for item in aplot.overlays:
-                if isinstance(item, chaco.plot_label.PlotLabel):
-                    item.font = "modern 12"
-                elif isinstance(item, chaco.legend.Legend):
-                    item.font = "modern 10"
-                elif isinstance(item, chaco.axis.PlotAxis):
-                    item.title_font = "modern 12"
-                    item.tick_label_font = "modern 10"
-                elif isinstance(item, chaco.data_label.DataLabel):
-                    item.font = "modern 9"
-                else:
-                    warnings.warn("Not resetting plot fonts for"+\
-                                  "plot component class {}.".format(
-                                  item.__class__))
-        
         if retol is not None:
             retol.visible = True
 
@@ -191,7 +166,7 @@ def export_plot_svg(parent):
 
 def hide_scatter_inspector(container):
     retol = None
-    for aplot in container.plot_components:
+    for aplot in container.components:
         if "scatter_events" in aplot.plots:
             theplot = aplot.plots["scatter_events"][0]
             for ol in theplot.overlays:

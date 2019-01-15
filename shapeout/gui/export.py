@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - classes and methods for data export
-
-"""
+"""Shape-Out - classes and methods for data export"""
 from __future__ import division, print_function, unicode_literals
 
 import io
@@ -191,6 +189,7 @@ class ExportAnalysisEventsRTDC(ExportAnalysisEvents):
                                                        ext="rtdc",
                                                        non_scalars=["contour",
                                                                     "image",
+                                                                    "mask",
                                                                     "trace"])
 
     def export(self, out_dir, features, filtered):

@@ -32,16 +32,20 @@ setup(
                       # "shapeout[GUI]" to your install_requires.
                       'GUI':  ["chaco",
                                "simplejson",  # for updates
-                               "wxPython",
+                               "wxPython>=3.0.0,<4.0.0",
+                               # these are additional dependencies of chaco
+                               "kiwisolver",
+                               "reportlab",
                                ],
                       },
     install_requires=["appdirs",
-                      "dclab>=0.7.0",
+                      "dclab>=0.8.0",
                       "fcswrite>=0.4.1",
-                      "h5py",
+                      "h5py>=2.8.0",
                       "imageio>=2.3.0",
                       "nptdms",
                       "numpy>=1.9.0",
+                      "pathlib",
                       "pyper",
                       "scipy>=0.13.0",
                       ],

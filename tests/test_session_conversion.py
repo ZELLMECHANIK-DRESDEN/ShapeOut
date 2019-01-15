@@ -149,7 +149,7 @@ def test_078inertratio():
     """
     In dclab commit 41bf38e74e4d7dbf25c7d4c37214674b7ea242d6, the column
     "inert_ratio" was renamed to "inert_ratio_cvx". The conversion of the
-    corresponding session config values is done starting ShapeOut 0.7.9.
+    corresponding session config values is done starting Shape-Out 0.7.9.
     """
     analysis = compatibility_task("session_v0.7.8_hierarchy2.zmso")
     mms = analysis.measurements

@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - control panels
-"""
+"""Shape-Out - control panels"""
 from __future__ import division, print_function, unicode_literals
 
 import numpy as np
@@ -113,7 +112,7 @@ class ControlPanel(ScrolledPanel):
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
             name = c.GetName()
-            if samdict.has_key(name):
+            if name in samdict:
                 # box filters
                 if isinstance(c, wx._controls.CheckBox):
                     newfilt[name] = bool(c.GetValue())

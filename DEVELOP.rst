@@ -5,16 +5,64 @@ Information for developers
 
 Running from source
 ~~~~~~~~~~~~~~~~~~~
-The easiest way to run ShapeOut from source is to use
+Shape-Out runs on Python 2 only. One reason are dependency issues
+(chaco and Anaconda on Windows). The other reason is that the development
+of Shape-Out 2 has higher priority than migrating Shape-Out 1 to Python 3.
+The easiest way to run Shape-Out from source is to use
 `Anaconda <http://continuum.io/downloads>`__. 
 
-- **Windows**: Sketchy installation instructions can be found
+- **Windows**:
+   Sketchy installation instructions can be found
   `here <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tree/develop/.appveyor>`__.
 
-- **Debian**: Run `this script <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/blob/develop/dev/activate_linux.sh>`__
-  which will create a Python virtual environment.
+- **Debian/Ubuntu**:
+  Install all dependencies from the distribution repositories:
 
-- **MacOS**: ShapeOut should work with Anaconda (see Windows above).
+  ::
+
+    sudo apt install cython python2.7-dev python-chaco python-numpy python-scipy python-wxgtk3.0 r-base r-recommended r-cran-lme4 virtualenv
+
+
+  Checkout the `fcswrite <https://github.com/ZELLMECHANIK-DRESDEN/fcswrite>`_
+  and `dclab <https://github.com/ZELLMECHANIK-DRESDEN/dclab>`_ repositories
+  and install them in editable mode with
+
+  ::
+
+    cd path/to/dclab
+    pip install -e .
+
+    cd path/to/fcswrite
+    pip install -e .
+
+  Install other dependencies for ShapeOut and chaco:
+
+  ::
+
+    pip install simplejson kiwisolver reportlab
+
+  Checkout the Shape-Out repository and install in editable mode:
+
+  ::
+
+    cd path/to/ShapeOut
+    pip install -e .[GUI]
+
+  Download the ffmpeg binaries (required for tdms file format):
+
+  ::
+
+    travis_retry imageio_download_bin ffmpeg
+
+  Start ShapeOut with:
+
+  ::
+
+    python -m shapeout
+
+
+- **MacOS**:
+  Shape-Out should work with Anaconda (see Windows above).
   It is also possible to install all dependencies with MacPorts:
 
   ::
@@ -33,29 +81,50 @@ The easiest way to run ShapeOut from source is to use
     sudo port select --set python python27
     sudo port select --set pip pip27
 
-  Check-out `dclab <https://github.com/ZELLMECHANIK-DRESDEN/dclab>`__ and
-  append the following command to ``~/.bash_profile``
-  
-  ::
-  
-    #!/bin/bash
-    export PYTHONPATH="${PYTHONPATH}:/path/to/dclab"
-
-  start ShapeOut with
+  Checkout the `fcswrite <https://github.com/ZELLMECHANIK-DRESDEN/fcswrite>`_
+  and `dclab <https://github.com/ZELLMECHANIK-DRESDEN/dclab>`_ repositories
+  and install them in editable mode with
 
   ::
-  
-    python shapeout/ShapeOut.py
 
-  This can be put into a .command file placed on the Desktop.
+    cd path/to/dclab
+    pip install -e .
+
+    cd path/to/fcswrite
+    pip install -e .
+
+  Install other dependencies for ShapeOut and chaco:
+
+  ::
+
+    pip install simplejson kiwisolver reportlab
+
+  Checkout the Shape-Out repository and install in editable mode:
+
+  ::
+
+    cd path/to/ShapeOut
+    pip install -e .[GUI]
+
+  Download the ffmpeg binaries (required for tdms file format):
+
+  ::
+
+    travis_retry imageio_download_bin ffmpeg
+
+  Start ShapeOut with:
+
+  ::
+
+    python -m shapeout
 
 
 
 Contributing
 ~~~~~~~~~~~~
-The main branch for developing ShapeOut is ``develop``. Small changes that do not
+The main branch for developing Shape-Out is ``develop``. Small changes that do not
 break anything can be submitted to this branch.
-If you want to do big changes, please (fork ShapeOut and) create a separate branch,
+If you want to do big changes, please (fork Shape-Out and) create a separate branch,
 e.g. ``my_new_feature_dev``, and create a pull-request to ``develop`` once you are done making
 your changes.
 Please make sure to edit the 
@@ -77,7 +146,7 @@ to prevent confusions in the commit history.
 
 Tests
 ~~~~~
-ShapeOut is tested using pytest. If you have the time, please write test
+Shape-Out is tested using pytest. If you have the time, please write test
 methods for your code and put them in the ``tests`` directory. You may
 run the tests manually by issuing:
 
@@ -88,7 +157,7 @@ run the tests manually by issuing:
 
 Test binaries
 ~~~~~~~~~~~~~
-After each commit to the ShapeOut repository, a binary installer is created
+After each commit to the Shape-Out repository, a binary installer is created
 by `Appveyor <https://ci.appveyor.com/project/paulmueller/ShapeOut>`__. Click
 on a build and navigate to ``ARTIFACTS`` (upper right corner right under
 the running time of the build). From there you can download the executable
@@ -116,8 +185,8 @@ _________
        git push  
 	
 3. Create the release at https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/releases.  
-   Make sure that the tag of the release follows the version format of ShapeOut
-   (e.g. `0.5.3`) and also name the release correctly (e.g. `ShapeOut 0.5.3`).
+   Make sure that the tag of the release follows the version format of Shape-Out
+   (e.g. `0.5.3`) and also name the release correctly (e.g. `Shape-Out 0.5.3`).
    Also, copy and paste the changelog of the new version into the comments of the release.
    The first line of the release comments should contain the download counts shield like so:
    

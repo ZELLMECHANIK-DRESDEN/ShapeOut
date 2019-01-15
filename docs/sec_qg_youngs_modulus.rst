@@ -6,7 +6,7 @@ Young's Modulus
 ===============
 TODO: helpful screenshots when the new GUI is ready.
 
-With ShapeOut it is possible to convert deformation values to values
+With Shape-Out it is possible to convert deformation values to values
 of the Young's modulus based on the numerical simulation work for
 fully elastic spheres by Mokbel et al. :cite:`Mokbel2017`.
 

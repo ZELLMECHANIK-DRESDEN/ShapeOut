@@ -7,6 +7,8 @@ import os
 import numpy as np
 import sys
 
+from .spath import path_to_str, safe_path
+
 
 def float2string_nsf(fval, n=7):
     """

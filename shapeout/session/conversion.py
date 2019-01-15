@@ -1,15 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - session conversion
+"""Shape-Out - session conversion
 
 Due to changes in naming conventions and refactoring in dclab,
-the data stored in ShapeOut sessions depends on the the version
+the data stored in Shape-Out sessions depends on the the version
 of dclab that was used at the time the session was saved.
-ShapeOut releases come as Windows installers that contain a
+Shape-Out releases come as Windows installers that contain a
 specific version of dclab. Starting version 0.7.6, this
 version is stored along with the session and it is used to
 decide which parts of the session data needs conversion to
-work with the current version of ShapeOut.
+work with the current version of Shape-Out.
 """
 from __future__ import division, print_function, unicode_literals
 
@@ -161,42 +161,42 @@ def compatibilitize_polygon(pdata, version=None):
 def compatibilitize_session(tempdir, hash_update=True, search_path="."):
     """Update extracted files to latest format
 
-    ShapeOut 0.5.7
+    Shape-Out 0.5.7
       - title saved in index.txt
 
-    ShapeOut 0.7.1
+    Shape-Out 0.7.1
       - change names of KDE accuracies
         (kde multivariate -> kde accuracy)
 
-    ShapeOut 0.7.4
+    Shape-Out 0.7.4
       - rewrite config.txt path to always use slash
 
-    ShapeOut 0.7.5
+    Shape-Out 0.7.5
       - remove emodulus computation parameters if accuracy not present
 
-    ShapeOut 0.7.6
+    Shape-Out 0.7.6
       - introduction of new feature names in dclab 0.2.5
       - all previous version did not support manual filters in
         hierarchy children (remove the _filter_manual.npy file)
       - update session hashes (if `hash_update` is set to `True`)
 
-    ShapeOut 0.7.8
+    Shape-Out 0.7.8
       - introduction of new key "identifier" in mm_dict
       - replace "parent id" key with "parent key" in hierarchy children
 
-    ShapeOut 0.7.9
+    Shape-Out 0.7.9
       - renamed feature "inert_ratio" to "inert_ratio_cvx"
 
-    ShapeOut 0.8.1
+    Shape-Out 0.8.1
       - removed read-only config.txt sections "framerate", "general",
         "roi", and "image".
 
-    ShapeOut 0.8.4
+    Shape-Out 0.8.4
       - change options for cfg["plotting"]["isoelastics"]
         previous: bool
         new: ["not shown", "analytical", "numerical", "legacy"]
 
-    ShapeOut 0.8.6
+    Shape-Out 0.8.6
       - remove configuration keys (dclab 0.3.4)
         [imaging]: "exposure time", "flash current"
         [setup]: "temperature", "viscosity"
@@ -481,7 +481,7 @@ def search_hashed_measurement(mfile, index_item, directories, version):
     directories: list of str
         A list of directories to search recursively.
     version: distutils.version.LooseVersion
-        The version of ShapeOut used to save the session
+        The version of Shape-Out used to save the session
         (for backwards compatibility).
 
     Returns
@@ -517,7 +517,7 @@ def update_session_hashes(tempdir, search_path="."):
     - Replace old hashes with new hashes
     - Fix some (not all) hierarchy problems
 
-    New hashing methods were introduced in ShapeOut 0.7.6.
+    New hashing methods were introduced in Shape-Out 0.7.6.
     Do not call this method for later sessions.
 
     This method assumes that the paths to the measurement files
@@ -592,7 +592,7 @@ def update_session_hashes(tempdir, search_path="."):
 
     if children:
         # There is a deep hierarchy. In previous versions of
-        # ShapeOut, the parent of a children was identified
+        # Shape-Out, the parent of a children was identified
         # with the identifier. However, the identifier of children
         # was generated with a hash containing time and thus it
         # is not possible to reconstruct this identifier. We

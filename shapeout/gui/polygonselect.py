@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - polygon selection tool
-
-"""
+"""Shape-Out - polygon selection tool"""
 from __future__ import division, print_function, unicode_literals
 
 import chaco.tools.api as cta
@@ -37,7 +35,7 @@ class LineDrawer(cta.LineSegmentTool):
         self.mm = measurement
 
     def _finalize_selection(self):
-        # give ShapeOut the points
+        # give Shape-Out the points
         results = {"points": self.points,
                    "axes": self.axes,
                    "measurement": self.mm,

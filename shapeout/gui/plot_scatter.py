@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - scatter plot methods"""
+"""Shape-Out - scatter plot methods"""
 from __future__ import division, unicode_literals
 
 import time

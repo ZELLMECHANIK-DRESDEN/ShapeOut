@@ -1,0 +1,43 @@
+notifications:
+  email: false
+dist: xenial
+sudo: required
+language: python
+python: "2.7_with_system_site_packages"
+addons:
+  apt:
+    packages:
+    - cython
+    - python2.7-dev
+    - python-chaco
+    - python-numpy
+    - python-scipy
+    - python-wxgtk3.0
+    - r-base
+    - r-recommended
+    - r-cran-lme4
+services:
+  - xvfb
+install:
+# remove all packages that are part of the current virtualenv
+- pip freeze -l | xargs pip uninstall -y
+- rm -rf .cache
+# install binary packages
+- travis_retry pip install --upgrade pip setuptools wheel
+# install all dependencies
+- travis_retry pip install simplejson kiwisolver reportlab
+- travis_retry pip install .
+# install special dependencies
+- travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
+- travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
+# download ffmpeg
+- travis_retry imageio_download_bin ffmpeg
+# for coverage
+- travis_retry pip install codecov coverage
+- pip freeze
+script:
+- coverage run --source=shapeout ./setup.py test
+- coverage report -m
+after_success:
+- codecov
+

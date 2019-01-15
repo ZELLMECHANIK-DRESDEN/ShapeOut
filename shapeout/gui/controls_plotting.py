@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - plotting control
-"""
+"""Shape-Out - plotting control"""
 from __future__ import division, print_function, unicode_literals
 
 import wx

@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" ShapeOut - scatter plot control panel
-"""
+"""Shape-Out - scatter plot control panel"""
 from __future__ import division, print_function, unicode_literals
 
 import wx

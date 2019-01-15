@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Settings file management"""
+"""Shape-Out - Settings file management"""
 from __future__ import division, print_function
 
 import copy
@@ -50,8 +50,13 @@ class SettingsFile(object):
         cdict = {}
         for line in fc:
             line = line.strip()
-            var, val = line.split("=", 1)
-            cdict[var.lower().strip()] = val.strip()
+            data = line.split("=", 1)
+            if len(data) == 2:
+                # Only unpack data if there is a key-value pair
+                # (Avoids ValueError when for some reason the value
+                # is missing).
+                var, val = data
+                cdict[var.lower().strip()] = val.strip()
         return cdict
 
     def get_bool(self, key):
@@ -155,6 +160,6 @@ def get_ignored_features():
     if SettingsFile().get_bool("expert mode"):
         ignored = []
     else:
-        # Axes that should not be displayed  by ShapeOut
+        # Axes that should not be displayed  by Shape-Out
         ignored = copy.copy(EXPERT_FEATURES)
     return ignored

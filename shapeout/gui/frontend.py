@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - wx frontend components"""
+"""Shape-Out - wx frontend components"""
 from __future__ import division, print_function, unicode_literals
 
 import os
@@ -12,6 +12,7 @@ import traceback
 import imageio.plugins.ffmpeg as imioff
 import numpy as np
 import wx
+
 
 import dclab
 
@@ -54,7 +55,7 @@ class Frame(gaugeframe.GaugeFrame):
         size = (1200,700)
         minsize = (900, 700)
         gaugeframe.GaugeFrame.__init__(self, None, -1,
-                title = "ShapeOut - version {}".format(version),
+                title = "Shape-Out - version {}".format(version),
                 size = size)
         self.SetMinSize(minsize)
         
@@ -160,7 +161,7 @@ class Frame(gaugeframe.GaugeFrame):
             imioff.get_exe()
         except imioff.NeedDownloadError:
             # Tell the user that we will download ffmpeg now!
-            msg = "ShapeOut needs to download `FFMPEG` in order " \
+            msg = "Shape-Out needs to download `FFMPEG` in order " \
                  +"to display and export video data. Please make " \
                  +"sure you are connected to the internet and " \
                  +"click OK. Depending on your connection, this " \
@@ -209,7 +210,7 @@ class Frame(gaugeframe.GaugeFrame):
         fileMenu.AppendSeparator()
         # quit
         fquit = fileMenu.Append(wx.ID_EXIT, "Quit", 
-                                "Quit ShapeOut")
+                                "Quit Shape-Out")
         self.Bind(wx.EVT_MENU, self.OnMenuQuit, fquit)
         
         ## Export Data menu

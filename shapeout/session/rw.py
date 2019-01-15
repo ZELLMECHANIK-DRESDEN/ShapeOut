@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""ShapeOut - session saving"""
+"""Shape-Out - session saving"""
 from __future__ import division, print_function, unicode_literals
 
 import os
@@ -31,12 +31,12 @@ class SessionIndexFileMissingError(BaseException):
 
 
 def load(path, search_path="."):
-    """Open a ShapeOut session
+    """Open a Shape-Out session
 
     Parameters
     ----------
     path: str
-        Path to a ShapeOut session file or a directory containing
+        Path to a Shape-Out session file or a directory containing
         the extracted file.
     search_path : str
         Relative search path where to look for measurement files if
@@ -143,7 +143,7 @@ def load(path, search_path="."):
 
 
 def save(path, rtdc_list):
-    """Save a ShapeOut session
+    """Save a Shape-Out session
 
     Parameters
     ----------

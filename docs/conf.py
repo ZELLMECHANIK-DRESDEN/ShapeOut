@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# ShapeOut documentation build configuration file, created by
+# Shape-Out documentation build configuration file, created by
 # sphinx-quickstart on Tue Sep 26 17:55:31 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -101,7 +101,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'ShapeOut'
+project = 'Shape-Out'
 github_project = 'ZELLMECHANIK-DRESDEN/' + project
 copyright = '2015, Paul Müller'
 author = 'Paul Müller'
@@ -184,7 +184,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'shapeout.tex', 'ShapeOut Documentation',
+    (master_doc, 'shapeout.tex', 'Shape-Out Documentation',
      'Paul Müller', 'manual'),
 ]
 
@@ -194,7 +194,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'shapeout', 'ShapeOut Documentation',
+    (master_doc, 'shapeout', 'Shape-Out Documentation',
      [author], 1)
 ]
 
@@ -205,7 +205,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'shapeout', 'ShapeOut Documentation',
+    (master_doc, 'shapeout', 'Shape-Out Documentation',
      author, 'shapeout', 'post-measurement analysis of RT-DC data sets',
      'Scientific'),
 ]
