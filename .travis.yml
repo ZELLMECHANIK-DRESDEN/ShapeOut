@@ -16,6 +16,8 @@ addons:
     - r-base
     - r-recommended
     - r-cran-lme4
+services:
+  - xvfb
 install:
 # remove all packages that are part of the current virtualenv
 - pip freeze -l | xargs pip uninstall -y
@@ -33,11 +35,6 @@ install:
 # for coverage
 - travis_retry pip install codecov coverage
 - pip freeze
-before_script:
-  # set up virtual X display
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
 script:
 - coverage run --source=shapeout ./setup.py test
 - coverage report -m
