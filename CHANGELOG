@@ -4,7 +4,7 @@
  - Introduce new online documentation at http://shapeout.readthedocs.io
  - Consistently use the term Shape-Out
  - Code cleanup and compatibility with dclab 0.8.0
- - dclab: add data fields for sample and ambient temperature during measurement
+ - dclab: add data fields for sample and ambient temperature (temp, temp_amb) during measurement
  - Bugfixes:
    - Displaying the contour of .rtdc files that do not contain
      the "mask" feature resulted in an error.
