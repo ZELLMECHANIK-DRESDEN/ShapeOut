@@ -23,34 +23,70 @@ To export data and plots, use the *Export Data/Image* menus.
 
 Menu Bar
 ========
+.. image:: scrots/menu.png
+    :target: _images/menu.png
+    :align: right
 
-- File:
-   - Find Measurements: opens a project (including all samples with all
-     measurements) or a single sample (including all measurements).
-     Open and choose the "YYMMDD_Project Leader_Sample" folder to open
-     a whole project or a "SampleName" folder to open all measurements of
-     a sample
-   - Add Measurement: adds another project or sample to the already
-     loaded measurements
-   - Clear Measurements: removes all samples or measurements, which are
-     not selected in the measurement browser.
-   - Save session: saves the status of the analysis
-   - Load session: loads a saved session
-   - Quit: quits the program
+**File Menu**
 
-- Export:
-   - All event data (\*.tsv): tool to export datasets (filtered, unfiltered,
-     specified parameters only)
-   - Graphical plot (\*.pdf): exports all plots in a pdf file
-   - Computed statistics (\*.tsv): exports the statistics in a table
-
-- Batch: Batch analysis of datasets
-
-- Help: Help and information for debugging
+- *Find Measurements*: Load experimental data into the measurement browser.
+  The selected directory is searched recursively for .tdms and .rtdc files.
+- *Add Measurement*: Add experimental data to the measurement browser
+  without replacing those currently shown.
+- *Clear Measurements*: Remove all measurements, which are
+  not selected in the measurement browser.
+- *Save session*: Save the status of the current analysis.
+- *Load session*: Load a saved session.
+- *Quit*: Exit the program.
 
 
-Measurement browser and data selector
-=====================================
+**Export Data**
+
+- *All event data (\*.fcs)*: Export datasets as flow cytometry standard files
+  (scalar features only).
+- *All event data (\*.tsv)*: Export datasets as tab-separated values
+  (scalar features only).
+- *All event data (\*.rtdc)*: Export datasets as .rtdc files.
+  (:ref:`expert mode <ui_expert>` only).
+- *Computed statistics (\*.tsv)*: Export the dataset statistics as
+  tab-separated values. 
+- *All event images (\*.avi)*: Export the event images as a video file.
+
+
+**Export Image**
+
+- *Graphical plot (\*.pdf)*: Export the plot area as a .pdf file.
+- *Event image with contour (\*.png)*: Export the current event image
+  including the contour.
+- *Event image without contour (\*.png)*: Export the current event image
+  without contour.
+
+
+**Batch**
+
+- *Statistical analysis*: Perform a statistical analysis
+  (see *Export Data → Computed statistics (\*.tsv)* for multiple
+  measurements stored on disk.
+
+
+**Preferences**
+
+- *Autosace session*: Automatically save the current session every five
+  seconds. When Shape-Out unexpectedly quits, the user is asked on start-up
+  whether to load the autosaved session.
+- *Check for updates*: Automatically check for a new release and notify
+  the user via the menu when a new release is available.
+- *Expert mode*: Unlock experimental features.
+  (see :ref:`expert mode <ui_expert>`).
+
+**Help**
+
+- *Software*: A list of software used in the current build or setup.
+- *About*: About Shape-Out.
+
+
+Measurement browser
+===================
 The browser shows the opened projects and the corresponding measurements
 (in an expandable tree structure). The name of the measurement is
 composed of the measurement number, the measurement region and the flow rate.
@@ -203,6 +239,15 @@ TODO: brief explanation; See the tutorial 1 for details.
 
 
 Plot Area
-===========
+=========
 Will be updated when new GUI is ready.
 
+
+
+.. _ui_expert:
+
+
+Expert Mode
+===========
+
+- export to .rtdc file format
