@@ -6,11 +6,15 @@ Basic usage
 ===========
 On start-up, you are presented with an empty interface. To load data,
 use *File* → *Find Measurements* and select a directory containing experimental
-data. The directory is searched recursively for .tdms and .rtdc files and
-displayed in the measurement browser on the left. Here, you can select
+data. The directory is searched recursively for .tdms and .rtdc files which
+are then displayed in the measurement browser on the left. Here, you can select
 the measurements and plot them by clicking *Analyze* at the bottom of the
-measurement browser. The configuration tabs allow you to filter the data
-and change the visualization. The *File* menu allows you to save sessions.
+measurement browser. The configuration tabs at the top allow you to filter the data
+and change the visualization in the plot area. Individual events in the plot
+area can be selected and are then displayed in the event area (top right).
+It is possible to adjust the sizes of measurement browser, configuration tabs,
+event area, and plotting area by dragging the borders in-between those elements.
+The *File* menu allows you to save sessions.
 To export data and plots, use the *Export Data/Image* menus.  
 
 .. figure:: scrots/main.png
@@ -29,73 +33,140 @@ Menu Bar
 
 **File Menu**
 
-- *Find Measurements*: Load experimental data into the measurement browser.
+Find Measurements:
+  Load experimental data into the measurement browser.
   The selected directory is searched recursively for .tdms and .rtdc files.
-- *Add Measurement*: Add experimental data to the measurement browser
+
+Add Measurement:
+  Add experimental data to the measurement browser
   without replacing those currently shown.
-- *Clear Measurements*: Remove all measurements, which are
+
+Clear Measurements:
+  Remove all measurements, which are
   not selected in the measurement browser.
-- *Save session*: Save the status of the current analysis.
-- *Load session*: Load a saved session.
-- *Quit*: Exit the program.
+
+Save session:
+  Save the status of the current analysis.
+
+Load session:
+  Load a saved session.
+
+Quit:
+  Exit Shape-Out.
 
 
 **Export Data**
 
-- *All event data (\*.fcs)*: Export datasets as flow cytometry standard files
+All event data (\*.fcs)*:
+  Export datasets as flow cytometry standard files
   (scalar features only).
-- *All event data (\*.tsv)*: Export datasets as tab-separated values
+
+All event data (\*.tsv):
+  Export datasets as tab-separated values
   (scalar features only).
-- *All event data (\*.rtdc)*: Export datasets as .rtdc files.
+
+All event data (\*.rtdc):
+  Export datasets as .rtdc files.
   (:ref:`expert mode <ui_expert>` only).
-- *Computed statistics (\*.tsv)*: Export the dataset statistics as
+
+Computed statistics (\*.tsv)*
+  Export the dataset statistics as
   tab-separated values. 
-- *All event images (\*.avi)*: Export the event images as a video file.
+
+All event images (\*.avi):
+  Export the event images as a video file.
 
 
 **Export Image**
 
-- *Graphical plot (\*.pdf)*: Export the plot area as a .pdf file.
-- *Event image with contour (\*.png)*: Export the current event image
+Graphical plot (\*.pdf):
+  Export the plot area as a .pdf file.
+
+Event image with contour (\*.png):
+  Export the current event image
   including the contour.
-- *Event image without contour (\*.png)*: Export the current event image
+
+Event image without contour (\*.png):
+  Export the current event image
   without contour.
 
 
 **Batch**
 
-- *Statistical analysis*: Perform a statistical analysis
+Statistical analysis:
+  Perform a statistical analysis
   (see *Export Data → Computed statistics (\*.tsv)* for multiple
   measurements stored on disk.
 
 
 **Preferences**
 
-- *Autosace session*: Automatically save the current session every five
+Autosace session:
+  Automatically save the current session every five
   seconds. When Shape-Out unexpectedly quits, the user is asked on start-up
   whether to load the autosaved session.
-- *Check for updates*: Automatically check for a new release and notify
+
+Check for updates:
+  Automatically check for a new release and notify
   the user via the menu when a new release is available.
-- *Expert mode*: Unlock experimental features.
+
+Expert mode:
+  Unlock experimental features.
   (see :ref:`expert mode <ui_expert>`).
 
 **Help**
 
-- *Software*: A list of software used in the current build or setup.
-- *About*: About Shape-Out.
+Software:
+  A list of software used in the current build or setup.
+
+About:
+  About Shape-Out.
 
 
 Measurement browser
 ===================
-The browser shows the opened projects and the corresponding measurements
-(in an expandable tree structure). The name of the measurement is
-composed of the measurement number, the measurement region and the flow rate.
-For easy selection of measurements, you can use the buttons below the browser
-(e.g. you can select all data for a certain flow rate). 
+.. image:: scrots/measurement_browser.png
+    :target: _images/measurement_browser.png
+    :align: right
 
-**Analyze button:**
-The Analyze button plots all selected data either as raw data or using
-the filter settings.
+The measurement browser shows the measurements that are available for
+plotting. They are sorted according to the directory tree structure.
+For each measurement, the measurement index, the measurement region, the
+flow rate, and the number of events are shown.
+The buttons at the bottom of the measurement browser allow to change
+the selection (all, none, only specific flow rates).
+
+The Analyze button loads the experimental data which is then visualized
+in the plot area.
+When a measurement is part of the current analysis, it is shown with a
+bold font weight in the measurement browser.
+
+
+Plot Area
+=========
+.. image:: scrots/plot_area.png
+    :target: _images/plot_area.png
+    :scale: 50%
+    :align: right
+
+The plot area visualizes the current analysis. It is configured via the
+configuration tabs *Plotting*, *Scatter Plot*, and *Contour Plot* (see below). 
+
+The axes limits can directly modified with the mouse by dragging the plot
+with the left mouse button (axes offset), zooming in or out with the
+mouse wheel, or by drawing a rectangle using the right mouse button (zoom
+to selection). 
+
+In addition, an individual event can be selected in a scatter plot,
+which is then displayed in the event area (top right).
+
+
+Event Area
+==========
+.. image:: scrots/event_area.png
+    :target: _images/event_area.png
+    :align: right
+    :scale: 50%
 
 
 Configuration Tabs
@@ -236,11 +307,6 @@ Range y-size:
 Polygon Filters
 ............... 
 TODO: brief explanation; See the tutorial 1 for details.
-
-
-Plot Area
-=========
-Will be updated when new GUI is ready.
 
 
 
