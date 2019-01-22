@@ -69,7 +69,7 @@ All event data (\*.rtdc):
   Export datasets as .rtdc files.
   (:ref:`expert mode <ui_expert>` only).
 
-Computed statistics (\*.tsv)*
+Computed statistics (\*.tsv):
   Export the dataset statistics as
   tab-separated values. 
 
@@ -168,93 +168,87 @@ Event Area
     :align: right
     :scale: 50%
 
+The event area shows information about individual events. At the top, the
+measurement and the event index can be selected. The event image with
+the event contour (red) is shown. With the checkbox, individual
+events can be excluded from an analysis.
+
+The plot below (not visible initially - drag the border between event area
+and plot area or scroll down to make it visible) shows the fluorescence
+signal over time. This plot is only available for RT-fDC data.
+
 
 Configuration Tabs
 ==================
-Information tab
----------------
-Shows all saved measurement properties. Several properties are only
-highlighted if a single measurement is analyzed. If properties differ
-between single measurements this is indicated by "(multiple)". Use the
-scroll bars or adjust the pane or increase the size of the pane by
-dragging of the edge to see the full table.
+.. image:: scrots/config_tabs.png
+    :target: _images/config_tabs.png
+    :align: right
+    :scale: 50%
 
-General
-.......
-Cell Number:
-  number of recorded cells. In ShapeIn this number is shown on the front
-  panel "Number of cells measured".
+The configuration tabs allow to view and edit multiple aspects of the
+current analysis and facilitate additional analysis steps.
 
-Channel Width:
-  dimension of the channel. This number is not detected automatically
-  by the system, but has to be set by hand in ShapeIn on the front panel
-  under "Channel dimension [µm]".
+Information
+-----------
+All properties of the current analysis are shown. If properties differ
+between measurements within an analysis, the corresponding values are
+set to *(multiple)*. Use the scroll bars or adjust the panel or increase
+the size of the panel by dragging of the edge to see the full table.
 
-Flow Rate:
-  is the sum of sheath and sample flow in µl/s. ShapeIn records this
-  number when the measurement starts and shows it on the front panel
-  under "Flow Rate [µl/s]".
+A summary of all valid metadata properties can be found in the
+:ref:`dclab documentation <dclab:sec_experiment_meta>`. The most important
+properties are:
 
-Measurement Number:
-  is the number of the measurement within the opened project. In ShapeIn
-  this number is shown on the front panel under "current/next #"
+event count:
+  Number of recorded cells. In Shape-In this number is shown on the front
+  panel *Number of cells measured*.
 
-Region:
-  shows the position of the Region-of-interest during the measurement.
+channel width:
+  Dimension of the channel. This number is not detected automatically
+  by the system, but has to be set by hand in Shape-In on the front panel
+  under *Channel dimension [µm]*.
+
+chip region:
+  The position of the region of interest during the measurement.
   This is not detected automatically by the system, but has to be set
-  by hand in ShapeIn on the front panel under "Region of interest in the …".
+  by hand in Shape-In on the front panel under *Region of interest in the …*.
 
-Sample Flow Rate and Sheath Flow Rate:
-  are the flow rates of the sample and sheath flow in µl/s, respectively.
+flow rate:
+  The sum of sheath and sample flow in µl/s. Shape-In records this
+  number when the measurement starts and shows it on the front panel
+  under *Flow Rate [µl/s]*.
 
-Image
-.....
-Cell Aspect Max:
-  gating parameter for maximum aspect ratio = length/height. Here, length
-  defines the extension of cell in flow direction and the height the
-  extension of the cell transverse to the channel.
+frame rate:
+  Camera frame rate during the measurement. Shape-In records this information
+  when the measurement starts and shows it in the expert tab under
+  *Camera tools* and *Framerate [Hz]*.
 
-Cell Aspect Min:
-  gating parameter for minimum aspect ratio = length/height. Here, length
-  defines the extension of cell in flow direction and the height the
-  extension of the cell transverse to the channel.
+pixel size:
+  Resolution of the microscope-camera-system in [µm/pixels]. In Shape-In
+  this number is shown in the expert tab settings under *Resolution [µm/pix]*.
 
-Cell Max Height / Length / Min:
-  shows the gate that was set in ShapeIn to exclude cells larger / smaller
-  than this number. In ShapeIn these numbers are shown in the normal tab
-  under Gating tools.
+run index:
+  The number of the measurement within the opened project. In Shape-In
+  this number is shown on the front panel under *current/next #*
 
-Pix Size:
-  resolution of the microscope-camera-system in [µm/pixels]. In ShapeIn
-  this number is shown in the expert tab under Expert settings and
-  "Resolution [µm/pix]".
 
-Thresh:
-  grey value used as a threshold for each pixel of the image after
-  subtracting the background image. All pixels above the threshold
-  form the binary image. In ShapeIn under Expert settings "min grey threshold".
+Calculate
+---------
+This tab allows to compute additional features for the analysis.
 
-Trig Thresh:
-  minimum number of pixels within the binary image to be further
-  processed in cell analysis. In ShapeIn under Expert settings
-  "min pixels threshold".
+Elastic modulus:
+  Compute the elastic modulus according to :cite:`Mokbel2017`. The new
+  feature *Young’s Modulus [kPa]* (``emodulus``) will be available for
+  plotting.
 
-Framerate
-.........
-Frame Rate:
-  of the camera during the measurement. ShapeIn records this information
-  when the measurement starts and shows it in the Expert tab under
-  Camera tools and "Framerate [Hz]".
+Fluorescence maximum crosstalk correction:
+  Perform a crosstalk correction for multi-color RT-fDC measurements.
+  New features *FL-1 maximum, crosstalk-corrected [a.u.]* (``fl1_max_ctc``)
+  will be available for plotting.
 
-ROI
-...
-Height / Width:
-  of the region of interest in pixels. ShapeIn records this information
-  when the measurement starts. It is set automatically or manually
-  in the Expert tab under Camera tools and "Height [pix]"/ "Width [pix]".
 
-Filtering tab
--------------
+Filter
+------
 In this tab, you can filter your data by excluding values beyond certain
 limits. Select the Enable Filters check box on the right and hit the
 Apply/Reset button to apply/reset the settings. The Box Filters limit
@@ -263,8 +257,7 @@ gate by a polygon in the current plot. The filters are applied to the
 whole data set, independently of the actual shown plot. At least one
 event has to be within the limits or the program shows an error.
 
-Box Filters
-........... 
+**Box Filters**
 Minimum and maximum values for box filters are set to 0.0 by default.
 As long as min and max values equal 0.0, the filter is not applied.
 On the left of the table the minimum value is set, on the right the
@@ -304,10 +297,39 @@ Range x-size:
 Range y-size:
   limits the size in y direction (height)
 
-Polygon Filters
-............... 
+**Polygon Filters**
 TODO: brief explanation; See the tutorial 1 for details.
 
+
+Statistics
+----------
+Show statistics of the current analysis. Please note that more comprehensive
+functionalities are available via the menus *Export Data* → *Computed statistics (\*.tsv)*
+and *Batch* → *Statistical analysis*.
+
+
+Analyze
+-------
+Regression analysis:
+  Perform a regression analysis according to (general) linear mixed effects
+  models. For more information, please see :cite:`Herbig2017`, :cite:`Herbig2018`.
+
+
+Plotting tabs
+-------------
+Plotting:
+  Change the plotted axes and modify the displayed axis ranges. In addition,
+  several plotting parameters can be modified, including the number of plots,
+  the types of plots shown and the types of isoelasticity lines shown.
+
+
+Scatter plot:
+  Modify the parameters of the scatter plots.
+
+Contour plot:
+  Enable or disable contour plots, modify contour plot parameters,
+  and select the title and color for each scatter plot.
+  
 
 
 .. _ui_expert:
