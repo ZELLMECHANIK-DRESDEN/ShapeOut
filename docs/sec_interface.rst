@@ -2,7 +2,26 @@
 User Interface
 ==============
 
-Menu bar
+Basic usage
+===========
+On start-up, you are presented with an empty interface. To load data,
+use *File* → *Find Measurements* and select a directory containing experimental
+data. The directory is searched recursively for .tdms and .rtdc files and
+displayed in the measurement browser on the left. Here, you can select
+the measurements and plot them by clicking *Analyze* at the bottom of the
+measurement browser. The configuration tabs allow you to filter the data
+and change the visualization. The *File* menu allows you to save sessions.
+To export data and plots, use the *Export Data/Image* menus.  
+
+.. figure:: scrots/main.png
+    :target: _images/main.png
+
+    Shape-Out user interface on start-up. The measurement browser on the
+    left is empty. The configuration tabs on the top show the plotting
+    settings. A dummy measurement is shown in the plotting area.  
+
+
+Menu Bar
 ========
 
 - File:
@@ -43,8 +62,8 @@ The Analyze button plots all selected data either as raw data or using
 the filter settings.
 
 
-Session tabs
-============
+Configuration Tabs
+==================
 Information tab
 ---------------
 Shows all saved measurement properties. Several properties are only
@@ -183,7 +202,7 @@ Polygon Filters
 TODO: brief explanation; See the tutorial 1 for details.
 
 
-Plot Window
+Plot Area
 ===========
 Will be updated when new GUI is ready.
 
