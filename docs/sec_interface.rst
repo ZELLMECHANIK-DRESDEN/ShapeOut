@@ -57,7 +57,7 @@ Quit:
 
 **Export Data**
 
-All event data (\*.fcs)*:
+All event data (\*.fcs):
   Export datasets as flow cytometry standard files
   (scalar features only).
 
@@ -101,26 +101,18 @@ Statistical analysis:
 
 **Preferences**
 
-Autosace session:
+Autosave session:
   Automatically save the current session every five
   seconds. When Shape-Out unexpectedly quits, the user is asked on start-up
   whether to load the autosaved session.
 
 Check for updates:
   Automatically check for a new release and notify
-  the user via the menu when a new release is available.
+  the user via the menu bar when a new release is available.
 
 Expert mode:
   Unlock experimental features.
   (see :ref:`expert mode <ui_expert>`).
-
-**Help**
-
-Software:
-  A list of software used in the current build or setup.
-
-About:
-  About Shape-Out.
 
 
 Measurement browser
@@ -152,7 +144,7 @@ Plot Area
 The plot area visualizes the current analysis. It is configured via the
 configuration tabs *Plotting*, *Scatter Plot*, and *Contour Plot* (see below). 
 
-The axes limits can directly modified with the mouse by dragging the plot
+The axes limits can directly be modified with the mouse by dragging the plot
 with the left mouse button (axes offset), zooming in or out with the
 mouse wheel, or by drawing a rectangle using the right mouse button (zoom
 to selection). 
@@ -192,8 +184,8 @@ Information
 -----------
 All properties of the current analysis are shown. If properties differ
 between measurements within an analysis, the corresponding values are
-set to *(multiple)*. Use the scroll bars or adjust the panel or increase
-the size of the panel by dragging of the edge to see the full table.
+set to *(multiple)*. To see the full panel, use the scroll bars or
+increase the size of the panel by dragging the edge.
 
 A summary of all valid metadata properties can be found in the
 :ref:`dclab documentation <dclab:sec_experiment_meta>`. The most important
@@ -201,17 +193,17 @@ properties are:
 
 event count:
   Number of recorded cells. In Shape-In this number is shown on the front
-  panel *Number of cells measured*.
+  panel as *Number of cells measured*.
 
 channel width:
   Dimension of the channel. This number is not detected automatically
-  by the system, but has to be set by hand in Shape-In on the front panel
+  by Shape-In, but has to be set by hand in the front panel
   under *Channel dimension [µm]*.
 
 chip region:
   The position of the region of interest during the measurement.
-  This is not detected automatically by the system, but has to be set
-  by hand in Shape-In on the front panel under *Region of interest in the …*.
+  This is not detected automatically by Shape-In, but has to be set
+  by hand in the front panel under *Region of interest in the …*.
 
 flow rate:
   The sum of sheath and sample flow in µl/s. Shape-In records this
@@ -229,7 +221,7 @@ pixel size:
 
 run index:
   The number of the measurement within the opened project. In Shape-In
-  this number is shown on the front panel under *current/next #*
+  this number is shown on the front panel under *current/next #*.
 
 
 Calculate
@@ -239,12 +231,12 @@ This tab allows to compute additional features for the analysis.
 Elastic modulus:
   Compute the elastic modulus according to :cite:`Mokbel2017`. The new
   feature *Young’s Modulus [kPa]* (``emodulus``) will be available for
-  plotting.
+  plotting and analysis.
 
 Fluorescence maximum crosstalk correction:
   Perform a crosstalk correction for multi-color RT-fDC measurements.
   New features *FL-1 maximum, crosstalk-corrected [a.u.]* (``fl1_max_ctc``)
-  will be available for plotting.
+  will be available for plotting and analysis.
 
 
 Filter
