@@ -351,7 +351,8 @@ Contour plot:
 
 Expert Mode
 ===========
-Expert mode enables the following options:
+The expert mode is available via the menu *Preferences* → *Expert mode*. 
+The following options are enabled in expert mode:
 
 - Export data in the .rtdc file format. Using .rtdc files instead of
   .tdms files speeds up the analysis in Shape-Out significantly. However,
@@ -367,5 +368,3 @@ Expert mode enables the following options:
 
   See the :ref:`dclab documentation <dclab:sec_features>` for a translation
   from feature names to feature labels.
-
-  
