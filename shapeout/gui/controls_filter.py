@@ -8,6 +8,8 @@ import dclab
 import wx
 import wx.lib.agw.hypertreelist as HT
 
+from dclab.definitions import feature_name2label
+
 from ..settings import SettingsFile
 from ..session import conversion
 from .polygonselect import LineDrawerWindow
@@ -122,11 +124,14 @@ class SubPanelFilter(SubPanel):
                     # ignore this item
                     continue
                 # find item with max
-                idmax = [ii[0] for ii in items].index(item[0][:-3]+"max")
+                feat = item[0][:-4]
+                idmax = [ii[0] for ii in items].index(feat+" max")
                 itemmax = items[idmax]
-                a = wx.StaticText(self, label="Range "+item[0][:-4])
+                a = wx.StaticText(self, label="Range "+feat)
                 b = wx.TextCtrl(self, value=str(item[1]), name=item[0])
+                b.SetToolTip(wx.ToolTip("Minimum "+feature_name2label[feat]))
                 c = wx.TextCtrl(self, value=str(itemmax[1]), name=itemmax[0])
+                c.SetToolTip(wx.ToolTip("Maximum "+feature_name2label[feat]))
                 stemp = wx.BoxSizer(wx.HORIZONTAL)
                 sgen.Add(a, 0, wx.ALIGN_CENTER_VERTICAL)
                 stemp.Add(b)
