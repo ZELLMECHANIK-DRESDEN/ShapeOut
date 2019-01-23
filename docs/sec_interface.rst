@@ -351,5 +351,21 @@ Contour plot:
 
 Expert Mode
 ===========
+Expert mode enables the following options:
 
-- export to .rtdc file format
+- Export data in the .rtdc file format. Using .rtdc files instead of
+  .tdms files speeds up the analysis in Shape-Out significantly. However,
+  exporting .tdms files to .rtdc files might be accompanied by data loss
+  (most likely some metadata keys are not converted and included in the
+  resulting .rtdc files). Make sure to keep the original .tdms datasets.
+  You might have to re-generate the .rtdc files to be compatible with
+  future versions of Shape-Out. 
+
+- Several features are made available for data analysis:
+
+  .. autodata:: shapeout.settings.EXPERT_FEATURES
+
+  See the :ref:`dclab documentation <dclab:sec_features>` for a translation
+  from feature names to feature labels.
+
+  
