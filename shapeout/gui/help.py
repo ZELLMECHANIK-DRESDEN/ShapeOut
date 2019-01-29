@@ -4,8 +4,8 @@
 from __future__ import division, print_function, unicode_literals
 
 import importlib
-
 import sys
+import webbrowser
 import wx
 
 from . import misc
@@ -44,6 +44,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     info.AddDeveloper(u'Philipp Rosendahl')
     info.AddDocWriter(u'Paul Müller')
     wx.AboutBox(info)
+
+
+def docs(version=version):
+    """Display the online documentation"""
+    if version.count("post"):
+        tag = "develop"
+    else:
+        tag = version
+    url = "https://shapeout.readthedocs.io/en/{}/".format(tag)
+    webbrowser.open(url)
 
     
 def software():

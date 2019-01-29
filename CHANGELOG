@@ -1,5 +1,7 @@
 0.9.1
  - Add tooltips for box filter settings
+ - Add link to documentation in help menu
+ - Update documentation
 0.9.0
  - Introduce new online documentation at http://shapeout.readthedocs.io
  - Consistently use the term Shape-Out

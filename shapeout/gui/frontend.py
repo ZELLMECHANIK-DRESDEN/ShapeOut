@@ -300,13 +300,16 @@ class Frame(gaugeframe.GaugeFrame):
         ## Help menu
         helpmenu = wx.Menu()
         self.menubar.Append(helpmenu, "&Help")
+        menuDocs = helpmenu.Append(wx.ID_ABOUT, "&Documentation",
+                        "View the online documentation in your webbrowser")
+        self.Bind(wx.EVT_MENU, self.OnMenuHelpDocs, menuDocs)
         menuSoftw = helpmenu.Append(wx.ID_ANY, "&Software",
                                     "Information about the software used")
         self.Bind(wx.EVT_MENU, self.OnMenuHelpSoftware, menuSoftw)
         menuAbout = helpmenu.Append(wx.ID_ABOUT, "&About",
                                     "Information about this program")
         self.Bind(wx.EVT_MENU, self.OnMenuHelpAbout, menuAbout)
-        
+
         ## Toolbar
         self.toolbar = wx.ToolBar(self, style=wx.TB_FLAT|wx.TB_HORIZONTAL|wx.TB_NODIVIDER)
         iconsize = (36,36)
@@ -521,6 +524,8 @@ class Frame(gaugeframe.GaugeFrame):
     def OnMenuHelpAbout(self, e=None):
         help.about()
 
+    def OnMenuHelpDocs(self, e=None):
+        help.docs()
     
     def OnMenuHelpSoftware(self, e=None):
         help.software()

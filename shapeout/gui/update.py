@@ -6,8 +6,8 @@ import urllib2
 import simplejson
 import sys
 import traceback
-
 import webbrowser
+
 import wx
 import wx.lib.delayedresult as delayedresult
 
