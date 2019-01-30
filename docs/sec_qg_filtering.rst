@@ -16,22 +16,30 @@ an analysis.
   identify exclusion candidates by clicking on an event and visualizing
   it in the event area.
 
-    .. figure:: figures/qg_filter_area.jpg
+  .. figure:: figures/qg_filter_area.jpg
 
-       Examples of events with small or large areas.
+     Examples of events with small or large areas.
 
 
-- **Aspect ratio:**
+- **Aspect and inertia ratio:**
 
-  remove cell clusters
+  The aspect ratio of the bounding box and the inertia ratio of the contour
+  can be used to filter cell aggregates and otherwise invalid events.
+  For instance an aspect ratio below 1 (elongation perpendicular to the channel
+  axis) is most-likely debris and can be excluded from the analysis.
+  An inertia ratio below 1 also indicates invalid events.
 
-- **Orientation:**
+  .. figure:: figures/qg_filter_ratios.jpg
 
-  only cells aligned with channel
+     Examples of events with various aspect and inertia ratios.
+
 
 - **Porosity:**
 
-  Remove debris
+  The porosity is the ratio between measured contour and the convex contour.
+  Porosity is commonly used to remove events with non-physical contours,
+  e.g. for cells, all events with a porosity above 1.05.
 
+  .. figure:: figures/qg_filter_porosity.jpg
 
-
+     Examples of events with various porosities.
