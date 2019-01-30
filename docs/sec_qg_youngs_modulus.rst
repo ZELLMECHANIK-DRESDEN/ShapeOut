@@ -9,8 +9,8 @@ of the Young's modulus based on numerical simulation for
 fully elastic spheres according to Mokbel et al. :cite:`Mokbel2017`.
 
 
-.. image:: scrots/qq_youngs_modulus_controls.png
-    :target: _images/qq_youngs_modulus_controls.png
+.. image:: scrots/qg_youngs_modulus_controls.png
+    :target: _images/qg_youngs_modulus_controls.png
     :align: right
 
 

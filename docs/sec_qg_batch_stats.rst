@@ -5,4 +5,7 @@
 Batch-mode statistical analysis
 ===============================
 
-TODO
+.. image:: scrots/qg_batch_statistics.png
+    :target: _images/qg_batch_statistics.png
+    :align: right
+    :scale: 50%

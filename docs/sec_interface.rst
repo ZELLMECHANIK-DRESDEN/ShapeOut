@@ -247,6 +247,7 @@ Apply/Reset button to apply/reset the settings. The *Box Filters* limit
 the range of parameters; the *Polygon Filters* allow freely defining a
 gate by a polygon in the current plot. The filters are applied to all
 measurements of the analysis, independent of the plot shown currently.
+For a quick guide to exclude invalid events, see :ref:`_sec_qg_filtering`.
 
 - **Box Filters:**
 
@@ -329,7 +330,8 @@ Analyze
 -------
 Regression analysis:
   Perform a regression analysis according to (general) linear mixed effects
-  models. For more information, please see :cite:`Herbig2017`, :cite:`Herbig2018`.
+  models. For more information, please see :ref:`sec_qg_mixed_effects` as
+  well as the references :cite:`Herbig2017` and :cite:`Herbig2018`.
 
 
 Plotting tabs
