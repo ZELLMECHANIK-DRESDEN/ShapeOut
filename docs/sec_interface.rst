@@ -31,88 +31,88 @@ Menu Bar
     :target: _images/menu.png
     :align: right
 
-**File Menu**
+- **File:**
 
-Find Measurements:
-  Load experimental data into the measurement browser.
-  The selected directory is searched recursively for .tdms and .rtdc files.
+  Find Measurements:
+    Load experimental data into the measurement browser.
+    The selected directory is searched recursively for .tdms and .rtdc files.
 
-Add Measurement:
-  Add experimental data to the measurement browser
-  without replacing those currently shown.
+  Add Measurement:
+    Add experimental data to the measurement browser
+    without replacing those currently shown.
 
-Clear Measurements:
-  Remove all measurements, which are
-  not selected in the measurement browser.
+  Clear Measurements:
+    Remove all measurements, which are
+    not selected in the measurement browser.
 
-Save session:
-  Save the status of the current analysis.
+  Save session:
+    Save the status of the current analysis.
 
-Load session:
-  Load a saved session.
+  Load session:
+    Load a saved session.
 
-Quit:
-  Exit Shape-Out.
-
-
-**Export Data**
-
-All event data (\*.fcs):
-  Export datasets as flow cytometry standard files
-  (scalar features only).
-
-All event data (\*.tsv):
-  Export datasets as tab-separated values
-  (scalar features only).
-
-All event data (\*.rtdc):
-  Export datasets as .rtdc files.
-  (:ref:`expert mode <ui_expert>` only).
-
-Computed statistics (\*.tsv):
-  Export the dataset statistics as
-  tab-separated values. 
-
-All event images (\*.avi):
-  Export the event images as a video file.
+  Quit:
+    Exit Shape-Out.
 
 
-**Export Image**
+- **Export Data:**
 
-Graphical plot (\*.pdf):
-  Export the plot area as a .pdf file.
+  All event data (\*.fcs):
+    Export datasets as flow cytometry standard files
+    (scalar features only).
 
-Event image with contour (\*.png):
-  Export the current event image
-  including the contour.
+  All event data (\*.tsv):
+    Export datasets as tab-separated values
+    (scalar features only).
 
-Event image without contour (\*.png):
-  Export the current event image
-  without contour.
+  All event data (\*.rtdc):
+    Export datasets as .rtdc files.
+    (:ref:`expert mode <ui_expert>` only).
+
+  Computed statistics (\*.tsv):
+    Export the dataset statistics as
+    tab-separated values. 
+
+  All event images (\*.avi):
+    Export the event images as a video file.
 
 
-**Batch**
+- **Export Image:**
 
-Statistical analysis:
-  Perform a statistical analysis
-  (see *Export Data → Computed statistics (\*.tsv)* for multiple
-  measurements stored on disk.
+  Graphical plot (\*.pdf):
+    Export the plot area as a .pdf file.
+
+  Event image with contour (\*.png):
+    Export the current event image
+    including the contour.
+
+  Event image without contour (\*.png):
+    Export the current event image
+    without contour.
 
 
-**Preferences**
+- **Batch:**
 
-Autosave session:
-  Automatically save the current session every five
-  seconds. When Shape-Out unexpectedly quits, the user is asked on start-up
-  whether to load the autosaved session.
+  Statistical analysis:
+    Perform a statistical analysis
+    (see *Export Data → Computed statistics (\*.tsv)* for multiple
+    measurements stored on disk.
 
-Check for updates:
-  Automatically check for a new release and notify
-  the user via the menu bar when a new release is available.
 
-Expert mode:
-  Unlock experimental features.
-  (see :ref:`expert mode <ui_expert>`).
+- **Preferences:**
+
+  Autosave session:
+    Automatically save the current session every five
+    seconds. When Shape-Out unexpectedly quits, the user is asked on start-up
+    whether to load the autosaved session.
+
+  Check for updates:
+    Automatically check for a new release and notify
+    the user via the menu bar when a new release is available.
+
+  Expert mode:
+    Unlock experimental features.
+    (see :ref:`expert mode <ui_expert>`).
 
 
 Measurement browser
@@ -248,71 +248,74 @@ the range of parameters; the *Polygon Filters* allow freely defining a
 gate by a polygon in the current plot. The filters are applied to all
 measurements of the analysis, independent of the plot shown currently.
 
-**Box Filters**:
-Box filters allow to set minium and maximum values for each feature
-(e.g. Area [µm]) of a measurement.
-Minimum and maximum values for box filters are set to 0.0 by default.
-As long as they are equal, the filter is not applied.
-On the left of the table the minimum value is set, on the right the
-maximum. For a list containing short descriptions of all features,
-please see the :ref:`dclab documentation <dclab:sec_features>`.
-The most important box feature filters are:
+- **Box Filters:**
 
-Range area_ratio:
-  Limit the porosity, the relative difference between convex hull area and cell area.
-  A value of "1", means that the convex hull and is equal to event contour.
-  Values smaller than "1" are not possible, because the convex hull cannot
-  be smaller than the contour.
+  Box filters allow to set minium and maximum values for each feature
+  (e.g. Area [µm]) of a measurement.
+  Minimum and maximum values for box filters are set to 0.0 by default.
+  As long as they are equal, the filter is not applied.
+  On the left of the table the minimum value is set, on the right the
+  maximum. For a list containing short descriptions of all features,
+  please see the :ref:`dclab documentation <dclab:sec_features>`.
+  The most important box feature filters are:
 
-Range area_um:
-  Limit the cell area in [µm²].
+  Range area_ratio:
+    Limit the porosity, the relative difference between convex hull area and cell area.
+    A value of "1", means that the convex hull and is equal to event contour.
+    Values smaller than "1" are not possible, because the convex hull cannot
+    be smaller than the contour.
 
-Range aspect:
-  Limits the aspect ratio of the bounding box, the ratio of height and
-  length of the bounding box around the contour of the event.
+  Range area_um:
+    Limit the cell area in [µm²].
 
-Range deform:
-  Limits the deformation.
+  Range aspect:
+    Limits the aspect ratio of the bounding box, the ratio of height and
+    length of the bounding box around the contour of the event.
 
-Range post x:
-   Limit the position along channel axis [µm].
+  Range deform:
+    Limits the deformation.
 
-Range post y:
-   Limit the position lateral in channel [µm].
+  Range post x:
+     Limit the position along channel axis [µm].
 
-Range time:
-  Limits the event time [s].
+  Range post y:
+     Limit the position lateral in channel [µm].
 
-Range x-size:
-  Limit the bounding box size along the channel axis [µm].
+  Range time:
+    Limits the event time [s].
 
-Range x-size:
-  Limit the bounding box size perpendicular to the channel axis [µm].
+  Range x-size:
+    Limit the bounding box size along the channel axis [µm].
 
-
-**Polygon Filters**:
-Polygon filters are two-dimensional filters that can be used to specify
-non-rectangular regions of interest. To create a polygon filter, select
-the desired measurement (used as a plot template) in the dropdown menu
-and click *New*. A new window pops up. Clicking on the plot will generate
-the points of the polygon filter. When you are done, press ``Enter`` on
-the keyboard and close the window. The new polygon filter is then shown in the
-list. Polygon filters can be applied to all measurements or only to individual
-measurements. You can see which polygon filters are set for which measurement
-by selecting each measurement in the dropdown list. In addition, polygon
-filters can be duplicated, inverted, exported and imported.
+  Range x-size:
+    Limit the bounding box size perpendicular to the channel axis [µm].
 
 
-**Filter Hierarchy**:
-Filter hierarchies allow to create a virtual measurement from an existing
-measurement. All events that are filtered in the original measurement
-will not show up in its hierarchy child, allowing to perform additional
-filter operations on hierarchy children.
-This comes in handy e.g. when different subpopulations in a study
-need to be distinguished without the noise (e.g. debris) in the original data.
-Children in hierarchies always update their data according to
-the filtered event data from their parent, i.e. when the filters of the
-parent measurement change, the hierarchy child changes as well.
+- **Polygon Filters:**
+
+  Polygon filters are two-dimensional filters that can be used to specify
+  non-rectangular regions of interest. To create a polygon filter, select
+  the desired measurement (used as a plot template) in the dropdown menu
+  and click *New*. A new window pops up. Clicking on the plot will generate
+  the points of the polygon filter. When you are done, press ``Enter`` on
+  the keyboard and close the window. The new polygon filter is then shown in the
+  list. Polygon filters can be applied to all measurements or only to individual
+  measurements. You can see which polygon filters are set for which measurement
+  by selecting each measurement in the dropdown list. In addition, polygon
+  filters can be duplicated, inverted, exported and imported.
+
+
+- **Filter Hierarchy:**
+
+  Filter hierarchies allow to create a virtual measurement from an existing
+  measurement. All events that are filtered in the original measurement
+  will not show up in its hierarchy child, allowing to perform additional
+  filter operations on hierarchy children.
+  This comes in handy e.g. when different subpopulations in a study
+  need to be distinguished without the noise (e.g. debris) in the original data.
+  Children in hierarchies always update their data according to
+  the filtered event data from their parent, i.e. when the filters of the
+  parent measurement change, the hierarchy child changes as well.
 
 
 Statistics

@@ -27,8 +27,9 @@ available for plotting and data analysis.
 
 **Validity**:
 
-The computation of the Young's modulus is valid only for deformation and
-size values in a "valid region". Events outside this region will
+The computation of the Young's modulus is valid only for objects that
+initially have a spherical shape. In addition, the deformation and
+size values must be in a "valid region". Events outside this region will
 have a *nan*-valued (not a number) Young's modulus. Note that as a result,
 these events will be excluded from all plots when *remove invalid events*
 is checked in the *Filter* configuration tab.

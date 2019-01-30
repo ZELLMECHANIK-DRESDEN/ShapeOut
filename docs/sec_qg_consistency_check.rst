@@ -5,7 +5,8 @@
 Checking experimental data for consistency
 ==========================================
 
-Trends over time:
+- **Trends over time:**
+
   To verify that the sample "behaves" stationary during the measurement, it is helpful
   to plot a few selected features versus time. No systematic deviations should
   be observable, as in the figure below.
@@ -16,7 +17,8 @@ Trends over time:
      systematic trend over time, indicating stable measurement conditions.
 
 
-Countrate:
+- **Countrate:**
+
   Trends over time do not directly visualize the count rate (measured events
   per second). The count rate is the slope of the event index versus event
   time plot.
