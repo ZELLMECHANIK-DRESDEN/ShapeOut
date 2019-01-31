@@ -22,7 +22,7 @@ for ii, key in enumerate(evts.keys()):
              va="top", ha="right", color="#B80000")
     axi.imshow(ds["image"][evt], cmap="gray", vmin=0, vmax=100)
     contour = ds["contour"][evt]
-    plt.plot(contour[:,0], contour[:,1], color="#B80000", alpha=.5)
+    plt.plot(contour[:, 0], contour[:, 1], color="#B80000", alpha=.5)
     axi.set_yticks([])
     axi.set_xticks([])
 

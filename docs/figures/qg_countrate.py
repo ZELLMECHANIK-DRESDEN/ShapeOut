@@ -1,5 +1,4 @@
 import dclab
-import numpy as np
 import matplotlib.pylab as plt
 
 # dataset

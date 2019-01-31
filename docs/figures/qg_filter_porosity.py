@@ -7,7 +7,7 @@ ds = dclab.new_dataset("fluorescence/fluorescence.rtdc")
 
 evts = {"reference": 397,
         "extremely porous": 8228,
-        "porosity above 1.05": 347,        
+        "porosity above 1.05": 347,
         "invalid event": 4740,
         }
 
@@ -26,7 +26,7 @@ for ii, key in enumerate(evts.keys()):
     image = ds["image"][evt]
     contour = ds["contour"][evt]
     axi.imshow(image, cmap="gray", vmin=0, vmax=100)
-    plt.plot(contour[:,0], contour[:,1], color="#B80000", alpha=.5)
+    plt.plot(contour[:, 0], contour[:, 1], color="#B80000", alpha=.5)
     axi.set_yticks([])
     axi.set_xticks([])
 
