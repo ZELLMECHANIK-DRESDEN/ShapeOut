@@ -247,7 +247,7 @@ Apply/Reset button to apply/reset the settings. The *Box Filters* limit
 the range of parameters; the *Polygon Filters* allow freely defining a
 gate by a polygon in the current plot. The filters are applied to all
 measurements of the analysis, independent of the plot shown currently.
-For a quick guide to exclude invalid events, see :ref:`_sec_qg_filtering`.
+For a quick guide to exclude invalid events, see :ref:`sec_qg_filtering`.
 
 - **Box Filters:**
 

@@ -34,14 +34,13 @@ have a *nan*-valued (not a number) Young's modulus. Note that as a result,
 these events will be excluded from all plots when *remove invalid events*
 is checked in the *Filter* configuration tab.
 
-.. figure:: figures/youngs_modulus_validity.png
-    :target: images/youngs_modulus_validity.png
+.. figure:: figures/qg_youngs_modulus_15um.png
+    :target: images/qg_youngs_modulus_15um.png
 
-    Visualization of the support and the values of the look-up table (LUT)
+    Visualizations of the support and the values of the look-up table (LUT)
     used for determining the Young's modulus from deformation and
-    cell area. The LUT was computed from simulations according to
-    :cite:`Mokbel2017` for a 20 µm wide channel, a flow rate of
-    0.04 ul/s and a viscosity of 15 mPa s.
+    cell area for a 15 µm wide channel at 24°C with an effective pixel size
+    of 0.34 µm.
 
 The invalid regions (white in the figure above) include objects that
 are very small or objects with very low deformation values.
@@ -61,14 +60,17 @@ available. Those representations include an offset shift in deformation
 that would be expected in the experimental results due to the
 pixelation of the image as described in :cite:`Herold2017`.
 
-The values of the Young's moduli in those regions will depend
-on the specific flow rate and the viscosity of the medium :cite:`Mietke2015`.
-Note that in the illustrations that follow they merely represent a
-relative scaling and are not to be compared between illustrations.
+The values of the Young's moduli in those regions depend on the channel size,
+the flow rate, the temperature, and the viscosity of the medium :cite:`Mietke2015`.
 
+In the following, additional visualizations for commonly used channel sizes
+and flow rates are shown:
 
-.. figure:: figures/youngs_modulus_validity_matrix.png
-    :alt: FIGURE MISSING
+.. figure:: figures/qg_youngs_modulus_20um.png
+    :target: images/qg_youngs_modulus_20um.png
 
-    Comparison of validity ranges for computing the Young's modulus
-    for commonly used channel sizes and flow rates.
+.. figure:: figures/qg_youngs_modulus_30um.png
+    :target: images/qg_youngs_modulus_30um.png
+
+.. figure:: figures/qg_youngs_modulus_40um.png
+    :target: images/qg_youngs_modulus_40um.png
