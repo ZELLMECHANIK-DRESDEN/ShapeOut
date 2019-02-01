@@ -185,7 +185,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'shapeout.tex', 'Shape-Out Documentation',
-     [author], 'manual'),
+     author, 'manual'),
 ]
 
 
@@ -195,7 +195,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, 'shapeout', 'Shape-Out Documentation',
-     [author], 1)
+     author, 1)
 ]
 
 
