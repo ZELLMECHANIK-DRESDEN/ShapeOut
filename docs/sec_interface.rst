@@ -369,7 +369,7 @@ The following options are enabled in expert mode:
 
 - Several features are made available for data analysis:
 
-  .. autodata:: shapeout.settings.EXPERT_FEATURES
+  .. so_expert_features::
 
-  See the :ref:`dclab documentation <dclab:sec_features>` for a translation
-  from feature names to feature labels.
+  See the :ref:`dclab documentation <dclab:sec_features>` for a full list
+  of available features.

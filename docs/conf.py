@@ -33,13 +33,11 @@ sys.path.append(op.abspath('extensions'))
 
 # Mock all dependencies
 install_requires=["appdirs",
-                  "dclab",
                   "fcswrite",
                   "h5py",
                   "imageio",
                   "nptdms",
                   "pyper",
-                  "scipy",
                   "statsmodels",
                   "statsmodels.nonparametric",
                   "statsmodels.nonparametric.kernel_density",
@@ -86,6 +84,7 @@ extensions = ['sphinx.ext.autodoc',
               'fancy_include',
               'github_changelog',
               'dclab_defs',
+              'shapeout_notes',
               'rtd_pdf',
               ]
 
