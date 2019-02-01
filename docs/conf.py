@@ -86,6 +86,7 @@ extensions = ['sphinx.ext.autodoc',
               'fancy_include',
               'github_changelog',
               'dclab_defs',
+              'rtd_pdf',
               ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -104,7 +105,7 @@ master_doc = 'index'
 project = 'Shape-Out'
 github_project = 'ZELLMECHANIK-DRESDEN/' + project
 copyright = '2015, Paul Müller'
-author = 'Paul Müller'
+author = 'Paul Müller and Christoph Herold'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
