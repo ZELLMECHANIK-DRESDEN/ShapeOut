@@ -1,4 +1,5 @@
 mock
+cython
 sphinx>=1.6.4
 sphinxcontrib.bibtex
 numpy
