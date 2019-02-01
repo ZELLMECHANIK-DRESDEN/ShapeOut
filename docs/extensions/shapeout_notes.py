@@ -16,7 +16,7 @@ proot = root / "shapeout"
 class ExpertFeatures(Directive):
     def run(self):
         spath = proot / "settings.py"
-        spec = importlib.util.spec_from_file_location("settings", spath)
+        spec = importlib.util.spec_from_file_location("settings", str(spath))
         sett = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(sett)
 
