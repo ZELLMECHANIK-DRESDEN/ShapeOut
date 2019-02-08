@@ -27,7 +27,8 @@ class BatchFilterFolder(wx.Frame):
         self.toggled_stat_parms = False
 
         # Get the window positioning correctly
-        wx.Frame.__init__(self, parent=self.parent, title="Batch filtering",
+        wx.Frame.__init__(self, parent=self.parent,
+                          title="Batch-mode statistical summary",
                           style=wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
         ## panel
         panel = self.panel = wx.Panel(self)
@@ -112,7 +113,7 @@ class BatchFilterFolder(wx.Frame):
         # Binds the button to the function - close the tool
         self.Bind(wx.EVT_BUTTON, self.OnBrowseTSV, btnbrwstsv)
         self.WXtsv_text1 = wx.StaticText(panel,
-                               label="Results of statistical analysis")
+                               label="No file selected")
         tsv2sizer = wx.BoxSizer(wx.HORIZONTAL)
         tsv2sizer.Add(btnbrwstsv)
         tsv2sizer.Add(self.WXtsv_text1, 0,
@@ -123,7 +124,8 @@ class BatchFilterFolder(wx.Frame):
         self.topSizer.Add(tsvSizer, 0, wx.EXPAND)
 
         ## Batch button
-        btnbatch = wx.Button(self.panel, wx.ID_ANY, "Perform batch filtering")
+        btnbatch = wx.Button(self.panel, wx.ID_ANY,
+                             "Assemble statistical summary")
         # Binds the button to the function - close the tool
         self.Bind(wx.EVT_BUTTON, self.OnBatch, btnbatch)
         self.topSizer.Add(btnbatch, 0, wx.EXPAND)

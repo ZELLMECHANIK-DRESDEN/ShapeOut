@@ -93,10 +93,12 @@ Menu Bar
 
 - **Batch:**
 
-  Statistical analysis:
-    Perform a statistical analysis
-    (see *Export Data → Computed statistics (\*.tsv)* for multiple
-    measurements stored on disk.
+  Statistical summary:
+    Assemble a statistical summary for multiple datasets on disk
+    (similar to *Export Data* → *Computed statistics (\*.tsv)*, but for
+    datasets that are not loaded in the current analysis). See the
+    :ref:`statistical summary quick guide <sec_qg_batch_stats>` for more
+    information.
 
 
 - **Preferences:**
@@ -318,6 +320,8 @@ For a quick guide to exclude invalid events, see :ref:`sec_qg_filtering`.
   the filtered event data from their parent, i.e. when the filters of the
   parent measurement change, the hierarchy child changes as well.
 
+
+.. _sec_ui_cfg_statistics:
 
 Statistics
 ----------

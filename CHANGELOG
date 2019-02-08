@@ -1,5 +1,6 @@
 0.9.1
  - Add tooltips for box filter settings
+ - Rename *Statistical analysis* to *Statistical summary* in batch menu
  - Add link to documentation in help menu
  - Update documentation
  - Bugfixes:

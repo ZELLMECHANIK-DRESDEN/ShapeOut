@@ -8,11 +8,16 @@ import os
 
 class RTDPDF(Directive):
     def run(self):
-        project = os.environ["READTHEDOCS_PROJECT"]
-        version = os.environ["READTHEDOCS_VERSION"]
-        is_rtd = os.environ["READTHEDOCS"] == "True"
-        link = "https://readthedocs.org/projects/{}/downloads/pdf/{}/".format(
-                                                            project, version)
+        if "READTHEDOCS" in os.environ:
+            project = os.environ["READTHEDOCS_PROJECT"]
+            version = os.environ["READTHEDOCS_VERSION"]
+            is_rtd = os.environ["READTHEDOCS"] == "True"
+            link = "https://readthedocs.org/projects/" \
+                   + "{}/downloads/pdf/{}/".format(project, version)
+        else:
+            is_rtd = False
+
+
         rst = []
 
         if is_rtd:
