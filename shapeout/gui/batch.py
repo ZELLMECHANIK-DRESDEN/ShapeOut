@@ -134,7 +134,9 @@ class BatchFilterFolder(wx.Frame):
 
         panel.SetSizer(self.topSizer)
         self.topSizer.Fit(self.panel)
-        self.SetMinSize(self.topSizer.GetMinSizeTuple())
+        minsize = self.topSizer.GetMinSizeTuple()
+        # increase minimum width by 100
+        self.SetMinSize((minsize[0] + 100, minsize[1]))
 
         self.OnRadioHere()
         #Icon
