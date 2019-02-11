@@ -5,7 +5,7 @@ User Interface
 Basic usage
 ===========
 On start-up, you are presented with an empty interface. To load data,
-use *File* → *Find Measurements* and select a directory containing experimental
+use the menu *File* → *Find Measurements* and select a directory containing experimental
 data. The directory is searched recursively for .tdms and .rtdc files which
 are then displayed in the measurement browser on the left. Here, you can select
 the measurements and plot them by clicking *Analyze* at the bottom of the
@@ -169,7 +169,7 @@ events can be excluded from an analysis.
 
 The plot below (not visible initially - drag the border between event area
 and plot area or scroll down to make it visible) shows the fluorescence
-signal over time. This plot is only available for RT-fDC data.
+signal over time. This plot is only available for RT-FDC data.
 
 
 Configuration Tabs
@@ -236,7 +236,7 @@ Elastic modulus:
   plotting and analysis.
 
 Fluorescence maximum crosstalk correction:
-  Perform a crosstalk correction for multi-color RT-fDC measurements.
+  Perform a crosstalk correction for multi-color RT-FDC measurements.
   New features *FL-1 maximum, crosstalk-corrected [a.u.]* (``fl1_max_ctc``)
   will be available for plotting and analysis.
 
@@ -327,7 +327,7 @@ Statistics
 ----------
 Show statistics of the current analysis. Please note that more comprehensive
 functionalities are available via the menus *Export Data* → *Computed statistics (\*.tsv)*
-and *Batch* → *Statistical analysis*.
+and *Batch* → *Statistical summary*.
 
 
 Analyze

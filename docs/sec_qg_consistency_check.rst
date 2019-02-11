@@ -13,7 +13,7 @@ Checking experimental data for consistency
 
   .. figure:: figures/qg_time.jpg
 
-     Dependency of deformation and event area over time. There is no
+     Deformation and event area versus time. There is no
      systematic trend over time, indicating stable measurement conditions.
 
 
@@ -21,10 +21,10 @@ Checking experimental data for consistency
 
   Trends over time do not directly visualize the count rate (measured events
   per second). The count rate is the slope of the event index versus event
-  time plot.
+  time plot and should remain constant.
  
   .. figure:: figures/qg_countrate.jpg
 
-     The event index versus event time plot shows a constant slope, a
-     sign for stable measurement conditions.
+     The event index versus event time plot shows a constant slope, an
+     indicator for stable measurement conditions.
  

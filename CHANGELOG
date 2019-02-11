@@ -2,7 +2,7 @@
  - Add tooltips for box filter settings
  - Rename *Statistical analysis* to *Statistical summary* in batch menu
  - Add link to documentation in help menu
- - Update documentation
+ - Major documentation update
  - Bugfixes:
    - Remove temporary session-save directory when autosaving fails due to
      nonexisting analysis

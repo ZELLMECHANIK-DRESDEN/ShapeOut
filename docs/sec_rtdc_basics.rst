@@ -8,11 +8,15 @@ covered here, please create an
 
 Working Principle
 =================
-Describe microfluidic setup; describe forces :cite:`Mietke2015`,
-:cite:`Mokbel2017`; measured quantity are bright-field images as seen
-in figure below; several features can be extracted for each cell, such
-as area, deformation, or brightness. These can be used to visualize
-populations in a subsequent analysis step.
+In RT-DC, small objects, such as cells or beads, are flushed through a narrow
+channel. The flow profile inside the channel causes hydrodynamic stresses
+that deform these objects :cite:`Mietke2015`, :cite:`Mokbel2017`. For each
+event (detected object), a bright-field image is recorded. Via image analysis,
+several features can be extracted from this image, such as deformation,
+projected area, or average brightness.
+These features can then be used to identify and characterize sample populations;
+For instance, major blood cells and their pathological
+changes in disease conditions :cite:`Toepfner2018`.
 
 .. figure:: figures/rtdc-setup.jpg
 
@@ -23,21 +27,17 @@ populations in a subsequent analysis step.
    blood cell types acquired. Scale bar is 10 µm.
    Figure and caption adapted from Toepfner et al. [1]_.
 
-RT-DC enables a morpho-rheological (MORE) analysis of suspended cells
-and can be used to identify major blood cells, characterize their pathological
-changes in disease conditions :cite:`Toepfner2018`, etc...
-
 
 Measured Features
 =================
 A multitude of features can be extracted from the data recorded during an
 RT-DC measurement. These features are mostly computed live during data
-acquisition and stored alongside the raw data.
-Here, only the most important features are covered. A full list of the
-features available in Shape-Out is maintained by the
+acquisition and are stored alongside the raw image data.
+Here, only the most important features are discussed. A full list of the
+features available in Shape-Out is maintained in the
 :ref:`dclab documentation <dclab:sec_features>`.
-Please note that some of the features are only available in expert mode
-(accessible via the preferences menu).
+Please note that some of the features are only available in
+:ref:`expert mode <ui_expert>`.
 
 
 Area and porosity
@@ -48,8 +48,9 @@ area of the measured contour ("Measured area [px]") and area of the convex
 contour ("Convex area [px]" and "Area [µm²]"). The convex contour is the
 `convex hull <https://en.wikipedia.org/wiki/Convex_hull>`__ of the measured
 contour and enables a quantification of porosity (convex to measured area ratio).
-The porosity is often used for filtering, e.g. to remove high-porosity dirt
-particles in a preprocessing step.
+The porosity is often used for filtering, e.g. to
+:ref:`remove high-porosity dirt particles in a preprocessing step
+<sec_qg_filtering>`.
 
 .. figure:: figures/area.png
 
@@ -164,7 +165,7 @@ of deformation. In comparison to deformation, the inertia ratio has a low
 correlation to porosity.
 Shape-Out also allows to compute the principal inertia ratio which is the
 maximal inertia ratio that can be obtained by rotating the contour. Thus,
-the principal inertai ratio is rotation-invariant which makes it applicable
+the principal inertia ratio is rotation-invariant which makes it applicable
 to reservoir measurements where e.g. cells are not aligned with the channel.
 To quantify the alignment of the measured objects with the measurement
 channel, Shape-Out can additionally quantify the tilt of the contour
