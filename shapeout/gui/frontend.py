@@ -300,7 +300,7 @@ class Frame(gaugeframe.GaugeFrame):
         ## Help menu
         helpmenu = wx.Menu()
         self.menubar.Append(helpmenu, "&Help")
-        menuDocs = helpmenu.Append(wx.ID_ABOUT, "&Documentation",
+        menuDocs = helpmenu.Append(wx.ID_ANY, "&Documentation",
                         "View the online documentation in your webbrowser")
         self.Bind(wx.EVT_MENU, self.OnMenuHelpDocs, menuDocs)
         menuSoftw = helpmenu.Append(wx.ID_ANY, "&Software",
