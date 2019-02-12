@@ -8,11 +8,14 @@ covered here, please create an
 
 Working Principle
 =================
-In RT-DC, small objects, such as cells or beads, are flushed through a narrow
-channel. The flow profile inside the channel causes hydrodynamic stresses
-that deform these objects :cite:`Mietke2015`, :cite:`Mokbel2017`. For each
-event (detected object), a bright-field image is recorded. Via image analysis,
-several features can be extracted from this image, such as deformation,
+In Real-time deformability cytometry (RT-DC), small objects, such as cells
+or beads, are flushed through a narrow channel at high speeds.
+The flow profile inside the channel causes hydrodynamic stresses
+that deform these objects :cite:`Mietke2015`, :cite:`Mokbel2017`.
+For each event (detected object), an image is recorded and analyzed
+in real-time :cite:`Otto2015`.
+The analysis consists of the extraction of several features from the event
+images, such as deformation,
 projected area, or average brightness.
 These features can then be used to identify and characterize sample populations;
 For instance, major blood cells and their pathological
