@@ -15,8 +15,7 @@ that deform these objects :cite:`Mietke2015`, :cite:`Mokbel2017`.
 For each event (detected object), an image is recorded and analyzed
 in real-time :cite:`Otto2015`.
 The analysis consists of the extraction of several features from the event
-images, such as deformation,
-projected area, or average brightness.
+images, such as deformation, projected area, or average brightness.
 These features can then be used to identify and characterize sample populations;
 For instance, major blood cells and their pathological
 changes in disease conditions :cite:`Toepfner2018`.
