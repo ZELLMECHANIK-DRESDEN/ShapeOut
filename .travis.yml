@@ -34,6 +34,8 @@ install:
 - travis_retry imageio_download_bin ffmpeg
 # for coverage
 - travis_retry pip install codecov coverage
+# more-itertools 6.0.0 has a syntax error (dependency for coverage)
+- travis_retry pip install more-itertools==5.0.0
 - pip freeze
 script:
 - coverage run --source=shapeout ./setup.py test
