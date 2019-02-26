@@ -98,7 +98,9 @@ install:
  
   # Patch libraries
   - '%PYTHON%/python .appveyor/patch_libraries.py'
-  
+
+  # PyInstaller install fails with pip 19.0.1
+  - "appveyor-retry pip install pip==19.0.2"  
   # Install pyinstaller (includes dependency for pywin32)
   - "pip install pyinstaller==3.4"
 

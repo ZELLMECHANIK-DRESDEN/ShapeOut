@@ -160,7 +160,7 @@ def save(path, rtdc_list):
     RTDCBase instances.
     """
     path = pathlib.Path(path)
-    tempdir = pathlib.Path(tempfile.mkdtemp(prefix="ShapeOut-session-save"))
+    tempdir = pathlib.Path(tempfile.mkdtemp(prefix="ShapeOut-session-save_"))
     # Dump data into the temporary directory
     index_file = tempdir / "index.txt"
     index_dict = {}
@@ -169,6 +169,8 @@ def save(path, rtdc_list):
     for mm in rtdc_list:
         if mm.format not in ["hdf5", "hierarchy", "tdms"]:
             msg = "RT-DC dataset must be from data file or hierarchy child!"
+            # cleanup
+            shutil.rmtree(str(tempdir), ignore_errors=True)
             raise UnsupportedDataClassSaveError(msg)
         i += 1
         ident = "{}_{}".format(i, mm.identifier)

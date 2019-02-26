@@ -33,13 +33,12 @@ sys.path.append(op.abspath('extensions'))
 
 # Mock all dependencies
 install_requires=["appdirs",
-                  "dclab",
                   "fcswrite",
+                  "dclab.features",
                   "h5py",
                   "imageio",
                   "nptdms",
                   "pyper",
-                  "scipy",
                   "statsmodels",
                   "statsmodels.nonparametric",
                   "statsmodels.nonparametric.kernel_density",
@@ -85,7 +84,8 @@ extensions = ['sphinx.ext.autodoc',
               'matplotlib.sphinxext.plot_directive',
               'fancy_include',
               'github_changelog',
-              'dclab_defs',
+              'shapeout_notes',
+              'rtd_pdf',
               ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -104,7 +104,7 @@ master_doc = 'index'
 project = 'Shape-Out'
 github_project = 'ZELLMECHANIK-DRESDEN/' + project
 copyright = '2015, Paul Müller'
-author = 'Paul Müller'
+author = 'Paul Müller and Christoph Herold'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -140,7 +140,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -185,7 +185,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'shapeout.tex', 'Shape-Out Documentation',
-     'Paul Müller', 'manual'),
+     author, 'manual'),
 ]
 
 

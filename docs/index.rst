@@ -9,8 +9,7 @@ Shape-Out is a user interface for data analysis in real-time
 deformability cytometry (RT-DC).
 This is the documentation of Shape-Out version |release|.
 
-.. warning:: This documentation is under construction and its existence
-    thus not yet communicated publicly. Use it at your own risk.
+.. rtd_pdf::
 
 Documentation
 =============
