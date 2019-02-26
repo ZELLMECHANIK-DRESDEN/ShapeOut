@@ -12,8 +12,7 @@ The easiest way to run Shape-Out from source is to use
 `Anaconda <http://continuum.io/downloads>`__. 
 
 - **Windows**:
-   Sketchy installation instructions can be found
-  `here <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tree/develop/.appveyor>`__.
+   Sketchy installation instructions can be found `here <https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tree/develop/.appveyor>`__.
 
 - **Debian/Ubuntu**:
   Install all dependencies from the distribution repositories:

@@ -9,9 +9,9 @@ and visualization of RT-DC data sets. For more informaion please visit
 http://zellmechanik.com/.
 
 
-Manual and User Guide
----------------------
-The manual and user guide can be found at http://www.zellmechanik.com/download.
+Documentation
+-------------
+The documentation is available at https://shapeout.readthedocs.io.
 
 
 Installation
