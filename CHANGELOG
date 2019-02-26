@@ -6,6 +6,7 @@
  - Bugfixes:
    - Remove temporary session-save directory when autosaving fails due to
      nonexisting analysis
+   - Several minor fixes in dclab 0.9.1
 0.9.0
  - Introduce new online documentation at http://shapeout.readthedocs.io
  - Consistently use the term Shape-Out
