@@ -14,16 +14,13 @@ from . import plot_common
 from .. import analysis as ana
 
 
-def contour_plot(analysis, levels=[0.5,0.95],
-                 axContour=None, wxtext=False, square=True):
+def contour_plot(analysis, axContour=None, wxtext=False, square=True):
     """Plot contour for two axes of an RT-DC measurement
     
     Parameters
     ----------
     measurement : RTDCBase
         Contains measurement data.
-    levels : float or list of floats in interval (0,1)
-        Plot the contour at that particular level from the maximum (1).
     axContour : instance of matplotlib `Axis`
         Plotting axis for the contour.
     square : bool
@@ -61,10 +58,8 @@ def contour_plot(analysis, levels=[0.5,0.95],
                                   index_scale=scalex, value_scale=scaley)
 
     #colors = [ "".join(map(chr, np.array(c[:3]*255,dtype=int))).encode('hex') for c in colors ]
-    if not isinstance(levels, list):
-        levels = [levels]
 
-    set_contour_data(contour_plot, analysis, levels=levels)
+    set_contour_data(contour_plot, analysis)
 
     # Axes
     left_axis = ca.PlotAxis(contour_plot, orientation='left',
@@ -107,7 +102,7 @@ def contour_plot(analysis, levels=[0.5,0.95],
     return contour_plot
 
 
-def set_contour_data(plot, analysis, levels=[0.5,0.95]):
+def set_contour_data(plot, analysis):
     pd = plot.data
     # Plotting area
     mm = analysis[0]
@@ -152,14 +147,23 @@ def set_contour_data(plot, analysis, levels=[0.5,0.95]):
         else:
             cwidth = 1.2
 
-        plev = list(np.nanmax(density)*np.array(levels))
+        levels = np.array([mm.config["plotting"]["contour level 1"],
+                           mm.config["plotting"]["contour level 2"]])
+        mode = mm.config["plotting"]["contour level mode"]
+        if mode == "fraction":
+            plev = list(np.nanmax(density) * levels)
+        elif mode == "quantile":
+            raise NotImplementedError("TODO")
+            #plev = list(np.nanpercentile(density, q=levels*100))
+        else:
+            raise ValueError("Unknown contour level mode `{}`!".format(mode))
+
         if len(plev) == 2:
             styles = ["dot", "solid"]
             widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
         else:
             styles = "solid"
             widths = cwidth
-
         plot.contour_plot(cname,
                           name=cname,
                           type="line",

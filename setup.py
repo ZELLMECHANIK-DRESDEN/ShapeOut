@@ -44,7 +44,7 @@ setup(
                       "h5py>=2.8.0",
                       "imageio>=2.3.0,<2.5.0",
                       "nptdms",
-                      "numpy>=1.9.0",
+                      "numpy>=1.9.0,<1.13.0",
                       "pathlib",
                       "pyper",
                       "scipy>=0.13.0",
