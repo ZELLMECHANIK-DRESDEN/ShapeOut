@@ -1,7 +1,7 @@
 |Shape-Out|
 ===========
 
-|PyPI Version| |Build Status Linux| |Build Status Win| |Coverage Status|
+|PyPI Version| |Build Status Linux| |Build Status Win| |Coverage Status| |Docs Status|
 
 
 Shape-Out is a graphical user interface for the analysis
@@ -55,3 +55,5 @@ of Shape-Out can be found at https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tr
    :target: https://ci.appveyor.com/project/paulmueller/ShapeOut
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/ShapeOut/master.svg
    :target: https://codecov.io/gh/ZELLMECHANIK-DRESDEN/ShapeOut
+.. |Docs Status| image:: https://readthedocs.org/projects/shapeout/badge/?version=develop
+   :target: https://readthedocs.org/projects/shapeout/builds/
