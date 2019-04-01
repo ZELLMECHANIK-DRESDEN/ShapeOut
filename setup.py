@@ -44,6 +44,8 @@ setup(
                       "h5py>=2.8.0",
                       "imageio>=2.3.0,<2.5.0",
                       "nptdms",
+                      # numpy>=1.13 is not compatible with chaco
+                      # (ValueError when testing with an array)
                       "numpy>=1.9.0,<1.13.0",
                       "pathlib",
                       "pyper",
