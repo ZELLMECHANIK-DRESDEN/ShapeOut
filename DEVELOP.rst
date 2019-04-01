@@ -68,7 +68,7 @@ The easiest way to run Shape-Out from source is to use
   
     sudo port install python27 py27-ipython py27-scipy py27-matplotlib
     sudo port install opencv +python27
-    sudo port install py27-wxpython-3.0 py27-statsmodels py27-kiwisolver py27-chaco py27-pip py27-simplejson py27-sip py27-macholib
+    sudo port install py27-wxpython-3.0 py27-kiwisolver py27-chaco py27-pip py27-simplejson py27-sip py27-macholib
     sudo pip-2.7 install nptdms
     sudo pip-2.7 install pyper
 

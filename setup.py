@@ -50,11 +50,6 @@ setup(
                       "pathlib",
                       "pyper",
                       "scipy>=0.13.0",
-                      # dclab->statsmodels->pandas dependencies are not
-                      # resolved with numpy:
-                      # pandas 0.24.2 has requirement numpy>=1.12.0,
-                      # but you'll have numpy 1.11.0 which is incompatible.'
-                      "pandas<=0.23.4",
                       ],
     setup_requires=['pytest-runner'],
     tests_require=["pytest", "urllib3"],

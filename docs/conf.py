@@ -39,9 +39,6 @@ install_requires=["appdirs",
                   "imageio",
                   "nptdms",
                   "pyper",
-                  "statsmodels",
-                  "statsmodels.nonparametric",
-                  "statsmodels.nonparametric.kernel_density",
                   "chaco", "simplejson", "wx", "wxPython",
                   ]
 
