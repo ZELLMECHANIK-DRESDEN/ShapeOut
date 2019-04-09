@@ -4,6 +4,9 @@
  - Pin numpy version to <=1.13.0 to prevent ValueError caused
    by chaco testing whether an array object is contained in another
    object
+ - Bugfixes:
+   - Workaround for plotting contours on a log scale using
+     https://github.com/enthought/chaco/issues/300
 0.9.1
  - Add tooltips for box filter settings
  - Rename *Statistical analysis* to *Statistical summary* in batch menu

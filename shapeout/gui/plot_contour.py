@@ -41,6 +41,9 @@ def contour_plot(analysis, axContour=None, wxtext=False, square=True):
     scalex = mm.config["plotting"]["scale x"].lower()
     scaley = mm.config["plotting"]["scale y"].lower()
 
+    contour_plot.index_scale = scalex
+    contour_plot.value_scale = scaley
+
     # Add isoelastics only if all measurements have the same channel width
     try:
         analysis.get_config_value("setup", "channel width")
@@ -54,9 +57,10 @@ def contour_plot(analysis, axContour=None, wxtext=False, square=True):
                 y_key = 'isoel_y'+str(ii)
                 pd.set_data(x_key, data[:,0])
                 pd.set_data(y_key, data[:,1])
-                contour_plot.plot((x_key, y_key), color="gray",
-                                  index_scale=scalex, value_scale=scaley)
-
+                contour_plot.plot((x_key, y_key),
+                                  color="gray",
+                                  index_scale=scalex,
+                                  value_scale=scaley)
     #colors = [ "".join(map(chr, np.array(c[:3]*255,dtype=int))).encode('hex') for c in colors ]
 
     set_contour_data(contour_plot, analysis)
@@ -166,7 +170,13 @@ def set_contour_data(plot, analysis):
         else:
             styles = "solid"
             widths = cwidth
-        plot.contour_plot(cname,
+
+        scalex = mm.config["plotting"]["scale x"].lower()
+        scaley = mm.config["plotting"]["scale y"].lower()
+        plot.index_scale = scalex
+        plot.value_scale = scaley
+
+        cplot = plot.contour_plot(cname,
                           name=cname,
                           type="line",
                           xbounds=(X[0][0], X[0][-1]),
@@ -175,4 +185,14 @@ def set_contour_data(plot, analysis):
                           colors=mm.config["plotting"]["contour color"],
                           styles=styles,
                           widths=widths,
-                          )
+                          )[0]
+        if scalex == "log":
+            cplot.index_mapper._xmapper = ca.LogMapper(
+                    range=cplot.index_range.x_range,
+                    screen_bounds=cplot.index_mapper.screen_bounds[:2]
+                    )
+        if scaley == "log":
+            cplot.index_mapper._ymapper = ca.LogMapper(
+                    range=cplot.index_range.y_range,
+                    screen_bounds=cplot.index_mapper.screen_bounds[2:]
+                )

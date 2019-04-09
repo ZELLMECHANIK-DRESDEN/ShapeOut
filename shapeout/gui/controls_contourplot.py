@@ -44,7 +44,7 @@ class SubPanelPlotContour(SubPanel):
         # Remove all items that have nothing to do with plotting
         xax, yax = analysis.GetPlotAxes()
         for topic in ["kde accuracy", "contour accuracy"]:
-            dellist = list()
+            dellist = []
             for item in items:
                 # item: e.g. ("kde accuracy fl2area", 1000)
                 if item[0].startswith(topic):
