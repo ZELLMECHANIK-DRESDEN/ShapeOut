@@ -182,7 +182,6 @@ def set_contour_data(plot, analysis):
                                           kde_kwargs=kde_kwargs,
                                           )
             plev = list(np.nanpercentile(pdensity, q=levels*100))
-
         else:
             raise ValueError("Unknown contour level mode `{}`!".format(mode))
 

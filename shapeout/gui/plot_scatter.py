@@ -220,9 +220,9 @@ def set_scatter_data(plot, mm):
     density = mm.get_kde_scatter(xax=xax,
                                  yax=yax,
                                  positions=positions,
-                                 kde_type=kde_type,
                                  xscale=scalex,
                                  yscale=scaley,
+                                 kde_type=kde_type,
                                  kde_kwargs=kde_kwargs,
                                  )
     print("...KDE scatter time {}: {:.2f}s".format(kde_type, time.time()-a))
