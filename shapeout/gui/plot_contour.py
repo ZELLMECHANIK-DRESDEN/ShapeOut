@@ -186,6 +186,8 @@ def set_contour_data(plot, analysis):
                           styles=styles,
                           widths=widths,
                           )[0]
+        # Workaround for plotting contour data on a log scale
+        # (https://github.com/enthought/chaco/issues/300)
         if scalex == "log":
             cplot.index_mapper._xmapper = ca.LogMapper(
                     range=cplot.index_range.x_range,
