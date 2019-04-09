@@ -41,7 +41,7 @@ install:
   - appveyor-retry choco install -y InnoSetup
   - appveyor-retry choco install -y wget
   # install R with lme4
-  - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.5/R-3.2.5-win.exe
+  - wget -q https://cran.r-project.org/bin/windows/base/old/3.2.5/R-3.2.5-win.exe
   - R-3.2.5-win.exe /silent
   # Installing an older version of R did neither work so:
   #- choco install -dfvy -version 3.2.5 -source 'http://cran.at.r-project.org/bin/windows/base/old/3.2.5/;http://cran.at.r-project.org/bin/windows/base/old/;c:\projects\shapeout' r.project
