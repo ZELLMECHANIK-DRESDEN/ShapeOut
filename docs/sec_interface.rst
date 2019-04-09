@@ -352,7 +352,13 @@ Scatter plot:
 Contour plot:
   Enable or disable contour plots, modify contour plot parameters,
   and select the title and color for each scatter plot.
-  
+
+  .. versionadded:: 0.9.2
+
+    Contour lines can now be plotted at KDE data quantiles (percentiles/100)
+    instead of at fractions of the overall KDE using the
+    `contour level mode` option. A contour line at a 0.95 quantile
+    contains 5% of all data points.
 
 
 .. _ui_expert:

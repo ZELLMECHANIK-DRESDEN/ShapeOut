@@ -153,8 +153,10 @@ def set_contour_data(plot, analysis):
         if mode == "fraction":
             plev = list(np.nanmax(density) * levels)
         elif mode == "quantile":
-            raise NotImplementedError("TODO")
-            #plev = list(np.nanpercentile(density, q=levels*100))
+            pdensity = mm.get_kde_scatter(xax=xax, yax=yax,
+                                          kde_type=kde_type,
+                                          kde_kwargs=kde_kwargs)
+            plev = list(np.nanpercentile(pdensity, q=levels*100))
         else:
             raise ValueError("Unknown contour level mode `{}`!".format(mode))
 
