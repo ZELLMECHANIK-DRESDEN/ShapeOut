@@ -113,6 +113,12 @@ def set_contour_data(plot, analysis):
     xax = mm.config["plotting"]["axis x"].lower()
     yax = mm.config["plotting"]["axis y"].lower()
 
+    scalex = mm.config["plotting"]["scale x"].lower()
+    scaley = mm.config["plotting"]["scale y"].lower()
+
+    plot.index_scale = scalex
+    plot.value_scale = scaley
+
     if mm.config["filtering"]["enable filters"]:
         x0 = mm[xax][mm._filter]
         y0 = mm[yax][mm._filter]
@@ -131,18 +137,29 @@ def set_contour_data(plot, analysis):
             break
 
         kde_type = mm.config["plotting"]["kde"].lower()
-        kde_kwargs = plot_common.get_kde_kwargs(x=x0, y=y0, kde_type=kde_type,
-                                                xacc=mm.config["plotting"]["kde accuracy "+xax],
-                                                yacc=mm.config["plotting"]["kde accuracy "+yax])
+        kde_kwargs = plot_common.get_kde_kwargs(
+            x=x0,
+            y=y0,
+            kde_type=kde_type,
+            xacc=mm.config["plotting"]["kde accuracy "+xax],
+            yacc=mm.config["plotting"]["kde accuracy "+yax])
         # Accuracy for plotting contour data
         xacc = mm.config["plotting"]["contour accuracy "+xax]
         yacc = mm.config["plotting"]["contour accuracy "+yax]
 
         a = time.time()
-        (X,Y,density) = mm.get_kde_contour(xax=xax, yax=yax, xacc=xacc, yacc=yacc,
-                                           kde_type=kde_type, kde_kwargs=kde_kwargs)
+        X, Y, density = mm.get_kde_contour(xax=xax,
+                                           yax=yax,
+                                           xacc=xacc,
+                                           yacc=yacc,
+                                           xscale=scalex,
+                                           yscale=scaley,
+                                           kde_type=kde_type,
+                                           kde_kwargs=kde_kwargs,
+                                           )
+
         print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
-        
+
         pd.set_data(cname, density)
 
         # contour widths
@@ -157,10 +174,15 @@ def set_contour_data(plot, analysis):
         if mode == "fraction":
             plev = list(np.nanmax(density) * levels)
         elif mode == "quantile":
-            pdensity = mm.get_kde_scatter(xax=xax, yax=yax,
+            pdensity = mm.get_kde_scatter(xax=xax,
+                                          yax=yax,
+                                          xscale=scalex,
+                                          yscale=scaley,
                                           kde_type=kde_type,
-                                          kde_kwargs=kde_kwargs)
+                                          kde_kwargs=kde_kwargs,
+                                          )
             plev = list(np.nanpercentile(pdensity, q=levels*100))
+
         else:
             raise ValueError("Unknown contour level mode `{}`!".format(mode))
 
@@ -171,23 +193,22 @@ def set_contour_data(plot, analysis):
             styles = "solid"
             widths = cwidth
 
-        scalex = mm.config["plotting"]["scale x"].lower()
-        scaley = mm.config["plotting"]["scale y"].lower()
-        plot.index_scale = scalex
-        plot.value_scale = scaley
-
         cplot = plot.contour_plot(cname,
                           name=cname,
                           type="line",
-                          xbounds=(X[0][0], X[0][-1]),
-                          ybounds=(Y[0][0], Y[-1][0]),
+                          xbounds=X,
+                          ybounds=Y,
                           levels=plev,
                           colors=mm.config["plotting"]["contour color"],
                           styles=styles,
                           widths=widths,
+                          index_scale=scalex,
+                          value_scale=scaley,
                           )[0]
         # Workaround for plotting contour data on a log scale
         # (https://github.com/enthought/chaco/issues/300)
+        # 2019-04-09: This does not resolve the problem. In case of a
+        # logarithmic scale, there is an offset in the contour plotted.
         if scalex == "log":
             cplot.index_mapper._xmapper = ca.LogMapper(
                     range=cplot.index_range.x_range,
@@ -196,5 +217,5 @@ def set_contour_data(plot, analysis):
         if scaley == "log":
             cplot.index_mapper._ymapper = ca.LogMapper(
                     range=cplot.index_range.y_range,
-                    screen_bounds=cplot.index_mapper.screen_bounds[2:]
+                    screen_bounds=cplot.index_mapper.screen_bounds[:2]
                 )

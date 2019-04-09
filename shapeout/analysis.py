@@ -588,6 +588,13 @@ class Analysis(object):
                     pops.append(skey)
             for skey in pops:
                 pl.pop(skey)
+            # Address issue with faulty contour plot on log scale
+            # https://github.com/enthought/chaco/issues/300
+            if (("scale x" in pl and pl["scale x"] == "log") or
+                    ("scale y" in pl and pl["scale y"] == "log")):
+                warnings.warn(
+                    "Disabling contour plot because of chaco issue #300!")
+                pl["contour plot"] = False
             # check for inverted plotting ranges
             for feat in dfn.scalar_feature_names:
                 fmin = feat + " min"
