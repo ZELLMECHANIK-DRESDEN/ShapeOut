@@ -7,7 +7,7 @@
  - Log-scale contour plots are now available in expert mode
    (be careful when setting the contour accuracies)
  - Bugfixes:
-   - Log-scale scatter plots did not show log-scale KDE data
+   - Log-scale scatter plots did not show log-scale KDE data (#231)
    - Contour lines were shifted by a small amount due to an uncommon
      interpretation of contour plots in chaco (contour lines are now
      computed by dclab using the marching squares algorithm implemented

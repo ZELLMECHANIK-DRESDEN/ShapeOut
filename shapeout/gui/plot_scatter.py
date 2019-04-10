@@ -192,14 +192,22 @@ def set_scatter_data(plot, mm):
     plotfilters = mm.config.copy()["plotting"]
     xax = mm.config["plotting"]["axis x"].lower()
     yax = mm.config["plotting"]["axis y"].lower()
-    
+
+    scalex = mm.config["plotting"]["scale x"].lower()
+    scaley = mm.config["plotting"]["scale y"].lower()
+
     x0 = mm[xax][mm.filter.all]
 
     downsample = plotfilters["downsampling"]*plotfilters["downsample events"]
 
     a = time.time()
     lx = x0.shape[0]
-    x, y = mm.get_downsampled_scatter(xax=xax, yax=yax, downsample=downsample)
+    x, y = mm.get_downsampled_scatter(xax=xax,
+                                      yax=yax,
+                                      downsample=downsample,
+                                      xscale=scalex,
+                                      yscale=scaley,
+                                      )
     if lx == x.shape:
         positions = None
     else:
@@ -209,14 +217,14 @@ def set_scatter_data(plot, mm):
 
     kde_type = mm.config["plotting"]["kde"].lower()
 
-    kde_kwargs = plot_common.get_kde_kwargs(x=x,y=y, kde_type=kde_type,
-                                            xacc=mm.config["plotting"]["kde accuracy "+xax],
-                                            yacc=mm.config["plotting"]["kde accuracy "+yax])
+    kde_kwargs = plot_common.get_kde_kwargs(
+        x=x,
+        y=y,
+        kde_type=kde_type,
+        xacc=mm.config["plotting"]["kde accuracy "+xax],
+        yacc=mm.config["plotting"]["kde accuracy "+yax])
     
     a = time.time()
-    scalex = mm.config["plotting"]["scale x"].lower()
-    scaley = mm.config["plotting"]["scale y"].lower()
-
     density = mm.get_kde_scatter(xax=xax,
                                  yax=yax,
                                  positions=positions,
