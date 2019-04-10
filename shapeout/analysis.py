@@ -18,7 +18,7 @@ import dclab
 import dclab.definitions as dfn
 from dclab.rtdc_dataset import config as dclab_config
 
-from .settings import get_ignored_features
+from .settings import get_ignored_features, SettingsFile
 
 
 if sys.version_info[0] == 2:
@@ -588,12 +588,13 @@ class Analysis(object):
                     pops.append(skey)
             for skey in pops:
                 pl.pop(skey)
-            # Address issue with faulty contour plot on log scale
-            # https://github.com/enthought/chaco/issues/300
-            if (("scale x" in pl and pl["scale x"] == "log") or
-                    ("scale y" in pl and pl["scale y"] == "log")):
+            # Only plot log-space contours in expert mode
+            config = SettingsFile()
+            if ((("scale x" in pl and pl["scale x"] == "log")
+                  or ("scale y" in pl and pl["scale y"] == "log"))
+                    and not config.get_bool("expert mode")):
                 warnings.warn(
-                    "Disabling contour plot because of chaco issue #300!")
+                    "Disabling contour plots on log-scale (no expert mode)!")
                 pl["contour plot"] = False
             # check for inverted plotting ranges
             for feat in dfn.scalar_feature_names:

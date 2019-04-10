@@ -8,6 +8,7 @@ import time
 import chaco.api as ca
 import chaco.tools.api as cta
 from dclab import definitions as dfn
+from dclab import kde_contours
 import numpy as np
 
 from . import plot_common
@@ -119,18 +120,10 @@ def set_contour_data(plot, analysis):
     plot.index_scale = scalex
     plot.value_scale = scaley
 
-    if mm.config["filtering"]["enable filters"]:
-        x0 = mm[xax][mm._filter]
-        y0 = mm[yax][mm._filter]
-    else:
-        # filtering disabled
-        x0 = mm[xax]
-        y0 = mm[yax]
-
     for ii, mm in enumerate(analysis):
-        cname = "con_{}_{}".format(ii, mm.identifier)
-        if cname in plot.plots:
-            plot.delplot(cname)
+
+        x0 = mm[xax][mm.filter.all]
+        y0 = mm[yax][mm.filter.all]
 
         # Check if there is data to compute a contour from
         if len(mm._filter)==0 or np.sum(mm._filter)==0:
@@ -160,8 +153,6 @@ def set_contour_data(plot, analysis):
 
         print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
 
-        pd.set_data(cname, density)
-
         # contour widths
         if "contour width" in mm.config["plotting"]:
             cwidth = mm.config["plotting"]["contour width"]
@@ -172,49 +163,36 @@ def set_contour_data(plot, analysis):
                            mm.config["plotting"]["contour level 2"]])
         mode = mm.config["plotting"]["contour level mode"]
         if mode == "fraction":
-            plev = list(np.nanmax(density) * levels)
+            plev = levels
         elif mode == "quantile":
-            pdensity = mm.get_kde_scatter(xax=xax,
-                                          yax=yax,
-                                          xscale=scalex,
-                                          yscale=scaley,
-                                          kde_type=kde_type,
-                                          kde_kwargs=kde_kwargs,
-                                          )
-            plev = list(np.nanpercentile(pdensity, q=levels*100))
+            plev = kde_contours.get_quantile_levels(density,
+                                                    x=X,
+                                                    y=Y,
+                                                    xp=x0,
+                                                    yp=y0,
+                                                    q=levels,
+                                                    normalize=True)
         else:
             raise ValueError("Unknown contour level mode `{}`!".format(mode))
 
-        if len(plev) == 2:
-            styles = ["dot", "solid"]
-            widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
-        else:
-            styles = "solid"
-            widths = cwidth
+        styles = ["dot", "solid"]
+        widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
 
-        cplot = plot.contour_plot(cname,
-                          name=cname,
-                          type="line",
-                          xbounds=X,
-                          ybounds=Y,
-                          levels=plev,
-                          colors=mm.config["plotting"]["contour color"],
-                          styles=styles,
-                          widths=widths,
-                          index_scale=scalex,
-                          value_scale=scaley,
-                          )[0]
-        # Workaround for plotting contour data on a log scale
-        # (https://github.com/enthought/chaco/issues/300)
-        # 2019-04-09: This does not resolve the problem. In case of a
-        # logarithmic scale, there is an offset in the contour plotted.
-        if scalex == "log":
-            cplot.index_mapper._xmapper = ca.LogMapper(
-                    range=cplot.index_range.x_range,
-                    screen_bounds=cplot.index_mapper.screen_bounds[:2]
-                    )
-        if scaley == "log":
-            cplot.index_mapper._ymapper = ca.LogMapper(
-                    range=cplot.index_range.y_range,
-                    screen_bounds=cplot.index_mapper.screen_bounds[:2]
-                )
+        contours = []
+        for level in plev:
+            cc = kde_contours.find_contours_level(density, x=X, y=Y, level=level)
+            contours.append(cc)
+
+        for ii, cc in enumerate(contours):
+            for jj, cci in enumerate(cc):
+                x_key = "contour_x_{}_{}_{}".format(mm.identifier, ii, jj)
+                y_key = "contour_y_{}_{}_{}".format(mm.identifier, ii, jj)
+                pd.set_data(x_key, cci[:,0])
+                pd.set_data(y_key, cci[:,1])
+                plot.plot((x_key, y_key),
+                           line_style=styles[ii],
+                           line_width=widths[ii],
+                           color=mm.config["plotting"]["contour color"],
+                           index_scale=scalex,
+                           value_scale=scaley,
+                           )

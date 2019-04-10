@@ -4,8 +4,14 @@
  - Pin numpy version to <=1.13.0 to prevent ValueError caused
    by chaco testing whether an array object is contained in another
    object
+ - Log-scale contour plots are now available in expert mode
+   (be careful when setting the contour accuracies)
  - Bugfixes:
-   - Scatter plot events are now labeled correctly when log-scale is used
+   - Log-scale scatter plots did not show log-scale KDE data
+   - Contour lines were shifted by a small amount due to an uncommon
+     interpretation of contour plots in chaco (contour lines are now
+     computed by dclab using the marching squares algorithm implemented
+     in skimage)
 0.9.1
  - Add tooltips for box filter settings
  - Rename *Statistical analysis* to *Statistical summary* in batch menu
