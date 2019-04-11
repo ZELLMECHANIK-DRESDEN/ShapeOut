@@ -213,11 +213,11 @@ class ControlPanel(ScrolledPanel):
                         mm.config["plotting"]["contour color"] = col.tolist()
         
         cfg = {"plotting": newfilt }
+
         self.analysis.SetParameters(cfg)
 
         # Update Plots
         self.frame.PlotArea.Plot(self.analysis)
-
 
         if updp:
             self.UpdatePages()

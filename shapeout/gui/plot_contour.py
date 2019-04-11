@@ -151,6 +151,9 @@ def set_contour_data(plot, analysis):
                                            kde_kwargs=kde_kwargs,
                                            )
 
+        if X.shape[0] == 1 or X.shape[1] == 1:
+            raise ValueError("Please decrease value for contour accuracy!")
+
         print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
 
         # contour widths

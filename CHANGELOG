@@ -1,11 +1,10 @@
 0.9.2
  - Allow to set contour levels at quantiles instead of KDE fractions (#180)
  - Allow to manually select contour levels
+ - Log-scale contour plots are now available (#231)
  - Pin numpy version to <=1.13.0 to prevent ValueError caused
    by chaco testing whether an array object is contained in another
    object
- - Log-scale contour plots are now available in expert mode
-   (be careful when setting the contour accuracies)
  - Bugfixes:
    - Log-scale scatter plots did not show log-scale KDE data (#231)
    - Contour lines were shifted by a small amount due to an uncommon
