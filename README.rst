@@ -50,7 +50,7 @@ of Shape-Out can be found at https://github.com/ZELLMECHANIK-DRESDEN/ShapeOut/tr
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/ShapeOut.svg
    :target: https://pypi.python.org/pypi/shapeout
 .. |Build Status Linux| image:: https://img.shields.io/travis/ZELLMECHANIK-DRESDEN/ShapeOut.svg?label=tests_linux
-   :target: https://travis-ci.org/ZELLMECHANIK-DRESDEN/shapeout
+   :target: https://travis-ci.org/ZELLMECHANIK-DRESDEN/ShapeOut
 .. |Build Status Win| image:: https://img.shields.io/appveyor/ci/paulmueller/ShapeOut/master.svg?label=build_win
    :target: https://ci.appveyor.com/project/paulmueller/ShapeOut
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/ZELLMECHANIK-DRESDEN/ShapeOut/master.svg

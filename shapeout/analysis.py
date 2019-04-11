@@ -599,16 +599,14 @@ class Analysis(object):
 
     def SetParameters(self, newcfg):
         """Update the RT-DC dataset configuration"""
-        scalex, scaley = self.GetPlotScales()
-        xax, yax = self.GetPlotAxes()
-
         upcfg = {}
         if "filtering" in newcfg:
             upcfg["filtering"] = newcfg["filtering"].copy()
         if "plotting" in newcfg:
             upcfg["plotting"] = newcfg["plotting"].copy()
             pl = upcfg["plotting"]
-            # prevent applying indivual things to all measurements
+
+            # prevent applying individual things to all measurements
             ignorelist = ["contour color"]
             pops = []
             for skey in pl:
@@ -617,17 +615,20 @@ class Analysis(object):
             for skey in pops:
                 pl.pop(skey)
 
-            # If the scale changed, recompute kde and contour accuracies.
-            if "scale x" in pl and pl["scale x"] != scalex:
-                self.set_config_value("plotting", "scale x", pl["scale x"])
-                self.reset_plot_accuracies(feature_names=[xax])
-                pl.pop("kde accuracy {}".format(xax))
-                pl.pop("contour accuracy {}".format(xax))
-            if "scale y" in pl and pl["scale y"] != scaley:
-                self.set_config_value("plotting", "scale y", pl["scale y"])
-                self.reset_plot_accuracies(feature_names=[yax])
-                pl.pop("kde accuracy {}".format(yax))
-                pl.pop("contour accuracy {}".format(yax))
+            if "plotting" in self[0].config:
+                scalex, scaley = self.GetPlotScales()
+                xax, yax = self.GetPlotAxes()
+                # If the scale changed, recompute kde and contour accuracies.
+                if "scale x" in pl and pl["scale x"] != scalex:
+                    self.set_config_value("plotting", "scale x", pl["scale x"])
+                    self.reset_plot_accuracies(feature_names=[xax])
+                    pl.pop("kde accuracy {}".format(xax))
+                    pl.pop("contour accuracy {}".format(xax))
+                if "scale y" in pl and pl["scale y"] != scaley:
+                    self.set_config_value("plotting", "scale y", pl["scale y"])
+                    self.reset_plot_accuracies(feature_names=[yax])
+                    pl.pop("kde accuracy {}".format(yax))
+                    pl.pop("contour accuracy {}".format(yax))
             # check for inverted plotting ranges
             for feat in dfn.scalar_feature_names:
                 fmin = feat + " min"
