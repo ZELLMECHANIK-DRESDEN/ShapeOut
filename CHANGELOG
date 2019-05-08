@@ -11,6 +11,8 @@
      interpretation of contour plots in chaco (contour lines are now
      computed by dclab using the marching squares algorithm implemented
      in skimage)
+   - Bad indexing in exported .rtdc datasets made it impossible
+     to browse the video data (dclab 0.10.2)
 0.9.1
  - Add tooltips for box filter settings
  - Rename *Statistical analysis* to *Statistical summary* in batch menu
