@@ -34,7 +34,7 @@ sys.path.append(op.abspath('extensions'))
 # Mock all dependencies
 install_requires=["appdirs",
                   "fcswrite",
-                  "dclab.features",
+                  "dclab.external",
                   "h5py",
                   "imageio",
                   "nptdms",
@@ -44,9 +44,6 @@ install_requires=["appdirs",
 
 for mod_name in install_requires:
     sys.modules[mod_name] = mock.Mock()
-
-# included external libs
-sys.modules["shapeout.features._skimage_measure"] = mock.Mock()
 
 # http://www.sphinx-doc.org/en/stable/ext/autodoc.html#confval-autodoc_member_order
 # Order class attributes and functions in separate blocks
