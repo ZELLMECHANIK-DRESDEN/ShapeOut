@@ -34,7 +34,6 @@ sys.path.append(op.abspath('extensions'))
 # Mock all dependencies
 install_requires=["appdirs",
                   "fcswrite",
-                  "dclab.external",
                   "h5py",
                   "imageio",
                   "nptdms",
