@@ -8,22 +8,20 @@ import time
 import chaco.api as ca
 import chaco.tools.api as cta
 from dclab import definitions as dfn
+from dclab import kde_contours
 import numpy as np
 
 from . import plot_common
 from .. import analysis as ana
 
 
-def contour_plot(analysis, levels=[0.5,0.95],
-                 axContour=None, wxtext=False, square=True):
+def contour_plot(analysis, axContour=None, wxtext=False, square=True):
     """Plot contour for two axes of an RT-DC measurement
     
     Parameters
     ----------
     measurement : RTDCBase
         Contains measurement data.
-    levels : float or list of floats in interval (0,1)
-        Plot the contour at that particular level from the maximum (1).
     axContour : instance of matplotlib `Axis`
         Plotting axis for the contour.
     square : bool
@@ -44,6 +42,9 @@ def contour_plot(analysis, levels=[0.5,0.95],
     scalex = mm.config["plotting"]["scale x"].lower()
     scaley = mm.config["plotting"]["scale y"].lower()
 
+    contour_plot.index_scale = scalex
+    contour_plot.value_scale = scaley
+
     # Add isoelastics only if all measurements have the same channel width
     try:
         analysis.get_config_value("setup", "channel width")
@@ -57,14 +58,13 @@ def contour_plot(analysis, levels=[0.5,0.95],
                 y_key = 'isoel_y'+str(ii)
                 pd.set_data(x_key, data[:,0])
                 pd.set_data(y_key, data[:,1])
-                contour_plot.plot((x_key, y_key), color="gray",
-                                  index_scale=scalex, value_scale=scaley)
-
+                contour_plot.plot((x_key, y_key),
+                                  color="gray",
+                                  index_scale=scalex,
+                                  value_scale=scaley)
     #colors = [ "".join(map(chr, np.array(c[:3]*255,dtype=int))).encode('hex') for c in colors ]
-    if not isinstance(levels, list):
-        levels = [levels]
 
-    set_contour_data(contour_plot, analysis, levels=levels)
+    set_contour_data(contour_plot, analysis)
 
     # Axes
     left_axis = ca.PlotAxis(contour_plot, orientation='left',
@@ -107,44 +107,54 @@ def contour_plot(analysis, levels=[0.5,0.95],
     return contour_plot
 
 
-def set_contour_data(plot, analysis, levels=[0.5,0.95]):
+def set_contour_data(plot, analysis):
     pd = plot.data
     # Plotting area
     mm = analysis[0]
     xax = mm.config["plotting"]["axis x"].lower()
     yax = mm.config["plotting"]["axis y"].lower()
 
-    if mm.config["filtering"]["enable filters"]:
-        x0 = mm[xax][mm._filter]
-        y0 = mm[yax][mm._filter]
-    else:
-        # filtering disabled
-        x0 = mm[xax]
-        y0 = mm[yax]
+    scalex = mm.config["plotting"]["scale x"].lower()
+    scaley = mm.config["plotting"]["scale y"].lower()
+
+    plot.index_scale = scalex
+    plot.value_scale = scaley
 
     for ii, mm in enumerate(analysis):
-        cname = "con_{}_{}".format(ii, mm.identifier)
-        if cname in plot.plots:
-            plot.delplot(cname)
+
+        x0 = mm[xax][mm.filter.all]
+        y0 = mm[yax][mm.filter.all]
 
         # Check if there is data to compute a contour from
         if len(mm._filter)==0 or np.sum(mm._filter)==0:
             break
 
         kde_type = mm.config["plotting"]["kde"].lower()
-        kde_kwargs = plot_common.get_kde_kwargs(x=x0, y=y0, kde_type=kde_type,
-                                                xacc=mm.config["plotting"]["kde accuracy "+xax],
-                                                yacc=mm.config["plotting"]["kde accuracy "+yax])
+        kde_kwargs = plot_common.get_kde_kwargs(
+            x=x0,
+            y=y0,
+            kde_type=kde_type,
+            xacc=mm.config["plotting"]["kde accuracy "+xax],
+            yacc=mm.config["plotting"]["kde accuracy "+yax])
         # Accuracy for plotting contour data
         xacc = mm.config["plotting"]["contour accuracy "+xax]
         yacc = mm.config["plotting"]["contour accuracy "+yax]
 
         a = time.time()
-        (X,Y,density) = mm.get_kde_contour(xax=xax, yax=yax, xacc=xacc, yacc=yacc,
-                                           kde_type=kde_type, kde_kwargs=kde_kwargs)
+        X, Y, density = mm.get_kde_contour(xax=xax,
+                                           yax=yax,
+                                           xacc=xacc,
+                                           yacc=yacc,
+                                           xscale=scalex,
+                                           yscale=scaley,
+                                           kde_type=kde_type,
+                                           kde_kwargs=kde_kwargs,
+                                           )
+
+        if X.shape[0] == 1 or X.shape[1] == 1:
+            raise ValueError("Please decrease value for contour accuracy!")
+
         print("...KDE contour time {}: {:.2f}s".format(kde_type, time.time()-a))
-        
-        pd.set_data(cname, density)
 
         # contour widths
         if "contour width" in mm.config["plotting"]:
@@ -152,21 +162,40 @@ def set_contour_data(plot, analysis, levels=[0.5,0.95]):
         else:
             cwidth = 1.2
 
-        plev = list(np.nanmax(density)*np.array(levels))
-        if len(plev) == 2:
-            styles = ["dot", "solid"]
-            widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
+        levels = np.array([mm.config["plotting"]["contour level 1"],
+                           mm.config["plotting"]["contour level 2"]])
+        mode = mm.config["plotting"]["contour level mode"]
+        if mode == "fraction":
+            plev = levels
+        elif mode == "quantile":
+            plev = kde_contours.get_quantile_levels(density,
+                                                    x=X,
+                                                    y=Y,
+                                                    xp=x0,
+                                                    yp=y0,
+                                                    q=levels,
+                                                    normalize=True)
         else:
-            styles = "solid"
-            widths = cwidth
+            raise ValueError("Unknown contour level mode `{}`!".format(mode))
 
-        plot.contour_plot(cname,
-                          name=cname,
-                          type="line",
-                          xbounds=(X[0][0], X[0][-1]),
-                          ybounds=(Y[0][0], Y[-1][0]),
-                          levels=plev,
-                          colors=mm.config["plotting"]["contour color"],
-                          styles=styles,
-                          widths=widths,
-                          )
+        styles = ["dot", "solid"]
+        widths = [cwidth*.7, cwidth] # make outer lines slightly smaller
+
+        contours = []
+        for level in plev:
+            cc = kde_contours.find_contours_level(density, x=X, y=Y, level=level)
+            contours.append(cc)
+
+        for ii, cc in enumerate(contours):
+            for jj, cci in enumerate(cc):
+                x_key = "contour_x_{}_{}_{}".format(mm.identifier, ii, jj)
+                y_key = "contour_y_{}_{}_{}".format(mm.identifier, ii, jj)
+                pd.set_data(x_key, cci[:,0])
+                pd.set_data(y_key, cci[:,1])
+                plot.plot((x_key, y_key),
+                           line_style=styles[ii],
+                           line_width=widths[ii],
+                           color=mm.config["plotting"]["contour color"],
+                           index_scale=scalex,
+                           value_scale=scaley,
+                           )

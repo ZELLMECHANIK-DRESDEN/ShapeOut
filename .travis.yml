@@ -25,15 +25,16 @@ install:
 # install binary packages
 - travis_retry pip install --upgrade pip setuptools wheel
 # install all dependencies
+# dependencies for chaco
 - travis_retry pip install simplejson kiwisolver reportlab
-- travis_retry pip install .
-# install special dependencies
+# package and testing dependencies (due to pinned numpy version
+# in Shape-Out, these must be installed together)
+- travis_retry pip install . coverage codecov
+# install special dependencies (latest libs)
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git
 # download ffmpeg
 - travis_retry imageio_download_bin ffmpeg
-# for coverage
-- travis_retry pip install codecov coverage
 # more-itertools 6.0.0 has a syntax error (dependency for coverage)
 - travis_retry pip install more-itertools==5.0.0
 - pip freeze

@@ -39,9 +39,9 @@ install:
   # Copied from
   # https://github.com/Phonations/Joker/blob/master/appveyor.yml
   - appveyor-retry choco install -y InnoSetup
-  - appveyor-retry choco install -y wget
+  - appveyor-retry choco install -y wget --version 1.20
   # install R with lme4
-  - wget -q http://cran.at.r-project.org/bin/windows/base/old/3.2.5/R-3.2.5-win.exe
+  - wget -q https://cran.r-project.org/bin/windows/base/old/3.2.5/R-3.2.5-win.exe
   - R-3.2.5-win.exe /silent
   # Installing an older version of R did neither work so:
   #- choco install -dfvy -version 3.2.5 -source 'http://cran.at.r-project.org/bin/windows/base/old/3.2.5/;http://cran.at.r-project.org/bin/windows/base/old/;c:\projects\shapeout' r.project
@@ -70,7 +70,7 @@ install:
   #- "conda update -f conda"
   # Anaconda client for searching packages?
   #- "conda install anaconda-client"
-  - "conda install --yes --quiet chaco enable kiwisolver numpy pip pyface pywin32 scipy statsmodels wxpython"
+  - "conda install --yes --quiet chaco enable kiwisolver numpy pip pyface pywin32 scipy wxpython"
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"

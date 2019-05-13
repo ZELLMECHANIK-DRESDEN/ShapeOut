@@ -18,7 +18,7 @@ import dclab
 import dclab.definitions as dfn
 from dclab.rtdc_dataset import config as dclab_config
 
-from .settings import get_ignored_features
+from .settings import get_ignored_features, SettingsFile
 
 
 if sys.version_info[0] == 2:
@@ -135,11 +135,14 @@ class Analysis(object):
                     ["kde accuracy {}", self._doanes_formula_acc, 1/2],
                     ]
             pltng = mm.config["plotting"]
-            for kk in self.GetPlotAxes():
+            for kk, sc in zip(self.GetPlotAxes(), self.GetPlotScales()):
                 for d, l, mult in defs:
                     var = d.format(kk)
                     if var not in pltng:
-                        acc = l(mm[kk]) * mult
+                        data = mm[kk]
+                        if sc == "log":
+                            data = np.log(data)
+                        acc = l(data) * mult
                         # round to make it look pretty in the GUI
                         accr = float("{:.1e}".format(acc))
                         pltng[var] = accr
@@ -155,7 +158,7 @@ class Analysis(object):
         """Compute accuracy (bin width) based on Doane's formula"""
         # https://en.wikipedia.org/wiki/Histogram#Number_of_bins_and_width
         # https://stats.stackexchange.com/questions/55134/doanes-formula-for-histogram-binning
-        bad = np.isnan(a) + np.isinf(a)
+        bad = np.isnan(a) | np.isinf(a)
         data = a[~bad]
         n = data.size
         g1 = scipy.stats.skew(data)
@@ -371,6 +374,10 @@ class Analysis(object):
         return (int(p["Rows"]), int(p["Columns"]),
                 int(p["Contour Plot"]), int(p["Legend Plot"]))
 
+    def GetPlotScales(self, mid=0):
+        p = self.GetParameters("Plotting", mid)
+        return [p["scale x"].lower(), p["scale y"].lower()]
+
     def GetStatisticsBasic(self):
         """
         Computes Mean, Avg, etc for all data sets and returns two lists:
@@ -497,7 +504,7 @@ class Analysis(object):
         self.reset_plot_accuracies()
         self.reset_plot_ranges()
 
-    def reset_plot_accuracies(self):
+    def reset_plot_accuracies(self, feature_names=None):
         """ Set initial (heuristic) accuracies for all plots.
 
         It is not always easy to determine the correct accuracy for
@@ -518,8 +525,11 @@ class Analysis(object):
                 self.measurements[0].config["plotting"]["contour fix scale"]):
             return
 
+        if feature_names is None:
+            feature_names = dfn.scalar_feature_names
+
         # Remove contour accuracies for the current plots
-        for key in dfn.scalar_feature_names:
+        for key in feature_names:
             for mm in self.measurements:
                 for var in ["contour accuracy {}".format(key),
                             "kde accuracy {}".format(key)]:
@@ -549,6 +559,21 @@ class Analysis(object):
                 mm.polygon_filter_rm(filt)
             except ValueError:
                 pass
+
+    def set_config_value(self, section, key, value):
+        """Set the section/key value for all measurements
+
+        Parameters
+        ----------
+        section: str
+            Configuration section, e.g. "imaging", "filtering", or "plotting"
+        key: str
+            Configuration key within `section`
+        value:
+            Value to set
+        """
+        for mm in self.measurements:
+            mm.config[section][key] = value
 
     def SetContourColors(self, colors=None):
         """ Sets the contour colors.
@@ -580,7 +605,8 @@ class Analysis(object):
         if "plotting" in newcfg:
             upcfg["plotting"] = newcfg["plotting"].copy()
             pl = upcfg["plotting"]
-            # prevent applying indivual things to all measurements
+
+            # prevent applying individual things to all measurements
             ignorelist = ["contour color"]
             pops = []
             for skey in pl:
@@ -588,13 +614,21 @@ class Analysis(object):
                     pops.append(skey)
             for skey in pops:
                 pl.pop(skey)
-            # Address issue with faulty contour plot on log scale
-            # https://github.com/enthought/chaco/issues/300
-            if (("scale x" in pl and pl["scale x"] == "log") or
-                    ("scale y" in pl and pl["scale y"] == "log")):
-                warnings.warn(
-                    "Disabling contour plot because of chaco issue #300!")
-                pl["contour plot"] = False
+
+            if "plotting" in self[0].config:
+                scalex, scaley = self.GetPlotScales()
+                xax, yax = self.GetPlotAxes()
+                # If the scale changed, recompute kde and contour accuracies.
+                if "scale x" in pl and pl["scale x"] != scalex:
+                    self.set_config_value("plotting", "scale x", pl["scale x"])
+                    self.reset_plot_accuracies(feature_names=[xax])
+                    pl.pop("kde accuracy {}".format(xax))
+                    pl.pop("contour accuracy {}".format(xax))
+                if "scale y" in pl and pl["scale y"] != scaley:
+                    self.set_config_value("plotting", "scale y", pl["scale y"])
+                    self.reset_plot_accuracies(feature_names=[yax])
+                    pl.pop("kde accuracy {}".format(yax))
+                    pl.pop("contour accuracy {}".format(yax))
             # check for inverted plotting ranges
             for feat in dfn.scalar_feature_names:
                 fmin = feat + " min"

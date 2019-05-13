@@ -70,7 +70,6 @@ def software():
              ["pyper", "pyper", "__version__"],
              ["SciPy", "scipy", "__version__"],
              ["simplejson", "simplejson", "__version__"],
-             ["statsmodels", "statsmodels", "__version__"],
              ["wxPython", "wx", "__version__"],
              ]
 
