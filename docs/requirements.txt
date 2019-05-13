@@ -8,4 +8,4 @@ matplotlib
 h5py
 pathlib
 scipy
-dclab
+dclab>=0.10.3
