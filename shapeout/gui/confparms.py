@@ -8,6 +8,8 @@ import io
 import os
 import pkg_resources
 
+from chaco.default_colormaps import color_map_name_dict
+
 import dclab
 from dclab.rtdc_dataset import config as rt_config
 
@@ -39,6 +41,8 @@ def get_config_entry_choices(key, subkey, ignore_axes=[]):
             choices = ["not shown", "analytical", "numerical", "legacy"]
         elif subkey == "contour level mode":
             choices = ["fraction", "quantile"]
+        elif subkey == "scatter colormap":
+            choices = sorted(color_map_name_dict.keys())
     elif key == "analysis":
         if subkey == "regression model":
             choices = ["lmm", "glmm"]

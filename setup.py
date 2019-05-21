@@ -30,7 +30,12 @@ setup(
     extras_require = {# Graphical User Interface
                       # If you need the GUI for your project, add
                       # "shapeout[GUI]" to your install_requires.
-                      'GUI':  ["chaco",
+                      'GUI':  [# Note that numpy>=1.13 might not be
+                               # compatible with chaco 4.5.0
+                               # (ValueError when testing with an array).
+                               # In case of Ubuntu 18.04, chaco 4.5.0
+                               # appears to have been patched accordingly.
+                               "chaco",
                                "simplejson",  # for updates
                                "wxPython>=3.0.0,<4.0.0",
                                # these are additional dependencies of chaco
@@ -44,9 +49,7 @@ setup(
                       "h5py>=2.8.0",
                       "imageio>=2.3.0,<2.5.0",
                       "nptdms",
-                      # numpy>=1.13 is not compatible with chaco
-                      # (ValueError when testing with an array)
-                      "numpy>=1.9.0,<1.13.0",
+                      "numpy>=1.9.0",
                       "pathlib",
                       "pyper",
                       "scipy>=0.13.0",

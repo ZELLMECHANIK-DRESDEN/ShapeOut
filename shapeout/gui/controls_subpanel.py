@@ -108,6 +108,9 @@ class SubPanel(ScrolledPanel):
                 for ch in choices:
                     if float(ch) == float(item[1]):
                         c.SetValue(ch)
+            elif item[0] in ["scatter colormap"]:  # case-sensitive choices
+                idc = choices.index(item[1])
+                c.SetSelection(idc)
             else:
                 # this does not work for floats and ints
                 idc = choices.index(item[1].lower())
