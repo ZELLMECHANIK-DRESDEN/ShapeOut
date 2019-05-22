@@ -1,5 +1,7 @@
 0.9.3
  - enh: Allow to select colormap (#239)
+ - fix: dclab 0.10.4 workaround for defective feature in Shape-In
+   versions 2.0.6 and 2.0.7 (#241)
  - setup: remove pinning of numpy (works again on Ubuntu 18.04)
 0.9.2
  - Allow to set contour levels at quantiles instead of KDE fractions (#180)
