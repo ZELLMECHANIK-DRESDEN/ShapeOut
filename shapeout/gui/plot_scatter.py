@@ -7,6 +7,7 @@ import time
 
 import chaco.api as ca
 import chaco.tools.api as cta
+from chaco.default_colormaps import color_map_name_dict
 from dclab import definitions as dfn
 import numpy as np
 
@@ -102,7 +103,8 @@ def scatter_plot(measurement,
         # Plots with density
         plot_kwargs["data"] = ("index", "value", "color")
         plot_kwargs["type"] = "cmap_scatter"
-        plot_kwargs["color_mapper"] = ca.jet
+        cmap = mm.config["plotting"]["scatter colormap"]
+        plot_kwargs["color_mapper"] = color_map_name_dict[cmap]
 
     # Excluded events
     plot_kwargs_excl = plot_kwargs.copy()

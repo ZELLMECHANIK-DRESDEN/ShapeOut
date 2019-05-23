@@ -2,9 +2,12 @@ mock
 cython
 sphinx>=1.6.4
 sphinxcontrib.bibtex
+sphinx_rtd_theme
 numpy
 matplotlib
 h5py
 pathlib
 scipy
-dclab
+git+https://github.com/ZELLMECHANIK-DRESDEN/dclab.git
+
+

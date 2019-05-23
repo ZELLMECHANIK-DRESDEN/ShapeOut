@@ -12,6 +12,10 @@ import wx
 import traits.etsconfig.api
 traits.etsconfig.api.ETSConfig.toolkit = 'wx'
 
+# Backports:
+# register viridis colormap
+from .external import backport_chaco_viridis  # noqa: F401
+
 from .gui import frontend
 
 

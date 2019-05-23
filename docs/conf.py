@@ -16,10 +16,6 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
 
 # Get version number from shapeout._version file
 import mock
@@ -27,26 +23,20 @@ import os.path as op
 import sys
 # include parent directory
 pdir = op.dirname(op.dirname(op.abspath(__file__)))
-sys.path.insert(0, pdir)
 # include extenstions
 sys.path.append(op.abspath('extensions'))
 
 # Mock all dependencies
 install_requires=["appdirs",
-                  "fcswrite",
-                  "dclab.features",
-                  "h5py",
-                  "imageio",
-                  "nptdms",
                   "pyper",
-                  "chaco", "simplejson", "wx", "wxPython",
+                  "chaco",
+                  "simplejson",
+                  "wx",
+                  "wxPython",
                   ]
 
 for mod_name in install_requires:
     sys.modules[mod_name] = mock.Mock()
-
-# included external libs
-sys.modules["shapeout.features._skimage_measure"] = mock.Mock()
 
 # http://www.sphinx-doc.org/en/stable/ext/autodoc.html#confval-autodoc_member_order
 # Order class attributes and functions in separate blocks
