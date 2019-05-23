@@ -8,6 +8,4 @@ matplotlib
 h5py
 pathlib
 scipy
-git+https://github.com/ZELLMECHANIK-DRESDEN/dclab.git
-
-
+dclab>=0.10.5
