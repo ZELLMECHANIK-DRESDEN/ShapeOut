@@ -293,11 +293,14 @@ class MainPlotArea(wx.Panel):
             # Get the cell and plot it
             mm = self.scatter2measure[thisplotselect]
             # Update the currently plotted list of events `mm._plot_filter`
-            xax = mm.config["plotting"]["axis x"].lower()
-            yax = mm.config["plotting"]["axis y"].lower()
             plotdic = mm.config.copy()["plotting"]
-            downsample = plotdic["downsampling"]*plotdic["downsample events"]
-            mm.get_downsampled_scatter(xax=xax, yax=yax, downsample=downsample)
+            mm.get_downsampled_scatter(
+                xax=plotdic["axis x"].lower(),
+                yax=plotdic["axis y"].lower(),
+                downsample=plotdic["downsampling"]*plotdic["downsample events"],
+                xscale=plotdic["scale x"],
+                yscale=plotdic["scale y"]
+                )
             # these are all cells that were plotted
             # (not neccessarily *all* cells that were filtered away)
             plotfilterid = np.where(mm._plot_filter)[0]
