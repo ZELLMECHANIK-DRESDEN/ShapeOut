@@ -29,7 +29,7 @@ install:
 - travis_retry pip install simplejson kiwisolver reportlab
 # package and testing dependencies (due to pinned numpy version
 # in Shape-Out, these must be installed together)
-- travis_retry pip install . coverage codecov
+- travis_retry pip install .[all] coverage codecov
 # install special dependencies (latest libs)
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git
 - travis_retry pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git

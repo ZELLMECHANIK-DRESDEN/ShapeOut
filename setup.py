@@ -44,7 +44,7 @@ setup(
                                ],
                       },
     install_requires=["appdirs",
-                      "dclab>=0.10.4",
+                      "dclab[all]>=0.11.1",
                       "fcswrite>=0.4.1",
                       "h5py>=2.8.0",
                       "imageio>=2.3.0,<2.5.0",
