@@ -1,6 +1,8 @@
 0.9.4
  - fix: Wrong image/trace data shown for a selected event in the scatter
    plot when working on a log-scale (#244)
+ - enh: minor speed-up when working with hierarchy children and exporting
+   the 'contour' feature (dclab 0.11.0)
 0.9.3
  - enh: Allow to select colormap (#239)
  - fix: dclab 0.10.4 workaround for defective feature in Shape-In
