@@ -37,6 +37,8 @@ setup(
                                # appears to have been patched accordingly.
                                "chaco",
                                "simplejson",  # for updates
+                               # chaco does not work with wxpython 4
+                               # https://github.com/enthought/chaco/issues/352
                                "wxPython>=3.0.0,<4.0.0",
                                # these are additional dependencies of chaco
                                "kiwisolver",
