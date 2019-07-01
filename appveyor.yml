@@ -74,6 +74,7 @@ install:
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
+  - "appveyor-retry pip install --upgrade pip"
   # PIP installs
   - "pip install appdirs"
   - "pip install pathlib"
@@ -86,9 +87,6 @@ install:
   - "pip install reportlab"
   - "pip install simplejson"
   - "pip install h5py --only-binary=h5py"
-  # build dependencies
-  #- "pip install wheel"
-  # dclab
   # prevent pip from installing later scipy versions using "--no-deps"
   # requirements from dclab were partly installed with conda:
   #- "pip install dclab --no-deps"
@@ -99,8 +97,6 @@ install:
   # Patch libraries
   - '%PYTHON%/python .appveyor/patch_libraries.py'
 
-  # PyInstaller install fails with pip 19.0.1
-  - "appveyor-retry pip install pip==19.0.2"  
   # Install pyinstaller (includes dependency for pywin32)
   - "pip install pyinstaller==3.4"
 
@@ -123,7 +119,7 @@ test_script:
   - "codecov || exit 0"
 
 after_test:
-  - "appveyor-retry pip install twine wheel"
+  - "appveyor-retry pip install --upgrade pip twine wheel"
   # If tests are successful, create a whl package for the project.
   - "python setup.py bdist_wheel"
   - "python setup.py sdist"

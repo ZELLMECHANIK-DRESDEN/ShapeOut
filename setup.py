@@ -57,7 +57,7 @@ setup(
                       "scipy>=0.13.0",
                       ],
     setup_requires=['pytest-runner'],
-    tests_require=["pytest", "urllib3"],
+    tests_require=["pytest<5.0", "urllib3"],
     keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
     classifiers= ['Operating System :: OS Independent',
                   'Programming Language :: Python :: 2.7',
