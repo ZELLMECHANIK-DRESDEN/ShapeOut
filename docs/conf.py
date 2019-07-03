@@ -89,7 +89,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Shape-Out'
-github_project = 'ZELLMECHANIK-DRESDEN/' + project
+github_project = 'ZELLMECHANIK-DRESDEN/ShapeOut'
 copyright = '2015, Paul Müller'
 author = 'Paul Müller and Christoph Herold'
 
