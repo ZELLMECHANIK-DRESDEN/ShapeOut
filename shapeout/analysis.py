@@ -147,7 +147,7 @@ class Analysis(object):
                         accr = float("{:.1e}".format(acc))
                         pltng[var] = accr
             # Check for missing min/max values and set them to zero
-            for item in dfn.scalar_feature_names:
+            for item in self.get_usable_features():
                 appends = [" min", " max"]
                 for a in appends:
                     if item + a not in mm.config["plotting"]:
@@ -405,7 +405,16 @@ class Analysis(object):
 
     def GetPlotAxes(self, mid=0):
         p = self.GetParameters("plotting", mid)
-        return [p["axis x"].lower(), p["axis y"].lower()]
+        allowed = self.get_usable_features()
+        if len(allowed) < 2:
+            raise ValueError("Analysis has less than two common features: "
+                             "{}".format(allowed))
+        xax = p["axis x"].lower()
+        yax = p["axis y"].lower()
+        if xax not in allowed or yax not in allowed:
+            xax = allowed[0]
+            yax = allowed[-1]
+        return [xax, yax]
 
     def GetPlotGeometry(self, mid=0):
         p = self.GetParameters("Plotting", mid)
@@ -641,16 +650,15 @@ class Analysis(object):
                     warnings.warn(msg)
                     pl[fmin], pl[fmax] = pl[fmax], pl[fmin]
             # make sure that x- and y-axes are present in all measurements
-            if "axis x" in pl:
-                for mm in self.measurements:
-                    if pl["axis x"] not in mm:
-                        pl["axis x"] = "area_um"
-                        break
-            if "axis y" in pl:
-                for mm in self.measurements:
-                    if pl["axis y"] not in mm:
-                        pl["axis y"] = "deform"
-                        break
+            allowed = self.get_usable_features()
+            if len(allowed) < 2:
+                raise ValueError("Analysis has less than two common features: "
+                                 "{}".format(allowed))
+            if "axis x" in pl or "axis y" in pl:
+                if pl["axis x"] not in allowed or pl["axis y"] not in allowed:
+                    pl["axis x"] = allowed[0]
+                    pl["axis y"] = allowed[-1]
+
         if "analysis" in newcfg:
             upcfg["analysis"] = newcfg["analysis"].copy()
             ignorelist = ["regression treatment", "regression repetition"]

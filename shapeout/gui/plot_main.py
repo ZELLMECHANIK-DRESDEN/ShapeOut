@@ -209,7 +209,7 @@ class MainPlotArea(wx.Panel):
         ctrls = self.frame.PanelTop.page_plot.GetChildren()
         newfilt = {}
         xax, yax = self.analysis.GetPlotAxes()
- 
+
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
             name = c.GetName()
