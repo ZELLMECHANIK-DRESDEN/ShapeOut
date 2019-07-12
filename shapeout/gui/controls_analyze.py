@@ -123,7 +123,7 @@ class SubPanelAnalyze(SubPanel):
             
             # Feature to analyze
             sizer_bag.Add(wx.StaticText(self, label="Feature to analyze:"), (1,0), span=wx.GBSpan(1,1))
-            self.axes = analysis.GetUsableAxes()
+            self.axes = analysis.get_usable_features()
             axeslist = [dclab.dfn.feature_name2label[a] for a in self.axes]
             self.WXCB_axes = wx.ComboBox(self, -1, choices=axeslist,
                                          style=wx.CB_DROPDOWN|wx.CB_READONLY)

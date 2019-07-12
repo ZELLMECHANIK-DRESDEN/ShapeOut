@@ -84,7 +84,7 @@ class SubPanel(ScrolledPanel):
         """
         stemp = wx.BoxSizer(wx.HORIZONTAL)
         # these axes should not be displayed in the UI
-        ignore_axes = analysis.GetUnusableAxes()
+        ignore_axes = analysis.get_unusable_features()
         choices = confparms.get_config_entry_choices(key, item[0],
                                            ignore_axes=ignore_axes)
         if choices:

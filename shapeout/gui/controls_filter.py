@@ -120,7 +120,7 @@ class SubPanelFilter(SubPanel):
 
         for item in items:
             if item[0].endswith("min"):
-                if item[0][:-4] in analysis.GetUnusableAxes():
+                if item[0][:-4] in analysis.get_unusable_features():
                     # ignore this item
                     continue
                 # find item with max

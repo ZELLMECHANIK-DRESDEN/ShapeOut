@@ -83,7 +83,7 @@ def test_axes_usable():
     dicts = [example_data_dict(s, keys=keys) for s in [10, 100, 12, 382]]
     anal = analysis.Analysis([dclab.new_dataset(d) for d in dicts])
 
-    axes = anal.GetUsableAxes()
+    axes = anal.get_usable_features()
     for ax in keys:
         assert ax in axes
 

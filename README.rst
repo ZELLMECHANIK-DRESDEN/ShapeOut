@@ -6,7 +6,7 @@
 
 Shape-Out is a graphical user interface for the analysis
 and visualization of RT-DC data sets. For more informaion please visit
-http://zellmechanik.com/.
+https://zellmechanik.com/.
 
 
 Documentation

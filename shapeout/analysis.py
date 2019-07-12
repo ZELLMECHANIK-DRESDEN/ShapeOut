@@ -339,6 +339,44 @@ class Analysis(object):
             raise MultipleValuesError(msg)
         return mm.config[section][key]
 
+    def get_unusable_features(self):
+        """
+        Unusable axes are axes that are not shared by all measurements
+        or that are ignored by default.
+
+        See Also
+        --------
+        get_usable_features
+        """
+        unusable = []
+        for ax in dfn.scalar_feature_names:
+            if ax in get_ignored_features():
+                unusable.append(ax)
+                continue
+            for mm in self.measurements:
+                # Get the attribute name for the axis
+                if ax not in mm:
+                    unusable.append(ax)
+                    break
+        return unusable
+
+    def get_usable_features(self):
+        """
+        Usable axes are axes that are shared by all measurements
+        A measurement does not have an axis, if all values along
+        that axis are zero.
+
+        See Also
+        --------
+        get_unusable_features
+        """
+        unusable = self.get_unusable_features()
+        usable = []
+        for ax in dfn.scalar_feature_names:
+            if ax not in unusable:
+                usable.append(ax)
+        return usable
+
     def GetCommonParameters(self, key):
         """
         For as key (e.g. "Filtering") find all parameters that are given
@@ -442,48 +480,11 @@ class Analysis(object):
                 retdict[item[0]] = vals
         return retdict
 
-    def GetUnusableAxes(self):
-        """
-        Unusable axes are axes that are not shared by all measurements
-        or that are ignored by default.
-
-        See Also
-        --------
-        GetUsableAxes
-        """
-        unusable = []
-        for ax in dfn.scalar_feature_names:
-            if ax in get_ignored_features():
-                unusable.append(ax)
-                continue
-            for mm in self.measurements:
-                # Get the attribute name for the axis
-                if ax not in mm:
-                    unusable.append(ax)
-                    break
-        return unusable
-
-    def GetUsableAxes(self):
-        """
-        Usable axes are axes that are shared by all measurements
-        A measurement does not have an axis, if all values along
-        that axis are zero.
-
-        See Also
-        --------
-        GetUnusableAxes
-        """
-        unusable = self.GetUnusableAxes()
-        usable = []
-        for ax in dfn.scalar_feature_names:
-            if ax not in unusable:
-                usable.append(ax)
-        return usable
 
     def GetParameters(self, key, mid=0, filter_for_humans=True):
         """Get parameters that all measurements share."""
         conf = self.measurements[mid].config.copy()[key]
-        unusable_axes = self.GetUnusableAxes()
+        unusable_axes = self.get_unusable_features()
         pops = []
         for k in conf:
             # remove axes that are not owned by all measurements

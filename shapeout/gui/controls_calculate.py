@@ -108,7 +108,7 @@ class SubPanelCalculate(SubPanel):
             
             # Medium to use
             sizer_bag.Add(wx.StaticText(self, label="Medium:"), (1,0))
-            self.axes = analysis.GetUsableAxes()
+            self.axes = analysis.get_usable_features()
             mediumlist = confparms.get_config_entry_choices("calculation",
                                                             "emodulus medium")
             self.WXCB_medium = wx.ComboBox(self, -1, choices=mediumlist,
