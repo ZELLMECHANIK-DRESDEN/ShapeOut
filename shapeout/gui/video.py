@@ -116,7 +116,8 @@ class ImagePanel(ScrolledPanel):
                 color = "orange"
             elif trid == "fl3_median":
                 color = "red"
-            self.trace_plot.plot(("x", trid), type="line", color=color)
+            self.trace_plot.plot(("x", trid), type="line", color=color,
+                                 name=trid)
         
         # convert wx color to something chaco understands
         bgcolor = list(np.array(self.GetBackgroundColour()) / 255)
@@ -254,6 +255,7 @@ class ImagePanel(ScrolledPanel):
         # Plot traces
         if "trace" in mm:
             self.plot_window.control.Show(True)
+            self.trace_plot.showplot(*dclab.definitions.FLUOR_TRACES)
             empty_traces = []
             # Default shape needed for zero-data
             # (will be overridden by this loop if there
@@ -272,6 +274,7 @@ class ImagePanel(ScrolledPanel):
             self.trace_data.set_data("x", np.arange(dshape[0]))
             # Set other trace data to zero if event does not have it
             zerodata = np.zeros(dshape[0])
+            self.trace_plot.hideplot(*empty_traces)
             for etr in empty_traces:
                 self.trace_data.set_data(etr, zerodata)
 

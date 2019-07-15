@@ -1,6 +1,7 @@
 0.9.5
  - fix: Allow to open measurement files that do not contain the features
    "area_um" or "deform" (#245)
+ - fix: Hide unused fluorescence trace line plots
  - enh: Display session name in window title
 0.9.4
  - fix: Wrong image/trace data shown for a selected event in the scatter
