@@ -4,6 +4,7 @@
 from __future__ import division, print_function, unicode_literals
 
 import os
+import pathlib
 import platform
 import pkg_resources
 import sys
@@ -54,9 +55,8 @@ class Frame(gaugeframe.GaugeFrame):
         #size = (1300,900)
         size = (1200,700)
         minsize = (900, 700)
-        gaugeframe.GaugeFrame.__init__(self, None, -1,
-                title = "Shape-Out - version {}".format(version),
-                size = size)
+        gaugeframe.GaugeFrame.__init__(self, None, -1, size=size)
+        self._set_title()
         self.SetMinSize(minsize)
         
         sys.excepthook = MyExceptionHook
@@ -133,9 +133,21 @@ class Frame(gaugeframe.GaugeFrame):
         except:
             self.MainIcon = None
 
+    def _set_title(self, session_file=None):
+        if session_file is None:
+            title = "Shape-Out {}".format(self.version)
+        else:
+            fname_base = pathlib.Path(session_file).name
+            title = "Shape-Out {} [{}]".format(self.version, fname_base)
+
+        try:
+            self.SetTitle(title)
+        except BaseException:  # maybe there are unicode issues
+            self._set_title()
+
 
     def InitRun(self, session_file=None):
-        """Performs the first tasks after the publication starts
+        """Performs the first tasks after the application starts
         
         - start autosaving
         - check for updates
@@ -524,16 +536,19 @@ class Frame(gaugeframe.GaugeFrame):
     def OnMenuHelpAbout(self, e=None):
         help.about()
 
+
     def OnMenuHelpDocs(self, e=None):
         help.docs()
+
     
     def OnMenuHelpSoftware(self, e=None):
         help.software()
 
 
     def OnMenuLoad(self, e=None, session_file=None):
-        """ Load entire analysis """
-        session_ui.open_session(self, session_file=session_file)
+        """Load entire analysis"""
+        fname = session_ui.open_session(self, session_file=session_file)
+        self._set_title(fname)
 
 
     def OnMenuPreferences(self, event):
@@ -635,7 +650,8 @@ class Frame(gaugeframe.GaugeFrame):
 
     def OnMenuSave(self, e=None):
         """ Save configuration without measurement data """
-        session_ui.save_session(self)
+        fname = session_ui.save_session(self)
+        self._set_title(fname)
 
 
 def MyExceptionHook(etype, value, trace):

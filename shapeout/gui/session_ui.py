@@ -46,6 +46,7 @@ def open_session(parent, session_file=None):
         fname = session_file 
 
     open_session_worker(fname, parent)
+    return fname
 
 
 def open_session_worker(path, parent):
