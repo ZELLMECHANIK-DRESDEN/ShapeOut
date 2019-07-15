@@ -107,7 +107,10 @@ class ImagePanel(ScrolledPanel):
                                   padding=0,
                                   spacing=0)
 
-        for trid in dclab.definitions.FLUOR_TRACES:
+        # draw raw traces first
+        trace_keys = sorted(dclab.definitions.FLUOR_TRACES,
+                            key=lambda x: x.count("median"))
+        for trid in trace_keys:
             if trid.count("raw"):
                 color = "gray"
             elif trid == "fl1_median":
@@ -135,6 +138,11 @@ class ImagePanel(ScrolledPanel):
         sizer.Add(exclsizer, (2,0))
         self.plot_window.control.SetMinSize((300, 300))
         sizer.Add(self.plot_window.control, (3,0), span=(2,2), flag=wx.EXPAND)
+
+        self.WXChB_showraw = wx.CheckBox(self, label="Show raw trace data")
+        self.WXChB_showraw.SetValue(True)
+        self.Bind(wx.EVT_CHECKBOX, self.OnChBoxShowRaw, self.WXChB_showraw)
+        sizer.Add(self.WXChB_showraw, (5,0))
 
         self.SetSizer(sizer)
         sizer.Fit(self)
@@ -203,6 +211,22 @@ class ImagePanel(ScrolledPanel):
         evt_id = self.WXSP_plot.GetValue() - 1
         mm = self.analysis.measurements[mm_id]
         mm.filter.manual[evt_id] = not self.WXChB_exclude.GetValue()
+
+
+    def OnChBoxShowRaw(self, e=None):
+        show = self.WXChB_showraw.GetValue()
+        names = [n for n in dclab.definitions.FLUOR_TRACES if n.count("raw")]
+        if show:
+            self.trace_plot.showplot(*names)
+        else:
+            self.trace_plot.hideplot(*names)
+        # hide unset traces
+        stillhidden = []
+        for n in names:
+            if np.all(self.trace_data.get_data(n) == 0):
+                stillhidden.append(n)
+        self.trace_plot.hideplot(*stillhidden)
+        self.trace_plot.request_redraw()
 
 
     def OnUpdatePlot(self, e=None):
@@ -280,6 +304,8 @@ class ImagePanel(ScrolledPanel):
 
         else:
             self.plot_window.control.Show(False)
+        # make sure raw traces are not plotted if user does not want them
+        self.OnChBoxShowRaw()
         self.Layout()
         self.GetParent().Layout()
         wx.EndBusyCursor()

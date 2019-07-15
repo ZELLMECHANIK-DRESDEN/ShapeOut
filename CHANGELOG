@@ -2,7 +2,9 @@
  - fix: Allow to open measurement files that do not contain the features
    "area_um" or "deform" (#245)
  - fix: Hide unused fluorescence trace line plots
+ - fix: Draw median trace data on top of raw trace data
  - enh: Display session name in window title
+ - enh: Allow to hide raw fluorescence trace data
 0.9.4
  - fix: Wrong image/trace data shown for a selected event in the scatter
    plot when working on a log-scale (#244)
