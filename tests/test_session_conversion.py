@@ -3,6 +3,7 @@
 from __future__ import division, print_function
 
 import numpy as np
+import pytest
 
 from shapeout.session import index, rw
 from shapeout.analysis import Analysis
@@ -53,6 +54,9 @@ def test_070hierarchy2():
     cleanup()
 
 
+@pytest.mark.filterwarnings('ignore::dclab.rtdc_dataset.'
+                            + 'ancillaries.ancillary_feature.'
+                            + 'BadFeatureSizeWarning')
 def test_074hierarchy2():
     analysis = compatibility_task("session_v0.7.4_hierarchy2.zmso")
 
