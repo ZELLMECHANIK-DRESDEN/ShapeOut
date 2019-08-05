@@ -1,5 +1,6 @@
 0.9.6
  - fix: remove nan/inf values before performing (g)lmm analysis (#248)
+ - docs: request citation of Herbig2018 when performing (g)lmm analysis
 0.9.5
  - fix: Allow to open measurement files that do not contain the features
    "area_um" or "deform" (#245)
