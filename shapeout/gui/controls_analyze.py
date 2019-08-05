@@ -231,7 +231,21 @@ class SubPanelAnalyze(SubPanel):
         # write to temporary file and display with webbrowser
         outf = tempfile.mktemp(prefix="regression_analysis_{}_".format(axname),
                                suffix=".txt")
+        # add citation request
+        citreq = [
+            "# If you are using these results in a scientific publication,",
+            "# please consider citing the following manuscript:",
+            "#",
+            "#  Herbig M, Mietke A, Müller P, Otto O (2018)",
+            "#  Statistics for real-time deformability cytometry: Clustering,",
+            "#  dimensionality reduction, and significance testing.",
+            "#  Biomicrofluidics 12:042214. doi: 10.1063/1.5027197",
+            "#",
+            "",
+            ]
+
         with io.open(outf, "w") as fd:
+            fd.writelines(citreq)
             fd.writelines(result["Full Summary"].replace("\n", "\r\n"))
 
         webbrowser.open(fd.name)
