@@ -245,7 +245,7 @@ class SubPanelAnalyze(SubPanel):
             ]
 
         with io.open(outf, "w") as fd:
-            fd.writelines(citreq)
+            fd.writelines([ll + "\r\n" for ll in citreq])
             fd.writelines(result["Full Summary"].replace("\n", "\r\n"))
 
         webbrowser.open(fd.name)
