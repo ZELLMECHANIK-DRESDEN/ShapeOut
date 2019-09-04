@@ -1,5 +1,6 @@
 0.9.6
- - enh: improved support for tdms data (dclab 0.12.0 -> 0.14.6) (e.g. #249)
+ - enh: improved support for tdms data (dclab 0.12.0 -> 0.14.7) (e.g. #249)
+ - enh: write Shape-Out version to exported .fcs and .tsv files (#250)
  - fix: remove nan/inf values before performing (g)lmm analysis (#248)
  - docs: request citation of Herbig2018 when performing (g)lmm analysis
 0.9.5

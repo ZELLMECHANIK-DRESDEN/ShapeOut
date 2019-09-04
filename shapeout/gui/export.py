@@ -11,6 +11,8 @@ import numpy as np
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
+from .._version import version
+
 
 class ExportAnalysisEvents(wx.Frame):
     def __init__(self, parent, analysis, ext="ext", non_scalars=[]):
@@ -179,6 +181,7 @@ class ExportAnalysisEventsFCS(ExportAnalysisEvents):
             m.export.fcs(os.path.join(out_dir, m.title+".fcs"),
                          mfeat,
                          filtered=filtered,
+                         meta_data={"Shape-Out version": version},
                          override=True)
 
 
@@ -213,6 +216,7 @@ class ExportAnalysisEventsTSV(ExportAnalysisEvents):
             m.export.tsv(os.path.join(out_dir, m.title+".tsv"),
                          mfeat,
                          filtered=filtered,
+                         meta_data={"Shape-Out version": version},
                          override=True)
 
 
