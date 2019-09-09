@@ -11,6 +11,6 @@ To compile the documentation, run
 
 Notes
 =====
-To view the sphinx inventory of DryMass, run
+To view the sphinx inventory of Shape-Out, run
 
    python -m sphinx.ext.intersphinx 'http://shapeout.readthedocs.io/en/develop/objects.inv'

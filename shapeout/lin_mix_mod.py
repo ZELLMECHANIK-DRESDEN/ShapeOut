@@ -364,6 +364,12 @@ def linmixmod(xs, treatment, timeunit, model='lmm', RCMD=cran.rcmd):
     timeunit = list(timeunit[~invalid])
     xs = [xi for ii, xi in enumerate(xs) if ~invalid[ii]]
 
+    # convert to ndarray
+    xs = [np.array(xi, dtype=float) for xi in xs]
+
+    # remove nan/inf values
+    xs = [xi[~np.logical_or(np.isnan(xi), np.isinf(xi))] for xi in xs]
+
     ######################Differential Deformation#############################
     # If the user selected 'Control-Reservoir' and/or 'Treatment-Reservoir'
     Median_DiffDef = []
