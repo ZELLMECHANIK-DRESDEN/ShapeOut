@@ -121,7 +121,7 @@ class ImagePanel(ScrolledPanel):
                 color = "red"
             self.trace_plot.plot(("x", trid), type="line", color=color,
                                  name=trid)
-        
+
         # convert wx color to something chaco understands
         bgcolor = list(np.array(self.GetBackgroundColour()) / 255)
         container = ca.HPlotContainer(spacing=70,
