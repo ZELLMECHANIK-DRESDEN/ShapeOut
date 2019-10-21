@@ -114,7 +114,7 @@ def load(path, search_path="."):
                     if root_idx_file.exists():
                         with root_idx_file.open("rb") as rfd:
                                 root_idx = np.load(rfd)
-                        mm.filter.apply_manual_indices(root_idx)
+                        mm.filter.apply_manual_indices(mm, root_idx)
                 else:
                     # parent doesn't exist - try again in next loop
                     continue
@@ -214,7 +214,7 @@ def save(path, rtdc_list):
             mm_dict["parent key"] = p_ident
             # save (possibly hidden) root filter indices instead of
             # manual filter array.
-            root_idx = mm.filter.retrieve_manual_indices()
+            root_idx = mm.filter.retrieve_manual_indices(mm)
             with (mmdir / "_filter_manual_root.npy").open("wb") as rffd:
                 np.save(rffd, root_idx)
         # Use forward slash such that sessions saved on Windows
