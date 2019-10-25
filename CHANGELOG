@@ -1,6 +1,6 @@
 0.9.7
  - docs: minor update
- - setup: bump dclab from 0.14.7 to 0.15.0
+ - setup: bump dclab from 0.14.7 to 0.16.0
 0.9.6
  - enh: improved support for tdms data (dclab 0.12.0 -> 0.14.7) (e.g. #249)
  - enh: write Shape-Out version to exported .fcs and .tsv files (#250)
