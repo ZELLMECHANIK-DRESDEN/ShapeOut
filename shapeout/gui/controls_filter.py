@@ -530,7 +530,9 @@ class SubPanelFilter(SubPanel):
             old_meas_selection = 0
 
         self.analysis = analysis
-        
+
+        self.Freeze()
+
         self.ClearSubPanel()
 
         
@@ -596,3 +598,5 @@ class SubPanelFilter(SubPanel):
                             ctrl_targets=["limit events"])
         self.SetSizer(sizer)
         sizer.Fit(self)
+        self.Refresh()
+        self.Thaw()
