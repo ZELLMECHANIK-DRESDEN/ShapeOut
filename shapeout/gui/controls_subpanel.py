@@ -234,6 +234,11 @@ class SubPanel(ScrolledPanel):
         self.UpdateScrolling()
         self.Update()
 
+        if self.funcparent is not None:
+            self.funcparent.Layout()
+            self.funcparent.Refresh()
+            self.funcparent.Update()
+
         self.Thaw()
 
     def UpdateScrolling(self):

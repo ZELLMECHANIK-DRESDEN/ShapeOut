@@ -59,9 +59,9 @@ class ControlPanel(ScrolledPanel):
         self.subpanels.append(page_info)
         self.page_info = page_info
 
-        self.page_filter = SubPanelCalculate(notebook, funcparent=self)
-        notebook.AddPage(self.page_filter, "Calculate")
-        self.subpanels.append(self.page_filter)
+        self.page_calc = SubPanelCalculate(notebook, funcparent=self)
+        notebook.AddPage(self.page_calc, "Calculate")
+        self.subpanels.append(self.page_calc)
         
         self.page_filter = SubPanelFilter(notebook, funcparent=self)
         notebook.AddPage(self.page_filter, "Filter")
@@ -231,7 +231,7 @@ class ControlPanel(ScrolledPanel):
         uid = pf.unique_id
         mcur = result["measurement"]
         # update list of polygon filters
-        self.UpdatePages()
+        self.page_filter.UpdatePanel()
         # Determine the number of existing polygon filters
         npol = len(dclab.PolygonFilter.instances)
 
@@ -243,7 +243,6 @@ class ControlPanel(ScrolledPanel):
         else:
             # apply only to this one data set
             mcur.config["filtering"]["polygon filters"].append(uid)
-        self.OnChangeFilter()
 
 
     def Reset(self, key, subkeys=[]):
@@ -281,6 +280,5 @@ class ControlPanel(ScrolledPanel):
         self.notebook.Layout()
         self.notebook.Refresh()
         self.notebook.Update()
-        
         self.Layout()
         self.Thaw()
