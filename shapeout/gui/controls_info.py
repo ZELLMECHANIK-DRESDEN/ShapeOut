@@ -25,10 +25,8 @@ class SubPanelInfo(SubPanel):
     def __init__(self, *args, **kwargs):
         SubPanel.__init__(self, *args, **kwargs)
 
-    def UpdatePanel(self, analysis):
-        """  """
+    def RepopulatePanel(self, analysis=None):
         self.ClearSubPanel()
-
         # Create three boxes containing information
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         genbox = self._box_from_cfg_read(analysis, "experiment", ignore=HIDDEN)
@@ -56,4 +54,3 @@ class SubPanelInfo(SubPanel):
         sizer.Add(flbox)
         self.SetSizer(sizer)
         sizer.Fit(self)
-                

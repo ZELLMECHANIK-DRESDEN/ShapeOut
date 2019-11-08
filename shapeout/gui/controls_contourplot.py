@@ -99,9 +99,8 @@ class SubPanelPlotContour(SubPanel):
         return mastersizer
 
 
-    def UpdatePanel(self, analysis):
+    def RepopulatePanel(self, analysis):
         self.ClearSubPanel()
-        
         # sizer
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         fbox = self._box_from_cfg_contour(analysis)

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import abc
 import copy
 import warnings
 
@@ -13,6 +14,8 @@ from . import confparms
 
 
 class SubPanel(ScrolledPanel):
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, parent, funcparent=None, *args, **kwargs):
         """
         Notebook page dummy with methods
@@ -217,11 +220,21 @@ class SubPanel(ScrolledPanel):
                     subkeys.append(subkey)
             self.funcparent.Reset(self.key, subkeys)
 
+    @abc.abstractmethod
+    def RepopulatePanel(self, *args, **kwargs):
+        """Overridden by subclass"""
 
     def UpdatePanel(self, *args, **kwargs):
-        """ Overwritten by subclass """
-        pass
+        self.Freeze()
 
+        self.RepopulatePanel(*args, **kwargs)
+
+        self.Refresh()
+        self.Layout()
+        self.UpdateScrolling()
+        self.Update()
+
+        self.Thaw()
 
     def UpdateScrolling(self):
         self.SetupScrolling(scroll_y=True)

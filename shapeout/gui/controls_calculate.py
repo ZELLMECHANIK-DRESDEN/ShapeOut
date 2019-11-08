@@ -178,12 +178,11 @@ class SubPanelCalculate(SubPanel):
         self.funcparent.OnChangeFilter()
 
 
-    def UpdatePanel(self, analysis=None):
+    def RepopulatePanel(self, analysis=None):
+        self.ClearSubPanel()
         if analysis is None:
             analysis = self.analysis
         self.analysis = analysis
-
-        self.ClearSubPanel()
         
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         emodbox = self.make_emodulus_choices(analysis)

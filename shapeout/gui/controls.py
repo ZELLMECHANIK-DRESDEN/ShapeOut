@@ -262,6 +262,7 @@ class ControlPanel(ScrolledPanel):
     def UpdatePages(self):
         """ fills pages """
         sel = self.notebook.GetSelection()
+        self.Freeze()
 
         # Update page content        
         for page in self.subpanels:
@@ -282,4 +283,4 @@ class ControlPanel(ScrolledPanel):
         self.notebook.Update()
         
         self.Layout()
-        
+        self.Thaw()

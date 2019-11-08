@@ -50,10 +50,9 @@ class SubPanelPlotScatter(SubPanel):
         return mastersizer
 
 
-    def UpdatePanel(self, analysis):
+    def RepopulatePanel(self, analysis):
         """Redraw the entire panel"""
         self.ClearSubPanel()
-
         # sizer
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         fbox = self._box_from_cfg_scatter(analysis)
