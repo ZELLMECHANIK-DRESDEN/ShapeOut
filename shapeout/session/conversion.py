@@ -321,6 +321,11 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
 
         with pfile.open("w") as fd:
             fd.write(datap)
+    # load polygon filters here, because they are needed when computing
+    # the hashes (RTDCBase.apply_filter is called for hierarchies)
+    dclab.PolygonFilter.clear_all_filters()
+    if pfile.exists():
+        dclab.PolygonFilter.import_all(pfile)
 
     # Rewrite confix.txt path
     if version < LooseVersion("0.7.4"):
