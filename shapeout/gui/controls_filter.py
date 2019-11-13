@@ -520,7 +520,7 @@ class SubPanelFilter(SubPanel):
         ldw.Show()
 
 
-    def UpdatePanel(self, analysis=None):
+    def RepopulatePanel(self, analysis=None):
         if analysis is None:
             # previous analysis is used
             analysis = self.analysis
@@ -529,10 +529,9 @@ class SubPanelFilter(SubPanel):
         else:
             old_meas_selection = 0
 
-        self.analysis = analysis
-        
         self.ClearSubPanel()
 
+        self.analysis = analysis
         
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         

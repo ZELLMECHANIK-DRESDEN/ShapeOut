@@ -306,11 +306,8 @@ class SubPanelPlotting(SubPanel):
         self.funcparent.OnChangePlot(e)
 
 
-    def UpdatePanel(self, analysis):
-        """  """
+    def RepopulatePanel(self, analysis=None):
         self.ClearSubPanel()
-
-        # sizer
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         plotsizer = self._box_from_cfg_plotting(analysis)
         ordersizer = self._box_order_plots(analysis, sizey=plotsizer.GetMinSize()[1]-25)

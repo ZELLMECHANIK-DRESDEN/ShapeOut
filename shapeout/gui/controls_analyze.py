@@ -301,12 +301,11 @@ class SubPanelAnalyze(SubPanel):
             wxrep.SetValue(mm.config["analysis"]["regression repetition"])
 
 
-    def UpdatePanel(self, analysis=None):
+    def RepopulatePanel(self, analysis=None):
+        self.ClearSubPanel()
         if analysis is None:
             analysis = self.analysis
         self.analysis = analysis
-
-        self.ClearSubPanel()
         
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         
@@ -332,5 +331,3 @@ class SubPanelAnalyze(SubPanel):
 
         self.SetSizer(sizer)
         sizer.Fit(self)
-        self.Layout()
-        self.UpdateScrolling()

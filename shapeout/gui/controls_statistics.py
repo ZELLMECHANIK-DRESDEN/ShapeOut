@@ -60,9 +60,7 @@ class SubPanelStatistics(SubPanel):
             sizer.Layout()
         return sizer
 
-
-    def UpdatePanel(self, analysis):
-        """  """
+    def RepopulatePanel(self, analysis):
         self.ClearSubPanel()
         # Create three boxes containing information
         sizer = wx.BoxSizer(wx.HORIZONTAL)

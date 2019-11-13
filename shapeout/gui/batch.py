@@ -245,9 +245,7 @@ class BatchFilterFolder(wx.Frame):
             self.WXfold_text1.SetLabel(thepath)
             self.parent.config.set_path(thepath, "BatchFD")
             # Search directory
-            tree, _cols = meta_tool.collect_data_tree(thepath)
-            self.data_files = [ t[1][1] for t in tree ]
-            
+            self.data_files = meta_tool.find_data(thepath)
             if self.out_tsv_file is not None:
                 self.btnbatch.Enable()
             wx.EndBusyCursor()

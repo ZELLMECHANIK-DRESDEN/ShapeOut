@@ -292,27 +292,23 @@ class MainPlotArea(wx.Panel):
         if action:
             # Get the cell and plot it
             mm = self.scatter2measure[thisplotselect]
-            # Update the currently plotted list of events `mm._plot_filter`
+            # Update the currently plotted list of events
             plotdic = mm.config.copy()["plotting"]
-            mm.get_downsampled_scatter(
+            _, _, idx = mm.get_downsampled_scatter(
                 xax=plotdic["axis x"].lower(),
                 yax=plotdic["axis y"].lower(),
                 downsample=plotdic["downsampling"]*plotdic["downsample events"],
                 xscale=plotdic["scale x"],
-                yscale=plotdic["scale y"]
+                yscale=plotdic["scale y"],
+                ret_mask=True,
                 )
-            # these are all cells that were plotted
-            # (not neccessarily *all* cells that were filtered away)
-            plotfilterid = np.where(mm._plot_filter)[0]
-            # these are all the filtered cells
-            filterid = np.where(mm._filter)[0]
-            
+            # these are all events that were plotted (len(idx) == len(mm))
+            plotfilterid = np.where(idx)[0]
             # this is the plot selection
-            plot_sel = plotfilterid[thissel]
-            actual_sel = filterid[plot_sel]
-            
+            sel = plotfilterid[thissel]
+
             mm_id = self.analysis.measurements.index(mm)
-            self.frame.ImageArea.ShowEvent(mm_id=mm_id, evt_id=actual_sel)
+            self.frame.ImageArea.ShowEvent(mm_id=mm_id, evt_id=sel)
 
         if not thisplothover is None:
             self._lastplothover = thisplothover
