@@ -1,3 +1,6 @@
+0.9.8
+ - fix: regression in polygon filter creation (event images not shown
+   on hover) (#260)
 0.9.7
  - fix: batch statistical analysis used one measurement per folder (#252)
  - fix: redrawing-issues of control panels (#253)
