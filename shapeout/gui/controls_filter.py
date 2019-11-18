@@ -509,7 +509,6 @@ class SubPanelFilter(SubPanel):
         ldw = LineDrawerWindow(self.funcparent,
                                self.funcparent.OnPolygonFilter)
         # get plot that we want to use
-        name = self._polygon_filter_combo_box.GetValue()
         idn = self._polygon_filter_combo_box.GetSelection()
         if idn < 0:
             idn = 0

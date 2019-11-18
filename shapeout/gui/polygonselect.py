@@ -61,7 +61,7 @@ class LineDrawerWindow(wx.Frame):
 
         vbox.Add(plot_window.control, 1, wx.EXPAND, border=10)
         panel.SetSizer(vbox)
-        vbox.Fit(panel)
+        vbox.Fit(self)
         
         # status bar
         self.statusbar = self.CreateStatusBar()
@@ -114,7 +114,10 @@ class LineDrawerWindow(wx.Frame):
 
     def _create_plot_component(self, measurement, xax, yax):
         # Create some data
-        plot = plot_scatter.scatter_plot(measurement, panzoom=False)
+        plot, mask = plot_scatter.scatter_plot(measurement,
+                                               panzoom=False,
+                                               ret_mask=True)
+        self._plot_filter = mask
         # Create a plot data obect and give it this data
         # Tweak some of the plot properties
         plot.title = "Click to add points, press Enter to add filter"
@@ -146,13 +149,10 @@ class LineDrawerWindow(wx.Frame):
         if thishov is not None:
             # Get the cell and plot it
             dataset = self.mm
-            # these are all cells that were plotted
-            plotfilterid = np.where(dataset._plot_filter)[0]
-            # this is the plot selection
-            plot_sel = plotfilterid[thishov]
-            # these are all the filtered cells
-            filterid = np.where(dataset._filter)[0]
-            actual_sel = filterid[plot_sel]
-            
+            # these are all events that were plotted
+            plotfilterid = np.where(self._plot_filter)[0]
+            # this is the selection
+            sel = plotfilterid[thishov]
+
             mm_id = self.parent.frame.ImageArea.analysis.measurements.index(dataset)
-            self.parent.frame.ImageArea.ShowEvent(mm_id=mm_id, evt_id=actual_sel)
+            self.parent.frame.ImageArea.ShowEvent(mm_id=mm_id, evt_id=sel)

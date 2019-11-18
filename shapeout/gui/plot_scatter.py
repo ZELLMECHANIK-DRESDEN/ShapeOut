@@ -21,24 +21,26 @@ def reset_inspector(plot):
     overlays[0].visible = False
 
 
-def scatter_plot(measurement,
-                 axScatter=None,
-                 square=True, 
-                 panzoom=True, select=True):
+def scatter_plot(measurement, axScatter=None, square=True, panzoom=True,
+                 select=True, ret_mask=False):
     """Plot scatter plot for two axes of an RT-DC measurement
     
     Parameters
     ----------
-    measurement : RTDCBase
+    measurement: RTDCBase
         Contains measurement data.
-    axScatter : instance of matplotlib `Axis`
+    axScatter: instance of matplotlib `Axis`
         Plotting axis for the scatter data.
-    square : bool
+    square: bool
         The plot has square shape.
-    panzoom : bool
+    panzoom: bool
         Add panning and zooming tools.
-    select : bool
+    select: bool
         Add point selection tool.
+    ret_mask: bool
+        If set to `True`, also return a boolean array of length
+        `len(measurement)` where `True` values identify the filtered
+        data. 
     """
     mm = measurement
     xax = mm.config["plotting"]["axis x"].lower()
@@ -80,7 +82,7 @@ def scatter_plot(measurement,
     sc_plot.overlays.append(elabel)
 
     # Set content of scatter plot
-    set_scatter_data(sc_plot, mm)
+    mask = set_scatter_data(sc_plot, mm)
 
     plot_kwargs = {"name": "scatter_events",
                    "marker": "square",
@@ -187,7 +189,10 @@ def scatter_plot(measurement,
             )
 
 
-    return sc_plot
+    if ret_mask:
+        return sc_plot, mask
+    else:
+        return sc_plot
 
 
 def set_scatter_data(plot, mm):
@@ -204,12 +209,13 @@ def set_scatter_data(plot, mm):
 
     a = time.time()
     lx = x0.shape[0]
-    x, y = mm.get_downsampled_scatter(xax=xax,
-                                      yax=yax,
-                                      downsample=downsample,
-                                      xscale=scalex,
-                                      yscale=scaley,
-                                      )
+    x, y, mask = mm.get_downsampled_scatter(xax=xax,
+                                            yax=yax,
+                                            downsample=downsample,
+                                            xscale=scalex,
+                                            yscale=scaley,
+                                            ret_mask=True,
+                                            )
     if lx == x.shape:
         positions = None
     else:
@@ -273,3 +279,4 @@ def set_scatter_data(plot, mm):
             else:
                 oltext = ""
             ol.text = oltext
+    return mask
