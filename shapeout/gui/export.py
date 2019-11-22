@@ -255,7 +255,7 @@ def export_statistics_tsv(parent):
     # Format data
     exp.append("#"+"\t".join(head))
     for subd in data:
-        subdnew = list()
+        subdnew = []
         for d in subd:
             if isinstance(d, (str, unicode)):
                 subdnew.append(d.replace("\t", " "))
@@ -278,4 +278,3 @@ def export_statistics_tsv(parent):
         parent.config.set_path(os.path.dirname(path), "TSV")
         with io.open(path, 'w') as fd:
             fd.writelines(exp)
-

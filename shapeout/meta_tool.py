@@ -29,7 +29,7 @@ def collect_data_tree(directories):
 
     directories = list(set(directories))
 
-    pathdict = {}
+    projectdict = {}
     treelist = []
 
     for directory in directories:
@@ -42,15 +42,16 @@ def collect_data_tree(directories):
                 # Ignore broken measurements
                 continue
             path = path_to_str(ff.parent)
+            project = get_sample_name(ff)
+            pid = path+project
             # try to find the path in pathdict
-            if pathdict.has_key(path):
-                dirindex = pathdict[path]
+            if pid in projectdict:
+                dirindex = projectdict[pid]
             else:
                 treelist.append([])
                 dirindex = len(treelist) - 1
-                pathdict[path] = dirindex
+                projectdict[pid] = dirindex
                 # The first element of a tree contains the measurement name
-                project = get_sample_name(ff)
                 treelist[dirindex].append((project, path))
             # Get data from filename
             mx = get_run_index(ff)

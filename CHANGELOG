@@ -1,3 +1,6 @@
+0.9.9
+ - fix: change the way measurements are recognized (.rtdc files were
+   falsely grouped together when located in the same directory) (#262)
 0.9.8
  - fix: regression in polygon filter creation (event images not shown
    on hover) (#260)
