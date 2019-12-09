@@ -46,7 +46,7 @@ def check_release(
                 msg = web
                 update = newversion
                 # determine which URL we need
-                if sys.platform.lower == "windows":
+                if sys.platform == "win32":
                     dlid = "win_32bit_setup.exe"
                 else:
                     dlid = False
