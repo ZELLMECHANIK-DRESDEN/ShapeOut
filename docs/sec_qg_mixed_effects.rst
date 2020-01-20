@@ -4,74 +4,265 @@
 Comparing datasets with LMM
 ===========================
 
-Consider the following datasets. A treatment is applied three times at different
-time points. For each treatment, a control measurement is performed.
-For each measurement day, a reservoir measurement is performed additionally
-for treatment and control.
+It is not straightforward to define a p-Value for RT-DC data (e.g. change
+in deformation for a treatment vs. its control). This is somewhat
+counter-intuitive, because one could assume that the large number of
+events in a single dataset should be enough to compare two datasets.
+Focus changes, chip-to-chip variations, etc. may generate
+systematic offsets which make a direct comparison (e.g. t-Test) impossible.
+Linear mixed models (LMM) allow to assign a significance to a treatment
+(fixed effect) while considering the systematic bias in-between the
+measurement repetitions (random effect).
 
-- Day1: 
-  
-  - one sample, called "Treatment I", measured at flow rates of 0.04,
-    0.08 and 0.12 µl/s and one measurement in the reservoir
-  - one control, called "Control I", measured at flow rates 0.04,
-    0.08 and 0.12 µl/s and one measurement in the reservoir
+Shape-Out offers a LMM analysis as described in :cite:`Herbig2018`.
+The LMM analysis is performed using the
+`lmer4 R package <https://CRAN.R-project.org/package=lme4>`_. 
+Here, we make use of the dataset :cite:`FigshareLMM` to illustrate this
+functionality.
 
-- Day2: 
 
-  - two samples, called "Treatment II" and "Treatment III", measured
-    at flow rates 0.04, 0.08 and 0.12 µl/s and one measurement in the reservoir
-  - two controls, called "Control II" and "Control III", measured at
-    flow rates 0.04, 0.08 and 0.12 µl/s and one measurement in the reservoir
+Basic linear mixed models
+-------------------------
+We would like to quantify the difference between human skeletal stem cells
+(SSC) and the human osteosarcoma cell line MG-63 (which is often used as a
+model system for SSCs) using a likelihood ratio test based on LMM.
 
-Linear mixed models (LMM) allow to assign a significance to a treatment (fixed effect)
-while considering the systematic bias in-between the measurement repetitions
-(random effect).
+From the dataset :cite:`FigshareLMM`, load the following files into Shape-Out:
 
-We will assume that the datasets are loaded into Shape-Out and that
-invalid events have been filtered (see e.g. :ref:`sec_qg_filtering`).
-The *Analyze* configuration tab enables the comparison of an experiment
-(control and treatment) and repetitions of the experiment using
-LMM :cite:`Herbig2017`, :cite:`Herbig2018`.
+- SSC_16uls_rep1_20150611.rtdc  (SSC repetition 1)
+- SSC_16uls_rep2_20150611.rtdc  (SSC repetition 2)
+- MG63_pure_16uls_rep1_20150421.rtdc  (MG-63 repetition 1)
+- MG63_pure_16uls_rep2_20150422.rtdc  (MG-63 repetition 2)
+- MG63_pure_16uls_rep3_20150422.rtdc  (MG-63 repetition 3)
 
-- **Basic analysis:**
+In this example, we treat SSC as our "treatment" and MG-63 as our "control".
+These are just names that remind us that we are comparing one type of sample
+against another type.
 
-  Assign which measurement is a control and which is a treatment by choosing
-  the option in the dropdown lists under Interpretation. Group the pairs of
-  control and treatment done in one experiment, by choosing an index number,
-  called Repetition. Here, Treatment I and Control I are one experiment –
-  called Repetition 1, Treatment II and Control II are a repetition of the
-  experiment – called Repetition 2, Treatment III and Control III are another
-  repetition of the experiment – called Repetition 3.
+In the *Filter* tab, please choose the following *Box filters*:
 
-  Press Apply to start the calculations. A text file will open to show the results.
+- Porosity (*area_ratio*): 0 to 1.05
+- Area [µm²] (*area_um*): 120 to 550
+- Deformation (*deform*): 0 to 0.1
 
-  The most important numbers are:
+Hit *Apply* and proceed to the *Calculate* tab. We would also like to
+have a look at the Young's modulus. The medium (CellCarrier) and the
+temperature (23°C) should already be set. Hit *Compute elastic modulus*
+to make the Young's modulus available. 
 
-  - **Fixed effects:**
 
-    (Intercept)-Estimate
-      The mean of the parameter chosen for all controls.
+.. image:: scrots/qg_lmm_basic.png
+    :target: _images/qg_lmm_basic.png
+    :align: right
+
+Proceed to the *Analyze* tab. Set the *Interpretation* and
+*Repetition* according to the following scheme (see screenshot):
+
+- SSC: Treatment
+- MG63: Control
+- Repetition according to the file/sample name
+
+Make sure that the feature "Deformation" is selected and hit *Apply*. The
+results of the LMM analysis are shown in your default text editor::
+
+    LINEAR MIXED MODEL: 
+    Linear mixed model fit by REML ['lmerMod']
+    Formula: xs ~ treatment + (1 + treatment | timeunit)
+       Data: RTDC
     
-    treatment-Estimate
-      The effect size of the parameter chosen between the mean
-      of all controls and the mean of all treatments.
+    REML criterion at convergence: -34724.9
+    
+    Scaled residuals: 
+        Min      1Q  Median      3Q     Max 
+    -2.0760 -0.7148 -0.1546  0.5299  5.3384 
+    
+    Random effects:
+     Groups   Name               Variance  Std.Dev.  Corr
+     timeunit (Intercept)        0.000e+00 0.000e+00     
+              treatmentTreatment 5.438e-23 7.374e-12  NaN
+     Residual                    1.592e-04 1.262e-02     
+    Number of obs: 5883, groups:  timeunit, 3
+    
+    Fixed effects:
+                         Estimate Std. Error t value
+    (Intercept)         0.0319279  0.0002052  155.58
+    treatmentTreatment -0.0013548  0.0003433   -3.95
+    
+    Correlation of Fixed Effects:
+                (Intr)
+    trtmntTrtmn -0.598
+    
+    COEFFICIENT TABLE:
+      (Intercept) treatmentTreatment
+    1  0.03192788       -0.001354766
+    2  0.03192788       -0.001354766
+    3  0.03192788       -0.001354766
+    
+    
+    LIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): 
+    Data: RTDC
+    Models:
+    NullModel: xs ~ (1 + treatment | timeunit)
+    Model: xs ~ treatment + (1 + treatment | timeunit)
+              Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(>Chisq)  
+    NullModel  5 -34738 -34705  17374   -34748                           
+    Model      6 -34743 -34703  17377   -34755 6.2303      1    0.01256 *
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-  - **Full coefficient table:**
-    Shows the effect size of the parameter chosen between control and
-    treatment for every single experiment.
 
-  - **Model-Pr(>Chisq):**
-    Shows the p-value and the significance of the test.
+The most important numbers are:
+
+- **Fixed effects (Intercept)-Estimate:**
+  The mean of the parameter chosen for all controls.
+    
+- **Fixed effects treatment-Estimate:**
+  The effect size of the parameter chosen between the mean
+  of all controls and the mean of all treatments.
+
+- **Full coefficient table:**
+  Shows the effect size of the parameter chosen between control and
+  treatment for every single experiment.
+
+- **Model-Pr(>Chisq):**
+  Shows the p-value and the significance of the test.
 
 
-- **Differential feature analysis:**
 
-  The LMM analysis is only applicable if the respective measurements
-  show little difference in the reservoir for the feature chosen.
-  For instance, if a treatment results in non-spherical cells in the reservoir,
-  then the deformation recorded for the treatment might be biased towards
-  higher values.
-  In this case, the information of the reservoir measurement has to be
-  included by means of the differential deformation :cite:`Herbig2018`.
-  This can be achieved by selecting the respective reservoir measurements
-  in the dropdown menu.
+We are interested in the p-value, which is 0.01256 for
+Deformation. We repeat the analysis with Area (0.0002183) and Young's
+modulus (0.0002771). The p-values indicate that MG-63 (mean elastic
+modulus 1.26 kPa) cells are softer than SSCs (mean elastic modulus 1.54 kPa)
+:cite:`Herbig2018`.
+
+
+.. important::
+
+  **Why are the p-values different when I swap repetitions in LMM analysis?**
+
+  *(A comment by Maik Herbig)*
+
+  If this happens, you essentially changed the pairing of measurements. 
+  In Shape-Out you can determine the "Repetition number" of your experiment.
+  If the same repetition number is chosen for a "Control" and a "Treatment"
+  measurement, a paired test will be conducted. In your experimental design
+  you determine which measurements are paired, before doing any experiments.
+  Do not start to pair experiments after you have seen the data to obtain the
+  lowest p-value (this would be p-hacking). For example you could decide to
+  measure one "control" and one "treated" sample on three consecutive days.
+  Then, it makes sense to pair the measurements of the same day. Oftentimes
+  this is not possible and you have to measure 3x "control" on one day and
+  3x "treated" on the next day. Then you could for example pair the first
+  measurement of "control" with the first measurement of "treated" and the
+  second of "control" with the second of "treated" and so on.
+
+  Alternatively, you can also run an an unpaired test by just giving each
+  measurement a different "Repetition" number. For example when having 3x
+  "control" and 3x "treatment" you could give it numbers from 1 to 6.
+
+
+
+Differential feature analysis
+-----------------------------
+The LMM analysis is only applicable if the respective measurements
+show little difference in the reservoir for the feature chosen.
+For instance, if a treatment results in non-spherical cells in the reservoir,
+then the deformation recorded for the treatment might be biased towards
+higher values. In this case, the information of the reservoir measurement
+has to be included by means of differential deformation :cite:`Herbig2018`.
+The idea of differential deformation is to subtract the reservoir from the
+channel deformation. Since it is not possible to assign the events in the
+reservoir to the events in the channel (two different measurements),
+bootstrapping is employed which generates statistical representations
+of the two measurements that can then be subtracted from one
+another. For the actual LMM analysis, only the differential feature is used.
+
+
+For differential feature analysis, we need for each repetition a reservoir
+measurement (e.g. Treatment 1 and Reservoir Treatment 1).
+From the dataset :cite:`FigshareLMM`, load the following files into Shape-Out
+and proceed with filtering as described above:
+
+- SSC_16uls_rep1_20150611.rtdc  (SSC repetition 1)
+- SSC_16uls_rep2_20150611.rtdc  (SSC repetition 2)
+- SSC_reservoir_rep1_20150611.rtdc  (SSC reservoir repetition 1)
+- SSC_reservoir_rep2_20150611.rtdc  (SSC reservoir repetition 2)
+- MG63_pure_16uls_rep1_20150421.rtdc  (MG-63 repetition 1)
+- MG63_pure_16uls_rep2_20150422.rtdc  (MG-63 repetition 2)
+- MG63_pure_16uls_rep3_20150422.rtdc  (MG-63 repetition 3)
+- MG63_pure_reservoir_rep1_20150421.rtdc  (MG-63 reservoir repetition 1)
+- MG63_pure_reservoir_rep2_20150422.rtdc  (MG-63 reservoir repetition 2)
+- MG63_pure_reservoir_rep3_20150422.rtdc  (MG-63 reservoir repetition 3)
+
+
+.. image:: scrots/qg_lmm_differential.png
+    :target: _images/qg_lmm_differential.png
+    :align: right
+
+
+In the *Analyze* tab, there are now ten measurements to assign. Proceed as
+above, using the sample names as indicator for treatment/control and
+repetition (see screenshot).
+
+
+.. note:: The data sets are ordered according to run index. In an ideal case,
+    the run index would resemble the repetition of an experiment. Here,
+    however, the run index is only an internal lab book reference.
+
+The results read as follows::
+    
+    LINEAR MIXED MODEL ON BOOTSTAP-DISTRIBUTIONS: 
+    Linear mixed model fit by REML ['lmerMod']
+    Formula: xs ~ treatment + (1 + treatment | timeunit)
+       Data: RTDC
+    
+    REML criterion at convergence: -59591.1
+    
+    Scaled residuals: 
+        Min      1Q  Median      3Q     Max 
+    -6.5206 -0.5391  0.0077  0.5700  6.3890 
+    
+    Random effects:
+     Groups   Name               Variance  Std.Dev.  Corr 
+     timeunit (Intercept)        2.939e-07 0.0005421      
+              treatmentTreatment 1.273e-06 0.0011284 -1.00
+     Residual                    3.862e-07 0.0006215      
+    Number of obs: 5000, groups:  timeunit, 3
+    
+    Fixed effects:
+                         Estimate Std. Error t value
+    (Intercept)         0.0205095  0.0003132   65.49
+    treatmentTreatment -0.0052991  0.0006518   -8.13
+    
+    Correlation of Fixed Effects:
+                (Intr)
+    trtmntTrtmn -1.000
+    
+    COEFFICIENT TABLE:
+      (Intercept) treatmentTreatment
+    1  0.01993562       -0.004104567
+    2  0.02058056       -0.005447047
+    3  0.02101226       -0.006345642
+    
+    
+    LIKELIHOOD RATIO TEST (MODEL VS.  NULLMODEL): 
+    Data: RTDC
+    Models:
+    NullModel: xs ~ (1 + treatment | timeunit)
+    Model: xs ~ treatment + (1 + treatment | timeunit)
+              Df    AIC    BIC logLik deviance  Chisq Chi Df Pr(>Chisq)   
+    NullModel  5 -59605 -59572  29807   -59615                            
+    Model      6 -59613 -59574  29813   -59625 10.584      1   0.001141 **
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+The p-values for deformation (0.001141) and Young's modulus (1.15e-05) are
+very low. However, the p-value for Area (0.2816) is quite high.
+
+TODO:
+
+- Why is the p-value for Area high?
+- What would we do wrong if we treated the 32µl/s measurements as separate repetitions?
+  (Should we only use one repetition per flow rate in this case?)
+- What is the difference between lmm and glmm?
