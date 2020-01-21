@@ -2,6 +2,7 @@
  - fix: change the way measurements are recognized (.rtdc files were
    falsely grouped together when located in the same directory) (#262)
  - fix: automatic update did not include link to executable 
+ - docs: rewrite section for LMM analysis
 0.9.8
  - fix: regression in polygon filter creation (event images not shown
    on hover) (#260)

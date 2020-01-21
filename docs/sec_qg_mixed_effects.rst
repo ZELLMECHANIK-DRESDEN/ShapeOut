@@ -16,7 +16,7 @@ measurement repetitions (random effect).
 
 Shape-Out offers a LMM analysis as described in :cite:`Herbig2018`.
 The LMM analysis is performed using the
-`lmer4 R package <https://CRAN.R-project.org/package=lme4>`_. 
+`lme4 R package <https://CRAN.R-project.org/package=lme4>`_. 
 Here, we make use of the dataset :cite:`FigshareLMM` to illustrate this
 functionality.
 
@@ -162,10 +162,10 @@ modulus 1.26 kPa) cells are softer than SSCs (mean elastic modulus 1.54 kPa)
 
 
 
-Differential feature analysis
------------------------------
-The LMM analysis is only applicable if the respective measurements
-show little difference in the reservoir for the feature chosen.
+LMM analysis of differential deformation
+----------------------------------------
+The LMM analysis is only applicable if the feature chosen is not pronounced
+visibly in the reservoir measurements.
 For instance, if a treatment results in non-spherical cells in the reservoir,
 then the deformation recorded for the treatment might be biased towards
 higher values. In this case, the information of the reservoir measurement
@@ -175,10 +175,11 @@ channel deformation. Since it is not possible to assign the events in the
 reservoir to the events in the channel (two different measurements),
 bootstrapping is employed which generates statistical representations
 of the two measurements that can then be subtracted from one
-another. For the actual LMM analysis, only the differential feature is used.
+another. Then, for the actual LMM analysis, only the differential
+deformation is used.
 
 
-For differential feature analysis, we need for each repetition a reservoir
+For differential deformation analysis, we need for each repetition a reservoir
 measurement (e.g. Treatment 1 and Reservoir Treatment 1).
 From the dataset :cite:`FigshareLMM`, load the following files into Shape-Out
 and proceed with filtering as described above:
@@ -257,12 +258,45 @@ The results read as follows::
     Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 
-The p-values for deformation (0.001141) and Young's modulus (1.15e-05) are
-very low. However, the p-value for Area (0.2816) is quite high.
+The p-value for the differential deformation is 0.001141 which is a magnitude
+lower than the p-value for the (non-differential) deformation above. This
+indicates that there is a non-negligible initial deformation of the cells
+in the reservoir.
 
-TODO:
 
-- Why is the p-value for Area high?
-- What would we do wrong if we treated the 32µl/s measurements as separate repetitions?
-  (Should we only use one repetition per flow rate in this case?)
-- What is the difference between lmm and glmm?
+.. attention:: 
+    Differential LMM analysis does not make sense for all features. For
+    instance, differential area will yield high values, because the measured
+    area in the reservoir and the sample are similar. Thus, the LMM analysis
+    is performed with distributions that are all centered around zero,
+    yielding no significant difference.
+
+    
+Generalized linear mixed models (GLMM)
+--------------------------------------
+Shape-Out also makes available one GLLM.
+The implementation uses the function ``glmer`` (instead of ``lmer`` for LMM)
+from the lme4 R package. It employs an additional log-link function using
+the *family* keyword argument (``family=Gamma(link='log')``). The Gamma
+function is used generally for data that are continuous and non-negative.
+The log-link function is useful if the feature distribution is log-normal. 
+The log-link function exponentiates the linear predictors of the LMM
+(It does not log-transform the outcome variable).
+
+Log-normal behaviour
+is a quite common, especially in biology. When a physical parameter has a
+lower limit, and the measured values are close to that limit, the
+resulting distribution will be skewed, resembling a log-normal distribution.
+In case of RT-DC this is specially (but not only) true for deformation.
+Another example is area, which also has a lower limit of zero and may
+therefore have a skewed distribution. While GLMMs are designed to handle
+skewed data, it was shown that LMMs already deliver robust results, even
+for highly skewed data :cite:`gelman_hill_2006`.
+
+
+.. warning::
+    As we learned above, the decision whether to use LMM or GLMM is not
+    particularly important. Ideally, both LMM and GLMM are consistent.
+    However, never perform both analyses only to then pick the one
+    with the lowest p-value. This is p-hacking! The analysis routine
+    should be defined beforehand. If in doubt, stick to LMM.
