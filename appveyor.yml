@@ -19,14 +19,9 @@ environment:
   PYPI_USR: ci_zmdd
   PYPI_PWD:
     secure: 1kFM+4EzTyV0hF7cMxkKQFDuWGhiXfUXCeUGJOTgSbKukTOL9U05/nHi69AtQGpG
-  # https://github.com/appveyor/ci/issues/359
-  matrix:
-    - PYTHON: "C:\\Miniconda-x64"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "64"
-    - PYTHON: "C:\\Miniconda"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "32"
+  PYTHON: "C:\\Miniconda-x64"
+  PYTHON_VERSION: "2.7"
+  PYTHON_ARCH: "64"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"

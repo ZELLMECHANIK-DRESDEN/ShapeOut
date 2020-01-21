@@ -1,9 +1,6 @@
-# If we do not pin chaco, then coverage will not run on conda 4.8.1 on
-# 32bit system (not a valid Win32 application)
-conda 4.7.12 py27_0
-enable 4.5.1 np110py27_0
 # As long as we depend on chaco, we cannot change the numpy version
 # it is built for.
+enable 4.5.1 np110py27_0
 numpy 1.10.0 py27_0
 pillow 3.0.0 py27_0
 pyface 4.5.2 py27_0
