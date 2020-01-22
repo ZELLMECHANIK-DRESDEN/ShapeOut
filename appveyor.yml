@@ -70,7 +70,7 @@ install:
   # workaround for build failures, see
   # https://ci.appveyor.com/project/paulmueller/shapeout/build/1.0.152#L504
   - "pip freeze"
-  - "appveyor-retry C:\Miniconda-x64\python.exe -m pip install --upgrade pip"
+  - "appveyor-retry python -m pip install --upgrade pip"
   # PIP installs
   - "pip install appdirs"
   - "pip install pathlib"
