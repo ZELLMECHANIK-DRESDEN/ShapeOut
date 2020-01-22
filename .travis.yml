@@ -39,6 +39,9 @@ install:
 - travis_retry pip install more-itertools==5.0.0
 - pip freeze
 script:
+# fixes (zipp now requires python 3.6+ but did not tell pyPI):
+# pkg_resources.DistributionNotFound: The 'zipp>=0.5' distribution was not found and is required by importlib-metadata
+- pip install "zipp==1.0.0"
 - coverage run --source=shapeout ./setup.py test
 - coverage report -m
 after_success:
