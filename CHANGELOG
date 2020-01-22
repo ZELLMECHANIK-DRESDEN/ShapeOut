@@ -1,4 +1,4 @@
-0.9.9
+1.0.0
  - fix: change the way measurements are recognized (.rtdc files were
    falsely grouped together when located in the same directory) (#262)
  - fix: automatic update did not include link to executable 
