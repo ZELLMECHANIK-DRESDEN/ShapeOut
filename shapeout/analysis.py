@@ -141,7 +141,9 @@ class Analysis(object):
                     if var not in pltng:
                         data = mm[kk]
                         if sc == "log":
-                            data = np.log(data)
+                            # this does not seem to be necessary (issue #264)
+                            #data = np.log(data)
+                            pass
                         acc = l(data) * mult
                         # round to make it look pretty in the GUI
                         accr = float("{:.1e}".format(acc))
@@ -161,10 +163,10 @@ class Analysis(object):
         bad = np.isnan(a) | np.isinf(a)
         data = a[~bad]
         n = data.size
-        g1 = scipy.stats.skew(data)
-        sigma_g1 = np.sqrt(6 * (n - 2) / ((n + 1) * (n + 3)))
-        k = 1 + np.log2(n) + np.log2(1 + np.abs(g1) / sigma_g1)
-        if len(data):
+        if n:
+            g1 = scipy.stats.skew(data)
+            sigma_g1 = np.sqrt(6 * (n - 2) / ((n + 1) * (n + 3)))
+            k = 1 + np.log2(n) + np.log2(1 + np.abs(g1) / sigma_g1)
             acc = (data.max() - data.min()) / k
         else:
             acc = 1

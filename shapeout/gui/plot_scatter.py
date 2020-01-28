@@ -214,13 +214,14 @@ def set_scatter_data(plot, mm):
                                             downsample=downsample,
                                             xscale=scalex,
                                             yscale=scaley,
+                                            remove_invalid=True,
                                             ret_mask=True,
                                             )
     if lx == x.shape:
         positions = None
     else:
         print("...Downsampled from {} to {} in {:.2f}s".format(lx, x.shape[0], time.time()-a))
-        positions = np.vstack([x.ravel(), y.ravel()])
+        positions = (x, y)
 
 
     kde_type = mm.config["plotting"]["kde"].lower()
@@ -236,10 +237,10 @@ def set_scatter_data(plot, mm):
     density = mm.get_kde_scatter(xax=xax,
                                  yax=yax,
                                  positions=positions,
-                                 xscale=scalex,
-                                 yscale=scaley,
                                  kde_type=kde_type,
                                  kde_kwargs=kde_kwargs,
+                                 xscale=scalex,
+                                 yscale=scaley,
                                  )
     print("...KDE scatter time {}: {:.2f}s".format(kde_type, time.time()-a))
     

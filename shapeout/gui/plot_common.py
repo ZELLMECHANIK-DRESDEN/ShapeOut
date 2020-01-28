@@ -81,8 +81,8 @@ def get_kde_kwargs(x, y, kde_type, xacc, yacc):
             biny = naninfminmaxdiff(y)/(1.8*yacc)
         except:
             biny = 5
-        binx = int(max(5, binx))
-        biny = int(max(5, biny))
+        binx = int(max(5, binx)) #if binx < x.size else 20
+        biny = int(max(5, biny)) #if biny < y.size else 20
         kde_kwargs["bins"] = [binx, biny]
     return kde_kwargs
             
@@ -113,7 +113,7 @@ def my_log_auto_ticks(data_low, data_high,
 
 
 def naninfminmaxdiff(x):
-    bad = np.isnan(x)+np.isinf(x)
+    bad = np.isnan(x) | np.isinf(x)
     x = x[~bad]
     diff = (x.max()-x.min())
     return diff

@@ -1,3 +1,5 @@
+1.0.1
+ - fix: MemoryError when plotting log-log data (#264)
 1.0.0
  - fix: change the way measurements are recognized (.rtdc files were
    falsely grouped together when located in the same directory) (#262)
