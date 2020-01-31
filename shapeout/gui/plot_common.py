@@ -8,6 +8,7 @@ from pkg_resources import resource_filename
 import warnings
 
 import chaco
+import dclab
 import numpy as np
 
 from dclab import isoelastics
@@ -65,12 +66,15 @@ def get_isoelastics(mm):
     return isoel
 
 
-def get_kde_kwargs(x, y, kde_type, xacc, yacc):
+def get_kde_kwargs(x, y, kde_type, xacc, yacc, xscale, yscale):
     """Copmutes optimal default KDE kwargs"""
     kde_kwargs = {}
     if kde_type == "multivariate":
         kde_kwargs["bw"] = [xacc, yacc]
     elif kde_type == "histogram":
+        # scale the x and y axes (fixes #264)
+        x = dclab.rtdc_dataset.RTDCBase._apply_scale(x, xscale, "x")
+        y = dclab.rtdc_dataset.RTDCBase._apply_scale(y, yscale, "y")
         # The histogram accuracy is scaled by 1.8 to approximately
         # match the multivariate kde.
         try:
@@ -81,12 +85,12 @@ def get_kde_kwargs(x, y, kde_type, xacc, yacc):
             biny = naninfminmaxdiff(y)/(1.8*yacc)
         except:
             biny = 5
-        binx = int(max(5, binx)) #if binx < x.size else 20
-        biny = int(max(5, biny)) #if biny < y.size else 20
+        binx = int(max(5, binx))
+        biny = int(max(5, biny))
         kde_kwargs["bins"] = [binx, biny]
     return kde_kwargs
-            
-            
+
+
 def my_log_auto_ticks(data_low, data_high,
                    bound_low, bound_high,
                    tick_interval, use_endpoints = True):

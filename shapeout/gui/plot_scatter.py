@@ -72,7 +72,7 @@ def scatter_plot(measurement, axScatter=None, square=True, panzoom=True,
             sc_plot.plot((x_key, y_key), color="gray",
                           index_scale=scalex, value_scale=scaley)
 
-    # Display numer of events
+    # Display number of events
     elabel = ca.PlotLabel(text="",
                           component=sc_plot,
                           vjustify="bottom",
@@ -229,6 +229,8 @@ def set_scatter_data(plot, mm):
     kde_kwargs = plot_common.get_kde_kwargs(
         x=x,
         y=y,
+        xscale=scalex,
+        yscale=scaley,
         kde_type=kde_type,
         xacc=mm.config["plotting"]["kde accuracy "+xax],
         yacc=mm.config["plotting"]["kde accuracy "+yax])

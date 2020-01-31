@@ -139,14 +139,13 @@ class Analysis(object):
                 for d, l, mult in defs:
                     var = d.format(kk)
                     if var not in pltng:
-                        data = mm[kk]
-                        if sc == "log":
-                            # this does not seem to be necessary (issue #264)
-                            #data = np.log(data)
-                            pass
-                        acc = l(data) * mult
+                        acc = mm.get_kde_spacing(mm[kk],
+                                                 scale=sc,
+                                                 method=l,
+                                                 feat=kk)
+                        # multiply by mult and
                         # round to make it look pretty in the GUI
-                        accr = float("{:.1e}".format(acc))
+                        accr = float("{:.1e}".format(acc * mult))
                         pltng[var] = accr
             # Check for missing min/max values and set them to zero
             for item in self.get_usable_features():
