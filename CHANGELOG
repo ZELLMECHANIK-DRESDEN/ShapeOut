@@ -1,5 +1,5 @@
 1.0.2
- - setup: bump dclab from 0.20.1 to 0.21.0
+ - setup: bump dclab from 0.20.1 to 0.21.1
 1.0.1
  - fix: MemoryError when plotting log-log data (#264)
 1.0.0
