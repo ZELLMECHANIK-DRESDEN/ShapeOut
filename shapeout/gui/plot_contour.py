@@ -133,6 +133,8 @@ def set_contour_data(plot, analysis):
         kde_kwargs = plot_common.get_kde_kwargs(
             x=x0,
             y=y0,
+            xscale=scalex,
+            yscale=scaley,
             kde_type=kde_type,
             xacc=mm.config["plotting"]["kde accuracy "+xax],
             yacc=mm.config["plotting"]["kde accuracy "+yax])
