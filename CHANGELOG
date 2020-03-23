@@ -1,3 +1,6 @@
+1.0.6
+ - fix: case-sensitivity issue when getting the chip region from
+   an .rtdc file
 1.0.5
  - fix: use UTF-8 encoding by default when dealing with text files (#267)
 1.0.4

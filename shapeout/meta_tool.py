@@ -274,9 +274,9 @@ def get_chip_region(fname):
         para = path / (mx + "_para.ini")
         if para.exists():
             camcfg = rt_config.load_from_file(path_to_str(para))
-            chip_region = camcfg["General"]["Region"].lower()
+            chip_region = camcfg["General"]["Region"]
 
-    return chip_region
+    return chip_region.lower()
 
 
 def get_run_index(fname):
