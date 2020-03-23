@@ -1,5 +1,7 @@
 1.0.4
- - setup: bump dclab from 0.21.1 to 0.23.4 (improve contour retrieval
+ - fix: minor issue with converting pos_y feature in sessions from
+   before 0.7.6
+ - setup: bump dclab from 0.21.1 to 0.22.5 (improve contour retrieval
    for mask images with artefacts, disable computation of Young's
    modulus for reservoir measurements)
 1.0.3

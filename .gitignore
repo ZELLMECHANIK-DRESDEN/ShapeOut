@@ -72,3 +72,6 @@ docs/shapeout.bib.sav
 
 *.bib.bak
 *.xcf
+
+.env
+.envdocs

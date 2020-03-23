@@ -107,7 +107,7 @@ class ControlPanel(ScrolledPanel):
         wx.BeginBusyCursor()
         ctrls = self.page_filter.GetChildren()
         samdict = self.analysis.measurements[0].config.copy()["filtering"]
-        newfilt = rt_config.CaseInsensitiveDict()
+        newfilt = rt_config.ConfigurationDict(section="filtering")
 
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
@@ -178,7 +178,7 @@ class ControlPanel(ScrolledPanel):
         ctrls += list(self.page_cont.GetChildren())
         ctrls += list(self.page_scat.GetChildren())
         samdict = self.analysis.measurements[0].config.copy()["plotting"]
-        newfilt = rt_config.CaseInsensitiveDict()
+        newplot = rt_config.ConfigurationDict(section="plotting")
 
         # identify controls via their name correspondence in the cfg
         for c in ctrls:
@@ -197,7 +197,7 @@ class ControlPanel(ScrolledPanel):
                     val = c.GetValue()
 
                 var, val = rt_config.keyval_str2typ(var, val)
-                newfilt[var] = val
+                newplot[var] = val
             elif name.startswith("title "):
                 # Change title of measurement
                 for mm in self.analysis.measurements:
@@ -211,8 +211,8 @@ class ControlPanel(ScrolledPanel):
                         col = np.array([col.Red(), col.Green(),
                                        col.Blue(), col.Alpha()])/255
                         mm.config["plotting"]["contour color"] = col.tolist()
-        
-        cfg = {"plotting": newfilt }
+
+        cfg = {"plotting": newplot}
 
         self.analysis.SetParameters(cfg)
 

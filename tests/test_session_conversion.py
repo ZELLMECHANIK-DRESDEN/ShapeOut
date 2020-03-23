@@ -20,6 +20,8 @@ def compatibility_task(name):
     return analysis
 
 
+@pytest.mark.filterwarnings(
+    'ignore::dclab.rtdc_dataset.config.UnknownConfigurationKeyWarning')
 def test_060():
     analysis = compatibility_task("session_v0.6.0.zmso")
     mm = analysis.measurements[0]

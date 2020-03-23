@@ -66,6 +66,7 @@ compat_replace = [
     ["fl-3npeaks", "fl3_npeaks"],
     ["fl-3pos", "fl3_pos"],
     ["pos x", "pos_x"],
+    ["pos y", "pos_y"],
     ["pos lat", "pos_y"],
     ["x-size", "size_x"],
     ["y-size", "size_y"],
