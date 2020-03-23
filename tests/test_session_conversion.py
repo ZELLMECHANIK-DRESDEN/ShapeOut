@@ -26,7 +26,7 @@ def test_060():
     analysis = compatibility_task("session_v0.6.0.zmso")
     mm = analysis.measurements[0]
     assert len(mm) == 44
-    assert np.sum(mm._filter) == 12
+    assert np.sum(mm.filter.all) == 12
     cleanup()
 
 
@@ -34,7 +34,7 @@ def test_065():
     analysis = compatibility_task("session_v0.6.5.zmso")
     mm = analysis.measurements[0]
     assert len(mm) == 44
-    assert np.sum(mm._filter) == 22
+    assert np.sum(mm.filter.all) == 22
     cleanup()
 
 
@@ -42,17 +42,17 @@ def test_070():
     analysis = compatibility_task("session_v0.7.0.zmso")
     mm = analysis.measurements[0]
     assert len(mm) == 44
-    assert np.sum(mm._filter) == 12
+    assert np.sum(mm.filter.all) == 12
     cleanup()
 
 
 def test_070hierarchy2():
     analysis = compatibility_task("session_v0.7.0_hierarchy2.zmso")
     mms = analysis.measurements
-    assert np.sum(mms[0]._filter) == len(mms[1])
-    assert np.sum(mms[1]._filter) == len(mms[2])
-    assert np.sum(mms[2]._filter) == len(mms[2])
-    assert np.sum(mms[1]._filter) == 13
+    assert np.sum(mms[0].filter.all) == len(mms[1])
+    assert np.sum(mms[1].filter.all) == len(mms[2])
+    assert np.sum(mms[2].filter.all) == len(mms[2])
+    assert np.sum(mms[1].filter.all) == 13
     cleanup()
 
 
@@ -63,27 +63,27 @@ def test_074hierarchy2():
     analysis = compatibility_task("session_v0.7.4_hierarchy2.zmso")
 
     mms = analysis.measurements
-    assert np.sum(mms[0]._filter) == len(mms[1])
-    assert np.sum(mms[1]._filter) == len(mms[2])
-    assert np.sum(mms[1]._filter) == 0
+    assert np.sum(mms[0].filter.all) == len(mms[1])
+    assert np.sum(mms[1].filter.all) == len(mms[2])
+    assert np.sum(mms[1].filter.all) == 0
     cleanup()
 
 
 def test_075hierarchy1():
     analysis = compatibility_task("session_v0.7.5_hierarchy1.zmso")
     mms = analysis.measurements
-    assert np.sum(mms[0]._filter) == len(mms[1])
-    assert np.sum(mms[1]._filter) == 19
+    assert np.sum(mms[0].filter.all) == len(mms[1])
+    assert np.sum(mms[1].filter.all) == 19
     cleanup()
 
 
 def test_075hierarchy2():
     analysis = compatibility_task("session_v0.7.5_hierarchy2.zmso")
     mms = analysis.measurements
-    assert np.sum(mms[0]._filter) == len(mms[1])
-    assert np.sum(mms[1]._filter) == len(mms[2])
-    assert np.sum(mms[0]._filter) == 17
-    assert np.sum(mms[2]._filter) == 4
+    assert np.sum(mms[0].filter.all) == len(mms[1])
+    assert np.sum(mms[1].filter.all) == len(mms[2])
+    assert np.sum(mms[0].filter.all) == 17
+    assert np.sum(mms[2].filter.all) == 4
     cleanup()
 
 

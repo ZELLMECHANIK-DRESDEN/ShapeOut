@@ -39,10 +39,10 @@ class TestSimple(unittest.TestCase):
         zsmo = retreive_session("session_v0.7.5_hierarchy2.zmso")
         self.frame.OnMenuLoad(session_file=zsmo)
         mms = self.frame.analysis.measurements
-        assert np.sum(mms[0]._filter) == len(mms[1])
-        assert np.sum(mms[1]._filter) == len(mms[2])
-        assert np.sum(mms[0]._filter) == 17
-        assert np.sum(mms[2]._filter) == 4
+        assert np.sum(mms[0].filter.all) == len(mms[1])
+        assert np.sum(mms[1].filter.all) == len(mms[2])
+        assert np.sum(mms[0].filter.all) == 17
+        assert np.sum(mms[2].filter.all) == 4
 
 
 if __name__ == "__main__":

@@ -75,7 +75,7 @@ def test_data_size():
     minsize = anal.ForceSameDataSize()
     assert minsize == 10
     for mm in anal.measurements:
-        assert np.sum(mm._filter) == minsize
+        assert np.sum(mm.filter.all) == minsize
 
 
 def test_axes_usable():

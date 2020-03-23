@@ -253,19 +253,19 @@ def set_scatter_data(plot, mm):
 
     # Plot filtered data in grey
     if (plotfilters["Scatter Plot Excluded Events"] and
-        mm._filter.sum() != len(mm)):
+        mm.filter.all.sum() != len(mm)):
         mm.apply_filter()
         # determine the number of points we are allowed to add
         if downsample:
             # respect the maximum limit of plotted events
-            excl_num = int(downsample - np.sum(mm._filter))
+            excl_num = int(downsample - np.sum(mm.filter.all))
             excl_num *= (excl_num>0)
         else:
             # plot all excluded events
-            excl_num = np.sum(~mm._filter)
+            excl_num = np.sum(~mm.filter.all)
     
-        excl_x = mm[xax][~mm._filter][:excl_num]
-        excl_y = mm[yax][~mm._filter][:excl_num]
+        excl_x = mm[xax][~mm.filter.all][:excl_num]
+        excl_y = mm[yax][~mm.filter.all][:excl_num]
 
         pd.set_data("excl_index", excl_x)
         pd.set_data("excl_value", excl_y)
@@ -278,7 +278,7 @@ def set_scatter_data(plot, mm):
         if ol.id == "event_label_"+mm.identifier:
             # Set events label
             if plotfilters["show events"]:
-                oltext = "{} events".format(np.sum(mm._filter))
+                oltext = "{} events".format(np.sum(mm.filter.all))
             else:
                 oltext = ""
             ol.text = oltext

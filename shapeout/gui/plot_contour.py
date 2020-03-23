@@ -126,7 +126,7 @@ def set_contour_data(plot, analysis):
         y0 = mm[yax][mm.filter.all]
 
         # Check if there is data to compute a contour from
-        if len(mm._filter)==0 or np.sum(mm._filter)==0:
+        if len(mm.filter.all)==0 or np.sum(mm.filter.all)==0:
             break
 
         kde_type = mm.config["plotting"]["kde"].lower()

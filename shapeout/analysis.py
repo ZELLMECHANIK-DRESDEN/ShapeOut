@@ -189,7 +189,7 @@ class Analysis(object):
         # Get minimum size
         minsize = np.inf
         for m in self.measurements:
-            minsize = min(minsize, np.sum(m._filter))
+            minsize = min(minsize, np.sum(m.filter.all))
         cfgnew = {"filtering": {"limit events": minsize}}
         self.SetParameters(cfgnew)
         return minsize
