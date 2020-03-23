@@ -235,7 +235,7 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
         index.index_save(tempdir, index_dict)
 
     for cc in change_configs:
-        with cc.open() as fd:
+        with cc.open(encoding='utf-8') as fd:
             data = fd.read()
 
         if version < LooseVersion("0.7.1"):
@@ -307,20 +307,20 @@ def compatibilitize_session(tempdir, hash_update=True, search_path="."):
                                   pattern.format(old),
                                   pattern.format(new))
 
-        with cc.open("w") as fd:
+        with cc.open("w", encoding='utf-8') as fd:
             fd.write(data)
 
     # Change polygon filters as well
     pfile = tempdir / "PolygonFilters.poly"
     if pfile.exists():
-        with pfile.open() as fd:
+        with pfile.open(encoding='utf-8') as fd:
             datap = fd.read()
 
         if version < LooseVersion("0.7.6"):
             datap = compatibilitize_polygon(pdata=datap,
                                             version=version)
 
-        with pfile.open("w") as fd:
+        with pfile.open("w", encoding='utf-8') as fd:
             fd.write(datap)
     # load polygon filters here, because they are needed when computing
     # the hashes (RTDCBase.apply_filter is called for hierarchies)
@@ -397,11 +397,11 @@ def convert_polygon(infile, outfile=None, version=None):
                                         suffix=".poly")
     outfile = pathlib.Path(outfile)
 
-    with infile.open() as fd:
+    with infile.open(encoding='utf-8') as fd:
         pdata = fd.read()
     pdata = compatibilitize_polygon(pdata=pdata, version=version)
 
-    with outfile.open("w") as fd:
+    with outfile.open("w", encoding='utf-8') as fd:
         fd.write(pdata)
 
     return outfile

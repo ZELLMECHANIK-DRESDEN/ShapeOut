@@ -276,5 +276,5 @@ def export_statistics_tsv(parent):
         if path.lower().endswith(".tsv") is not True:
             path = path+".tsv"
         parent.config.set_path(os.path.dirname(path), "TSV")
-        with io.open(path, 'w') as fd:
+        with io.open(path, 'w', encoding='utf-8') as fd:
             fd.writelines(exp)

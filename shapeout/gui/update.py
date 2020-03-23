@@ -28,7 +28,7 @@ def check_release(
     except:
         msg = "Timeout or wrong URL."
         try:
-            with open("check_update_error.log", "w") as fe:
+            with open("check_update_error.log", "w", encoding='utf-8') as fe:
                 fe.writelines(str(traceback.format_exc()))
         except:
             pass

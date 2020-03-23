@@ -244,7 +244,7 @@ class SubPanelAnalyze(SubPanel):
             "",
             ]
 
-        with io.open(outf, "w") as fd:
+        with io.open(outf, "w", encoding='utf-8') as fd:
             fd.writelines([ll + "\r\n" for ll in citreq])
             fd.writelines(result["Full Summary"].replace("\n", "\r\n"))
 

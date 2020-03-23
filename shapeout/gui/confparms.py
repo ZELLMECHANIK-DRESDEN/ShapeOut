@@ -91,7 +91,7 @@ def GetConfigurationKeys(cfgfilename, capitalize=True):
     Load the configuration file and return the list of variables
     in the order they appear.
     """
-    with io.open(cfgfilename, 'r') as f:
+    with io.open(cfgfilename, 'r', encoding='utf-8') as f:
         code = f.readlines()
     
     cfglist = list()

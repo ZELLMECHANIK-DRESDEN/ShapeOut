@@ -46,7 +46,7 @@ class TestSimple(unittest.TestCase):
         batch.data_files = [tdms_path]
         batch.OnBatch()
 
-        with io.open(batch.out_tsv_file) as fd:
+        with io.open(batch.out_tsv_file, encoding='utf-8') as fd:
             data = fd.readlines()
 
         header = [d.strip().lower() for d in data[0].strip("# ").split("\t")]

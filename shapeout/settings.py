@@ -37,7 +37,7 @@ class SettingsFile(object):
         # create file if not existent
         if not fname.exists():
             # Create the file
-            fname.open("w").close()
+            fname.open("w", encoding='utf-8').close()
 
         self.cfgfile = fname
         self.defaults = defaults
@@ -45,7 +45,7 @@ class SettingsFile(object):
 
     def load(self):
         """Loads the settings file returning a dictionary"""
-        with self.cfgfile.open() as fop:
+        with self.cfgfile.open(encoding='utf-8') as fop:
             fc = fop.readlines()
         cdict = {}
         for line in fc:
@@ -115,7 +115,7 @@ class SettingsFile(object):
                 sval = str(sval).decode("utf-8")
             outlist.append(u"{} = {}\n".format(sk, sval))
 
-        with self.cfgfile.open('w') as fop:
+        with self.cfgfile.open('w', encoding='utf-8') as fop:
             fop.writelines(outlist)
 
     def set_bool(self, key, value):

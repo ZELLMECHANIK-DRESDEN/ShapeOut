@@ -1,3 +1,5 @@
+1.0.5
+ - fix: use UTF-8 encoding by default when dealing with text files (#267)
 1.0.4
  - fix: minor issue with converting pos_y feature in sessions from
    before 0.7.6

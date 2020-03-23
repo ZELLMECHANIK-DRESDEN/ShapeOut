@@ -212,7 +212,7 @@ class BatchFilterFolder(wx.Frame):
 
         head = ["data file", "Title"] + head
         
-        with io.open(self.out_tsv_file, "w") as fd:
+        with io.open(self.out_tsv_file, "w", encoding='utf-8') as fd:
             header = u"\t".join([ h for h in head ])
             fd.write("# "+header+"\n")
         

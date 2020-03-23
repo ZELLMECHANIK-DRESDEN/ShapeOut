@@ -148,7 +148,7 @@ def get_event_count(fname):
         avif = mdir / (mid + "_imaq.avi")
         if logf.exists():
             # 1. The MX_log.ini file "Events" tag
-            with logf.open() as fd:
+            with logf.open(encoding='utf-8') as fd:
                 logd = fd.readlines()
             for l in logd:
                 if l.strip().startswith("Events:"):

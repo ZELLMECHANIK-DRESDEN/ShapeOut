@@ -112,7 +112,7 @@ def index_load(index_file):
 
     if index_file.is_dir():
         index_file = index_file / "index.txt"
-    with index_file.open() as f:
+    with index_file.open(encoding='utf-8') as f:
         code = f.readlines()
 
     for line in code:
@@ -165,7 +165,7 @@ def index_save(index_file, index_dict, save_version=version):
 
     for i in range(len(out)):
         out[i] = out[i]+"\n"
-    with index_file.open("w") as f:
+    with index_file.open("w", encoding='utf-8') as f:
         f.writelines(out)
 
 
@@ -200,7 +200,7 @@ def index_version(index_file):
     if index_file.is_dir():
         index_file = index_file / "index.txt"
     # Obtain version of session
-    with index_file.open("r") as fd:
+    with index_file.open("r", encoding='utf-8') as fd:
         data = fd.readlines()
 
     for line in data:
