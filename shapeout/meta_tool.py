@@ -201,7 +201,7 @@ def get_event_count_cache(fname):
                 event_count = len(video)
         elif ext == ".tdms":
             tdmsfd = nptdms.TdmsFile(path_to_str(fname))
-            event_count = len(tdmsfd.object("Cell Track", "time").data)
+            event_count = len(tdmsfd["Cell Track"]["time"].data)
         else:
             raise ValueError("unsupported file extension: {}".format(ext))
         cfgec.set_int(fhash, event_count)
