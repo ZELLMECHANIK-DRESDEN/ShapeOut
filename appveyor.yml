@@ -75,6 +75,7 @@ install:
   - "pip install appdirs"
   - "pip install pathlib"
   - "pip install imageio==2.3.0"
+  - "pip install zipp==0.5"
   # Download ffmpeg binary
   - imageio_download_bin --package-dir ffmpeg
   - "pip install nptdms"
