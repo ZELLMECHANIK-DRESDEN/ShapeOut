@@ -4,7 +4,8 @@ sphinx>=1.6.4
 sphinxcontrib.bibtex
 sphinx_rtd_theme
 numpy
-matplotlib
+# metaclass exception
+matplotlib<=3.1.3
 h5py
 pathlib
 scipy
