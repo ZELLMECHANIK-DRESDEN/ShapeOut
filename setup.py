@@ -63,6 +63,7 @@ setup(
                    # at some point but did not tell PyPI about it.
                    "configparser==3.5",
                    "zipp==0.5",
+                   "pyparsing==2.4.6",
                    ],
     keywords=["RT-DC", "deformability", "cytometry", "zellmechanik"],
     classifiers= ['Operating System :: OS Independent',
