@@ -1,5 +1,5 @@
 1.0.7
- - setup: bump dclab from 0.22.5 to 0.22.7
+ - setup: bump dclab from 0.22.5 to 0.24.0
  - setup: bump nptdms to 0.23.0
 1.0.6
  - fix: case-sensitivity issue when getting the chip region from
