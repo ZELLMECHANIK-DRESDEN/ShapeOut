@@ -1,5 +1,5 @@
 1.0.8
- - setup:: bump dclab from 0.24.0 to 0.24.4 (faster polygon filtering)
+ - setup:: bump dclab from 0.24.0 to 0.24.6 (faster polygon filtering)
 1.0.7
  - setup: bump dclab from 0.22.5 to 0.24.0 (equidistant isoelasticity
    lines, slightly larger emodulus LUT)
