@@ -351,4 +351,4 @@ class ImagePanel(ScrolledPanel):
             if evt_id > len(mm):
                 self.WXSP_plot.SetValue(1)
             else:
-                self.WXSP_plot.SetValue(mm["index"][evt_id])
+                self.WXSP_plot.SetValue(evt_id+1)
