@@ -109,7 +109,7 @@ test_script:
   - 'python -c "import shapeout; print shapeout.__version__"'
   - "pip install coverage"
   - "pip install codecov"
-  - "pip install -e .[test]
+  - "pip install -e .[test]"
   # Probably due to the GUI tests, the pytest "command exits with -1073741819".
   - "coverage run --source=shapeout pytest tests || exit 0"
   - "coverage report -m"
