@@ -95,7 +95,7 @@ install:
   - '%PYTHON%/python .appveyor/patch_libraries.py'
 
   # Install pyinstaller (includes dependency for pywin32)
-  - "pip install pyinstaller==3.4"
+  - "pip install pyinstaller==3.6"
 
   # Run develop (installs yet missing packages and runs cython)
   #- "%PYTHON%/python setup.py develop"
