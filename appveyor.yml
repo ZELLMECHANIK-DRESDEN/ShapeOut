@@ -88,6 +88,8 @@ install:
   # requirements from dclab were partly installed with conda:
   #- "pip install dclab --no-deps"
   #- "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git --no-deps"
+  # We have to build dclab manually like this, otherwise pip will download
+  # numpy > 1.16 which is not binary-compatible with numpy 1.10.
   - "pip install --upgrade cython setuptools wheel"
   - "git clone https://github.com/ZELLMECHANIK-DRESDEN/dclab.git"
   - "cd dclab"

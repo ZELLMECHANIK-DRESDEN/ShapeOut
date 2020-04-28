@@ -1,3 +1,6 @@
+1.0.10
+ - ci: Windows build not working since version 1.0.7, because of
+   incompatible numpy versions during dclab build
 1.0.9
  - fix: do not trust the "index" feature of a dataset to contain a
    correctly enumerated index (dclab<0.25.0 might have generated false
