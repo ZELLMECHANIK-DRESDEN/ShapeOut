@@ -110,6 +110,7 @@ test_script:
   - "pip install coverage"
   - "pip install codecov"
   - "pip install -e .[test]"
+  - "pip freeze"
   # Probably due to the GUI tests, the pytest "command exits with -1073741819".
   - "coverage run --source=shapeout -m pytest tests || exit 0"
   - "coverage report -m"
