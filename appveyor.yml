@@ -87,7 +87,10 @@ install:
   # prevent pip from installing later scipy versions using "--no-deps"
   # requirements from dclab were partly installed with conda:
   #- "pip install dclab --no-deps"
-  - "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git --no-deps"
+  #- "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/dclab.git --no-deps"
+  - "git clone https://github.com/ZELLMECHANIK-DRESDEN/dclab.git"
+  - "cd dclab"
+  - "python setup.py develop --no-deps"
   # fcswrite
   - "pip install git+git://github.com/ZELLMECHANIK-DRESDEN/fcswrite.git --no-deps"
  
