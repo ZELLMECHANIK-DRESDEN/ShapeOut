@@ -1,3 +1,6 @@
+1.0.11
+ - setup: bump dclab from 0.25.0 to 0.26.0 (volume-deformation
+   isoelasticity lines)
 1.0.10
  - ci: Windows build not working since version 1.0.7, because of
    incompatible numpy versions during dclab build

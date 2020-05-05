@@ -57,7 +57,7 @@ setup(
                        'test': tests_deps,
                       },
     install_requires=["appdirs",
-                      "dclab[all]>=0.25.0",
+                      "dclab[all]>=0.26.0",
                       "fcswrite>=0.5.0",
                       "h5py>=2.8.0",
                       "imageio>=2.3.0,<2.5.0",
